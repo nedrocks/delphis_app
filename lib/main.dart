@@ -1,9 +1,11 @@
 import 'package:delphis_app/screens/auth/base/base.dart';
 import 'package:delphis_app/screens/auth/index.dart';
+import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:delphis_app/models/auth.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 final storage = FlutterSecureStorage();
 final delphisAuth = DelphisAuth(storage);
@@ -25,15 +27,34 @@ void main() {
 class DelphisApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "foo",
-      initialRoute: '/',
-      routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
-        '/': (context) => DelphisBase(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
-        '/AuthWithTwitter': (context) => LoginScreen(),
-      },
+    final HttpLink httpLink = HttpLink(
+      uri: 'https://staging.delphishq.com/query',
+    );
+
+    final AuthLink authLink = AuthLink(
+      getToken: () async => 'Bearer ${delphisAuth.authString}',
+    );
+    final Link link = authLink.concat(httpLink);
+
+    ValueNotifier<GraphQLClient> client = ValueNotifier(
+      GraphQLClient(
+        cache: InMemoryCache(),
+        link: link,
+      ),
+    );
+    return GraphQLProvider(
+      client: client,
+      child: MaterialApp(
+        title: "foo",
+        theme: ThemeData(fontFamily: 'NeueHansKendrick'),
+        initialRoute: '/',
+        routes: {
+          // When navigating to the "/" route, build the FirstScreen widget.
+          '/': (context) => DelphisDiscussion(discussionID: '492ace75-8eac-4345-9aa4-403661e85b31'),
+          // When navigating to the "/second" route, build the SecondScreen widget.
+          '/AuthWithTwitter': (context) => LoginScreen(),
+        },
+      ),
     );
   }
 }

@@ -1,11 +1,12 @@
 import 'package:delphis_app/graphql/queries.dart';
-import 'package:delphis_app/models/discussion.dart';
+import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
+import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
 import 'discussion_post.dart';
+import 'overlay/discussion_popup.dart';
 
 class DelphisDiscussion extends StatelessWidget {
   final String discussionID;
@@ -31,7 +32,24 @@ class DelphisDiscussion extends StatelessWidget {
           return Text(Intl.message('Loading...'));
         }
         var discussionObj = query.parseResult(result.data);
-        print(discussionObj.title);
+        var listViewBuilder = ListView.builder(
+          key: Key('discussion-posts-' + this.discussionID),
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemCount: discussionObj.posts.length,
+          itemBuilder: (context, index) {
+            return DiscussionPost(discussion: discussionObj, index: index);
+          }
+        );
+        var discussionViewPopup = AnimatedDiscussionPopup(
+          child: listViewBuilder,
+          popup: DiscussionPopup(
+            contents: GoneIncognitoDiscussionPopupContents(
+              moderator: discussionObj.moderator.userProfile,
+            ),
+          ),
+          animationSeconds: 0,
+        );
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -43,15 +61,7 @@ class DelphisDiscussion extends StatelessWidget {
             backgroundColor: Colors.black,
           ),
           backgroundColor: Colors.black,
-          body: ListView.builder(
-            key: Key('discussion-posts-' + this.discussionID),
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: discussionObj.posts.length,
-            itemBuilder: (context, index) {
-              return DiscussionPost(discussion: discussionObj, index: index);
-            }
-          )
+          body: discussionViewPopup,
         );
       },
     );

@@ -55,6 +55,19 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/anon_face/anon_face.png
+    - assets/images/anon_face/1.5x/anon_face.png
+    - assets/images/anon_face/2.0x/anon_face.png
+    - assets/images/anon_face/4.0x/anon_face.png
+    - assets/images/anon_face_transparent/anon_face_transparent.png
+    - assets/images/anon_face_transparent/1.5x/anon_face_transparent.png
+    - assets/images/anon_face_transparent/2.0x/anon_face_transparent.png
+    - assets/images/anon_face_transparent/4.0x/anon_face_transparent.png
+    - assets/images/circle_check_border_trans/image.png
+    - assets/images/circle_check_border_trans/1.5x/image.png
+    - assets/images/circle_check_border_trans/2.0x/image.png
+    - assets/images/circle_check_border_trans/4.0x/image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

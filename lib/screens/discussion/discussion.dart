@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
-class DelphisDiscussion extends StatelessWidget {
+class DelphisDiscussion extends StatefulWidget {
   final String discussionID;
 
   const DelphisDiscussion({
@@ -16,13 +16,27 @@ class DelphisDiscussion extends StatelessWidget {
   }): super();
 
   @override
+  State<StatefulWidget> createState() => DelphisDiscussionState();
+}
+
+class DelphisDiscussionState extends State<DelphisDiscussion> {
+  bool hasAcceptedIncognitoWarning;
+
+  @override
+  void initState() {
+    super.initState();
+
+    this.hasAcceptedIncognitoWarning = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final query = SingleDiscussionGQLQuery(discussionID: this.discussionID);
+    final query = SingleDiscussionGQLQuery(discussionID: this.widget.discussionID);
     return Query(
       options: QueryOptions(
         documentNode: gql(query.query()),
         variables: {
-          'id': this.discussionID,
+          'id': this.widget.discussionID,
         },
       ),
       builder: (QueryResult result, { VoidCallback refetch, FetchMore fetchMore }) {
@@ -33,7 +47,7 @@ class DelphisDiscussion extends StatelessWidget {
         }
         var discussionObj = query.parseResult(result.data);
         var listViewBuilder = ListView.builder(
-          key: Key('discussion-posts-' + this.discussionID),
+          key: Key('discussion-posts-' + this.widget.discussionID),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
           itemCount: discussionObj.posts.length,
@@ -41,15 +55,21 @@ class DelphisDiscussion extends StatelessWidget {
             return DiscussionPost(discussion: discussionObj, index: index);
           }
         );
-        var discussionViewPopup = AnimatedDiscussionPopup(
-          child: listViewBuilder,
-          popup: DiscussionPopup(
-            contents: GoneIncognitoDiscussionPopupContents(
-              moderator: discussionObj.moderator.userProfile,
+        Widget toRender = listViewBuilder;
+        if (!this.hasAcceptedIncognitoWarning) {
+          toRender = AnimatedDiscussionPopup(
+            child: listViewBuilder,
+            popup: DiscussionPopup(
+              contents: GoneIncognitoDiscussionPopupContents(
+                moderator: discussionObj.moderator.userProfile,
+                onAccept: () {
+                  this.setState(() => this.hasAcceptedIncognitoWarning = true);
+                },
+              ),
             ),
-          ),
-          animationSeconds: 0,
-        );
+            animationSeconds: 0,
+          );
+        }
         return Scaffold(
           appBar: AppBar(
             title: Text(
@@ -61,7 +81,7 @@ class DelphisDiscussion extends StatelessWidget {
             backgroundColor: Colors.black,
           ),
           backgroundColor: Colors.black,
-          body: discussionViewPopup,
+          body: toRender,
         );
       },
     );

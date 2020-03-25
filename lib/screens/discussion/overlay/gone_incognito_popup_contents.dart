@@ -7,9 +7,11 @@ import 'package:intl/intl.dart';
 
 class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
   final UserProfile moderator;
+  final VoidCallback onAccept;
 
   const GoneIncognitoDiscussionPopupContents({
     this.moderator,
+    this.onAccept,
   }): super();
 
   String assholeMessage(String name) {
@@ -55,7 +57,7 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
             ),
             child:
               Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 AnonProfileImageWithNonAnon(height: 100.0, width: 100.0, profileImageURL: this.moderator.profileImageURL),
@@ -75,6 +77,19 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
+                Container(
+                  // TODO: I hate this -- not sure how to fix it though.
+                  width: double.infinity,
+                  padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  child: RaisedButton(
+                    onPressed: this.onAccept,
+                    child: Text(Intl.message('Agree'), style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w400)),
+                    color: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(18.0),
+                    ),
+                  ),
+                )
               ],
             ),
         ),

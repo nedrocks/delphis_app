@@ -6,11 +6,11 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => new _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final flutterWebviewPlugin = new FlutterWebviewPlugin();
+  final flutterWebviewPlugin = FlutterWebviewPlugin();
 
   StreamSubscription _onDestroy;
   StreamSubscription<String> _onUrlChanged;
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           // TODO: This should be set in a setting somewheres rather than hardcoded.
           if (url.startsWith("https://app-staging.delphishq.com")) {
-            RegExp regExp = new RegExp("\\?dc=(.*)");
+            RegExp regExp = RegExp("\\?dc=(.*)");
             this.token = regExp.firstMatch(url)?.group(1);
             // TODO: Save the token somewhere
             this.auth.authString = this.token;
@@ -67,10 +67,10 @@ class _LoginScreenState extends State<LoginScreen> {
     String loginUrl = "https://staging.delphishq.com/twitter/login";
     this.auth = Provider.of<DelphisAuth>(context);
 
-    return new WebviewScaffold(
+    return WebviewScaffold(
         url: loginUrl,
-        appBar: new AppBar(
-          title: new Text("Login to Delphis"),
+        appBar: AppBar(
+          title: Text("Login to Delphis"),
         ));
   }
 }

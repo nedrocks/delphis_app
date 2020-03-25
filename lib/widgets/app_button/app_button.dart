@@ -13,8 +13,8 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new RaisedButton(
-      child: new Text(
+    return RaisedButton(
+      child: Text(
         buttonName,
         textDirection: TextDirection.ltr,
         style: buttonTextStyle,

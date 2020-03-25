@@ -7,10 +7,10 @@ class Routes {
   };
 
   // Routes() {
-  //   runApp(new MaterialApp(
+  //   runApp(MaterialApp(
   //     title: 'Delphis Demo',
   //     routes: routes,
-  //     home: new LoginScreen(),
+  //     home: LoginScreen(),
   //   ));
   // }
 }

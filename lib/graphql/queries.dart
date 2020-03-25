@@ -71,6 +71,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
               displayText
               url
             }
+            profileImageURL
           }
         }
         anonymityType

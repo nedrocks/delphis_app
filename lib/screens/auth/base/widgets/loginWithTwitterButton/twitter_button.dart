@@ -10,7 +10,7 @@ class LoginWithTwitterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new AppButton(
+    return AppButton(
       buttonName: "Login With Twitter",
       onPressed: this.onPressed,
       buttonTextStyle: null

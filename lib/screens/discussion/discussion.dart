@@ -1,6 +1,7 @@
 import 'package:delphis_app/graphql/queries.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
+import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -46,19 +47,29 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           return Text(Intl.message('Loading...'));
         }
         var discussionObj = query.parseResult(result.data);
-        var listViewBuilder = ListView.builder(
-          key: Key('discussion-posts-' + this.widget.discussionID),
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: discussionObj.posts.length,
-          itemBuilder: (context, index) {
-            return DiscussionPost(discussion: discussionObj, index: index);
-          }
+        var listViewBuilder = Container(
+          child: ListView.builder(
+            key: Key('discussion-posts-' + this.widget.discussionID),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: discussionObj.posts.length,
+            itemBuilder: (context, index) {
+              return DiscussionPost(discussion: discussionObj, index: index);
+            }
+          ),
+          height: double.infinity,
         );
-        Widget toRender = listViewBuilder;
+        var listViewWithInput = Stack(
+          alignment: Alignment.bottomCenter,
+          children: <Widget>[
+            listViewBuilder,
+            DelphisInput(),
+          ],
+        );
+        Widget toRender = listViewWithInput;
         if (!this.hasAcceptedIncognitoWarning) {
           toRender = AnimatedDiscussionPopup(
-            child: listViewBuilder,
+            child: listViewWithInput,
             popup: DiscussionPopup(
               contents: GoneIncognitoDiscussionPopupContents(
                 moderator: discussionObj.moderator.userProfile,

@@ -78,7 +78,8 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  // TODO: I hate this -- not sure how to fix it though.
+                  // TODO: I hate this double.infinity width -- not sure how to fix it though -- perhaps
+                  // this is idiomatic?
                   width: double.infinity,
                   padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: RaisedButton(

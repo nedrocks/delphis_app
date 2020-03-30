@@ -10,12 +10,14 @@ class VerifiedProfileImage extends StatelessWidget {
   final double height;
   final double width;
   final BoxBorder border;
+  final Alignment checkmarkAlignment;
 
   const VerifiedProfileImage({
     this.profileImageURL,
     this.height,
     this.width,
     this.border,
+    this.checkmarkAlignment,
   }): super();
 
   @override
@@ -24,10 +26,10 @@ class VerifiedProfileImage extends StatelessWidget {
       height: this.height * SCALE_FACTOR,
       width: this.width,
       child: Stack(
-        alignment: Alignment.bottomLeft,
+        alignment: this.checkmarkAlignment,
         children: <Widget>[
           Container(
-            alignment: Alignment.topRight,
+            alignment: -this.checkmarkAlignment,
             width: this.width,
             height: this.height,
             child: ProfileImage(

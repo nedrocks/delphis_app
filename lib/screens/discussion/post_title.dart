@@ -1,5 +1,6 @@
 import 'package:delphis_app/models/discussion.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
+import 'package:delphis_app/widgets/profile_image/verified_profile_image.dart';
 import 'package:flutter/material.dart';
 
 class PostTitle extends StatelessWidget {
@@ -41,10 +42,11 @@ class PostTitle extends StatelessWidget {
             padding: EdgeInsets.only(left: 4.0, right: 4.0),
             child: Text('•', style: rhsTextStyle)
           ),
-          ProfileImage(
+          VerifiedProfileImage(
             height: 20.0,
             width: 20.0,
             profileImageURL: this.discussion.moderator.userProfile.profileImageURL,
+            checkmarkAlignment: Alignment.bottomRight,
           ),
           Container(
             padding: EdgeInsets.only(left: 2.0),

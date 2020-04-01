@@ -2,16 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class DelphisTextInput extends StatelessWidget {
-  Key _inputKey = new GlobalKey();
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController controller;
+  int numRows;
+  final double height;
+  final FocusNode focusNode;
+
+  DelphisTextInput({
+    this.controller,
+    this.numRows,
+    this.height,
+    this.focusNode,
+  }): super();
 
   @override
   Widget build(BuildContext context) {
+    print('rerendering');
     return Container(
       width: double.infinity,
+      height: this.height,
+      decoration: BoxDecoration(border: Border.all(color: Colors.green)),
       child: TextField(
-        key: _inputKey,
-        controller: this._controller,
+        controller: this.controller,
         decoration: InputDecoration(
           labelText: "Input something",
           fillColor: Colors.white,
@@ -21,7 +32,7 @@ class DelphisTextInput extends StatelessWidget {
           ),
         ),
         keyboardType: TextInputType.multiline,
-        maxLines: null,
+        maxLines: this.numRows,
       ),
     );
   }

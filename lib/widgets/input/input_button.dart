@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 
 class DelphisInputButton extends StatelessWidget {
   final VoidCallback onClick;
+  final double width;
+  final double height;
 
   const DelphisInputButton({
     this.onClick,
+    this.width,
+    this.height,
   }): super();
 
   @override
@@ -18,8 +22,8 @@ class DelphisInputButton extends StatelessWidget {
     );
     var borderRadius = 13.0;
     return Container(
-      height: 40.0,
-      width: 40.0,
+      height: this.height,
+      width: this.width,
       child: GradientBorder(
         borderRadius: borderRadius,
         gradient: gradient,

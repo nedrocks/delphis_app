@@ -38,7 +38,7 @@ class DiscussionPost extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.only(top: 4.0),
                         child: Text(
-                          '${this.discussion.posts[this.index].content}${this.discussion.posts[this.index].content}${this.discussion.posts[this.index].content}',
+                          '${this.discussion.posts[this.index].content}',
                           style: TextStyle(
                             color: Colors.white, 
                             fontWeight: FontWeight.w500, 

@@ -1,9 +1,6 @@
 import 'package:delphis_app/models/discussion.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:delphis_app/models/user.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 // abstract class GQLQuery<T> extends StatelessWidget {
 //   final Map<String, dynamic> variables;

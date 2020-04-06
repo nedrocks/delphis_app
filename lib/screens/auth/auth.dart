@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:delphis_app/models/auth.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -54,11 +55,15 @@ class _LoginScreenState extends State<LoginScreen> {
             // TODO: Save the token somewhere
             this.auth.authString = this.token;
 
-            Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+            this.successfulLogin();
           }
         });
       }
     });
+  }
+
+  void successfulLogin() {
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   }
 
   @override
@@ -66,6 +71,13 @@ class _LoginScreenState extends State<LoginScreen> {
     // TODO: This should be in constants or sth
     String loginUrl = "https://staging.delphishq.com/twitter/login";
     this.auth = Provider.of<DelphisAuth>(context);
+
+    if (this.auth.isAuthed) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        this.successfulLogin();
+      });
+      return Text('Redirecting...');
+    }
 
     return WebviewScaffold(
         url: loginUrl,

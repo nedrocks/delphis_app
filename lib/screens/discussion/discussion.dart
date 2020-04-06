@@ -63,7 +63,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           alignment: Alignment.bottomCenter,
           children: <Widget>[
             listViewBuilder,
-            DelphisInput(),
+            DelphisInput(discussionId: this.widget.discussionID),
           ],
         );
         Widget toRender = listViewWithInput;
@@ -81,18 +81,21 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             animationSeconds: 0,
           );
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              discussionObj.title,
-              style: TextStyle(
-                color: Colors.white,
+        return SafeArea(
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            appBar: AppBar(
+              title: Text(
+                discussionObj.title,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
+              backgroundColor: Colors.black,
             ),
             backgroundColor: Colors.black,
-          ),
-          backgroundColor: Colors.black,
-          body: toRender,
+            body: toRender,
+          )
         );
       },
     );

@@ -36,7 +36,7 @@ class _Config {
   static const GQL_ENDPOINT = "gql-endpoint";
 
   static Map<String, dynamic> debugConstants = {
-    TWITTER_REDIRECT_URL_PREFIX: "http://localhost:8080/",
+    TWITTER_REDIRECT_URL_PREFIX: "http://local.delphishq.com:8000/",
     TWITTER_LOGIN_URL: "http://localhost:8080/twitter/login",
     GQL_ENDPOINT: "http://localhost:8080/query",
   };

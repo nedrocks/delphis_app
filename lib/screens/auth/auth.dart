@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/constants.dart';
-import 'package:delphis_app/data/repository/auth.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+//import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String token;
 
-  DelphisAuthRepository auth;
+  AuthBloc authBloc;
 
   @override
   void dispose() {
@@ -47,12 +47,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Add a listener to on url changed
     _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) {
+      print('url changed: $url; mounted? $mounted');
       if (mounted) {
         setState(() {
+          print('startswith? ${url.startsWith(Constants.twitterRedirectURLPrefix)}');
           if (url.startsWith(Constants.twitterRedirectURLPrefix)) {
             RegExp regExp = RegExp("\\?dc=(.*)");
             this.token = regExp.firstMatch(url)?.group(1);
-            this.auth.authString = this.token;
+            print('about to add a loaded auth event');
+            this.authBloc.add(LoadedAuthEvent(this.token, true, false));
 
             this.successfulLogin();
           }
@@ -67,20 +70,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String loginUrl = Constants.twitterLoginURL;
-    this.auth = Provider.of<DelphisAuthRepository>(context);
-
-    if (this.auth.isAuthed) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        this.successfulLogin();
+    print('${this.authBloc}');
+    if (this.authBloc == null) {
+      final authBloc = BlocProvider.of<AuthBloc>(context);
+      print('setting auth bloc');
+      if (authBloc.state is InitializedAuthState && (authBloc.state as InitializedAuthState).isAuthed) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          this.successfulLogin();
+        });
+        return Text('Redirecting...');
+      }
+      setState(() {
+        this.authBloc = BlocProvider.of<AuthBloc>(context);
       });
-      return Text('Redirecting...');
+      return Text('Loading');
     }
+    String loginUrl = Constants.twitterLoginURL;
 
-    return WebviewScaffold(
-        url: loginUrl,
-        appBar: AppBar(
-          title: Text("Login to Delphis"),
-        ));
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is InitializedAuthState && state.isAuthed) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            this.successfulLogin();
+          });
+          return Text('Redirecting...');
+        } else {
+          return WebviewScaffold(
+            url: loginUrl,
+            appBar: AppBar(
+              title: Text("Login to Chatham"),
+            ),
+          );
+        };
+      },
+    );
   }
 }

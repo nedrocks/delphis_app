@@ -4,21 +4,19 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 const String AUTH_STORAGE_KEY = "delphis_auth_jwt";
 
 class DelphisAuthRepository extends ChangeNotifier {
-  bool _loaded;
   String _authString;
   FlutterSecureStorage _storage;
 
   DelphisAuthRepository(FlutterSecureStorage storage) {
     this._storage = storage;
-    this._loaded = false;
     this._authString = null;
   }
 
   // Asynchronously loads auth JWT from secure storage if possible.
   Future<bool> loadFromStorage() async {
     if (this._storage != null) {
-      var authString = await this._storage.read(key:AUTH_STORAGE_KEY);
-
+      //var authString = await this._storage.read(key:AUTH_STORAGE_KEY);
+      var authString = null;
       if (authString != null && authString != '') {
         // Do not notify.
         this._authString = authString;

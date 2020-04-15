@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'package:delphis_app/models/auth.dart';
+import 'package:delphis_app/constants.dart';
+import 'package:delphis_app/data/repository/auth.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String token;
 
-  DelphisAuth auth;
+  DelphisAuthRepository auth;
 
   @override
   void dispose() {
@@ -48,11 +49,9 @@ class _LoginScreenState extends State<LoginScreen> {
     _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) {
       if (mounted) {
         setState(() {
-          // TODO: This should be set in a setting somewheres rather than hardcoded.
-          if (url.startsWith("https://app-staging.delphishq.com")) {
+          if (url.startsWith(Constants.twitterRedirectURLPrefix)) {
             RegExp regExp = RegExp("\\?dc=(.*)");
             this.token = regExp.firstMatch(url)?.group(1);
-            // TODO: Save the token somewhere
             this.auth.authString = this.token;
 
             this.successfulLogin();
@@ -68,9 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: This should be in constants or sth
-    String loginUrl = "https://staging.delphishq.com/twitter/login";
-    this.auth = Provider.of<DelphisAuth>(context);
+    String loginUrl = Constants.twitterLoginURL;
+    this.auth = Provider.of<DelphisAuthRepository>(context);
 
     if (this.auth.isAuthed) {
       SchedulerBinding.instance.addPostFrameCallback((_) {

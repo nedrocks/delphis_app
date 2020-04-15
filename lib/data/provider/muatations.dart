@@ -1,5 +1,6 @@
-import 'package:delphis_app/models/discussion.dart';
-import 'package:delphis_app/models/post.dart';
+import 'package:flutter/material.dart';
+
+import '../repository/post.dart';
 
 abstract class GQLMutation<T> {
   T parseResult(dynamic data);
@@ -29,8 +30,8 @@ class AddPostGQLMutation extends GQLMutation<Post> {
   """;
 
   const AddPostGQLMutation({
-    this.discussionID,
-    this.postContent,
+    @required this.discussionID,
+    @required this.postContent,
   });
 
   String mutation() {

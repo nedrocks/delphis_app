@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'discussion.dart';
@@ -12,7 +13,7 @@ enum PostDeletedReason {
 }
 
 @JsonSerializable()
-class Post {
+class Post extends Equatable {
   final String id;
   final bool isDeleted;
   final PostDeletedReason deletedReasonCode;
@@ -21,6 +22,10 @@ class Post {
   final Participant participant;
   final String createdAt;
   final String updatedAt;
+  
+  List<Object> get props => [
+    id, isDeleted, deletedReasonCode, content, discussion, participant, createdAt, updatedAt
+  ];
 
   const Post({
     this.id,

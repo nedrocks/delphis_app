@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'participant.dart';
@@ -8,11 +9,15 @@ part 'user.g.dart';
 
 
 @JsonSerializable()
-class User {
+class User extends Equatable {
   final String id;
   final List<Participant> participants;
   final List<Viewer> viewers;
   final UserProfile profile;
+
+  List<Object> get props => [
+    id, participants, viewers, profile
+  ];
 
   const User({
     this.id,

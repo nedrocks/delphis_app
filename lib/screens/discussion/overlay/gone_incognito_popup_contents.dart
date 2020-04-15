@@ -1,7 +1,5 @@
-import 'package:delphis_app/models/user_profile.dart';
-import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
+import 'package:delphis_app/data/repository/user_profile.dart';
 import 'package:delphis_app/widgets/anon_profile_with_non_anon/anon_profile_with_non_anon.dart';
-import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -78,8 +76,6 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  // TODO: I hate this double.infinity width -- not sure how to fix it though -- perhaps
-                  // this is idiomatic?
                   width: double.infinity,
                   padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: RaisedButton(

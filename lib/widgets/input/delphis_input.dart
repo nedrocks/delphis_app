@@ -1,8 +1,11 @@
 import 'dart:math';
 
-import 'package:delphis_app/graphql/muatations.dart';
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/data/provider/muatations.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
@@ -36,7 +39,9 @@ class DelphisInputState extends State<DelphisInput> {
     super.initState();
 
     this._controller = TextEditingController();
-    this._controller.addListener(() => this.setState(() => { this._textLength = this._controller.text.length }));
+    this._controller.addListener(() => this.setState(() => { 
+      this._textLength = this._controller.text.length 
+    }));
     this._inputFocusNode = FocusNode();
   }
 
@@ -84,32 +89,20 @@ class DelphisInputState extends State<DelphisInput> {
                 flex: 6,
               ),
               Flexible(
-                child: Mutation(
-                  options: MutationOptions(
-                    documentNode: gql(this._mutation.mutation()),
-                    update: (Cache cache, QueryResult result) {
-                      // update cache here
-                      return cache;
-                    },
-                    onCompleted: (dynamic resultData) {
-                      // We should clear out the text box here as well.
-                      print(resultData);
-                    },
-                  ),
-                  builder: ( RunMutation runMutation, QueryResult result, ) {
+                child: BlocBuilder<DiscussionPostBloc, DiscussionPostState>(
+                  builder: (context, state) {
                     return DelphisInputButton(
-                      // TODO: Verify contents are valid.
                       onClick: () {
-                        print("pushed for disc id ${this.widget.discussionId} contents: ${this._controller.text}");
-                        runMutation({
-                          'discussionId': this.widget.discussionId,
-                          'postContent': this._controller.text,
-                        });
+                        BlocProvider.of<DiscussionPostBloc>(context).add(
+                          DiscussionPostAddEvent(postContent: this._controller.text),
+                        );
+                        this._controller.text = "";
                       },
                       width: 39.0,
                       height: 39.0,
                     );
-                  }),
+                  }
+                ),
                 flex: 1,
               ),
             ],

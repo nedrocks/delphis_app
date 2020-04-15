@@ -1,6 +1,5 @@
-import 'package:delphis_app/models/discussion.dart';
-
-import 'package:delphis_app/models/user.dart';
+import '../repository/discussion.dart';
+import '../repository/user.dart';
 
 // abstract class GQLQuery<T> extends StatelessWidget {
 //   final Map<String, dynamic> variables;
@@ -96,7 +95,8 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
   }
 
   Discussion parseResult(dynamic data) {
-    return Discussion.fromJson(data["discussion"]);
+    var discussion = Discussion.fromJson(data["discussion"]);
+    return discussion.copyWith(posts: discussion.posts.reversed.toList());
   }
 }
 

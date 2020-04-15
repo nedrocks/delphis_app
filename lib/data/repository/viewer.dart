@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'discussion.dart';
@@ -6,11 +7,15 @@ import 'post.dart';
 part 'viewer.g.dart';
 
 @JsonSerializable()
-class Viewer {
+class Viewer extends Equatable {
   final String id;
   final Discussion discussion;
   final DateTime lastViewed;
   final Post lastViewedPost;
+
+  List<Object> get props => [
+    id, discussion, lastViewed, lastViewedPost
+  ];
 
   const Viewer({
     this.id,

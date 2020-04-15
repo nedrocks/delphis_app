@@ -1,13 +1,10 @@
-import 'package:delphis_app/graphql/queries.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
 
 class DelphisAuthedBaseView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return DelphisDiscussion(discussionID: '492ace75-8eac-4345-9aa4-403661e85b31');
+    return null;//DelphisDiscussion(discussionID: '492ace75-8eac-4345-9aa4-403661e85b31');
     // return Scaffold(
     //   body: Center(
     //       child: Container(

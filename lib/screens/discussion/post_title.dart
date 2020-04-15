@@ -1,5 +1,4 @@
-import 'package:delphis_app/models/discussion.dart';
-import 'package:delphis_app/widgets/profile_image/profile_image.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/widgets/profile_image/verified_profile_image.dart';
 import 'package:flutter/material.dart';
 

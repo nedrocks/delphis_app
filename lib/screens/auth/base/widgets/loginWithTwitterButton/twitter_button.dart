@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:delphis_app/widgets/app_button/index.dart';
 
 class LoginWithTwitterButton extends StatelessWidget {
-  VoidCallback onPressed;
+  final VoidCallback onPressed;
 
   LoginWithTwitterButton({
     this.onPressed,

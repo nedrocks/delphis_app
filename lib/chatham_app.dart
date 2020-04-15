@@ -1,9 +1,15 @@
-import 'package:delphis_app/models/auth.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'bloc/discussion/discussion_bloc.dart';
+import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
+
+import 'constants.dart';
 
 class ChathamApp extends StatefulWidget {
   @override
@@ -18,10 +24,10 @@ class ChathamAppState extends State<ChathamApp> {
 
   @override
   Widget build(BuildContext context) {
-    var delphisAuth = Provider.of<DelphisAuth>(context);
+    var delphisAuth = Provider.of<DelphisAuthRepository>(context);
 
     final HttpLink httpLink = HttpLink(
-      uri: 'https://staging.delphishq.com/query',
+      uri: Constants.gqlEndpoint,
     );
 
     final AuthLink authLink = AuthLink(
@@ -29,15 +35,17 @@ class ChathamAppState extends State<ChathamApp> {
     );
     final Link link = authLink.concat(httpLink);
 
-    ValueNotifier<GraphQLClient> client = ValueNotifier(
-      GraphQLClient(
-        cache: InMemoryCache(),
-        link: link,
-      ),
+    final gqlClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: link,
     );
+
+    final discussionRepository = DiscussionRepository(gqlClient);
+
+    ValueNotifier<GraphQLClient> client = ValueNotifier(gqlClient);
     return GraphQLProvider(
       client: client,
-      child: ChangeNotifierProvider<DelphisAuth>.value(
+      child: ChangeNotifierProvider<DelphisAuthRepository>.value(
         value: delphisAuth,
         child: MaterialApp(
           title: "Chatham",
@@ -55,9 +63,10 @@ class ChathamAppState extends State<ChathamApp> {
             )),
           initialRoute: '/Auth/Twitter',
           routes: {
-            // When navigating to the "/" route, build the FirstScreen widget.
-            '/': (context) => DelphisDiscussion(discussionID: '492ace75-8eac-4345-9aa4-403661e85b31'),
-            // When navigating to the "/second" route, build the SecondScreen widget.
+            '/': (context) => BlocProvider<DiscussionBloc>(
+              create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('492ace75-8eac-4345-9aa4-403661e85b31')),
+              child: DelphisDiscussion(),
+            ),
             '/Auth/Twitter': (context) => LoginScreen(),
           },
         ),

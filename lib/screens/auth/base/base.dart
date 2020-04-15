@@ -1,8 +1,8 @@
-import 'package:delphis_app/graphql/queries.dart';
+import 'package:delphis_app/data/provider/queries.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:delphis_app/models/auth.dart';
+import 'package:delphis_app/data/repository/auth.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'authed.dart';
@@ -46,7 +46,7 @@ class DelphisBase extends StatelessWidget {
           ),
         ],
       ), 
-      body: Consumer<DelphisAuth>(
+      body: Consumer<DelphisAuthRepository>(
         builder: (context, authModel, child) {
           if (!authModel.isAuthed) {
             return DelphisUnauthedBaseView();

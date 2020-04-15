@@ -1,20 +1,17 @@
-import 'package:delphis_app/graphql/queries.dart';
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
 class DelphisDiscussion extends StatefulWidget {
-  final String discussionID;
-
-  const DelphisDiscussion({
-    this.discussionID,
-  }): super();
+  const DelphisDiscussion(): super();
 
   @override
   State<StatefulWidget> createState() => DelphisDiscussionState();
@@ -23,47 +20,51 @@ class DelphisDiscussion extends StatefulWidget {
 class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool hasAcceptedIncognitoWarning;
 
+  ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
 
     this.hasAcceptedIncognitoWarning = false;
+    _scrollController = ScrollController();
   }
 
   @override
   Widget build(BuildContext context) {
-    final query = SingleDiscussionGQLQuery(discussionID: this.widget.discussionID);
-    return Query(
-      options: QueryOptions(
-        documentNode: gql(query.query()),
-        variables: {
-          'id': this.widget.discussionID,
-        },
-      ),
-      builder: (QueryResult result, { VoidCallback refetch, FetchMore fetchMore }) {
-        if (result.hasException) {
-          return Text(result.exception.toString());
-        } else if (result.loading) {
-          return Text(Intl.message('Loading...'));
+    return BlocBuilder<DiscussionBloc, DiscussionState>(
+      builder: (context, state) {
+        if (state is DiscussionUninitializedState || state is DiscussionLoadingState) {
+          return Center(
+            child: Text(Intl.message('Loading...')),
+          );
         }
-        var discussionObj = query.parseResult(result.data);
+        if (state is DiscussionErrorState) {
+          return Center(
+            child: Text(state.error.toString()),
+          );
+        }
+        final discussionObj = state.getDiscussion();
         var listViewBuilder = Container(
           child: ListView.builder(
-            key: Key('discussion-posts-' + this.widget.discussionID),
+            key: Key('discussion-posts-' + state.getDiscussion().id),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: discussionObj.posts.length,
+            controller: this._scrollController,
+            reverse: true,
             itemBuilder: (context, index) {
               return DiscussionPost(discussion: discussionObj, index: index);
             }
           ),
-          height: double.infinity,
         );
-        var listViewWithInput = Stack(
-          alignment: Alignment.bottomCenter,
+        var listViewWithInput = Column(
           children: <Widget>[
-            listViewBuilder,
-            DelphisInput(discussionId: this.widget.discussionID),
+            Expanded(
+              child: listViewBuilder,
+              flex: 15,
+            ),
+            DelphisInput(discussionId: state.getDiscussion().id),
           ],
         );
         Widget toRender = listViewWithInput;
@@ -81,21 +82,28 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             animationSeconds: 0,
           );
         }
-        return SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            appBar: AppBar(
-              title: Text(
-                discussionObj.title,
-                style: TextStyle(
-                  color: Colors.white,
+        return BlocProvider<DiscussionPostBloc>(
+          create: (context) => DiscussionPostBloc(
+            discussionID: discussionObj.id,
+            repository: BlocProvider.of<DiscussionBloc>(context).repository,
+            discussionBloc: BlocProvider.of<DiscussionBloc>(context),
+          ),
+          child: SafeArea(
+            child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              appBar: AppBar(
+                title: Text(
+                  discussionObj.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
+                backgroundColor: Colors.black,
               ),
               backgroundColor: Colors.black,
-            ),
-            backgroundColor: Colors.black,
-            body: toRender,
-          )
+              body: toRender,
+            )
+          ),
         );
       },
     );

@@ -1,4 +1,4 @@
-import 'package:delphis_app/models/discussion.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:flutter/material.dart';
 
 import 'post_title.dart';

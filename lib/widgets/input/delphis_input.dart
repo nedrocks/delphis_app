@@ -1,12 +1,9 @@
 import 'dart:math';
 
-import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
-import 'package:delphis_app/data/provider/muatations.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
 import 'input_button.dart';
@@ -23,7 +20,6 @@ class DelphisInput extends StatefulWidget {
 }
 
 class DelphisInputState extends State<DelphisInput> {
-  final AddPostGQLMutation _mutation = AddPostGQLMutation();
 
   double _borderRadius = 25.0;
   double _textBoxVerticalPadding = 26.0;
@@ -69,7 +65,7 @@ class DelphisInputState extends State<DelphisInput> {
               Expanded(
                 child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
-                    var textStyle = DefaultTextStyle.of(context).style;
+                    var textStyle = Theme.of(context).textTheme.bodyText2;
                     var lineHeight = textStyle.height;
                     var text = this._controller.text.length == 0 ? ' ' : this._controller.text;
                     List<TextBox> textLayout = calculateTextLayoutRows(context, constraints, this._borderRadius, text);

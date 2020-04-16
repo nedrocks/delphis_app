@@ -12,6 +12,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'constants.dart';
+import 'design/text_theme.dart';
 
 class ChathamApp extends StatefulWidget {
   @override
@@ -61,18 +62,7 @@ class ChathamAppState extends State<ChathamApp> {
         value: this.authBloc,
         child: MaterialApp(
           title: "Chatham",
-          theme: ThemeData(
-            fontFamily: 'NeueHansKendrick',
-            textTheme: TextTheme(
-              bodyText2: TextStyle(
-                color: Colors.grey,
-                height: 1.0,
-                fontSize: 14.0,
-                fontWeight: FontWeight.w400,
-                textBaseline: TextBaseline.alphabetic,
-                decoration: TextDecoration.none,
-              ),
-            )),
+          theme: kThemeData,
           initialRoute: '/Auth/Twitter',
           routes: {
             '/': (context) => BlocProvider<DiscussionBloc>(

@@ -1,5 +1,6 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
@@ -46,6 +47,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         }
         final discussionObj = state.getDiscussion();
         var listViewBuilder = Container(
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 1.0))),
+          ),
           child: ListView.builder(
             key: Key('discussion-posts-' + state.getDiscussion().id),
             scrollDirection: Axis.vertical,
@@ -60,9 +64,20 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
         var listViewWithInput = Column(
           children: <Widget>[
+            Container(
+              height: 40.0,
+              padding: EdgeInsets.only(left: 16.0),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 1.0))),
+              ),
+              child: Row(
+                children: <Widget>[
+                  Text(discussionObj.title, style: Theme.of(context).textTheme.headline1),
+                ],
+              )
+            ),
             Expanded(
               child: listViewBuilder,
-              flex: 15,
             ),
             DelphisInput(discussionId: state.getDiscussion().id),
           ],
@@ -91,15 +106,19 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           child: SafeArea(
             child: Scaffold(
               resizeToAvoidBottomInset: true,
-              appBar: AppBar(
-                title: Text(
-                  discussionObj.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: Colors.black,
-              ),
+              // appBar: AppBar(
+              //   title: Row(
+              //     mainAxisAlignment: MainAxisAlignment.start,
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: <Widget>[
+              //       Text(
+              //         discussionObj.title,
+              //         style: Theme.of(context).textTheme.headline1,
+              //       ),
+              //     ],
+              //   ),
+              //   backgroundColor: Colors.black,
+              // ),
               backgroundColor: Colors.black,
               body: toRender,
             )

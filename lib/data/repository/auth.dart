@@ -15,8 +15,8 @@ class DelphisAuthRepository extends ChangeNotifier {
   // Asynchronously loads auth JWT from secure storage if possible.
   Future<bool> loadFromStorage() async {
     if (this._storage != null) {
-      //var authString = await this._storage.read(key:AUTH_STORAGE_KEY);
-      var authString = null;
+      var authString = await this._storage.read(key:AUTH_STORAGE_KEY);
+
       if (authString != null && authString != '') {
         // Do not notify.
         this._authString = authString;

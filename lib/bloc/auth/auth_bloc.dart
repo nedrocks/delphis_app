@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/auth.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/semantics.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';

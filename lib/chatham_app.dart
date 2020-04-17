@@ -1,9 +1,11 @@
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
+import 'bloc/user/user_bloc.dart';
 import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
@@ -22,6 +24,15 @@ class ChathamApp extends StatefulWidget {
 class ChathamAppState extends State<ChathamApp> {
   FlutterSecureStorage secureStorage;
   AuthBloc authBloc;
+  UserBloc userBloc;
+  GraphQLClient gqlClient;
+
+  @override
+  void dispose() {
+    this.authBloc.close();
+    this.userBloc.close();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -53,26 +64,37 @@ class ChathamAppState extends State<ChathamApp> {
     );
 
     final discussionRepository = DiscussionRepository(gqlClient);
-
+    final userRepository = UserRepository(gqlClient);
+    ;
 
     ValueNotifier<GraphQLClient> client = ValueNotifier(gqlClient);
     return GraphQLProvider(
       client: client,
-      child: BlocProvider.value(
-        value: this.authBloc,
-        child: MaterialApp(
-          title: "Chatham",
-          theme: kThemeData,
-          initialRoute: '/Auth/Twitter',
-          routes: {
-            '/': (context) => BlocProvider<DiscussionBloc>(
-              create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('492ace75-8eac-4345-9aa4-403661e85b31')),
-              child: DelphisDiscussion(),
-            ),
-            '/Auth/Twitter': (context) => LoginScreen(),
+      child: MultiBlocProvider(
+        providers: <BlocProvider>[
+          BlocProvider<AuthBloc>.value(value: this.authBloc),
+          BlocProvider<UserBloc>(create: (context) => UserBloc(userRepository)),
+        ],
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is InitializedAuthState && state.isAuthed) {
+              BlocProvider.of<UserBloc>(context).add(FetchMeUserEvent());
+            }
           },
+          child: MaterialApp(
+            title: "Chatham",
+            theme: kThemeData,
+            initialRoute: '/Auth/Twitter',
+            routes: {
+              '/': (context) => BlocProvider<DiscussionBloc>(
+                create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('492ace75-8eac-4345-9aa4-403661e85b31')),
+                child: DelphisDiscussion(),
+              ),
+              '/Auth/Twitter': (context) => LoginScreen(),
+            },
+          ),
         ),
-      ),
+      )
     );
   }
 }

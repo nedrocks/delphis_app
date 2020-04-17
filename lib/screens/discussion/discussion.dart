@@ -105,7 +105,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             Expanded(
               child: listViewBuilder,
             ),
-            DelphisInput(discussionId: state.getDiscussion().id),
+            DelphisInput(discussion: state.getDiscussion()),
           ],
         );
         Widget toRender = listViewWithInput;

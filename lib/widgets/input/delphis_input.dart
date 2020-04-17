@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,11 +11,13 @@ import 'package:intl/intl.dart';
 import 'input_button.dart';
 import 'text_input.dart';
 
+const MAX_VISIBLE_ROWS = 5;
+
 class DelphisInput extends StatefulWidget {
-  final String discussionId;
+  final Discussion discussion;
 
   DelphisInput({
-    this.discussionId,
+    @required this.discussion,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -58,10 +62,27 @@ class DelphisInputState extends State<DelphisInput> {
       child: DecoratedBox(
         decoration: BoxDecoration(color: Colors.black),
         child: Padding(
-          padding: EdgeInsets.only(left: 12.0, right: 12.0),
+          padding: EdgeInsets.symmetric(horizontal: SpacingValues.medium, vertical: SpacingValues.medium),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              BlocBuilder<DiscussionPostBloc, DiscussionPostState>(
+                builder: (context, state) {
+                  return DelphisInputButton(
+                    onClick: () {
+                      BlocProvider.of<DiscussionPostBloc>(context).add(
+                        DiscussionPostAddEvent(postContent: this._controller.text),
+                      );
+                      this._controller.text = "";
+                    },
+                    width: 39.0,
+                    height: 39.0,
+                  );
+                }
+              ),
+              SizedBox(
+                width: SpacingValues.medium,
+              ),
               Expanded(
                 child: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
@@ -69,37 +90,21 @@ class DelphisInputState extends State<DelphisInput> {
                     var lineHeight = textStyle.height;
                     var text = this._controller.text.length == 0 ? ' ' : this._controller.text;
                     List<TextBox> textLayout = calculateTextLayoutRows(context, constraints, this._borderRadius, text);
-                    var widgetHeight = textLayout.length * lineHeight * textStyle.fontSize + this._textBoxVerticalPadding;
+                    var widgetHeight = min(textLayout.length, MAX_VISIBLE_ROWS) * lineHeight * textStyle.fontSize + this._textBoxVerticalPadding;
                     
                     return DelphisTextInput(
                       controller: this._controller,
-                      numRows: min(max(1, textLayout.length), 9),
+                      numRows: min(max(1, textLayout.length), MAX_VISIBLE_ROWS),
                       borderRadius: this._borderRadius,
                       focusNode: this._inputFocusNode,
                       height: widgetHeight,
                       verticalPadding: this._textBoxVerticalPadding/2.0,
                       hintText: Intl.message("Type a message"),
+                      textStyle: textStyle,
                     );
                   }
                 ),
                 flex: 6,
-              ),
-              Flexible(
-                child: BlocBuilder<DiscussionPostBloc, DiscussionPostState>(
-                  builder: (context, state) {
-                    return DelphisInputButton(
-                      onClick: () {
-                        BlocProvider.of<DiscussionPostBloc>(context).add(
-                          DiscussionPostAddEvent(postContent: this._controller.text),
-                        );
-                        this._controller.text = "";
-                      },
-                      width: 39.0,
-                      height: 39.0,
-                    );
-                  }
-                ),
-                flex: 1,
               ),
             ],
           ),

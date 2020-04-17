@@ -22,7 +22,7 @@ class TextThemes{
   static final discussionTitle = TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600, color: Color.fromRGBO(255, 255, 255, 0.92), letterSpacing: 0.14, height: 1.0);
 
   static final discussionPostText = TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400, color: Color.fromRGBO(255, 255, 255, 0.92), letterSpacing: -0.39, height: 1.0);
-  static final discussionPostInput = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400, color: Color.fromRGBO(255, 255, 255, 0.8), textBaseline: TextBaseline.alphabetic, decoration: TextDecoration.none, height: 1.0);
+  static final discussionPostInput = TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: Color.fromRGBO(255, 255, 255, 1.0), letterSpacing: 0.1, textBaseline: TextBaseline.alphabetic, decoration: TextDecoration.none, height: 1.0);
 
   static final discussionPostAuthorNonAnon = TextStyle(
     fontSize: 14.0, 

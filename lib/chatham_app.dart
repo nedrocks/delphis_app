@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
+import 'bloc/me/me_bloc.dart';
 import 'bloc/user/user_bloc.dart';
 import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
@@ -73,12 +74,12 @@ class ChathamAppState extends State<ChathamApp> {
       child: MultiBlocProvider(
         providers: <BlocProvider>[
           BlocProvider<AuthBloc>.value(value: this.authBloc),
-          BlocProvider<UserBloc>(create: (context) => UserBloc(userRepository)),
+          BlocProvider<MeBloc>(create: (context) => MeBloc(userRepository)),
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is InitializedAuthState && state.isAuthed) {
-              BlocProvider.of<UserBloc>(context).add(FetchMeUserEvent());
+              BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
             }
           },
           child: MaterialApp(

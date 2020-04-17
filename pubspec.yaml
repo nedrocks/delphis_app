@@ -72,6 +72,14 @@ flutter:
     - assets/images/circle_check_border_trans/1.5x/image.png
     - assets/images/circle_check_border_trans/2.0x/image.png
     - assets/images/circle_check_border_trans/4.0x/image.png
+    - assets/images/star_black_border/image.png
+    - assets/images/star_black_border/1.5x/image.png
+    - assets/images/star_black_border/2.0x/image.png
+    - assets/images/star_black_border/3.0x/image.png
+    - assets/images/star_white_border/image.png
+    - assets/images/star_white_border/1.5x/image.png
+    - assets/images/star_white_border/2.0x/image.png
+    - assets/images/star_white_border/3.0x/image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

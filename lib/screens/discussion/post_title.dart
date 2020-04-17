@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/widgets/profile_image/verified_profile_image.dart';
+import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
 
 class PostTitle extends StatelessWidget {
@@ -26,31 +27,28 @@ class PostTitle extends StatelessWidget {
       }
     }
 
-    const nameTextStyle = const TextStyle(fontSize: 12.0, color: Colors.white, fontWeight: FontWeight.w500);
-    const rhsTextStyle = const TextStyle(fontSize: 12.0, color: Colors.grey, fontWeight: FontWeight.w500);
-
     return Container(
       child: new Row(
         children: <Widget>[
-          Text('Anonymous something', style: nameTextStyle),
+          Text('Anonymous something', style: TextThemes.discussionPostAuthorAnon),
           Container(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Text(differenceToDisplay, style: rhsTextStyle),
+            padding: EdgeInsets.only(left: SpacingValues.small),
+            child: Text(differenceToDisplay, style: TextThemes.discussionPostAuthorAnonDescriptor),
           ),
-          Container(
-            padding: EdgeInsets.only(left: 4.0, right: 4.0),
-            child: Text('•', style: rhsTextStyle)
-          ),
-          VerifiedProfileImage(
-            height: 20.0,
-            width: 20.0,
-            profileImageURL: this.discussion.moderator.userProfile.profileImageURL,
-            checkmarkAlignment: Alignment.bottomRight,
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 2.0),
-            child: Text('Invited by ${this.discussion.moderator.userProfile.displayName}', style: rhsTextStyle),
-          ),
+          // Container(
+          //   padding: EdgeInsets.only(left: SpacingValues.extraSmall, right: SpacingValues.extraSmall),
+          //   child: Text('•', style: rhsTextStyle)
+          // ),
+          // VerifiedProfileImage(
+          //   height: 20.0,
+          //   width: 20.0,
+          //   profileImageURL: this.discussion.moderator.userProfile.profileImageURL,
+          //   checkmarkAlignment: Alignment.bottomRight,
+          // ),
+          // Container(
+          //   padding: EdgeInsets.only(left: SpacingValues.xxSmall),
+          //   child: Text('Invited by ${this.discussion.moderator.userProfile.displayName}', style: rhsTextStyle),
+          // ),
         ],
       ),
     );

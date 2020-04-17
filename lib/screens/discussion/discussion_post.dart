@@ -1,4 +1,5 @@
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/design/sizes.dart';
 import 'package:flutter/material.dart';
 
 import 'post_title.dart';
@@ -15,17 +16,23 @@ class DiscussionPost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 8.0, left: 10.0),
+      padding: EdgeInsets.only(
+        left: SpacingValues.medium, 
+        bottom: SpacingValues.extraLarge
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(right: 12.0),
+            padding: EdgeInsets.only(right: SpacingValues.medium),
             child: Icon(Icons.person_outline, color: Colors.white),
           ),
           Expanded(child: Container(
-            padding: EdgeInsets.only(top: 4.0, right: 30.0),
+            padding: EdgeInsets.only(
+              top: SpacingValues.extraSmall, 
+              right: SpacingValues.xxLarge
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,15 +43,10 @@ class DiscussionPost extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        padding: EdgeInsets.only(top: 4.0),
+                        padding: EdgeInsets.only(top: SpacingValues.extraSmall),
                         child: Text(
                           '${this.discussion.posts[this.index].content}',
-                          style: TextStyle(
-                            color: Colors.white, 
-                            fontWeight: FontWeight.w500, 
-                            fontSize: 14.0,
-                            height: 1.25,
-                          ),
+                          style: Theme.of(context).textTheme.bodyText1,
                         ),
                       ),
                     ],

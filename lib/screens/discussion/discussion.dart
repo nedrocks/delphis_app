@@ -1,13 +1,18 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
+import 'package:delphis_app/widgets/more/more_button.dart';
+import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
@@ -65,14 +70,35 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         var listViewWithInput = Column(
           children: <Widget>[
             Container(
-              height: 40.0,
-              padding: EdgeInsets.only(left: 16.0),
+              height: HeightValues.appBarHeight,
+              padding: EdgeInsets.symmetric(horizontal: SpacingValues.mediumLarge),
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 1.0))),
               ),
               child: Row(
                 children: <Widget>[
-                  Text(discussionObj.title, style: Theme.of(context).textTheme.headline1),
+                  Expanded(
+                    child: Text(discussionObj.title, style: Theme.of(context).textTheme.headline1),
+                  ),
+                  Row(
+                    children: <Widget>[
+                      ParticipantImages(
+                        height: HeightValues.appBarItemsHeight,
+                        participants: discussionObj.participants,
+                      ),
+                      ModeratorProfileImage(
+                        diameter: HeightValues.appBarItemsHeight,
+                        profileImageURL: discussionObj.moderator.userProfile.profileImageURL,
+                      ),
+                      SizedBox(width: SpacingValues.medium),
+                      MoreButton(
+                        diameter: HeightValues.appBarItemsHeight,
+                        onPressed: () {
+                          print('more pressed');
+                        },
+                      ),
+                    ],
+                  ),
                 ],
               )
             ),
@@ -106,19 +132,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           child: SafeArea(
             child: Scaffold(
               resizeToAvoidBottomInset: true,
-              // appBar: AppBar(
-              //   title: Row(
-              //     mainAxisAlignment: MainAxisAlignment.start,
-              //     mainAxisSize: MainAxisSize.min,
-              //     children: <Widget>[
-              //       Text(
-              //         discussionObj.title,
-              //         style: Theme.of(context).textTheme.headline1,
-              //       ),
-              //     ],
-              //   ),
-              //   backgroundColor: Colors.black,
-              // ),
               backgroundColor: Colors.black,
               body: toRender,
             )

@@ -80,6 +80,10 @@ flutter:
     - assets/images/star_white_border/1.5x/image.png
     - assets/images/star_white_border/2.0x/image.png
     - assets/images/star_white_border/3.0x/image.png
+    - assets/images/star_bolt_purple/image.png
+    - assets/images/star_bolt_purple/1.5x/image.png
+    - assets/images/star_bolt_purple/2.0x/image.png
+    - assets/images/star_bolt_purple/3.0x/image.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

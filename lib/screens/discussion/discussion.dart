@@ -84,8 +84,16 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                     children: <Widget>[
                       ParticipantImages(
                         height: HeightValues.appBarItemsHeight,
-                        participants: discussionObj.participants,
+                        participants: [
+                          Participant(),
+                          Participant(),
+                          Participant(),
+                          Participant(),
+                          Participant(),
+                          Participant(),
+                        ],//discussionObj.participants,
                       ),
+                      SizedBox(width: SpacingValues.small),
                       ModeratorProfileImage(
                         diameter: HeightValues.appBarItemsHeight,
                         profileImageURL: discussionObj.moderator.userProfile.profileImageURL,

@@ -6,7 +6,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
 import 'bloc/me/me_bloc.dart';
-import 'bloc/user/user_bloc.dart';
 import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
@@ -25,13 +24,11 @@ class ChathamApp extends StatefulWidget {
 class ChathamAppState extends State<ChathamApp> {
   FlutterSecureStorage secureStorage;
   AuthBloc authBloc;
-  UserBloc userBloc;
   GraphQLClient gqlClient;
 
   @override
   void dispose() {
     this.authBloc.close();
-    this.userBloc.close();
     super.dispose();
   }
 

@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/util/text.dart';
+import 'package:delphis_app/widgets/input/moderator_input_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -52,8 +55,20 @@ class DelphisInputState extends State<DelphisInput> {
     super.dispose();
   }
 
+  User _extractMe(MeState state) {
+    if (state is LoadedMeState) {
+      return state.me;
+    } else {
+      // This should never happen and we should probably throw an error here?
+      return null;
+    }
+  }
+  bool _isModerator(User me) => this.widget.discussion.moderator.userProfile.id == me.profile.id;
+
   @override
   Widget build(BuildContext context) {
+    final me = this._extractMe(BlocProvider.of<MeBloc>(context).state);
+    final isModerator = this._isModerator(me);
     return ConstrainedBox(
       constraints: new BoxConstraints(
         minHeight: 60.0,
@@ -75,6 +90,9 @@ class DelphisInputState extends State<DelphisInput> {
                       );
                       this._controller.text = "";
                     },
+                    discussion: this.widget.discussion,
+                    me: me,
+                    isModerator: isModerator,
                     width: 39.0,
                     height: 39.0,
                   );
@@ -104,8 +122,17 @@ class DelphisInputState extends State<DelphisInput> {
                     );
                   }
                 ),
-                flex: 6,
               ),
+              isModerator ? SizedBox(
+                width: SpacingValues.small,
+              ): null,
+              isModerator ? ModeratorInputButton(
+                onPressed: () {
+                  print('inputButtonPressed');
+                },
+                height: 39.0,
+                width: 39.0,
+              ): null,
             ],
           ),
         ),

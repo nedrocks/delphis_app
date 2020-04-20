@@ -10,8 +10,8 @@ class AnonProfileImage extends StatelessWidget {
   final BoxBorder border;
 
   const AnonProfileImage({
-    @required this.height,
-    @required this.width,
+    this.height,
+    this.width,
     this.border,
     this.borderShape = BoxShape.circle,
     this.borderRadius = 25.0,

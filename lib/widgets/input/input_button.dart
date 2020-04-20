@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/gradient_border/gradient_border.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
@@ -51,11 +52,7 @@ class DelphisInputButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient = LinearGradient(
-      colors: [Color.fromRGBO(30, 60, 236, 1.0), Color.fromRGBO(93, 170, 251, 1.0)],
-      begin: Alignment.bottomLeft,
-      end: Alignment.topRight,
-    );
+    final gradient = ChathamColors.gradients[GradientName.VERIFIED_TEAL];
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(me, borderRadius);
     return Pressable(

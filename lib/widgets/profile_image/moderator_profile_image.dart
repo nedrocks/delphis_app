@@ -1,3 +1,4 @@
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/widgets/moderator_star/moderator_star.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
@@ -45,14 +46,7 @@ class ModeratorProfileImage extends StatelessWidget {
               height: this.diameter * SCALE_FACTOR,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(this.diameter / 2.0),
-                gradient: LinearGradient(
-                  colors: <Color>[
-                    outerGradientStart,
-                    outerGradientEnd,
-                  ],
-                  begin: Alignment.bottomLeft,
-                  end: Alignment.topRight,
-                ),
+                gradient: ChathamColors.gradients[GradientName.MOD_PURPLE],
               ),
               padding: EdgeInsets.all(this.outerBorderWidth),
               // Spacer child
@@ -66,14 +60,7 @@ class ModeratorProfileImage extends StatelessWidget {
                   width: this.diameter * SCALE_FACTOR - this.outerBorderWidth - SPACER_SIZE,
                   height: this.diameter * SCALE_FACTOR - this.outerBorderWidth - SPACER_SIZE,
                   profileImageURL: this.profileImageURL,
-                  gradient: LinearGradient(
-                    colors: <Color>[
-                      innerGradientStart,
-                      innerGradientEnd,
-                    ],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                  ),
+                  gradient: ChathamColors.gradients[GradientName.MOD_PURPLE],
                   gradientWidth: 1.5,
                 ),
               ),

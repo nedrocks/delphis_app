@@ -85,7 +85,7 @@ class ChathamAppState extends State<ChathamApp> {
             initialRoute: '/Auth/Twitter',
             routes: {
               '/': (context) => BlocProvider<DiscussionBloc>(
-                create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('492ace75-8eac-4345-9aa4-403661e85b31')),
+                create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('2589fb41-e6c5-4950-8b75-55bb3315113e')),
                 child: DelphisDiscussion(),
               ),
               '/Auth/Twitter': (context) => LoginScreen(),

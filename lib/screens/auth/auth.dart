@@ -47,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Add a listener to on url changed
     _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) {
-      print('url changed: $url; mounted? $mounted');
       if (mounted) {
         setState(() {
           if (url.startsWith(Constants.twitterRedirectURLPrefix)) {

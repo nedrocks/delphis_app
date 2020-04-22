@@ -26,6 +26,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       yield InitializedAuthState(this.repository.authString, isAuthed);
     }
     if (event is LoadedAuthEvent) {
+      if (event.isSuccess) {
+        this.repository.authString = event.authString;
+      }
       yield InitializedAuthState(event.authString, event.isSuccess);
     }
   }

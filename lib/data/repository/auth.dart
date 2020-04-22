@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const String AUTH_STORAGE_KEY = "delphis_auth_jwt";
+const String AUTH_STORAGE_KEY = "delphis_auth_jwt_v1";
 
 class DelphisAuthRepository extends ChangeNotifier {
   String _authString;

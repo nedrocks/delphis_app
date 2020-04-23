@@ -27,7 +27,7 @@ abstract class GQLQuery<T> {
   const GQLQuery();
 }
 
-class MeGQLQuery extends GQLQuery<User>{
+class MeGQLQuery extends GQLQuery<User> {
   final String _query = """
     query Me() {
       me {
@@ -41,7 +41,7 @@ class MeGQLQuery extends GQLQuery<User>{
     }
   """;
 
-  const MeGQLQuery(): super();
+  const MeGQLQuery() : super();
 
   String query() {
     return this._query;
@@ -52,7 +52,7 @@ class MeGQLQuery extends GQLQuery<User>{
   }
 }
 
-class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
+class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   final String discussionID;
   final String _query = """
     query Discussion(\$id: ID!) {
@@ -69,6 +69,10 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
             }
             profileImageURL
           }
+        }
+        participants {
+          id
+          participantID
         }
         anonymityType
         posts {
@@ -88,7 +92,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
 
   const SingleDiscussionGQLQuery({
     this.discussionID,
-  }): super();
+  }) : super();
 
   String query() {
     return this._query;
@@ -100,7 +104,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion>{
   }
 }
 
-class DiscussionsGQLQuery extends GQLQuery<Discussion>{
+class DiscussionsGQLQuery extends GQLQuery<Discussion> {
   final String _query = """
     query Discussions() {
       listDiscussions {
@@ -122,7 +126,7 @@ class DiscussionsGQLQuery extends GQLQuery<Discussion>{
     }
   """;
 
-  const DiscussionsGQLQuery(): super();
+  const DiscussionsGQLQuery() : super();
 
   String query() {
     return this._query;

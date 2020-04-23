@@ -13,7 +13,7 @@ class Pressable extends StatelessWidget {
     @required this.width,
     @required this.height,
     this.decoration,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +27,10 @@ class Pressable extends StatelessWidget {
           this.child,
           Positioned.fill(
             child: Material(
+              borderRadius: this.decoration.borderRadius,
               color: Colors.transparent,
               child: InkWell(
+                borderRadius: this.decoration.borderRadius,
                 onTap: this.onPressed,
               ),
             ),

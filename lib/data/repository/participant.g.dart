@@ -8,7 +8,7 @@ part of 'participant.dart';
 
 Participant _$ParticipantFromJson(Map<String, dynamic> json) {
   return Participant(
-    participantId: json['participantId'] as int,
+    participantID: json['participantID'] as int,
     discussion: json['discussion'] == null
         ? null
         : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
@@ -24,7 +24,7 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
     <String, dynamic>{
-      'participantId': instance.participantId,
+      'participantID': instance.participantID,
       'discussion': instance.discussion,
       'viewer': instance.viewer,
       'posts': instance.posts,

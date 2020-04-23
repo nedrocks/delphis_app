@@ -12,4 +12,5 @@ class SpacingValues {
   static const large = 20.0;
   static const extraLarge = 24.0;
   static const xxLarge = 30.0;
+  static const xxxxLarge = 48.0;
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-const String AUTH_STORAGE_KEY = "delphis_auth_jwt_v1";
+const String AUTH_STORAGE_KEY = "delphis_auth_jwt_v5";
 
 class DelphisAuthRepository extends ChangeNotifier {
   String _authString;
@@ -15,7 +15,7 @@ class DelphisAuthRepository extends ChangeNotifier {
   // Asynchronously loads auth JWT from secure storage if possible.
   Future<bool> loadFromStorage() async {
     if (this._storage != null) {
-      var authString = await this._storage.read(key:AUTH_STORAGE_KEY);
+      var authString = await this._storage.read(key: AUTH_STORAGE_KEY);
 
       if (authString != null && authString != '') {
         // Do not notify.
@@ -27,13 +27,13 @@ class DelphisAuthRepository extends ChangeNotifier {
 
   Future<void> storeJWT() async {
     if (this._storage != null) {
-      await this._storage.write(key:AUTH_STORAGE_KEY, value:this._authString);
+      await this._storage.write(key: AUTH_STORAGE_KEY, value: this._authString);
     }
   }
 
   Future<void> deleteStoredJWT() async {
     if (this._storage != null) {
-      await this._storage.delete(key:AUTH_STORAGE_KEY);
+      await this._storage.delete(key: AUTH_STORAGE_KEY);
     }
   }
 

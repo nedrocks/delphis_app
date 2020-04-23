@@ -8,7 +8,7 @@ class MoreButton extends StatelessWidget {
   const MoreButton({
     @required this.diameter,
     @required this.onPressed,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {

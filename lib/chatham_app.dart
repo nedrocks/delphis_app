@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -37,7 +38,8 @@ class ChathamAppState extends State<ChathamApp> {
     super.initState();
 
     this.secureStorage = FlutterSecureStorage();
-    this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage))..add(FetchAuthEvent());
+    this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage))
+      ..add(FetchAuthEvent());
   }
 
   @override
@@ -46,14 +48,13 @@ class ChathamAppState extends State<ChathamApp> {
       uri: Constants.gqlEndpoint,
     );
 
-    final AuthLink authLink = AuthLink(
-      getToken: () async {
-        if (this.authBloc.state is InitializedAuthState && (this.authBloc.state as InitializedAuthState).isAuthed) {
-          return 'Bearer ${(this.authBloc.state as InitializedAuthState).authString}';
-        }
-        return 'Bearer ';
+    final AuthLink authLink = AuthLink(getToken: () async {
+      if (this.authBloc.state is InitializedAuthState &&
+          (this.authBloc.state as InitializedAuthState).isAuthed) {
+        return 'Bearer ${(this.authBloc.state as InitializedAuthState).authString}';
       }
-    );
+      return 'Bearer ';
+    });
     final Link link = authLink.concat(httpLink);
 
     final gqlClient = GraphQLClient(
@@ -67,32 +68,38 @@ class ChathamAppState extends State<ChathamApp> {
 
     ValueNotifier<GraphQLClient> client = ValueNotifier(gqlClient);
     return GraphQLProvider(
-      client: client,
-      child: MultiBlocProvider(
-        providers: <BlocProvider>[
-          BlocProvider<AuthBloc>.value(value: this.authBloc),
-          BlocProvider<MeBloc>(create: (context) => MeBloc(userRepository)),
-        ],
-        child: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is InitializedAuthState && state.isAuthed) {
-              BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-            }
-          },
-          child: MaterialApp(
-            title: "Chatham",
-            theme: kThemeData,
-            initialRoute: '/Auth/Twitter',
-            routes: {
-              '/': (context) => BlocProvider<DiscussionBloc>(
-                create: (context) => DiscussionBloc(repository: discussionRepository)..add(DiscussionQueryEvent('2589fb41-e6c5-4950-8b75-55bb3315113e')),
-                child: DelphisDiscussion(),
-              ),
-              '/Auth/Twitter': (context) => LoginScreen(),
+        client: client,
+        child: MultiBlocProvider(
+          providers: <BlocProvider>[
+            BlocProvider<AuthBloc>.value(value: this.authBloc),
+            BlocProvider<MeBloc>(create: (context) => MeBloc(userRepository)),
+          ],
+          child: BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is InitializedAuthState && state.isAuthed) {
+                BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
+              }
             },
+            child: MaterialApp(
+              title: "Chatham",
+              theme: kThemeData,
+              initialRoute: '/Auth',
+              routes: {
+                '/': (context) => BlocProvider<DiscussionBloc>(
+                      lazy: true,
+                      create: (context) =>
+                          DiscussionBloc(repository: discussionRepository)
+                            ..add(DiscussionQueryEvent(
+                                '2589fb41-e6c5-4950-8b75-55bb3315113e')),
+                      child: DelphisDiscussion(),
+                    ),
+                '/Auth': (context) => SignInScreen(
+                    onTwitterPressed: () =>
+                        {Navigator.of(context).pushNamed('/Auth/Twitter')}),
+                '/Auth/Twitter': (context) => LoginScreen(),
+              },
+            ),
           ),
-        ),
-      )
-    );
+        ));
   }
 }

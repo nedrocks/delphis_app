@@ -1,14 +1,10 @@
-import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
-import 'package:delphis_app/widgets/gradient_border/gradient_border.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
-import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DelphisInputButton extends StatelessWidget {
   final VoidCallback onClick;
@@ -25,7 +21,7 @@ class DelphisInputButton extends StatelessWidget {
     @required this.discussion,
     @required this.me,
     @required this.isModerator,
-  }): super();
+  }) : super();
 
   Widget _getProfileImage(User me, double borderRadius) {
     if (this.isModerator) {
@@ -62,11 +58,15 @@ class DelphisInputButton extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: gradient,
         shape: this.isModerator ? BoxShape.circle : BoxShape.rectangle,
-        border: this.isModerator ? null : Border.all(
-          color: Colors.transparent,
-          width: 1.5,
-        ),
-        borderRadius: this.isModerator ? null : BorderRadius.all(Radius.circular(borderRadius)),
+        border: this.isModerator
+            ? null
+            : Border.all(
+                color: Colors.transparent,
+                width: 1.5,
+              ),
+        borderRadius: this.isModerator
+            ? null
+            : BorderRadius.all(Radius.circular(borderRadius)),
       ),
       child: profileImage,
     );

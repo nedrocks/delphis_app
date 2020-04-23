@@ -20,8 +20,12 @@ class MeBloc extends Bloc<MeEvent, MeState> {
     MeEvent event,
   ) async* {
     if (event is FetchMeEvent) {
-      final me = await repository.getMe();
-      yield LoadedMeState(me);
+      try {
+        final me = await repository.getMe();
+        yield LoadedMeState(me);
+      } catch (err) {
+        print('caught error ${err}');
+      }
     }
   }
 }

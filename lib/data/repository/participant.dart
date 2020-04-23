@@ -9,21 +9,20 @@ part 'participant.g.dart';
 
 @JsonSerializable()
 class Participant extends Equatable {
-  final int participantId;
+  final int participantID;
   final Discussion discussion;
   final Viewer viewer;
   final List<Post> posts;
 
-  List<Object> get props => [
-    participantId, discussion, viewer, posts
-  ];
+  List<Object> get props => [participantID, discussion, viewer, posts];
 
   const Participant({
-    this.participantId,
+    this.participantID,
     this.discussion,
     this.viewer,
     this.posts,
   });
 
-  factory Participant.fromJson(Map<String, dynamic> json) => _$ParticipantFromJson(json);
+  factory Participant.fromJson(Map<String, dynamic> json) =>
+      _$ParticipantFromJson(json);
 }

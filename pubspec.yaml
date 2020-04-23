@@ -24,6 +24,10 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
+  flutter_svg: ^0.17.4
+  url_launcher: ^5.4.5
+  random_words: ^1.0.2
+
   webview_flutter: 0.3.19+9
   flutter_webview_plugin: 0.3.10+1
   provider: ^4.0.4
@@ -34,7 +38,7 @@ dependencies:
   graphql_flutter: ^3.0.0
   json_annotation: ^3.0.0
 
-  flutter_bloc: ^3.2.0
+  flutter_bloc: ^4.0.0
   equatable: ^1.1.1
 
 dev_dependencies:
@@ -84,6 +88,9 @@ flutter:
     - assets/images/star_bolt_purple/1.5x/image.png
     - assets/images/star_bolt_purple/2.0x/image.png
     - assets/images/star_bolt_purple/3.0x/image.png
+    - assets/svg/twitter_logo_blue.svg
+    - assets/svg/twitter_logo_white.svg
+    - assets/svg/twitter_logo.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

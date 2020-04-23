@@ -25,7 +25,12 @@ enum GradientName {
   MAHOGANY,
 }
 
-const List<GradientName> chathamGradientList = GradientName.values;
+const List<GradientName> allChathamGradients = GradientName.values;
+const GradientName moderatorGradientName = GradientName.MOD_PURPLE;
+final List<GradientName> anonymousGradients = GradientName.values
+    .where(
+        (n) => n != GradientName.MOD_PURPLE && n != GradientName.VERIFIED_TEAL)
+    .toList();
 
 class UnitCircleLocations {
   static final TOP = getLocationForAngleInDegrees(90);
@@ -48,27 +53,29 @@ class GradientStop {
   final Color color;
   final double stopPct;
 
-  const GradientStop(this.color, stopPct): 
-    assert(stopPct >= 0 && stopPct <= 100),
-    this.stopPct = stopPct;
+  const GradientStop(this.color, stopPct)
+      : assert(stopPct >= 0 && stopPct <= 100),
+        this.stopPct = stopPct;
 }
 
 class ChathamColors {
+  static final signInTwitterBackground = Color.fromRGBO(57, 58, 63, 1.0);
+  static final twitterLogoColor = Color.fromRGBO(102, 196, 254, 1.0);
+
   static final Map<GradientName, Gradient> gradients = {
     GradientName.MOD_PURPLE: LinearGradient(
-      colors: [
-        Color.fromRGBO(197, 76, 185, 1.0),
-        Color.fromRGBO(80, 76, 197, 1.0),
-        Color.fromRGBO(121, 76, 197, 1.0),
-      ],
-      begin: UnitCircleLocations.TOP_RIGHT,
-      end: UnitCircleLocations.BOTTOM_LEFT,
-      stops: [
-        0.0,
-        0.52,
-        1.0,
-      ]
-    ),
+        colors: [
+          Color.fromRGBO(197, 76, 185, 1.0),
+          Color.fromRGBO(80, 76, 197, 1.0),
+          Color.fromRGBO(121, 76, 197, 1.0),
+        ],
+        begin: UnitCircleLocations.TOP_RIGHT,
+        end: UnitCircleLocations.BOTTOM_LEFT,
+        stops: [
+          0.0,
+          0.52,
+          1.0,
+        ]),
     GradientName.VERIFIED_TEAL: LinearGradient(
       colors: [
         Color.fromRGBO(85, 172, 238, 1.0),

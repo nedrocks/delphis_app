@@ -10,11 +10,7 @@ import 'post.dart';
 
 part 'discussion.g.dart';
 
-enum AnonymityType {
-  UNKNOWN,
-  WEAK,
-  STRONG
-}
+enum AnonymityType { UNKNOWN, WEAK, STRONG }
 
 class DiscussionRepository {
   final GraphQLClient client;
@@ -26,14 +22,12 @@ class DiscussionRepository {
   Future<Discussion> getDiscussion(String discussionId) async {
     final query = SingleDiscussionGQLQuery();
 
-    final QueryResult result = await client.query(
-      QueryOptions(
-        documentNode: gql(query.query()),
-        variables: {
-          'id': discussionId,
-        },
-      )
-    );
+    final QueryResult result = await client.query(QueryOptions(
+      documentNode: gql(query.query()),
+      variables: {
+        'id': discussionId,
+      },
+    ));
     // Handle exceptions
     if (result.hasException) {
       throw result.exception;
@@ -42,7 +36,8 @@ class DiscussionRepository {
   }
 
   Future<Post> addPost(String discussionID, String postContent) async {
-    final mutation = AddPostGQLMutation(discussionID: discussionID, postContent: postContent);
+    final mutation = AddPostGQLMutation(
+        discussionID: discussionID, postContent: postContent);
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
@@ -74,11 +69,20 @@ class Discussion extends Equatable {
   final String title;
   final String createdAt;
   final String updatedAt;
+  final Participant meParticipant;
 
   @override
   List<Object> get props => [
-    id, moderator, anonymityType, posts, participants, title, createdAt, updatedAt
-  ];
+        id,
+        moderator,
+        anonymityType,
+        posts,
+        participants,
+        title,
+        createdAt,
+        updatedAt,
+        meParticipant,
+      ];
 
   const Discussion({
     this.id,
@@ -89,21 +93,23 @@ class Discussion extends Equatable {
     this.title,
     this.createdAt,
     this.updatedAt,
+    this.meParticipant,
   });
 
-  factory Discussion.fromJson(Map<String, dynamic> json) => _$DiscussionFromJson(json);
+  factory Discussion.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionFromJson(json);
 
   Discussion copyWith({
     List<Post> posts,
-  }) => Discussion(
-    id: this.id,
-    moderator: this.moderator,
-    anonymityType: this.anonymityType,
-    participants: this.participants,
-    title: this.title,
-    createdAt: this.createdAt,
-    updatedAt: this.updatedAt,
-
-    posts: posts ?? this.posts,
-  );
+  }) =>
+      Discussion(
+        id: this.id,
+        moderator: this.moderator,
+        anonymityType: this.anonymityType,
+        participants: this.participants,
+        title: this.title,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
+        posts: posts ?? this.posts,
+      );
 }

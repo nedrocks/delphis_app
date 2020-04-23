@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/util/text.dart';
@@ -18,9 +19,11 @@ const MAX_VISIBLE_ROWS = 5;
 
 class DelphisInput extends StatefulWidget {
   final Discussion discussion;
+  final Participant participant;
 
   DelphisInput({
     @required this.discussion,
+    @required this.participant,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -33,8 +36,6 @@ class DelphisInputState extends State<DelphisInput> {
 
   TextEditingController _controller;
   FocusNode _inputFocusNode;
-
-  double _height;
 
   @override
   void initState() {
@@ -74,7 +75,7 @@ class DelphisInputState extends State<DelphisInput> {
     final isModerator = this._isModerator(me);
     return BlocBuilder<MeBloc, MeState>(builder: (context, state) {
       if (!(state is LoadedMeState)) {
-        return Text("loading");
+        return Text("Loading");
       }
       final rowElems = <Widget>[
         BlocBuilder<DiscussionPostBloc, DiscussionPostState>(
@@ -89,6 +90,7 @@ class DelphisInputState extends State<DelphisInput> {
             discussion: this.widget.discussion,
             me: me,
             isModerator: isModerator,
+            participant: this.widget.participant,
             width: 39.0,
             height: 39.0,
           );

@@ -1,4 +1,5 @@
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
@@ -13,6 +14,7 @@ class DelphisInputButton extends StatelessWidget {
   final Discussion discussion;
   final User me;
   final bool isModerator;
+  final Participant participant;
 
   const DelphisInputButton({
     @required this.onClick,
@@ -21,6 +23,7 @@ class DelphisInputButton extends StatelessWidget {
     @required this.discussion,
     @required this.me,
     @required this.isModerator,
+    @required this.participant,
   }) : super();
 
   Widget _getProfileImage(User me, double borderRadius) {
@@ -48,7 +51,8 @@ class DelphisInputButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient = ChathamColors.gradients[GradientName.VERIFIED_TEAL];
+    final gradient = ChathamColors.gradients[anonymousGradients[
+        this.participant.participantID % anonymousGradients.length]];
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(me, borderRadius);
     return Pressable(

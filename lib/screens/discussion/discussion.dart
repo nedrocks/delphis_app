@@ -41,9 +41,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
       builder: (context, state) {
         if (state is DiscussionUninitializedState ||
             state is DiscussionLoadingState) {
-          return Center(
-            child: Text(Intl.message('Loading...')),
-          );
+          return Center();
         }
         if (state is DiscussionErrorState) {
           return Center(
@@ -111,7 +109,10 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             Expanded(
               child: listViewBuilder,
             ),
-            DelphisInput(discussion: state.getDiscussion()),
+            DelphisInput(
+              discussion: state.getDiscussion(),
+              participant: state.getDiscussion().meParticipant,
+            ),
           ],
         );
         Widget toRender = listViewWithInput;

@@ -72,6 +72,9 @@ flutter:
     - assets/images/anon_face_transparent/1.5x/anon_face_transparent.png
     - assets/images/anon_face_transparent/2.0x/anon_face_transparent.png
     - assets/images/anon_face_transparent/4.0x/anon_face_transparent.png
+    - assets/images/app_icon/image.png
+    - assets/images/app_icon/2.0x/image.png
+    - assets/images/app_icon/3.0x/image.png
     - assets/images/circle_check_border_trans/image.png
     - assets/images/circle_check_border_trans/1.5x/image.png
     - assets/images/circle_check_border_trans/2.0x/image.png

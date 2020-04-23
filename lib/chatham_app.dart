@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import 'constants.dart';
 import 'design/text_theme.dart';
+import 'screens/intro/intro_screen.dart';
 
 class ChathamApp extends StatefulWidget {
   @override
@@ -83,8 +84,9 @@ class ChathamAppState extends State<ChathamApp> {
             child: MaterialApp(
               title: "Chatham",
               theme: kThemeData,
-              initialRoute: '/Auth',
+              initialRoute: '/Intro',
               routes: {
+                '/Intro': (context) => IntroScreen(),
                 '/': (context) => BlocProvider<DiscussionBloc>(
                       lazy: true,
                       create: (context) =>

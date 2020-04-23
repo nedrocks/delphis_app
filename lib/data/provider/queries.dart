@@ -70,6 +70,10 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
             profileImageURL
           }
         }
+        meParticipant {
+          id
+          participantID
+        }
         participants {
           id
           participantID

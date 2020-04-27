@@ -1,5 +1,5 @@
 name: delphis_app
-description: A new Flutter project.
+description: Chatham application for anonymous discussion
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -28,7 +28,6 @@ dependencies:
   url_launcher: ^5.4.5
   random_words: ^1.0.2
 
-  webview_flutter: 0.3.19+9
   flutter_webview_plugin: 0.3.10+1
   provider: ^4.0.4
 

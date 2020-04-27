@@ -4,7 +4,7 @@ part of 'discussion_bloc.dart';
 abstract class DiscussionState extends Equatable {
   Discussion getDiscussion();
 
-  @override 
+  @override
   List<Object> get props => [getDiscussion()];
 }
 
@@ -25,7 +25,7 @@ class DiscussionLoadingState extends DiscussionState {
 class DiscussionErrorState extends DiscussionState {
   final Exception error;
 
-  DiscussionErrorState(this.error): super();
+  DiscussionErrorState(this.error) : super();
 
   @override
   Discussion getDiscussion() {
@@ -36,7 +36,7 @@ class DiscussionErrorState extends DiscussionState {
 class DiscussionLoadedState extends DiscussionState {
   final Discussion discussion;
 
-  DiscussionLoadedState(this.discussion): super();
+  DiscussionLoadedState(this.discussion) : super();
 
   Discussion getDiscussion() {
     return this.discussion;

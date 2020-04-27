@@ -116,7 +116,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           ],
         );
         Widget toRender = listViewWithInput;
-        if (!this.hasAcceptedIncognitoWarning) {
+        if (false && !this.hasAcceptedIncognitoWarning) {
           toRender = AnimatedDiscussionPopup(
             child: listViewWithInput,
             popup: DiscussionPopup(

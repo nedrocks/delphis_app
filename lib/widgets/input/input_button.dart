@@ -51,8 +51,10 @@ class DelphisInputButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gradient = ChathamColors.gradients[anonymousGradients[
-        this.participant.participantID % anonymousGradients.length]];
+    final participantID =
+        this.participant == null ? 0 : this.participant.participantID;
+    final gradient = ChathamColors.gradients[
+        anonymousGradients[participantID % anonymousGradients.length]];
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(me, borderRadius);
     return Pressable(

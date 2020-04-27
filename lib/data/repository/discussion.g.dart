@@ -25,6 +25,9 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     title: json['title'] as String,
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
+    meParticipant: json['meParticipant'] == null
+        ? null
+        : Participant.fromJson(json['meParticipant'] as Map<String, dynamic>),
   );
 }
 
@@ -38,6 +41,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'title': instance.title,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
+      'meParticipant': instance.meParticipant,
     };
 
 T _$enumDecode<T>(

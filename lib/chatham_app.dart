@@ -27,6 +27,7 @@ class ChathamAppState extends State<ChathamApp> {
   FlutterSecureStorage secureStorage;
   AuthBloc authBloc;
   GraphQLClient gqlClient;
+  GraphQLClient websocketGQLClient;
 
   @override
   void dispose() {
@@ -63,9 +64,26 @@ class ChathamAppState extends State<ChathamApp> {
       link: link,
     );
 
-    final discussionRepository = DiscussionRepository(gqlClient);
+    var wsEndpoint = '${Constants.wsEndpoint}';
+    if (this.authBloc.state is InitializedAuthState &&
+        (this.authBloc.state as InitializedAuthState).isAuthed) {
+      wsEndpoint =
+          '$wsEndpoint?access_token=${(this.authBloc.state as InitializedAuthState).authString}';
+    }
+    final websocketGQLClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: WebSocketLink(
+        url: wsEndpoint,
+        config: SocketClientConfig(
+          autoReconnect: true,
+          inactivityTimeout: Duration(seconds: 30),
+        ),
+      ),
+    );
+
+    final discussionRepository =
+        DiscussionRepository(gqlClient, websocketGQLClient);
     final userRepository = UserRepository(gqlClient);
-    ;
 
     ValueNotifier<GraphQLClient> client = ValueNotifier(gqlClient);
     return GraphQLProvider(

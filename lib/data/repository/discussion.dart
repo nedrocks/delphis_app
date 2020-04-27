@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/provider/muatations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/provider/subscriptions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
@@ -14,9 +15,11 @@ enum AnonymityType { UNKNOWN, WEAK, STRONG }
 
 class DiscussionRepository {
   final GraphQLClient client;
+  final GraphQLClient websocketGQLClient;
 
   const DiscussionRepository(
     this.client,
+    this.websocketGQLClient,
   );
 
   Future<Discussion> getDiscussion(String discussionId) async {
@@ -56,6 +59,25 @@ class DiscussionRepository {
       throw result.exception;
     }
     return mutation.parseResult(result.data);
+  }
+
+  Stream<Post> subscribe(String discussionID) {
+    final subscription = PostAddedSubscription(discussionID);
+    Stream<FetchResult> resStream = websocketGQLClient.subscribe(
+      Operation(
+          operationName: "postAdded",
+          documentNode: gql(subscription.subscription()),
+          variables: {
+            'discussionID': discussionID,
+          }),
+    );
+
+    return resStream.map<Post>((FetchResult res) {
+      if (res.errors != null && res.errors.length > 0) {
+        throw Exception("Caught errors from GQL subcription: ${res.errors}");
+      }
+      return subscription.parseResult(res.data);
+    });
   }
 }
 
@@ -111,5 +133,6 @@ class Discussion extends Equatable {
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
         posts: posts ?? this.posts,
+        meParticipant: this.meParticipant,
       );
 }

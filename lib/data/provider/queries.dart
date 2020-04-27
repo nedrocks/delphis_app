@@ -1,25 +1,6 @@
 import '../repository/discussion.dart';
 import '../repository/user.dart';
 
-// abstract class GQLQuery<T> extends StatelessWidget {
-//   final Map<String, dynamic> variables;
-//   final Widget children;
-
-//   const GQLQuery({
-//     this.variables,
-//     this.children,
-//   }): super();
-
-//   @protected
-//   T parseResult(dynamic data);
-// }
-
-// abstract class GQLMutation<T> extends StatelessWidget {
-//   @protected
-//   T parseResult(dynamic data);
-//   String mutation(Map variables);
-// }
-
 abstract class GQLQuery<T> {
   T parseResult(dynamic data);
   String query();

@@ -28,22 +28,28 @@ class Constants {
     return _config[_Config.GQL_ENDPOINT];
   }
 
+  static get wsEndpoint {
+    return _config[_Config.WS_ENDPOINT];
+  }
 }
 
 class _Config {
   static const TWITTER_REDIRECT_URL_PREFIX = "redirect-url-prefix";
   static const TWITTER_LOGIN_URL = "login-url";
   static const GQL_ENDPOINT = "gql-endpoint";
+  static const WS_ENDPOINT = "ws-endpoint";
 
   static Map<String, dynamic> debugConstants = {
     TWITTER_REDIRECT_URL_PREFIX: "http://local.delphishq.com:8000/",
     TWITTER_LOGIN_URL: "http://localhost:8080/twitter/login",
     GQL_ENDPOINT: "http://localhost:8080/query",
+    WS_ENDPOINT: "ws://localhost:8080/query",
   };
 
   static Map<String, dynamic> stagingConstants = {
     TWITTER_REDIRECT_URL_PREFIX: "https://app-staging.delphishq.com",
     TWITTER_LOGIN_URL: "https://staging.delphishq.com/twitter/login",
     GQL_ENDPOINT: "https://staging.delphishq.com/query",
+    WS_ENDPOINT: "wss://staging.delphishq.com/query",
   };
 }

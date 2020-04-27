@@ -9,7 +9,7 @@ abstract class DiscussionEvent extends Equatable {
 class DiscussionQueryEvent extends DiscussionEvent {
   final String discussionId;
 
-  DiscussionQueryEvent(this.discussionId): super();
+  DiscussionQueryEvent(this.discussionId) : super();
 
   @override
   List<Object> get props => [this.discussionId];
@@ -18,7 +18,7 @@ class DiscussionQueryEvent extends DiscussionEvent {
 class DiscussionErrorEvent extends DiscussionEvent {
   final Exception exception;
 
-  DiscussionErrorEvent(this.exception): super();
+  DiscussionErrorEvent(this.exception) : super();
 
   @override
   List<Object> get props => [this.exception];
@@ -27,7 +27,7 @@ class DiscussionErrorEvent extends DiscussionEvent {
 class DiscussionLoadedEvent extends DiscussionEvent {
   final Discussion discussion;
 
-  DiscussionLoadedEvent(this.discussion): super();
+  DiscussionLoadedEvent(this.discussion) : super();
 
   @override
   List<Object> get props => [this.discussion];
@@ -36,7 +36,7 @@ class DiscussionLoadedEvent extends DiscussionEvent {
 class DiscussionPostsUpdatedEvent extends DiscussionEvent {
   final List<Post> posts;
 
-  DiscussionPostsUpdatedEvent(this.posts): super();
+  DiscussionPostsUpdatedEvent(this.posts) : super();
 
   @override
   List<Object> get props => [this.posts];

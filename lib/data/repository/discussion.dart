@@ -15,7 +15,7 @@ enum AnonymityType { UNKNOWN, WEAK, STRONG }
 
 class DiscussionRepository {
   final GraphQLClient client;
-  final GraphQLClient websocketGQLClient;
+  final SocketClient websocketGQLClient;
 
   const DiscussionRepository(
     this.client,
@@ -49,7 +49,6 @@ class DiscussionRepository {
           'postContent': postContent,
         },
         update: (Cache cache, QueryResult result) {
-          // TODO: Update the cache somehow?
           return cache;
         },
       ),
@@ -63,17 +62,18 @@ class DiscussionRepository {
 
   Stream<Post> subscribe(String discussionID) {
     final subscription = PostAddedSubscription(discussionID);
-    Stream<FetchResult> resStream = websocketGQLClient.subscribe(
-      Operation(
+    Stream<SubscriptionData> resStream = websocketGQLClient.subscribe(
+      SubscriptionRequest(Operation(
           operationName: "postAdded",
           documentNode: gql(subscription.subscription()),
           variables: {
             'discussionID': discussionID,
-          }),
+          })),
+      true,
     );
 
-    return resStream.map<Post>((FetchResult res) {
-      if (res.errors != null && res.errors.length > 0) {
+    return resStream.map<Post>((SubscriptionData res) {
+      if (res.errors != null) {
         throw Exception("Caught errors from GQL subcription: ${res.errors}");
       }
       return subscription.parseResult(res.data);

@@ -82,10 +82,11 @@ class DelphisInputState extends State<DelphisInput> {
             builder: (context, state) {
           return DelphisInputButton(
             onClick: () {
-              BlocProvider.of<DiscussionPostBloc>(context).add(
-                DiscussionPostAddEvent(postContent: this._controller.text),
-              );
-              this._controller.text = "";
+              // BlocProvider.of<DiscussionPostBloc>(context).add(
+              //   DiscussionPostAddEvent(postContent: this._controller.text),
+              // );
+              // this._controller.text = "";
+              // TODO: This should open up anonymity options.
             },
             discussion: this.widget.discussion,
             me: me,

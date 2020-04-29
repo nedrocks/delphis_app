@@ -79,9 +79,7 @@ class DiscussionPostBloc
         );
       }
     } else if (event is DiscussionPostAddedEvent) {
-      var updatedPosts = currentState.posts..insert(0, event.addedPost);
-      this.discussionBloc.add(DiscussionPostsUpdatedEvent(updatedPosts));
-      yield DiscussionPostLoadedState(posts: updatedPosts);
+      // Noop here right now.
     } else if (event is DiscussionPostsLoadedEvent) {
       yield DiscussionPostLoadedState(posts: event.posts);
       print('about to send subscribe to discussion event');
@@ -89,11 +87,16 @@ class DiscussionPostBloc
     } else if (event is SubscribeToDiscussionEvent &&
         this.discussionPostStream == null) {
       print('about to subscribe to stream');
-      this.discussionPostStream = this.repository.subscribe(this.discussionID);
-      this.discussionPostStream.listen((Post post) {
-        this.add(DiscussionPostAddedEvent(post));
-      });
-      yield currentState;
+      try {
+        this.discussionPostStream =
+            this.repository.subscribe(this.discussionID);
+        this.discussionPostStream.listen((Post post) {
+          this.add(DiscussionPostAddedEvent(post));
+        });
+        yield currentState;
+      } catch (err) {
+        print(err);
+      }
     }
   }
 }

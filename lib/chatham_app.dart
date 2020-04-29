@@ -25,9 +25,10 @@ class ChathamApp extends StatefulWidget {
 
 class ChathamAppState extends State<ChathamApp> {
   FlutterSecureStorage secureStorage;
+  bool isInitialized;
   AuthBloc authBloc;
   GraphQLClient gqlClient;
-  GraphQLClient websocketGQLClient;
+  SocketClient websocketGQLClient;
 
   @override
   void dispose() {
@@ -42,6 +43,14 @@ class ChathamAppState extends State<ChathamApp> {
     this.secureStorage = FlutterSecureStorage();
     this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage))
       ..add(FetchAuthEvent());
+    isInitialized = false;
+    this.authBloc.listen((state) {
+      if (state is InitializedAuthState) {
+        setState(() {
+          this.isInitialized = true;
+        });
+      }
+    });
   }
 
   @override
@@ -50,16 +59,16 @@ class ChathamAppState extends State<ChathamApp> {
       uri: Constants.gqlEndpoint,
     );
 
-    final AuthLink authLink = AuthLink(getToken: () async {
+    AuthLink authLink = AuthLink(getToken: () async {
       if (this.authBloc.state is InitializedAuthState &&
           (this.authBloc.state as InitializedAuthState).isAuthed) {
         return 'Bearer ${(this.authBloc.state as InitializedAuthState).authString}';
       }
       return 'Bearer ';
     });
-    final Link link = authLink.concat(httpLink);
+    Link link = authLink.concat(httpLink);
 
-    final gqlClient = GraphQLClient(
+    gqlClient = GraphQLClient(
       cache: InMemoryCache(),
       link: link,
     );
@@ -70,15 +79,8 @@ class ChathamAppState extends State<ChathamApp> {
       wsEndpoint =
           '$wsEndpoint?access_token=${(this.authBloc.state as InitializedAuthState).authString}';
     }
-    final websocketGQLClient = GraphQLClient(
-      cache: InMemoryCache(),
-      link: WebSocketLink(
-        url: wsEndpoint,
-        config: SocketClientConfig(
-          autoReconnect: true,
-          inactivityTimeout: Duration(seconds: 30),
-        ),
-      ),
+    websocketGQLClient = SocketClient(
+      wsEndpoint,
     );
 
     final discussionRepository =
@@ -104,7 +106,8 @@ class ChathamAppState extends State<ChathamApp> {
               theme: kThemeData,
               initialRoute: '/Intro',
               routes: {
-                '/Intro': (context) => IntroScreen(),
+                '/Intro': (context) =>
+                    IntroScreen(isInitialized: isInitialized),
                 '/': (context) => BlocProvider<DiscussionBloc>(
                       lazy: true,
                       create: (context) =>

@@ -7,12 +7,14 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/util/text.dart';
+import 'package:delphis_app/widgets/input/discussion_submit_button.dart';
 import 'package:delphis_app/widgets/input/moderator_input_button.dart';
+import 'package:delphis_app/widgets/settings/participant_settings_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'input_button.dart';
 import 'text_input.dart';
 
 const MAX_VISIBLE_ROWS = 5;
@@ -45,6 +47,16 @@ class DelphisInputState extends State<DelphisInput> {
     this._controller.addListener(() =>
         this.setState(() => {this._textLength = this._controller.text.length}));
     this._inputFocusNode = FocusNode();
+    this._inputFocusNode.addListener(() {
+      if (this._inputFocusNode.hasFocus) {
+        print('received focus');
+        this._controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: this._controller.text.length));
+        this._inputFocusNode.consumeKeyboardToken();
+      } else {
+        print('lost focus');
+      }
+    });
   }
 
   @override
@@ -63,6 +75,71 @@ class DelphisInputState extends State<DelphisInput> {
     }
   }
 
+  List<Widget> buildNonInputRowElems(BuildContext context, MeState state,
+      User me, bool isModerator, Widget textInput) {
+    final rowElems = <Widget>[
+      ParticipantSettingsButton(
+        onClick: () {
+          // BlocProvider.of<DiscussionPostBloc>(context).add(
+          //   DiscussionPostAddEvent(postContent: this._controller.text),
+          // );
+          // this._controller.text = "";
+          // TODO: This should open up anonymity options.
+        },
+        discussion: this.widget.discussion,
+        me: me,
+        isModerator: isModerator,
+        participant: this.widget.participant,
+        width: 39.0,
+        height: 39.0,
+      ),
+      SizedBox(
+        width: SpacingValues.medium,
+      ),
+      textInput,
+    ];
+    if (isModerator) {
+      rowElems.add(SizedBox(
+        width: SpacingValues.small,
+      ));
+      rowElems.add(ModeratorInputButton(
+        onPressed: () {
+          print('inputButtonPressed');
+        },
+        height: 39.0,
+        width: 39.0,
+      ));
+    }
+    return rowElems;
+  }
+
+  List<Widget> buildInputRowElems(BuildContext context, MeState state, User me,
+      bool isModerator, Widget textInput) {
+    final rowElems = <Widget>[
+      textInput,
+      SizedBox(
+        width: SpacingValues.medium,
+      ),
+      DiscussionSubmitButton(
+        onPressed: () {
+          BlocProvider.of<DiscussionPostBloc>(context).add(
+            DiscussionPostAddEvent(postContent: this._controller.text),
+          );
+          this._controller.text = '';
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              this._inputFocusNode.unfocus();
+            });
+          });
+        },
+        width: 40.0,
+        height: 40.0,
+        isActive: this._controller.text.length > 0,
+      ),
+    ];
+    return rowElems;
+  }
+
   bool _isModerator(User me) =>
       this.widget.discussion.moderator.userProfile.id == me.profile.id;
 
@@ -77,29 +154,14 @@ class DelphisInputState extends State<DelphisInput> {
       if (!(state is LoadedMeState)) {
         return Text("Loading");
       }
-      final rowElems = <Widget>[
-        BlocBuilder<DiscussionPostBloc, DiscussionPostState>(
-            builder: (context, state) {
-          return DelphisInputButton(
-            onClick: () {
-              // BlocProvider.of<DiscussionPostBloc>(context).add(
-              //   DiscussionPostAddEvent(postContent: this._controller.text),
-              // );
-              // this._controller.text = "";
-              // TODO: This should open up anonymity options.
-            },
-            discussion: this.widget.discussion,
-            me: me,
-            isModerator: isModerator,
-            participant: this.widget.participant,
-            width: 39.0,
-            height: 39.0,
-          );
-        }),
-        SizedBox(
-          width: SpacingValues.medium,
-        ),
-        Expanded(
+      final textInput = Expanded(
+        child: GestureDetector(
+          onTap: () {
+            this._inputFocusNode.requestFocus()
+          },
+          onDoubleTap: () {
+            this._inputFocusNode.unfocus();
+          },
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
             var textStyle = Theme.of(context).textTheme.bodyText2;
@@ -125,19 +187,11 @@ class DelphisInputState extends State<DelphisInput> {
             );
           }),
         ),
-      ];
-      if (isModerator) {
-        rowElems.add(SizedBox(
-          width: SpacingValues.small,
-        ));
-        rowElems.add(ModeratorInputButton(
-          onPressed: () {
-            print('inputButtonPressed');
-          },
-          height: 39.0,
-          width: 39.0,
-        ));
-      }
+      );
+      final rowElems = this._inputFocusNode.hasFocus
+          ? this.buildInputRowElems(context, state, me, isModerator, textInput)
+          : this.buildNonInputRowElems(
+              context, state, me, isModerator, textInput);
       return ConstrainedBox(
         constraints: new BoxConstraints(
           minHeight: 60.0,

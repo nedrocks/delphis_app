@@ -7,7 +7,7 @@ import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 
-class DelphisInputButton extends StatelessWidget {
+class ParticipantSettingsButton extends StatelessWidget {
   final VoidCallback onClick;
   final double width;
   final double height;
@@ -16,7 +16,7 @@ class DelphisInputButton extends StatelessWidget {
   final bool isModerator;
   final Participant participant;
 
-  const DelphisInputButton({
+  const ParticipantSettingsButton({
     @required this.onClick,
     @required this.width,
     @required this.height,

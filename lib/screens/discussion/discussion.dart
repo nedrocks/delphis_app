@@ -1,9 +1,12 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
+import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_settings.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -24,6 +27,7 @@ class DelphisDiscussion extends StatefulWidget {
 
 class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool hasAcceptedIncognitoWarning;
+  bool _isShowParticipantSettings;
 
   ScrollController _scrollController;
 
@@ -33,6 +37,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
 
     this.hasAcceptedIncognitoWarning = false;
     _scrollController = ScrollController();
+    this._isShowParticipantSettings = false;
   }
 
   @override
@@ -64,6 +69,22 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               itemBuilder: (context, index) {
                 return DiscussionPost(discussion: discussionObj, index: index);
               }),
+        );
+        Widget listViewOverlay = listViewBuilder;
+        if (this._isShowParticipantSettings) {
+          listViewOverlay = AnimatedDiscussionPopup(
+            child: listViewBuilder,
+            popup: DiscussionPopup(
+              contents: ParticipantAnonymitySettings(
+                meParticipant: state.getDiscussion().meParticipant,
+                me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
+              ),
+            ),
+            animationMillis: 500,
+          );
+        }
+        final expandedConversationView = Expanded(
+          child: listViewOverlay,
         );
         var listViewWithInput = Column(
           children: <Widget>[
@@ -106,17 +127,22 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                     ),
                   ],
                 )),
-            Expanded(
-              child: listViewBuilder,
-            ),
+            expandedConversationView,
             DelphisInput(
               discussion: state.getDiscussion(),
               participant: state.getDiscussion().meParticipant,
+              isShowingParticipantSettings: this._isShowParticipantSettings,
+              onParticipantSettingsPressed: () {
+                setState(() {
+                  this._isShowParticipantSettings =
+                      !this._isShowParticipantSettings;
+                });
+              },
             ),
           ],
         );
         Widget toRender = listViewWithInput;
-        if (false && !this.hasAcceptedIncognitoWarning) {
+        if (!this.hasAcceptedIncognitoWarning) {
           toRender = AnimatedDiscussionPopup(
             child: listViewWithInput,
             popup: DiscussionPopup(
@@ -127,7 +153,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 },
               ),
             ),
-            animationSeconds: 0,
+            animationMillis: 0,
           );
         }
         return BlocProvider<DiscussionPostBloc>(
@@ -145,5 +171,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
       },
     );
+  }
+
+  User _extractMe(MeState state) {
+    if (state is LoadedMeState) {
+      return state.me;
+    } else {
+      // This should never happen and we should probably throw an error here?
+      return null;
+    }
   }
 }

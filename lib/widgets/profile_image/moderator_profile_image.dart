@@ -57,8 +57,12 @@ class ModeratorProfileImage extends StatelessWidget {
                   color: Colors.black,
                 ),
                 child: ProfileImage(
-                  width: this.diameter * SCALE_FACTOR - this.outerBorderWidth - SPACER_SIZE,
-                  height: this.diameter * SCALE_FACTOR - this.outerBorderWidth - SPACER_SIZE,
+                  width: this.diameter * SCALE_FACTOR -
+                      this.outerBorderWidth -
+                      SPACER_SIZE,
+                  height: this.diameter * SCALE_FACTOR -
+                      this.outerBorderWidth -
+                      SPACER_SIZE,
                   profileImageURL: this.profileImageURL,
                   gradient: ChathamColors.gradients[GradientName.MOD_PURPLE],
                   gradientWidth: 1.5,
@@ -80,5 +84,4 @@ class ModeratorProfileImage extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -22,10 +22,14 @@ const MAX_VISIBLE_ROWS = 5;
 class DelphisInput extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
+  final bool isShowingParticipantSettings;
+  final VoidCallback onParticipantSettingsPressed;
 
   DelphisInput({
     @required this.discussion,
     @required this.participant,
+    @required this.isShowingParticipantSettings,
+    @required this.onParticipantSettingsPressed,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -79,14 +83,7 @@ class DelphisInputState extends State<DelphisInput> {
       User me, bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
       ParticipantSettingsButton(
-        onClick: () {
-          // BlocProvider.of<DiscussionPostBloc>(context).add(
-          //   DiscussionPostAddEvent(postContent: this._controller.text),
-          // );
-          // this._controller.text = "";
-          // TODO: This should open up anonymity options.
-        },
-        discussion: this.widget.discussion,
+        onPressed: this.widget.onParticipantSettingsPressed,
         me: me,
         isModerator: isModerator,
         participant: this.widget.participant,
@@ -157,10 +154,14 @@ class DelphisInputState extends State<DelphisInput> {
       final textInput = Expanded(
         child: GestureDetector(
           onTap: () {
-            this._inputFocusNode.requestFocus()
+            if (!this.widget.isShowingParticipantSettings) {
+              this._inputFocusNode.requestFocus();
+            }
           },
           onDoubleTap: () {
-            this._inputFocusNode.unfocus();
+            if (!this.widget.isShowingParticipantSettings) {
+              this._inputFocusNode.unfocus();
+            }
           },
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
@@ -184,6 +185,7 @@ class DelphisInputState extends State<DelphisInput> {
               verticalPadding: this._textBoxVerticalPadding / 2.0,
               hintText: Intl.message("Type a message"),
               textStyle: textStyle,
+              isEnabled: this.widget.isShowingParticipantSettings,
             );
           }),
         ),

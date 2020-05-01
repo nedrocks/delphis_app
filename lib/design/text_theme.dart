@@ -110,4 +110,56 @@ class TextThemes {
     fontSize: 9.0,
     letterSpacing: -0.75,
   );
+
+  static final goIncognitoHeader = TextStyle(
+    fontSize: 19.0,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(247, 247, 255, 1.0),
+    letterSpacing: -0.25,
+    height: 1.473,
+  );
+  static final goIncognitoSubheader = TextStyle(
+    fontSize: 15.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(227, 227, 236, 1.0),
+    letterSpacing: 0.09,
+    height: 1.267,
+  );
+  static final goIncognitoOptionName = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+    letterSpacing: -0.22,
+    height: 1.429,
+  );
+  static final goIncognitoOptionAction = TextStyle(
+    fontSize: 13.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(200, 200, 207, 1.0),
+    letterSpacing: -0.17,
+    height: 1.3846,
+  );
+  static final goIncognitoButton = TextStyle(
+    fontSize: 17.0,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+    letterSpacing: -0.22,
+    height: 1.412,
+  );
+
+  static final backButton = TextStyle(
+    fontSize: 15.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(200, 200, 207, 1.0),
+    letterSpacing: -0.19,
+    height: 1.4667,
+  );
+
+  static final gradientSelectorName = TextStyle(
+    fontSize: 12.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(255, 255, 255, 0.92),
+    letterSpacing: -0.19,
+    height: 1.6667,
+  );
 }

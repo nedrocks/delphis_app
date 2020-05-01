@@ -10,6 +10,7 @@ class DelphisTextInput extends StatelessWidget {
   final FocusNode focusNode;
   final String hintText;
   final TextStyle textStyle;
+  bool isEnabled;
 
   DelphisTextInput({
     @required this.controller,
@@ -20,6 +21,7 @@ class DelphisTextInput extends StatelessWidget {
     @required this.verticalPadding,
     @required this.hintText,
     @required this.textStyle,
+    @required this.isEnabled,
   }) : super();
 
   @override
@@ -27,6 +29,7 @@ class DelphisTextInput extends StatelessWidget {
     final hintStyle =
         this.textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
     final textField = TextField(
+      enabled: this.isEnabled,
       showCursor: true,
       focusNode: this.focusNode,
       controller: this.controller,

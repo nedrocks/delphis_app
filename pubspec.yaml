@@ -90,6 +90,8 @@ flutter:
     - assets/images/star_bolt_purple/1.5x/image.png
     - assets/images/star_bolt_purple/2.0x/image.png
     - assets/images/star_bolt_purple/3.0x/image.png
+    - assets/svg/back_chevron.svg
+    - assets/svg/check_mark.svg
     - assets/svg/paper_airplane.svg
     - assets/svg/twitter_logo_blue.svg
     - assets/svg/twitter_logo_white.svg

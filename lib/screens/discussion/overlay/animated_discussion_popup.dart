@@ -6,29 +6,60 @@ import 'discussion_popup.dart';
 class AnimatedDiscussionPopup extends StatefulWidget {
   final Widget child;
   final DiscussionPopup popup;
-  final int animationSeconds;
+  final int animationMillis;
+  final VoidCallback onForwardAnimationComplete;
+  final VoidCallback onReverseAnimationComplete;
 
-  const AnimatedDiscussionPopup({
-    this.child,
-    this.popup,
-    this.animationSeconds,
-  }): super();
+  const AnimatedDiscussionPopup(
+      {@required this.child,
+      @required this.popup,
+      @required this.animationMillis,
+      this.onForwardAnimationComplete,
+      this.onReverseAnimationComplete})
+      : super();
 
   @override
   State<StatefulWidget> createState() => AnimatedDiscussionPopupState();
 }
 
-class AnimatedDiscussionPopupState extends State<AnimatedDiscussionPopup> with SingleTickerProviderStateMixin {
+class AnimatedDiscussionPopupState extends State<AnimatedDiscussionPopup>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
   Animation<Offset> offset;
+  bool _isForwardAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    this.controller = AnimationController(vsync: this, duration: Duration(seconds: this.widget.animationSeconds));
+    this._isForwardAnimation = true;
 
-    this.offset = Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset.zero).animate(controller);
+    this.controller = AnimationController(
+        vsync: this,
+        duration: Duration(milliseconds: this.widget.animationMillis))
+      ..addStatusListener((AnimationStatus state) {
+        if (state == AnimationStatus.forward) {
+          this.setState(() {
+            this._isForwardAnimation = true;
+          });
+        } else if (state == AnimationStatus.reverse) {
+          this.setState(() {
+            this._isForwardAnimation = false;
+          });
+        } else if (state == AnimationStatus.completed) {
+          if (this._isForwardAnimation &&
+              this.widget.onForwardAnimationComplete != null) {
+            this.widget.onForwardAnimationComplete();
+          } else if (!this._isForwardAnimation &&
+              this.widget.onReverseAnimationComplete != null) {
+            this.widget.onReverseAnimationComplete();
+          }
+        }
+      });
+
+    this.offset = Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset.zero)
+        .animate(controller);
+    this.controller.forward();
   }
 
   @override
@@ -39,18 +70,14 @@ class AnimatedDiscussionPopupState extends State<AnimatedDiscussionPopup> with S
 
   @override
   Widget build(BuildContext context) {
-    this.controller.forward();
-    return Stack(
-      children: <Widget>[
-        this.widget.child,
-        Align(
+    return Stack(children: <Widget>[
+      this.widget.child,
+      Align(
           alignment: Alignment.bottomCenter,
           child: SlideTransition(
             position: this.offset,
             child: this.widget.popup,
-          )
-        )
-      ]
-    );
+          ))
+    ]);
   }
 }

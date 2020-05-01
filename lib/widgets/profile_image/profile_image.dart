@@ -15,8 +15,10 @@ class ProfileImage extends StatelessWidget {
     this.border,
     this.gradient,
     this.gradientWidth,
-  }): assert(gradient != null ? (gradientWidth != null && gradientWidth > 0.0) : true),
-      super();
+  })  : assert(gradient != null
+            ? (gradientWidth != null && gradientWidth > 0.0)
+            : true),
+        super();
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +29,14 @@ class ProfileImage extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: this.gradient,
       ),
-      padding: (this.gradientWidth != null && this.gradientWidth > 0.0) ? EdgeInsets.all(this.gradientWidth) : null,
+      padding: (this.gradientWidth != null && this.gradientWidth > 0.0)
+          ? EdgeInsets.all(this.gradientWidth)
+          : null,
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           image: DecorationImage(
-          fit: BoxFit.fill,
+            fit: BoxFit.fill,
             image: NetworkImage(this.profileImageURL),
           ),
           border: this.border,

@@ -17,6 +17,7 @@ class Pressable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(decoration.shape);
     return Container(
       width: this.width,
       height: this.height,
@@ -27,6 +28,9 @@ class Pressable extends StatelessWidget {
           this.child,
           Positioned.fill(
             child: Material(
+              shape: this.decoration.shape == BoxShape.circle
+                  ? CircleBorder()
+                  : null,
               borderRadius: this.decoration.borderRadius,
               color: Colors.transparent,
               child: InkWell(

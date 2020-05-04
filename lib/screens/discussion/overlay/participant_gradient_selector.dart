@@ -56,7 +56,8 @@ class _ParticipantGradientSelectorState
         Expanded(
           flex: 3,
           child: GridView.count(
-            crossAxisCount: 5,
+            crossAxisCount: 3,
+            scrollDirection: Axis.horizontal,
             children: anonymousGradients.map<Widget>((gradientName) {
               final isSelected = gradientName == this._selectedGradient;
               final gradient = ChathamColors.gradients[gradientName];

@@ -1,4 +1,4 @@
-import 'package:delphis_app/data/provider/muatations.dart';
+import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
 import 'package:equatable/equatable.dart';

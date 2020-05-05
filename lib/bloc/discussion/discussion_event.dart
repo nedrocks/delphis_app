@@ -41,3 +41,16 @@ class DiscussionPostsUpdatedEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.posts];
 }
+
+class ParticipantSettingsUpdateEvent extends DiscussionEvent {
+  // Any of these may be null.
+  final bool isAnonymous;
+  final GradientName gradientName;
+  final Flair flair;
+
+  ParticipantSettingsUpdateEvent({
+    this.isAnonymous,
+    this.gradientName,
+    this.flair,
+  }) : super();
+}

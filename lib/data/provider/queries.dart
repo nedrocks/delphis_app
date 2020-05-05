@@ -1,3 +1,6 @@
+import 'package:delphis_app/data/repository/participant.dart';
+import 'package:flutter/material.dart';
+
 import '../repository/discussion.dart';
 import '../repository/user.dart';
 
@@ -33,6 +36,41 @@ class MeGQLQuery extends GQLQuery<User> {
   }
 }
 
+class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
+  final String discussionID;
+  final String _query = """
+    query Discussion(\$id: ID!) {
+      participants {
+        id
+        participantID
+        isAnonymous
+        gradientColor
+        flair {
+          id
+          displayName
+          imageURL
+          source
+        }
+      }
+    }
+  """;
+
+  const ParticipantsForDiscussionQuery({
+    @required this.discussionID,
+  }) : super();
+
+  String query() {
+    return this._query;
+  }
+
+  List<Participant> parseResult(dynamic data) {
+    var participants = data['discussion']['participants'] as List<dynamic>;
+    return participants.map<Participant>((dynamic serPar) {
+      return Participant.fromJson(serPar);
+    });
+  }
+}
+
 class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   final String discussionID;
   final String _query = """
@@ -54,10 +92,26 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
         meParticipant {
           id
           participantID
+          isAnonymous
+          gradientColor
+          flair {
+            id
+            displayName
+            imageURL
+            source
+          }
         }
         participants {
           id
           participantID
+          isAnonymous
+          gradientColor
+          flair {
+            id
+            displayName
+            imageURL
+            source
+          }
         }
         anonymityType
         posts {

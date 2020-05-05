@@ -51,6 +51,7 @@ class _ParticipantAnonymitySettingsState
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
         child = Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
@@ -65,65 +66,61 @@ class _ParticipantAnonymitySettingsState
             SizedBox(height: SpacingValues.mediumLarge),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             SizedBox(height: SpacingValues.mediumLarge),
-            Expanded(
-              flex: 3,
-              child: ListView(children: [
-                ParticipantAnonymitySettingOption(
-                    height: 40.0,
-                    user: this.widget.me,
-                    anonymousGradient: GradientName.AZALEA,
-                    showAnonymous: false,
-                    participant: this.widget.meParticipant,
-                    isSelected: this._selectedIdx == 0,
-                    onSelected: () {
-                      setState(() {
-                        this._selectedIdx = 0;
-                      });
-                    },
-                    onEdit: () {
-                      this.setState(() {
-                        this._settingsState = _SettingsState.FLAIR_SELECT;
-                      });
-                    }),
-                SizedBox(height: SpacingValues.mediumLarge),
-                ParticipantAnonymitySettingOption(
-                    height: 40.0,
-                    user: this.widget.me,
-                    anonymousGradient: GradientName.AZALEA,
-                    showAnonymous: true,
-                    participant: this.widget.meParticipant,
-                    isSelected: this._selectedIdx == 1,
-                    onSelected: () {
-                      setState(() {
-                        this._selectedIdx = 1;
-                      });
-                    },
-                    onEdit: () {
-                      this.setState(() {
-                        this._settingsState = _SettingsState.GRADIENT_SELECT;
-                      });
-                    }),
-              ]),
-            ),
+            ListView(shrinkWrap: true, children: [
+              ParticipantAnonymitySettingOption(
+                  height: 40.0,
+                  user: this.widget.me,
+                  anonymousGradient: GradientName.AZALEA,
+                  showAnonymous: false,
+                  participant: this.widget.meParticipant,
+                  isSelected: this._selectedIdx == 0,
+                  onSelected: () {
+                    setState(() {
+                      this._selectedIdx = 0;
+                    });
+                  },
+                  onEdit: () {
+                    this.setState(() {
+                      this._settingsState = _SettingsState.FLAIR_SELECT;
+                    });
+                  }),
+              SizedBox(height: SpacingValues.mediumLarge),
+              ParticipantAnonymitySettingOption(
+                  height: 40.0,
+                  user: this.widget.me,
+                  anonymousGradient: GradientName.AZALEA,
+                  showAnonymous: true,
+                  participant: this.widget.meParticipant,
+                  isSelected: this._selectedIdx == 1,
+                  onSelected: () {
+                    setState(() {
+                      this._selectedIdx = 1;
+                    });
+                  },
+                  onEdit: () {
+                    this.setState(() {
+                      this._settingsState = _SettingsState.GRADIENT_SELECT;
+                    });
+                  }),
+            ]),
             SizedBox(height: SpacingValues.mediumLarge),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-            Expanded(
-                flex: 2,
-                child: Container(
-                    alignment: Alignment.center,
-                    child: RaisedButton(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: SpacingValues.xxLarge,
-                          vertical: SpacingValues.medium),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.0)),
-                      color: Color.fromRGBO(247, 247, 255, 0.2),
-                      child: Text(Intl.message('Update'),
-                          style: TextThemes.goIncognitoButton),
-                      onPressed: () {
-                        print('clicked');
-                      },
-                    ))),
+            Container(
+                padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
+                alignment: Alignment.center,
+                child: RaisedButton(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: SpacingValues.xxLarge,
+                      vertical: SpacingValues.medium),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25.0)),
+                  color: Color.fromRGBO(247, 247, 255, 0.2),
+                  child: Text(Intl.message('Update'),
+                      style: TextThemes.goIncognitoButton),
+                  onPressed: () {
+                    print('clicked');
+                  },
+                )),
           ],
         );
         break;

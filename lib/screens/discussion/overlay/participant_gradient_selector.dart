@@ -37,8 +37,8 @@ class _ParticipantGradientSelectorState
 
   @override
   Widget build(BuildContext context) {
-    print('making the gradient selector');
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Text(
@@ -53,10 +53,11 @@ class _ParticipantGradientSelectorState
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
         SizedBox(height: SpacingValues.mediumLarge),
-        Expanded(
-          flex: 3,
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: 140.0),
           child: GridView.count(
-            crossAxisCount: 3,
+            crossAxisCount: 2,
+            crossAxisSpacing: 10.0,
             scrollDirection: Axis.horizontal,
             children: anonymousGradients.map<Widget>((gradientName) {
               final isSelected = gradientName == this._selectedGradient;
@@ -100,8 +101,8 @@ class _ParticipantGradientSelectorState
         ),
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-        Expanded(
-          flex: 2,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [

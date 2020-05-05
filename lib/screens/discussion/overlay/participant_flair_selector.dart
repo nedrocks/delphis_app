@@ -43,6 +43,7 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
   Widget build(BuildContext context) {
     // TODO: Refactor this into a SettingsCard widget
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         Text(
@@ -57,50 +58,48 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
         SizedBox(height: SpacingValues.mediumLarge),
-        Expanded(
-          flex: 3,
-          child: ListView(
-            children: [
-              ParticipantFlairSelectorOption(
-                  height: 40.0,
-                  isSelected: this._selectedIdx == 0,
-                  onSelected: () {
-                    setState(() {
-                      this._selectedIdx = 0;
-                    });
-                  }),
-              ParticipantFlairSelectorOption(
-                  height: 40.0,
-                  isSelected: this._selectedIdx == 1,
-                  onSelected: () {
-                    setState(() {
-                      this._selectedIdx = 1;
-                    });
-                  }),
-              ParticipantFlairSelectorOption(
-                  height: 40.0,
-                  isSelected: this._selectedIdx == 2,
-                  onSelected: () {
-                    setState(() {
-                      this._selectedIdx = 2;
-                    });
-                  }),
-              ParticipantFlairSelectorOption(
-                  height: 40.0,
-                  isSelected: this._selectedIdx == 3,
-                  onSelected: () {
-                    setState(() {
-                      this._selectedIdx = 3;
-                    });
-                  }),
-            ],
-          ),
+        ListView(
+          shrinkWrap: true,
+          children: [
+            ParticipantFlairSelectorOption(
+                height: 40.0,
+                isSelected: this._selectedIdx == 0,
+                onSelected: () {
+                  setState(() {
+                    this._selectedIdx = 0;
+                  });
+                }),
+            ParticipantFlairSelectorOption(
+                height: 40.0,
+                isSelected: this._selectedIdx == 1,
+                onSelected: () {
+                  setState(() {
+                    this._selectedIdx = 1;
+                  });
+                }),
+            ParticipantFlairSelectorOption(
+                height: 40.0,
+                isSelected: this._selectedIdx == 2,
+                onSelected: () {
+                  setState(() {
+                    this._selectedIdx = 2;
+                  });
+                }),
+            ParticipantFlairSelectorOption(
+                height: 40.0,
+                isSelected: this._selectedIdx == 3,
+                onSelected: () {
+                  setState(() {
+                    this._selectedIdx = 3;
+                  });
+                }),
+          ],
         ),
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
         // TODO: Life Achievement not here...?
-        Expanded(
-          flex: 2,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
           child: Stack(
             alignment: Alignment.centerLeft,
             children: [

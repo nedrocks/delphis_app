@@ -1,7 +1,6 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
-import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
@@ -12,7 +11,6 @@ import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';

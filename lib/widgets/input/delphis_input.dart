@@ -15,8 +15,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-import 'text_input.dart';
-
 const MAX_VISIBLE_ROWS = 5;
 
 class DelphisInput extends StatefulWidget {
@@ -187,15 +185,15 @@ class DelphisInputState extends State<DelphisInput> {
               filled: true,
               border: OutlineInputBorder(
                 borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.blue),
+                borderSide: BorderSide(color: Colors.transparent),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.green),
+                borderSide: BorderSide(color: Colors.transparent),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.yellow),
+                borderSide: BorderSide(color: Colors.transparent),
               ),
             ),
             keyboardType: TextInputType.multiline,

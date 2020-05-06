@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -5,6 +6,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 import 'participant_flair_selector.dart';
@@ -22,10 +24,12 @@ enum _SettingsState {
 class ParticipantAnonymitySettings extends StatefulWidget {
   final Participant meParticipant;
   final User me;
+  final VoidCallback onClose;
 
   const ParticipantAnonymitySettings({
     @required this.meParticipant,
     @required this.me,
+    @required this.onClose,
   }) : super();
 
   @override
@@ -118,7 +122,12 @@ class _ParticipantAnonymitySettingsState
                   child: Text(Intl.message('Update'),
                       style: TextThemes.goIncognitoButton),
                   onPressed: () {
-                    print('clicked');
+                    BlocProvider.of<ParticipantBloc>(context)
+                        .add(ParticipantEventUpdateParticipant(
+                      participantID: this.widget.meParticipant.id,
+                      isAnonymous: this._selectedIdx == 1,
+                    ));
+                    this.widget.onClose();
                   },
                 )),
           ],

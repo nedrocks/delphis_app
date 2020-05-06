@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
@@ -74,9 +75,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             child: listViewBuilder,
             popup: DiscussionPopup(
               contents: ParticipantAnonymitySettings(
-                meParticipant: state.getDiscussion().meParticipant,
-                me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-              ),
+                  meParticipant: state.getDiscussion().meParticipant,
+                  me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
+                  onClose: () {
+                    this.setState(() {
+                      this._isShowParticipantSettings = false;
+                    });
+                  }),
             ),
             animationMillis: 500,
           );
@@ -118,7 +123,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                         MoreButton(
                           diameter: HeightValues.appBarItemsHeight,
                           onPressed: () {
-                            print('more pressed');
+                            // TODO: This will log us out for now. Add a menu here though.
+                            BlocProvider.of<AuthBloc>(context)
+                                .add(LogoutAuthEvent());
                           },
                         ),
                       ],

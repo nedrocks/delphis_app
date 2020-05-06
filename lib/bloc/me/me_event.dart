@@ -5,8 +5,13 @@ abstract class MeEvent extends Equatable {
 }
 
 class FetchMeEvent extends MeEvent {
-  const FetchMeEvent(): super();
+  const FetchMeEvent() : super();
 
+  @override
+  List<Object> get props => [];
+}
+
+class LogoutMeEvent extends MeEvent {
   @override
   List<Object> get props => [];
 }

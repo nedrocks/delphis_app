@@ -14,8 +14,15 @@ class LoadedAuthEvent extends AuthEvent {
   final bool isSuccess;
   final bool isFromLocalStorage;
 
-  const LoadedAuthEvent(this.authString, this.isSuccess, this.isFromLocalStorage): super();
+  const LoadedAuthEvent(
+      this.authString, this.isSuccess, this.isFromLocalStorage)
+      : super();
 
   @override
   List<Object> get props => [this.authString, this.isSuccess];
+}
+
+class LogoutAuthEvent extends AuthEvent {
+  @override
+  List<Object> get props => [];
 }

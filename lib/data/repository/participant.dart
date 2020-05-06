@@ -52,7 +52,6 @@ class ParticipantRepository {
         isAnonymous: isAnonymous,
         isUnsetFlairID: isUnsetFlairID,
         isUnsetGradient: isUnsetGradient);
-
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),

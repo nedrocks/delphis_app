@@ -40,9 +40,9 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
         SizedBox(width: SpacingValues.small),
         ProfileImageWithGradient(
           participant: this.participant,
-          isAnonymous: this.showAnonymous,
           width: this.height,
           height: this.height,
+          anonymousOverride: this.showAnonymous,
           me: this.user,
         ),
         SizedBox(width: SpacingValues.small),

@@ -20,16 +20,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthEvent event,
   ) async* {
     final currentState = this.state;
-    if (event is FetchAuthEvent && (currentState is InitialAuthState || currentState is InitializedAuthState)) {
+    if (event is FetchAuthEvent &&
+        (currentState is InitialAuthState ||
+            currentState is InitializedAuthState)) {
       yield LoadingAuthState();
       final isAuthed = await this.repository.loadFromStorage();
       yield InitializedAuthState(this.repository.authString, isAuthed);
-    }
-    if (event is LoadedAuthEvent) {
+    } else if (event is LoadedAuthEvent) {
       if (event.isSuccess) {
         this.repository.authString = event.authString;
       }
       yield InitializedAuthState(event.authString, event.isSuccess);
+    } else if (event is LogoutAuthEvent) {
+      yield LoggedOutAuthState();
+      await this.repository.logout();
+      yield InitialAuthState();
     }
   }
 }

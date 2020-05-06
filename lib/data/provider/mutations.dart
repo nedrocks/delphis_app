@@ -86,7 +86,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
 
   Map<String, dynamic> createInputObject() {
     var inputObj = {
-      'flair': this.flair == null ? null : this.flair.id,
+      'flairID': this.flair == null ? null : this.flair.id,
       'isAnonymous': this.isAnonymous,
       'isUnsetFlairID': this.isUnsetFlairID,
       'isUnsetGradient': this.isUnsetGradient,

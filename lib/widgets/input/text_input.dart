@@ -6,7 +6,7 @@ class DelphisTextInput extends StatelessWidget {
   int numRows;
   final double borderRadius;
   final double verticalPadding;
-  final double height;
+  double height;
   final FocusNode focusNode;
   final String hintText;
   final TextStyle textStyle;

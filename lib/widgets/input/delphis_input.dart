@@ -42,25 +42,25 @@ class DelphisInputState extends State<DelphisInput> {
 
   TextEditingController _controller;
   FocusNode _inputFocusNode;
+  GlobalKey _textInputKey;
+  TextField _input;
 
   @override
   void initState() {
     super.initState();
 
     this._controller = TextEditingController();
-    this._controller.addListener(() =>
-        this.setState(() => {this._textLength = this._controller.text.length}));
+    this._controller.addListener(() => this.setState(() {
+          this._textLength = this._controller.text.length;
+        }));
     this._inputFocusNode = FocusNode();
     this._inputFocusNode.addListener(() {
       if (this._inputFocusNode.hasFocus) {
-        print('received focus');
         this._controller.selection = TextSelection.fromPosition(
             TextPosition(offset: this._controller.text.length));
-        this._inputFocusNode.consumeKeyboardToken();
-      } else {
-        print('lost focus');
       }
     });
+    this._textInputKey = GlobalKey();
   }
 
   @override
@@ -151,44 +151,62 @@ class DelphisInputState extends State<DelphisInput> {
       if (!(state is LoadedMeState)) {
         return Text("Loading");
       }
-      final textInput = Expanded(
-        child: GestureDetector(
-          onTap: () {
-            if (!this.widget.isShowingParticipantSettings) {
-              this._inputFocusNode.requestFocus();
-            }
-          },
-          onDoubleTap: () {
-            if (!this.widget.isShowingParticipantSettings) {
-              this._inputFocusNode.unfocus();
-            }
-          },
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            var textStyle = Theme.of(context).textTheme.bodyText2;
-            var lineHeight = textStyle.height;
-            var text =
-                this._controller.text.length == 0 ? ' ' : this._controller.text;
-            List<TextBox> textLayout = calculateTextLayoutRows(
-                context, constraints, this._borderRadius, text);
-            var widgetHeight = min(textLayout.length, MAX_VISIBLE_ROWS) *
-                    lineHeight *
-                    textStyle.fontSize +
-                this._textBoxVerticalPadding;
+      final inputChild = LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        var textStyle = Theme.of(context).textTheme.bodyText2;
+        var lineHeight = textStyle.height;
+        var text =
+            this._controller.text.length == 0 ? ' ' : this._controller.text;
+        List<TextBox> textLayout = calculateTextLayoutRows(
+            context, constraints, this._borderRadius, text);
+        var widgetHeight = min(textLayout.length, MAX_VISIBLE_ROWS) *
+                lineHeight *
+                textStyle.fontSize +
+            this._textBoxVerticalPadding;
+        var numRows = min(max(1, textLayout.length), MAX_VISIBLE_ROWS);
+        var isEnabled = !this.widget.isShowingParticipantSettings;
+        final hintStyle =
+            textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
 
-            return DelphisTextInput(
-              controller: this._controller,
-              numRows: min(max(1, textLayout.length), MAX_VISIBLE_ROWS),
-              borderRadius: this._borderRadius,
-              focusNode: this._inputFocusNode,
-              height: widgetHeight,
-              verticalPadding: this._textBoxVerticalPadding / 2.0,
+        return Container(
+          alignment: Alignment.centerLeft,
+          child: this._input = TextField(
+            key: this._textInputKey,
+            enabled: isEnabled,
+            showCursor: true,
+            focusNode: this._inputFocusNode,
+            controller: this._controller,
+            style: textStyle,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(
+                  horizontal: this._borderRadius / 2.0,
+                  vertical: this._textBoxVerticalPadding / 2.0),
+              hintStyle: hintStyle,
               hintText: Intl.message("Type a message"),
-              textStyle: textStyle,
-              isEnabled: this.widget.isShowingParticipantSettings,
-            );
-          }),
-        ),
+              fillColor: Color.fromRGBO(57, 58, 63, 0.4),
+              filled: true,
+              border: OutlineInputBorder(
+                borderRadius: new BorderRadius.circular(this._borderRadius),
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: new BorderRadius.circular(this._borderRadius),
+                borderSide: BorderSide(color: Colors.green),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: new BorderRadius.circular(this._borderRadius),
+                borderSide: BorderSide(color: Colors.yellow),
+              ),
+            ),
+            keyboardType: TextInputType.multiline,
+            maxLines: numRows,
+          ),
+          height: widgetHeight,
+        );
+      });
+
+      Expanded textInput = Expanded(
+        child: inputChild,
       );
       final rowElems = this._inputFocusNode.hasFocus
           ? this.buildInputRowElems(context, state, me, isModerator, textInput)

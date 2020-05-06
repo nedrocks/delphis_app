@@ -18,8 +18,13 @@ class InitializedAuthState extends AuthState {
   final String authString;
   final bool isAuthed;
 
-  const InitializedAuthState(this.authString, this.isAuthed): super();
+  const InitializedAuthState(this.authString, this.isAuthed) : super();
 
   @override
   List<Object> get props => [this.authString, this.isAuthed];
+}
+
+class LoggedOutAuthState extends AuthState {
+  @override
+  List<Object> get props => [];
 }

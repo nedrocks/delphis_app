@@ -51,8 +51,14 @@ class DelphisAuthRepository extends ChangeNotifier {
 
   // Call invalidateInternal when the authString is
   // rejected for any reason.
-  invalidateInternal() {
+  void invalidateInternal() {
     this.authString = null;
+  }
+
+  // TODO: Call the API to invalidate this token as well.
+  Future<void> logout() async {
+    this.invalidateInternal();
+    await this.deleteStoredJWT();
   }
 
   String get authString => this._authString;

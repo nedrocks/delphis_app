@@ -42,15 +42,14 @@ class DiscussionPostsUpdatedEvent extends DiscussionEvent {
   List<Object> get props => [this.posts];
 }
 
-class ParticipantSettingsUpdateEvent extends DiscussionEvent {
+class MeParticipantUpdatedEvent extends DiscussionEvent {
   // Any of these may be null.
-  final bool isAnonymous;
-  final GradientName gradientName;
-  final Flair flair;
+  final Participant meParticipant;
 
-  ParticipantSettingsUpdateEvent({
-    this.isAnonymous,
-    this.gradientName,
-    this.flair,
+  MeParticipantUpdatedEvent({
+    @required this.meParticipant,
   }) : super();
+
+  @override
+  List<Object> get props => [this.meParticipant];
 }

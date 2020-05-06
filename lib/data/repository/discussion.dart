@@ -123,6 +123,7 @@ class Discussion extends Equatable {
 
   Discussion copyWith({
     List<Post> posts,
+    Participant meParticipant,
   }) =>
       Discussion(
         id: this.id,
@@ -133,6 +134,6 @@ class Discussion extends Equatable {
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
         posts: posts ?? this.posts,
-        meParticipant: this.meParticipant,
+        meParticipant: meParticipant ?? this.meParticipant,
       );
 }

@@ -2,9 +2,8 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/flair.dart';
+import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
-import 'package:delphis_app/design/colors.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -41,6 +40,14 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             currentState.getDiscussion().copyWith(posts: event.posts);
         var newState = DiscussionLoadedState(updatedDiscussion);
         yield newState;
+      }
+    }
+    if (event is MeParticipantUpdatedEvent) {
+      if (currentState.getDiscussion() != null) {
+        final updatedDiscussion = currentState
+            .getDiscussion()
+            .copyWith(meParticipant: event.meParticipant);
+        yield DiscussionLoadedState(updatedDiscussion);
       }
     }
   }

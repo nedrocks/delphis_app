@@ -25,8 +25,6 @@ class ParticipantSettingsButton extends StatelessWidget {
     return ProfileImageWithGradient(
       participant: this.participant,
       isModerator: this.isModerator,
-      // TODO: Change this once we have anonymity on participant
-      isAnonymous: !this.isModerator,
       width: this.width,
       height: this.height,
       me: this.me,

@@ -63,21 +63,23 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
           participant: currentState.participant, isUpdating: true);
       var updatedParticipant;
       try {
-        updatedParticipant = this.repository.updateParticipant(
+        updatedParticipant = await this.repository.updateParticipant(
               currentState.participant.id,
               event.gradientName,
               event.flair,
-              event.isAnonymous,
-              event.isUnsetFlairID,
-              event.isUnsetGradient,
+              event.isAnonymous ?? currentState.participant.isAnonymous,
+              event.isUnsetFlairID ?? false,
+              event.isUnsetGradient ?? false,
             );
       } catch (err) {
         // What to do about this error?
-        print('Caight an error updating participant: $err');
         yield ParticipantLoaded(
             participant: currentState.participant, isUpdating: false);
         return;
       }
+      this
+          .discussionBloc
+          .add(MeParticipantUpdatedEvent(meParticipant: updatedParticipant));
       yield ParticipantLoaded(
         participant: updatedParticipant,
         isUpdating: false,

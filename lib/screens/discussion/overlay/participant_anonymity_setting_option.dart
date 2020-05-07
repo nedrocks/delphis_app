@@ -44,10 +44,13 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
           height: this.height,
           anonymousOverride: this.showAnonymous,
           me: this.user,
+          gradientNameOverride: this.anonymousGradient,
         ),
         SizedBox(width: SpacingValues.small),
         Text(
-            this.showAnonymous ? 'Cinnabar #22' : this.user.profile.displayName,
+            this.showAnonymous
+                ? '${gradientColorFromGradientName(this.anonymousGradient).toLowerCase()} #${this.participant.participantID}'
+                : this.user.profile.displayName,
             style: TextThemes.goIncognitoOptionName),
         SizedBox(width: SpacingValues.small),
         this._renderFlair(),

@@ -16,6 +16,7 @@ class ProfileImageWithGradient extends StatelessWidget {
   final double height;
   final bool isPressable;
   final VoidCallback onPressed;
+  final GradientName gradientNameOverride;
 
   const ProfileImageWithGradient({
     @required this.participant,
@@ -26,6 +27,7 @@ class ProfileImageWithGradient extends StatelessWidget {
     this.isPressable = false,
     this.onPressed,
     this.isModerator = false,
+    this.gradientNameOverride = null,
   })  : assert(!anonymousOverride || !isModerator,
             'Cannot make moderator anonymous'),
         assert(
@@ -38,8 +40,14 @@ class ProfileImageWithGradient extends StatelessWidget {
   Widget build(BuildContext context) {
     final participantID =
         this.participant == null ? 0 : this.participant.participantID;
-    final gradient = ChathamColors.gradients[
+    var gradient = ChathamColors.gradients[
         anonymousGradients[participantID % anonymousGradients.length]];
+    if (this.gradientNameOverride != null) {
+      gradient = ChathamColors.gradients[this.gradientNameOverride];
+    } else if (this.participant.gradientColor != null) {
+      gradient = ChathamColors
+          .gradients[gradientNameFromString(this.participant.gradientColor)];
+    }
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(borderRadius);
     // This stinks but currently argument explosion doesn't exist.

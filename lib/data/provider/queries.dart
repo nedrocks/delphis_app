@@ -21,6 +21,12 @@ class MeGQLQuery extends GQLQuery<User> {
           displayName
           profileImageURL
         }
+        flairs{
+          id
+          displayName
+          imageURL
+          source
+        }
       }
     }
   """;
@@ -118,6 +124,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
           id
           content
           participant {
+            id
             participantID
           }
           isDeleted

@@ -53,7 +53,7 @@ class TextThemes {
       fontWeight: FontWeight.w700,
       color: Color.fromRGBO(255, 255, 255, 0.92),
       letterSpacing: -0.22,
-      height: 1.42);
+      height: 1.0);
   static final discussionPostAuthorAnon =
       TextThemes.discussionPostAuthorNonAnon.copyWith(
     color: Color.fromRGBO(218, 219, 236, 0.8),

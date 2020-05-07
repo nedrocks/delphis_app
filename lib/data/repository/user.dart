@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
+import 'flair.dart';
 import 'participant.dart';
 import 'user_profile.dart';
 import 'viewer.dart';
@@ -17,12 +18,8 @@ class UserRepository {
   Future<User> getMe() async {
     final query = MeGQLQuery();
 
-    final QueryResult result = await client.query(
-      QueryOptions(
-        documentNode: gql(query.query()),
-        variables: {}
-      )
-    );
+    final QueryResult result = await client
+        .query(QueryOptions(documentNode: gql(query.query()), variables: {}));
 
     if (result.hasException) {
       throw result.exception;
@@ -37,16 +34,16 @@ class User extends Equatable {
   final List<Participant> participants;
   final List<Viewer> viewers;
   final UserProfile profile;
+  final List<Flair> flairs;
 
-  List<Object> get props => [
-    id, participants, viewers, profile
-  ];
+  List<Object> get props => [id, participants, viewers, profile];
 
   const User({
     this.id,
     this.participants,
     this.viewers,
     this.profile,
+    this.flairs,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

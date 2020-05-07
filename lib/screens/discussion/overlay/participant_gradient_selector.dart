@@ -4,17 +4,18 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 import 'participant_anonymity_settings.dart';
 
 class ParticipantGradientSelector extends StatefulWidget {
-  final Participant participant;
+  final GradientName selectedGradient;
   final GradientCallback onSave;
   final VoidCallback onCancel;
 
   const ParticipantGradientSelector({
-    @required this.participant,
+    @required this.selectedGradient,
     @required this.onSave,
     @required this.onCancel,
   }) : super();
@@ -25,14 +26,14 @@ class ParticipantGradientSelector extends StatefulWidget {
 
 class _ParticipantGradientSelectorState
     extends State<ParticipantGradientSelector> {
-  GradientName _selectedGradient;
+  GradientName _pickedGradient;
 
   @override
   void initState() {
     super.initState();
 
     // TODO: set this from the participant field.
-    this._selectedGradient = GradientName.AZALEA;
+    this._pickedGradient = this.widget.selectedGradient;
   }
 
   @override
@@ -60,37 +61,72 @@ class _ParticipantGradientSelectorState
             crossAxisSpacing: 10.0,
             scrollDirection: Axis.horizontal,
             children: anonymousGradients.map<Widget>((gradientName) {
-              final isSelected = gradientName == this._selectedGradient;
+              final isSelected = gradientName == this._pickedGradient;
               final gradient = ChathamColors.gradients[gradientName];
+              var textStyle = TextThemes.gradientSelectorName;
+              final str = gradientName.toString().split('.')[1].toLowerCase();
+              Widget textWidget = Text(str, style: textStyle);
+              if (isSelected) {
+                textWidget = ShaderMask(
+                  shaderCallback: (bounds) {
+                    return gradient.createShader(Offset.zero & bounds.size);
+                  },
+                  child: Text(
+                    str,
+                    style: textStyle.copyWith(color: Colors.white),
+                  ),
+                );
+              }
+              var colorCircle = Container(
+                width: 24.0,
+                height: 24.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: gradient,
+                ),
+              );
+              if (isSelected) {
+                colorCircle = Container(
+                  width: 24.0,
+                  height: 24.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  padding: EdgeInsets.all(1.5),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: gradient,
+                          border: Border.all(
+                            color: Color.fromRGBO(11, 12, 16, 1.0),
+                          ),
+                        ),
+                      ),
+                      SvgPicture.asset('assets/svg/check_mark.svg',
+                          color: Colors.white, semanticsLabel: 'Selected')
+                    ],
+                  ),
+                );
+              }
               return Material(
                 color: Colors.transparent,
                 child: InkWell(
                   onTap: () {
                     this.setState(() {
-                      this._selectedGradient = gradientName;
+                      this._pickedGradient = gradientName;
                     });
                   },
                   child: Container(
-                    decoration: BoxDecoration(
-                      border: isSelected
-                          ? Border.all(color: Colors.white, width: 1.0)
-                          : null,
-                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 24.0, // Maybe?
-                          height: 24.0,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: gradient,
-                          ),
-                        ),
+                        colorCircle,
                         SizedBox(height: SpacingValues.xxSmall),
-                        Text(
-                            gradientName.toString().split('.')[1].toLowerCase(),
-                            style: TextThemes.gradientSelectorName),
+                        textWidget,
                       ],
                     ),
                   ),
@@ -121,7 +157,7 @@ class _ParticipantGradientSelectorState
                     child: Text(Intl.message('Save color'),
                         style: TextThemes.goIncognitoButton),
                     onPressed: () {
-                      this.widget.onSave(this._selectedGradient);
+                      this.widget.onSave(this._pickedGradient);
                     },
                   ),
                 ],

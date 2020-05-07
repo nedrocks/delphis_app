@@ -1,57 +1,87 @@
-import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/moderator.dart';
+import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:random_words/random_words.dart';
 
 class PostTitle extends StatelessWidget {
-  static final chosenNouns = nouns.take(50).toList();
-  static final chosenAdjectives = adjectives.take(50).toList();
-
-  final Discussion discussion;
-  final int index;
+  final Moderator moderator;
+  final Participant participant;
+  final double height;
 
   const PostTitle({
-    this.discussion,
-    this.index,
+    this.moderator,
+    this.participant,
+    this.height,
   }) : super();
 
   @override
   Widget build(BuildContext context) {
-    final post = this.discussion.posts[this.index];
-    final participant = post.participant;
-    var now = DateTime.now();
-    var difference =
-        now.difference(this.discussion.posts[this.index].createdAtAsDateTime());
-    var differenceToDisplay = '${difference.inMinutes}m';
-    if (difference.inMinutes > 60) {
-      differenceToDisplay = '${difference.inHours}h';
-      if (difference.inHours > 24) {
-        differenceToDisplay = '${difference.inDays}d';
-        if (difference.inDays > 30) {
-          differenceToDisplay = '>30d';
-        }
-      }
-    }
+    //var now = DateTime.now();
+    // var difference = now.difference(post.createdAtAsDateTime());
+    // var differenceToDisplay = '${difference.inMinutes}m';
+    // if (difference.inMinutes > 60) {
+    //   differenceToDisplay = '${difference.inHours}h';
+    //   if (difference.inHours > 24) {
+    //     differenceToDisplay = '${difference.inDays}d';
+    //     if (difference.inDays > 30) {
+    //       differenceToDisplay = '>30d';
+    //     }
+    //   }
+    // }
+
+    print('is anonymous: ${this.participant.isAnonymous}');
 
     var name = Text(
-        'Anonymous ${chosenAdjectives[participant.participantID % chosenAdjectives.length]} ${chosenNouns[participant.participantID % chosenNouns.length]}',
+        '${participant.gradientColor} #${participant.participantID}',
         style: TextThemes.discussionPostAuthorAnon);
     if (participant.participantID == 0) {
       // This is the moderator
-      name = Text(this.discussion.moderator.userProfile.displayName,
+      name = Text(moderator.userProfile.displayName,
           style: TextThemes.discussionPostAuthorNonAnon);
+    } else if (!participant.isAnonymous) {
+      // Need to pass the profile down from the backend.
+    }
+
+    Widget flair = Container(width: 0, height: 0);
+    if (participant.flair != null) {
+      flair = Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: this.height,
+            height: this.height,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Colors.transparent,
+              image: DecorationImage(
+                fit: BoxFit.fill,
+                image: NetworkImage(participant.flair.imageURL),
+              ),
+            ),
+          ),
+          SizedBox(width: SpacingValues.xxSmall),
+          Text(
+            participant.flair.displayName,
+            style: kThemeData.textTheme.headline3,
+          )
+        ],
+      );
     }
 
     return Container(
+      height: this.height,
       child: new Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           name,
-          Container(
-            padding: EdgeInsets.only(left: SpacingValues.small),
-            child: Text(differenceToDisplay,
-                style: TextThemes.discussionPostAuthorAnonDescriptor),
-          ),
+          SizedBox(width: SpacingValues.small),
+          flair,
+          // Container(
+          //   padding: EdgeInsets.only(left: SpacingValues.small),
+          //   child: Text(differenceToDisplay,
+          //       style: TextThemes.discussionPostAuthorAnonDescriptor),
+          // ),
           // Container(
           //   padding: EdgeInsets.only(left: SpacingValues.extraSmall, right: SpacingValues.extraSmall),
           //   child: Text('•', style: rhsTextStyle)

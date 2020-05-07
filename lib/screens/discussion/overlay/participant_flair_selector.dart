@@ -1,4 +1,3 @@
-import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -10,15 +9,15 @@ import 'package:intl/intl.dart';
 
 class ParticipantFlairSettings extends StatefulWidget {
   final User user;
-  final Participant participant;
-  final IntIdxCallback onSave;
+  final IDCallback onSave;
   final VoidCallback onCancel;
+  final String selectedFlairID;
 
   const ParticipantFlairSettings({
     @required this.user,
-    @required this.participant,
     @required this.onSave,
     @required this.onCancel,
+    @required this.selectedFlairID,
   }) : super();
 
   @override
@@ -27,7 +26,7 @@ class ParticipantFlairSettings extends StatefulWidget {
 
 class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
     with SingleTickerProviderStateMixin {
-  int _selectedIdx;
+  String _selectedFlairID;
   AnimationController controller;
   Animation<Offset> offset;
 
@@ -35,8 +34,7 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
   void initState() {
     super.initState();
 
-    // TODO: pull this from user / participant
-    this._selectedIdx = -1;
+    this._selectedFlairID = this.widget.selectedFlairID;
   }
 
   @override
@@ -60,40 +58,30 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
         SizedBox(height: SpacingValues.mediumLarge),
         ListView(
           shrinkWrap: true,
-          children: [
-            ParticipantFlairSelectorOption(
-                height: 40.0,
-                isSelected: this._selectedIdx == 0,
-                onSelected: () {
-                  setState(() {
-                    this._selectedIdx = 0;
-                  });
-                }),
-            ParticipantFlairSelectorOption(
-                height: 40.0,
-                isSelected: this._selectedIdx == 1,
-                onSelected: () {
-                  setState(() {
-                    this._selectedIdx = 1;
-                  });
-                }),
-            ParticipantFlairSelectorOption(
-                height: 40.0,
-                isSelected: this._selectedIdx == 2,
-                onSelected: () {
-                  setState(() {
-                    this._selectedIdx = 2;
-                  });
-                }),
-            ParticipantFlairSelectorOption(
-                height: 40.0,
-                isSelected: this._selectedIdx == 3,
-                onSelected: () {
-                  setState(() {
-                    this._selectedIdx = 3;
-                  });
-                }),
-          ],
+          children: (this.widget.user.flairs?.map((flairObj) {
+                    return ParticipantFlairSelectorOption(
+                      flair: flairObj,
+                      height: 40.0,
+                      isSelected: flairObj.id == this._selectedFlairID,
+                      onSelected: () {
+                        this.setState(() {
+                          this._selectedFlairID = flairObj.id;
+                        });
+                      },
+                    );
+                  })?.toList() ??
+                  <ParticipantFlairSelectorOption>[]) +
+              [
+                ParticipantFlairSelectorOption(
+                    flair: null,
+                    height: 40.0,
+                    isSelected: this._selectedFlairID == null,
+                    onSelected: () {
+                      this.setState(() {
+                        this._selectedFlairID = null;
+                      });
+                    })
+              ],
         ),
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
@@ -118,7 +106,7 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
                     child: Text(Intl.message('Update'),
                         style: TextThemes.goIncognitoButton),
                     onPressed: () {
-                      this.widget.onSave(this._selectedIdx);
+                      this.widget.onSave(this._selectedFlairID);
                     },
                   ),
                 ],

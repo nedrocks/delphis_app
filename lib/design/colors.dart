@@ -25,6 +25,23 @@ enum GradientName {
   MAHOGANY,
 }
 
+GradientName gradientNameFromString(String stringName) {
+  print('string name: $stringName');
+  if (stringName == null) {
+    return GradientName.MAUVE;
+  }
+  return GradientName.values.firstWhere(
+      (element) =>
+          element.toString().split('.')[1].toLowerCase() ==
+          stringName.toLowerCase(), orElse: () {
+    return GradientName.MAUVE;
+  });
+}
+
+String gradientColorFromGradientName(GradientName gradientName) {
+  return gradientName.toString().split('.')[1];
+}
+
 const List<GradientName> allChathamGradients = GradientName.values;
 const GradientName moderatorGradientName = GradientName.MOD_PURPLE;
 final List<GradientName> anonymousGradients = GradientName.values

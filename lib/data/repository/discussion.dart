@@ -136,4 +136,14 @@ class Discussion extends Equatable {
         posts: posts ?? this.posts,
         meParticipant: meParticipant ?? this.meParticipant,
       );
+
+  Participant getParticipantForPostIdx(int idx) {
+    if (idx < 0 || idx >= this.posts.length) {
+      return null;
+    }
+    final post = this.posts[idx];
+    return this.participants.firstWhere(
+        (participant) => participant.id == post.participant.id,
+        orElse: () => null);
+  }
 }

@@ -59,7 +59,12 @@ class DiscussionPost extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                PostTitle(discussion: this.discussion, index: this.index),
+                PostTitle(
+                  moderator: this.discussion.moderator,
+                  participant:
+                      this.discussion.getParticipantForPostIdx(this.index),
+                  height: 20.0,
+                ),
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

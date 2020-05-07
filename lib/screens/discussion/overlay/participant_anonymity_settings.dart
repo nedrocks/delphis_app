@@ -12,7 +12,7 @@ import 'package:intl/intl.dart';
 import 'participant_flair_selector.dart';
 import 'participant_gradient_selector.dart';
 
-typedef void IntIdxCallback(int idx);
+typedef void IDCallback(String id);
 typedef void GradientCallback(GradientName gradientName);
 
 enum _SettingsState {
@@ -38,6 +38,8 @@ class ParticipantAnonymitySettings extends StatefulWidget {
 
 class _ParticipantAnonymitySettingsState
     extends State<ParticipantAnonymitySettings> {
+  GradientName _selectedGradient;
+  String _selectedFlairID;
   int _selectedIdx;
   _SettingsState _settingsState;
 
@@ -47,6 +49,9 @@ class _ParticipantAnonymitySettingsState
     // TODO: Pull this from participant via the User available flair.
     this._selectedIdx = 0;
     this._settingsState = _SettingsState.ANONYMITY_SELECT;
+    this._selectedGradient =
+        gradientNameFromString(this.widget.meParticipant.gradientColor);
+    this._selectedFlairID = this.widget.meParticipant.flair?.id;
   }
 
   @override
@@ -74,7 +79,7 @@ class _ParticipantAnonymitySettingsState
               ParticipantAnonymitySettingOption(
                   height: 40.0,
                   user: this.widget.me,
-                  anonymousGradient: GradientName.AZALEA,
+                  anonymousGradient: this._selectedGradient,
                   showAnonymous: false,
                   participant: this.widget.meParticipant,
                   isSelected: this._selectedIdx == 0,
@@ -92,7 +97,7 @@ class _ParticipantAnonymitySettingsState
               ParticipantAnonymitySettingOption(
                   height: 40.0,
                   user: this.widget.me,
-                  anonymousGradient: GradientName.AZALEA,
+                  anonymousGradient: this._selectedGradient,
                   showAnonymous: true,
                   participant: this.widget.meParticipant,
                   isSelected: this._selectedIdx == 1,
@@ -109,27 +114,47 @@ class _ParticipantAnonymitySettingsState
             ]),
             SizedBox(height: SpacingValues.mediumLarge),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-            Container(
+            Padding(
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
-                alignment: Alignment.center,
-                child: RaisedButton(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: SpacingValues.xxLarge,
-                      vertical: SpacingValues.medium),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0)),
-                  color: Color.fromRGBO(247, 247, 255, 0.2),
-                  child: Text(Intl.message('Update'),
-                      style: TextThemes.goIncognitoButton),
-                  onPressed: () {
-                    BlocProvider.of<ParticipantBloc>(context)
-                        .add(ParticipantEventUpdateParticipant(
-                      participantID: this.widget.meParticipant.id,
-                      isAnonymous: this._selectedIdx == 1,
-                    ));
-                    this.widget.onClose();
-                  },
-                )),
+                child: Stack(alignment: Alignment.centerLeft, children: [
+                  GestureDetector(
+                      onTap: () {
+                        this.widget.onClose();
+                      },
+                      child: Text(
+                        Intl.message('Cancel'),
+                        style: TextThemes.signInAngryNote,
+                      )),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      RaisedButton(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: SpacingValues.xxLarge,
+                            vertical: SpacingValues.medium),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: Color.fromRGBO(247, 247, 255, 0.2),
+                        child: Text(Intl.message('Update'),
+                            style: TextThemes.goIncognitoButton),
+                        onPressed: () {
+                          BlocProvider.of<ParticipantBloc>(context)
+                              .add(ParticipantEventUpdateParticipant(
+                            participantID: this.widget.meParticipant.id,
+                            isAnonymous: this._selectedIdx == 1,
+                            gradientName: this._selectedGradient,
+                            flair: this.widget.me.flairs.firstWhere(
+                                (flair) => flair.id == this._selectedFlairID,
+                                orElse: () => null),
+                            isUnsetFlairID: this._selectedFlairID == null,
+                          ));
+                          this.widget.onClose();
+                        },
+                      ),
+                    ],
+                  ),
+                ])),
           ],
         );
         break;
@@ -137,10 +162,10 @@ class _ParticipantAnonymitySettingsState
         //child = SlideInTransition(
         child = ParticipantFlairSettings(
           user: this.widget.me,
-          participant: this.widget.meParticipant,
-          onSave: (int idx) {
-            print('saved participant flair');
+          selectedFlairID: this.widget.meParticipant.flair?.id,
+          onSave: (String id) {
             this.setState(() {
+              this._selectedFlairID = id;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
             });
           },
@@ -150,17 +175,13 @@ class _ParticipantAnonymitySettingsState
             });
           },
         );
-        // animationMillis: 500,
-        // onAnimationComplete: () {
-        //   print('animation complete');
-        // });
         break;
       case _SettingsState.GRADIENT_SELECT:
         child = ParticipantGradientSelector(
-          participant: this.widget.meParticipant,
+          selectedGradient: this._selectedGradient,
           onSave: (GradientName name) {
-            print('saved');
             this.setState(() {
+              this._selectedGradient = name;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
             });
           },

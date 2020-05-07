@@ -3,6 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+// TODO: Put this in some centralized location and seed it properly.
+final _random = new Random();
+
 enum GradientName {
   MOD_PURPLE,
   VERIFIED_TEAL,
@@ -40,6 +43,10 @@ GradientName gradientNameFromString(String stringName) {
 
 String gradientColorFromGradientName(GradientName gradientName) {
   return gradientName.toString().split('.')[1];
+}
+
+GradientName randomAnonymousGradient() {
+  return anonymousGradients[_random.nextInt(anonymousGradients.length)];
 }
 
 const List<GradientName> allChathamGradients = GradientName.values;

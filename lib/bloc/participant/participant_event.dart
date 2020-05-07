@@ -44,3 +44,28 @@ class ParticipantEventUpdateParticipant extends ParticipantEvent {
         this.isUnsetGradient
       ];
 }
+
+class ParticipantEventAddParticipant extends ParticipantEvent {
+  final String discussionID;
+  final String userID;
+  final GradientName gradientName;
+  final String flairID;
+  final bool isAnonymous;
+  final bool hasJoined;
+
+  const ParticipantEventAddParticipant({
+    @required this.discussionID,
+    @required this.userID,
+    @required this.isAnonymous,
+    this.gradientName,
+    this.flairID,
+    this.hasJoined = false,
+  }) : super();
+
+  // Only these two matter.
+  @override
+  List<Object> get props => [
+        this.discussionID,
+        this.userID,
+      ];
+}

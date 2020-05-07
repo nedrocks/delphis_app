@@ -84,6 +84,23 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
         participant: updatedParticipant,
         isUpdating: false,
       );
+    } else if (event is ParticipantEventAddParticipant) {
+      yield ParticipantLoaded(participant: null, isUpdating: true);
+      final addedParticipant = await this.repository.addDiscussionParticipant(
+          event.discussionID,
+          event.userID,
+          gradientColorFromGradientName(event.gradientName),
+          event.flairID,
+          event.hasJoined,
+          event.isAnonymous);
+
+      this
+          .discussionBloc
+          .add(MeParticipantUpdatedEvent(meParticipant: addedParticipant));
+      yield ParticipantLoaded(
+        participant: addedParticipant,
+        isUpdating: false,
+      );
     }
   }
 }

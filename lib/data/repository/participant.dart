@@ -71,6 +71,42 @@ class ParticipantRepository {
 
     return mutation.parseResult(result.data);
   }
+
+  Future<Participant> addDiscussionParticipant(
+    String discussionID,
+    String userID,
+    String gradientColor,
+    String flairID,
+    bool hasJoined,
+    bool isAnonymous,
+  ) async {
+    final mutation = AddDiscussionParticipantGQLMutation(
+      discussionID: discussionID,
+      userID: userID,
+      gradientColor: gradientColor,
+      flairID: flairID,
+      hasJoined: hasJoined,
+      isAnonymous: isAnonymous,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+          documentNode: gql(mutation.mutation()),
+          variables: {
+            'discussionID': discussionID,
+            'userID': userID,
+            'discussionParticipantInput': mutation.createInputObject(),
+          },
+          update: (Cache cache, QueryResult result) {
+            return cache;
+          }),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
 }
 
 @JsonAnnotation.JsonSerializable()

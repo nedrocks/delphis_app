@@ -27,7 +27,7 @@ class ProfileImageWithGradient extends StatelessWidget {
     this.isPressable = false,
     this.onPressed,
     this.isModerator = false,
-    this.gradientNameOverride = null,
+    this.gradientNameOverride,
   })  : assert(!anonymousOverride || !isModerator,
             'Cannot make moderator anonymous'),
         assert(

@@ -2,7 +2,10 @@ import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/discussion_announcement_post.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
@@ -30,6 +33,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool _isShowParticipantSettings;
 
   ScrollController _scrollController;
+  Participant _fakeParticipant;
 
   @override
   void initState() {
@@ -38,6 +42,15 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     this.hasAcceptedIncognitoWarning = false;
     _scrollController = ScrollController();
     this._isShowParticipantSettings = false;
+    this._fakeParticipant = Participant(
+      participantID: 0,
+      discussion: null,
+      viewer: null,
+      posts: <Post>[],
+      isAnonymous: true,
+      gradientColor: gradientColorFromGradientName(randomAnonymousGradient()),
+      flair: null,
+    );
   }
 
   @override
@@ -78,18 +91,36 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               }),
         );
         Widget listViewOverlay = listViewBuilder;
-        if (this._isShowParticipantSettings) {
+        if (discussionObj.meParticipant == null) {
+          listViewOverlay = AnimatedDiscussionPopup(
+            child: listViewBuilder,
+            popup: DiscussionPopup(
+                contents: ParticipantSettings(
+              meParticipant: this._fakeParticipant,
+              me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
+              onClose: () {
+                // TODO: Show a spinner
+                print('closing');
+              },
+              discussion: discussionObj,
+              settingsFlow: SettingsFlow.JOIN_CHAT,
+            )),
+            animationMillis: 500,
+          );
+        } else if (this._isShowParticipantSettings) {
           listViewOverlay = AnimatedDiscussionPopup(
             child: listViewBuilder,
             popup: DiscussionPopup(
               contents: ParticipantSettings(
-                  meParticipant: state.getDiscussion().meParticipant,
-                  me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-                  onClose: () {
-                    this.setState(() {
-                      this._isShowParticipantSettings = false;
-                    });
-                  }),
+                meParticipant: state.getDiscussion().meParticipant,
+                me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
+                onClose: () {
+                  this.setState(() {
+                    this._isShowParticipantSettings = false;
+                  });
+                },
+                discussion: discussionObj,
+              ),
             ),
             animationMillis: 500,
           );
@@ -141,21 +172,25 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                   ],
                 )),
             expandedConversationView,
-            DelphisInput(
-              discussion: state.getDiscussion(),
-              participant: state.getDiscussion().meParticipant,
-              isShowingParticipantSettings: this._isShowParticipantSettings,
-              onParticipantSettingsPressed: () {
-                setState(() {
-                  this._isShowParticipantSettings =
-                      !this._isShowParticipantSettings;
-                });
-              },
-            ),
+            discussionObj.meParticipant == null
+                ? Container(width: 0, height: 0)
+                : DelphisInput(
+                    discussion: discussionObj,
+                    participant: discussionObj.meParticipant,
+                    isShowingParticipantSettings:
+                        this._isShowParticipantSettings,
+                    onParticipantSettingsPressed: () {
+                      setState(() {
+                        this._isShowParticipantSettings =
+                            !this._isShowParticipantSettings;
+                      });
+                    },
+                  ),
           ],
         );
         Widget toRender = listViewWithInput;
-        if (!this.hasAcceptedIncognitoWarning) {
+        if (discussionObj.meParticipant != null &&
+            !this.hasAcceptedIncognitoWarning) {
           toRender = AnimatedDiscussionPopup(
             child: listViewWithInput,
             popup: DiscussionPopup(

@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -21,15 +22,24 @@ enum _SettingsState {
   GRADIENT_SELECT,
 }
 
+enum SettingsFlow {
+  PARTICIPANT_SETTINGS_IN_CHAT,
+  JOIN_CHAT,
+}
+
 class ParticipantSettings extends StatefulWidget {
+  final Discussion discussion;
   final Participant meParticipant;
   final User me;
+  final SettingsFlow settingsFlow;
   final VoidCallback onClose;
 
   const ParticipantSettings({
+    @required this.discussion,
     @required this.meParticipant,
     @required this.me,
     @required this.onClose,
+    this.settingsFlow = SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT,
   }) : super();
 
   @override
@@ -45,12 +55,11 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   @override
   void initState() {
     super.initState();
-    // TODO: Pull this from participant via the User available flair.
     this._selectedIdx = 0;
     this._settingsState = _SettingsState.ANONYMITY_SELECT;
     this._selectedGradient =
-        gradientNameFromString(this.widget.meParticipant.gradientColor);
-    this._selectedFlairID = this.widget.meParticipant.flair?.id;
+        gradientNameFromString(this.widget.meParticipant?.gradientColor);
+    this._selectedFlairID = this.widget.meParticipant?.flair?.id;
   }
 
   @override
@@ -63,12 +72,15 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             Text(
-              Intl.message('Go Incognito?'),
+              this.widget.settingsFlow ==
+                      SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
+                  ? Intl.message('Go Incognito?')
+                  : Intl.message('How would you like to join?'),
               style: TextThemes.goIncognitoHeader,
               textAlign: TextAlign.center,
             ),
             SizedBox(height: SpacingValues.extraSmall),
-            Text(Intl.message('Pick how you want your avatar to display'),
+            Text(Intl.message('Pick how you want your avatar to display.'),
                 style: TextThemes.goIncognitoSubheader,
                 textAlign: TextAlign.center),
             SizedBox(height: SpacingValues.mediumLarge),
@@ -116,14 +128,17 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             Padding(
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
                 child: Stack(alignment: Alignment.centerLeft, children: [
-                  GestureDetector(
-                      onTap: () {
-                        this.widget.onClose();
-                      },
-                      child: Text(
-                        Intl.message('Cancel'),
-                        style: TextThemes.signInAngryNote,
-                      )),
+                  this.widget.settingsFlow ==
+                          SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
+                      ? GestureDetector(
+                          onTap: () {
+                            this.widget.onClose();
+                          },
+                          child: Text(
+                            Intl.message('Cancel'),
+                            style: TextThemes.signInAngryNote,
+                          ))
+                      : Container(width: 0, height: 0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -138,17 +153,12 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                         child: Text(Intl.message('Update'),
                             style: TextThemes.goIncognitoButton),
                         onPressed: () {
-                          BlocProvider.of<ParticipantBloc>(context)
-                              .add(ParticipantEventUpdateParticipant(
-                            participantID: this.widget.meParticipant.id,
-                            isAnonymous: this._selectedIdx == 1,
-                            gradientName: this._selectedGradient,
-                            flair: this.widget.me.flairs.firstWhere(
-                                (flair) => flair.id == this._selectedFlairID,
-                                orElse: () => null),
-                            isUnsetFlairID: this._selectedFlairID == null,
-                          ));
-                          this.widget.onClose();
+                          if (this.widget.settingsFlow ==
+                              SettingsFlow.JOIN_CHAT) {
+                            this.joinDiscussion();
+                          } else {
+                            this.updateExistingParticipant();
+                          }
                         },
                       ),
                     ],
@@ -217,5 +227,32 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           ),
           child: child,
         ));
+  }
+
+  void updateExistingParticipant() {
+    BlocProvider.of<ParticipantBloc>(context)
+        .add(ParticipantEventUpdateParticipant(
+      participantID: this.widget.meParticipant.id,
+      isAnonymous: this._selectedIdx == 1,
+      gradientName: this._selectedGradient,
+      flair: this.widget.me.flairs.firstWhere(
+          (flair) => flair.id == this._selectedFlairID,
+          orElse: () => null),
+      isUnsetFlairID: this._selectedFlairID == null,
+    ));
+    this.widget.onClose();
+  }
+
+  void joinDiscussion() {
+    BlocProvider.of<ParticipantBloc>(context)
+        .add(ParticipantEventAddParticipant(
+      discussionID: this.widget.discussion.id,
+      userID: this.widget.me.id,
+      gradientName: this._selectedGradient,
+      flairID: this._selectedFlairID,
+      hasJoined: true,
+      isAnonymous: this._selectedIdx == 1,
+    ));
+    this.widget.onClose();
   }
 }

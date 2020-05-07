@@ -56,7 +56,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
         this._renderFlair(),
       ]),
       editContent: Text(
-        this.showAnonymous ? Intl.message('Edit') : Intl.message('Add flair'),
+        Intl.message('Edit'),
         style: TextThemes.goIncognitoOptionAction,
         textAlign: TextAlign.end,
       ),

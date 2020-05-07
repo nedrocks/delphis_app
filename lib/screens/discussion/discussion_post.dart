@@ -26,6 +26,7 @@ class DiscussionPost extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
+        // TODO: We need to hook this up to use the correct image for non-anonymous participants.
         children: <Widget>[
           Container(
             padding: EdgeInsets.only(right: SpacingValues.medium),

@@ -4,9 +4,10 @@ import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/screens/discussion/discussion_announcement_post.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
-import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_settings.dart';
+import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -66,7 +67,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               controller: this._scrollController,
               reverse: true,
               itemBuilder: (context, index) {
-                return DiscussionPost(discussion: discussionObj, index: index);
+                final post =
+                    DiscussionPost(discussion: discussionObj, index: index);
+                if (true) {
+                  return post;
+                } else {
+                  // TODO: This should be hooked up to announcement posts.
+                  return DiscussionAnnouncementPost(post: post);
+                }
               }),
         );
         Widget listViewOverlay = listViewBuilder;
@@ -74,7 +82,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           listViewOverlay = AnimatedDiscussionPopup(
             child: listViewBuilder,
             popup: DiscussionPopup(
-              contents: ParticipantAnonymitySettings(
+              contents: ParticipantSettings(
                   meParticipant: state.getDiscussion().meParticipant,
                   me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
                   onClose: () {

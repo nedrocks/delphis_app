@@ -18,11 +18,13 @@ class DiscussionPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isModeratorAuthor =
-        this.discussion.posts[this.index].participant.participantID == 0;
+    final post = this.discussion.posts[this.index];
+    final isModeratorAuthor = post.participant.participantID == 0;
     return Container(
       padding: EdgeInsets.only(
-          left: SpacingValues.medium, bottom: SpacingValues.extraLarge),
+          left: SpacingValues.medium,
+          top: SpacingValues.medium,
+          bottom: SpacingValues.medium),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,6 +67,7 @@ class DiscussionPost extends StatelessWidget {
                   participant:
                       this.discussion.getParticipantForPostIdx(this.index),
                   height: 20.0,
+                  post: post,
                 ),
                 Container(
                   child: Column(

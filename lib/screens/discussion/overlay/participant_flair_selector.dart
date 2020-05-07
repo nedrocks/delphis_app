@@ -1,7 +1,7 @@
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_settings.dart';
+import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_flair_selector_option.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/material.dart';

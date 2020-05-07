@@ -21,23 +21,22 @@ enum _SettingsState {
   GRADIENT_SELECT,
 }
 
-class ParticipantAnonymitySettings extends StatefulWidget {
+class ParticipantSettings extends StatefulWidget {
   final Participant meParticipant;
   final User me;
   final VoidCallback onClose;
 
-  const ParticipantAnonymitySettings({
+  const ParticipantSettings({
     @required this.meParticipant,
     @required this.me,
     @required this.onClose,
   }) : super();
 
   @override
-  State<StatefulWidget> createState() => _ParticipantAnonymitySettingsState();
+  State<StatefulWidget> createState() => _ParticipantSettingsState();
 }
 
-class _ParticipantAnonymitySettingsState
-    extends State<ParticipantAnonymitySettings> {
+class _ParticipantSettingsState extends State<ParticipantSettings> {
   GradientName _selectedGradient;
   String _selectedFlairID;
   int _selectedIdx;

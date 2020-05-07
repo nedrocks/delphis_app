@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
-import 'participant_anonymity_settings.dart';
+import 'participant_settings.dart';
 
 class ParticipantGradientSelector extends StatefulWidget {
   final GradientName selectedGradient;

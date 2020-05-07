@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
@@ -8,11 +9,13 @@ class PostTitle extends StatelessWidget {
   final Moderator moderator;
   final Participant participant;
   final double height;
+  final Post post;
 
   const PostTitle({
-    this.moderator,
-    this.participant,
-    this.height,
+    @required this.moderator,
+    @required this.participant,
+    @required this.height,
+    @required this.post,
   }) : super();
 
   @override
@@ -32,6 +35,9 @@ class PostTitle extends StatelessWidget {
 
     print('is anonymous: ${this.participant.isAnonymous}');
 
+    // TODO: If the post is an announcement update the name to be something like `The mysterious <name>` with
+    // different embedded fonts. the preamble should be the nonAnon text but at 13 font, w400. The name should
+    // be the anon text style.
     var name = Text(
         '${participant.gradientColor} #${participant.participantID}',
         style: TextThemes.discussionPostAuthorAnon);

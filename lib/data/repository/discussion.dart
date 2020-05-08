@@ -139,11 +139,13 @@ class Discussion extends Equatable {
 
   Participant getParticipantForPostIdx(int idx) {
     if (idx < 0 || idx >= this.posts.length) {
+      print('index is above post length');
       return null;
     }
     final post = this.posts[idx];
     return this.participants.firstWhere(
-        (participant) => participant.id == post.participant.id,
+        (participant) =>
+            participant.participantID == post.participant.participantID,
         orElse: () => null);
   }
 }

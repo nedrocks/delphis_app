@@ -120,8 +120,8 @@ class ChathamAppState extends State<ChathamApp> {
                       create: (context) =>
                           DiscussionBloc(repository: discussionRepository)
                             ..add(DiscussionQueryEvent(
-                                //'2589fb41-e6c5-4950-8b75-55bb3315113e')),
-                                'c5409fad-e624-4de8-bb32-36453c562abf')),
+                                '2589fb41-e6c5-4950-8b75-55bb3315113e')),
+                      //'c5409fad-e624-4de8-bb32-36453c562abf')),
                       child: BlocProvider<ParticipantBloc>(
                         lazy: true,
                         create: (context) => ParticipantBloc(

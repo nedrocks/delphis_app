@@ -8,12 +8,17 @@ let myClientId = "foo"
 let ablyClientOptions = ARTClientOptions()
 let myPushChannel = "push"
 
+let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate, ARTPushRegistererDelegate {
     var realtime: ARTRealtime! = nil
     var channel: ARTRealtimeChannel!
     var myDeviceToken = ""
     var myDeviceId = ""
+
+    private var eventSink: FlutterEventSink?
+    private var _tokenChannel: FlutterMethodChannel?
 
   override func application(
     _ application: UIApplication,
@@ -35,6 +40,17 @@ let myPushChannel = "push"
     self.realtime = self.getAblyRealtime()
     self.realtime.push.activate()
 
+    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+    _tokenChannel = FlutterMethodChannel(name: "chatham.ai/push_token",
+                                              binaryMessenger: controller.binaryMessenger)
+    _tokenChannel?.setMethodCallHandler({
+      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+      // Note: this method is invoked on the UI thread.
+      // Handle battery messages.
+    })
+
+    GeneratedPluginRegistrant.register(with: self)
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -43,6 +59,7 @@ let myPushChannel = "push"
         self.myDeviceToken = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
         print("received device token: " + self.myDeviceToken)
         ARTPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken, realtime: self.getAblyRealtime())
+        _tokenChannel?.invokeMethod("tokenReceived", arguments: self.myDeviceToken)
     }
 
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

@@ -100,7 +100,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
               onClose: () {
                 // TODO: Show a spinner
-                print('closing');
               },
               discussion: discussionObj,
               settingsFlow: SettingsFlow.JOIN_CHAT,

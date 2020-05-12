@@ -35,11 +35,12 @@ class DiscussionLoadedEvent extends DiscussionEvent {
 
 class DiscussionPostsUpdatedEvent extends DiscussionEvent {
   final List<Post> posts;
+  final DateTime timestamp;
 
-  DiscussionPostsUpdatedEvent(this.posts) : super();
+  DiscussionPostsUpdatedEvent(this.posts, this.timestamp) : super();
 
   @override
-  List<Object> get props => [this.posts];
+  List<Object> get props => [this.posts, this.timestamp];
 }
 
 class MeParticipantUpdatedEvent extends DiscussionEvent {

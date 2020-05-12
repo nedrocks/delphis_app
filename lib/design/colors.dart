@@ -29,7 +29,6 @@ enum GradientName {
 }
 
 GradientName gradientNameFromString(String stringName) {
-  print('string name: $stringName');
   if (stringName == null) {
     return GradientName.MAUVE;
   }

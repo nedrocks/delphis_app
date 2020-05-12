@@ -17,7 +17,6 @@ class Pressable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(decoration.shape);
     return Container(
       width: this.width,
       height: this.height,

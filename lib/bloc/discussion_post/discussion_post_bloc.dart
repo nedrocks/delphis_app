@@ -61,7 +61,9 @@ class DiscussionPostBloc
         final addedPost =
             await repository.addPost(this.discussionID, event.postContent);
         var updatedPosts = currentState.posts..insert(0, addedPost);
-        this.discussionBloc.add(DiscussionPostsUpdatedEvent(updatedPosts));
+        this
+            .discussionBloc
+            .add(DiscussionPostsUpdatedEvent(updatedPosts, DateTime.now()));
         yield DiscussionPostAddState(
           posts: updatedPosts,
           step: PostAddStep.SUCCESS,

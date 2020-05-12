@@ -33,8 +33,6 @@ class PostTitle extends StatelessWidget {
     //   }
     // }
 
-    print('is anonymous: ${this.participant.isAnonymous}');
-
     // TODO: If the post is an announcement update the name to be something like `The mysterious <name>` with
     // different embedded fonts. the preamble should be the nonAnon text but at 13 font, w400. The name should
     // be the anon text style.

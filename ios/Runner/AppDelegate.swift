@@ -24,7 +24,15 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+
+
+    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+    _tokenChannel = FlutterMethodChannel(name: "chatham.ai/push_token",
+                                              binaryMessenger: controller.binaryMessenger)
+
     GeneratedPluginRegistrant.register(with: self)
+
+    self.myDeviceId = UIDevice.current.identifierForVendor!.uuidString;
 
     if #available(iOS 10.0, *) {
         UNUserNotificationCenter.current().requestAuthorization(options:[.badge, .alert, .sound]) { (granted, err) in
@@ -37,19 +45,6 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
         // Fallback on earlier versions
     }
 
-    self.realtime = self.getAblyRealtime()
-    self.realtime.push.activate()
-
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-    _tokenChannel = FlutterMethodChannel(name: "chatham.ai/push_token",
-                                              binaryMessenger: controller.binaryMessenger)
-    _tokenChannel?.setMethodCallHandler({
-      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-      // Note: this method is invoked on the UI thread.
-      // Handle battery messages.
-    })
-
-    GeneratedPluginRegistrant.register(with: self)
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -59,38 +54,52 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
         self.myDeviceToken = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
         print("received device token: " + self.myDeviceToken)
         ARTPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken, realtime: self.getAblyRealtime())
-        _tokenChannel?.invokeMethod("tokenReceived", arguments: self.myDeviceToken)
+        DispatchQueue.main.async {
+            print("here1")
+            print("is token channel existing? ");
+            self._tokenChannel?.invokeMethod("didReceiveTokenAndDeviceID", arguments:"\(self.myDeviceId).\(self.myDeviceToken)")
+//            self._tokenChannel?.invokeMethod("didReceiveToken", arguments: self.myDeviceToken)
+//            self._tokenChannel?.invokeMethod("didReceiveDeviceID", arguments: self.myDeviceId)
+        }
     }
 
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("[LOCALLOG] Error registering for remote notifications")
         ARTPush.didFailToRegisterForRemoteNotificationsWithError(error, realtime: self.getAblyRealtime())
+
+        DispatchQueue.main.async {
+            print("here2")
+            print("is token channel existing? ");
+            self._tokenChannel?.invokeMethod("didReceiveTokenAndDeviceID", arguments:"\(self.myDeviceId).")
+//            self._tokenChannel?.invokeMethod("didReceiveToken", arguments: "")
+//            self._tokenChannel?.invokeMethod("didReceiveDeviceID", arguments: self.myDeviceId)
+        }
     }
 
     func didActivateAblyPush(_ error: ARTErrorInfo?) {
-        if let error = error {
-            // Handle error
-            print("[LOCALLOG] Push activation failed, err=\(String(describing: error))")
-            return
-        }
-        print("[LOCALLOG] Push activation successful")
-
-        self.channel = self.realtime.channels.get(myPushChannel)
-        self.channel.push.subscribeDevice { (err) in
-            if(err != nil){
-                print("[LOCALLOG] Device Subscription on push channel failed with err=\(String(describing: err))")
-                return
-            }
-            self.myDeviceId = self.realtime.device.id
-            print("[LOCALLOG] Client ID: " + myClientId)
-            print("[LOCALLOG] Device Token: " + self.myDeviceToken)
-            print("[LOCALLOG] Device ID: " + self.myDeviceId)
-            print("[LOCALLOG] Push channel: " + myPushChannel)
-        }
+//        if let error = error {
+//            // Handle error
+//            print("[LOCALLOG] Push activation failed, err=\(String(describing: error))")
+//            return
+//        }
+//        print("[LOCALLOG] Push activation successful")
+//
+//        self.channel = self.realtime.channels.get(myPushChannel)
+//        self.channel.push.subscribeDevice { (err) in
+//            if(err != nil){
+//                print("[LOCALLOG] Device Subscription on push channel failed with err=\(String(describing: err))")
+//                return
+//            }
+//            self.myDeviceId = self.realtime.device.id
+//            print("[LOCALLOG] Client ID: " + myClientId)
+//            print("[LOCALLOG] Device Token: " + self.myDeviceToken)
+//            print("[LOCALLOG] Device ID: " + self.myDeviceId)
+//            print("[LOCALLOG] Push channel: " + myPushChannel)
+//        }
     }
 
     func didDeactivateAblyPush(_ error: ARTErrorInfo?) {
-        print("[LOCALLOG] push deactivated")
+        //print("[LOCALLOG] push deactivated")
     }
 
     private func getAblyRealtime() -> ARTRealtime {

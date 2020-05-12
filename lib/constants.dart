@@ -42,8 +42,8 @@ class _Config {
   static Map<String, dynamic> debugConstants = {
     TWITTER_REDIRECT_URL_PREFIX: "http://local.delphishq.com:8000/",
     TWITTER_LOGIN_URL: "http://localhost:8080/twitter/login",
-    GQL_ENDPOINT: "http://localhost:8080/query",
-    WS_ENDPOINT: "ws://localhost:8080/query",
+    GQL_ENDPOINT: "http://192.168.86.39:8080/query",
+    WS_ENDPOINT: "ws://192.168.86.39:8080/query",
   };
 
   static Map<String, dynamic> stagingConstants = {

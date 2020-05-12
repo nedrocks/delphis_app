@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -95,6 +96,36 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
 
   Participant parseResult(dynamic data) {
     return Participant.fromJson(data["addDiscussionParticipant"]);
+  }
+}
+
+class UpdateUserDeviceGQLMutation extends GQLMutation<UserDevice> {
+  final String userID;
+  final String token;
+  final ChathamPlatform platform;
+  final String deviceID;
+
+  final String _mutation = """
+    mutation UpsertUserDevice(\$userID: ID, \$platform: Platform!, \$deviceID: String!, \$token: String) {
+      upsertUserDevice(userID: \$userID, platform: \$platform, deviceID: \$deviceID, token: \$token) {
+        id
+      }
+    }
+  """;
+
+  const UpdateUserDeviceGQLMutation({
+    @required this.deviceID,
+    @required this.platform,
+    this.userID,
+    this.token,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  UserDevice parseResult(dynamic data) {
+    return UserDevice.fromJson(data["upsertUserDevice"]);
   }
 }
 

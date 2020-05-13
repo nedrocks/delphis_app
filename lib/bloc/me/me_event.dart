@@ -5,13 +5,25 @@ abstract class MeEvent extends Equatable {
 }
 
 class FetchMeEvent extends MeEvent {
-  const FetchMeEvent() : super();
+  final DateTime now;
+
+  FetchMeEvent({
+    now,
+  })  : this.now = now ?? DateTime.now(),
+        super();
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [this.now];
 }
 
 class LogoutMeEvent extends MeEvent {
+  final DateTime now;
+
+  LogoutMeEvent({
+    now,
+  })  : this.now = now ?? DateTime.now(),
+        super();
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [this.now];
 }

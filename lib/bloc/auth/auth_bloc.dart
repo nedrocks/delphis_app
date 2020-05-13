@@ -32,9 +32,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
       yield InitializedAuthState(event.authString, event.isSuccess);
     } else if (event is LogoutAuthEvent) {
-      yield LoggedOutAuthState();
       await this.repository.logout();
-      yield InitialAuthState();
+      // We yield this to ensure the app shows the logged out views.
+      yield LoggedOutAuthState();
+      yield InitializedAuthState(null, false);
     }
   }
 }

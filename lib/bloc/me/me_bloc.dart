@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 
 part 'me_event.dart';
 part 'me_state.dart';

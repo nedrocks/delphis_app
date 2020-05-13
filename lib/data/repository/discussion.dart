@@ -1,7 +1,9 @@
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
@@ -11,24 +13,37 @@ import 'post.dart';
 
 part 'discussion.g.dart';
 
+const MAX_ATTEMPTS = 3;
+const BACKOFF = 1;
+
 enum AnonymityType { UNKNOWN, WEAK, STRONG }
 
 class DiscussionRepository {
-  final GraphQLClient client;
-  final SocketClient websocketGQLClient;
+  final GqlClientBloc clientBloc;
 
-  const DiscussionRepository(
-    this.client,
-    this.websocketGQLClient,
-  );
+  const DiscussionRepository({
+    @required this.clientBloc,
+  });
 
-  Future<Discussion> getDiscussion(String discussionId) async {
+  Future<Discussion> getDiscussion(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getDiscussion(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
     final query = SingleDiscussionGQLQuery();
 
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
       variables: {
-        'id': discussionId,
+        'id': discussionID,
       },
     ));
     // Handle exceptions
@@ -38,7 +53,19 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<Post> addPost(String discussionID, String postContent) async {
+  Future<Post> addPost(String discussionID, String postContent,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return addPost(discussionID, postContent, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to addPost to discussion because backend connection is severed");
+    }
+
     final mutation = AddPostGQLMutation(
         discussionID: discussionID, postContent: postContent);
     final QueryResult result = await client.mutate(
@@ -60,9 +87,19 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
-  Stream<Post> subscribe(String discussionID) {
+  Future<Stream<Post>> subscribe(String discussionID, {int attempt = 1}) async {
+    final websocketClient = this.clientBloc.getWebsocketClient();
+
+    if (websocketClient == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return subscribe(discussionID, attempt: attempt + 1);
+      });
+    } else if (websocketClient == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
     final subscription = PostAddedSubscription(discussionID);
-    Stream<SubscriptionData> resStream = websocketGQLClient.subscribe(
+    Stream<SubscriptionData> resStream = websocketClient.subscribe(
       SubscriptionRequest(Operation(
           operationName: "postAdded",
           documentNode: gql(subscription.subscription()),

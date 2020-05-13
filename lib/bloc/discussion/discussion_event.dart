@@ -7,12 +7,14 @@ abstract class DiscussionEvent extends Equatable {
 }
 
 class DiscussionQueryEvent extends DiscussionEvent {
-  final String discussionId;
+  final String discussionID;
 
-  DiscussionQueryEvent(this.discussionId) : super();
+  DiscussionQueryEvent({
+    @required this.discussionID,
+  }) : super();
 
   @override
-  List<Object> get props => [this.discussionId];
+  List<Object> get props => [this.discussionID];
 }
 
 class DiscussionErrorEvent extends DiscussionEvent {

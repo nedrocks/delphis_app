@@ -1,5 +1,7 @@
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
@@ -10,12 +12,28 @@ import 'viewer.dart';
 
 part 'user.g.dart';
 
+const MAX_ATTEMPTS = 3;
+const BACKOFF = 1;
+
 class UserRepository {
-  final GraphQLClient client;
+  final GqlClientBloc clientBloc;
 
-  const UserRepository(this.client);
+  const UserRepository({
+    @required this.clientBloc,
+  });
 
-  Future<User> getMe() async {
+  Future<User> getMe({int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getMe(attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get user because backend connection is severed");
+    }
+
     final query = MeGQLQuery();
 
     final QueryResult result = await client

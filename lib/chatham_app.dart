@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
@@ -17,9 +18,7 @@ import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
-import 'constants.dart';
 import 'data/repository/participant.dart';
 import 'data/repository/user_device.dart';
 import 'design/text_theme.dart';
@@ -38,8 +37,7 @@ class ChathamAppState extends State<ChathamApp> {
   bool isInitialized;
   AuthBloc authBloc;
   MeBloc meBloc;
-  GraphQLClient gqlClient;
-  SocketClient websocketGQLClient;
+  GqlClientBloc gqlClientBloc;
 
   String deviceID;
   bool didReceivePushToken;
@@ -49,6 +47,8 @@ class ChathamAppState extends State<ChathamApp> {
   @override
   void dispose() {
     this.authBloc.close();
+    this.meBloc.close();
+    this.gqlClientBloc.close();
     super.dispose();
   }
 
@@ -60,11 +60,13 @@ class ChathamAppState extends State<ChathamApp> {
         .setMethodCallHandler(this._didReceiveTokenAndDeviceID);
 
     this.secureStorage = FlutterSecureStorage();
-    this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage))
-      ..add(FetchAuthEvent());
-    isInitialized = false;
+    this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage));
+    this.gqlClientBloc = GqlClientBloc(authBloc: this.authBloc);
+    this.authBloc.add(FetchAuthEvent());
+
+    this.isInitialized = false;
     this.authBloc.listen((state) {
-      if (state is InitializedAuthState) {
+      if (state is InitializedAuthState && !this.isInitialized) {
         setState(() {
           this.isInitialized = true;
         });
@@ -77,115 +79,83 @@ class ChathamAppState extends State<ChathamApp> {
 
   @override
   Widget build(BuildContext context) {
-    print('rebuilding base app');
-    final HttpLink httpLink = HttpLink(
-      uri: Constants.gqlEndpoint,
-    );
-
-    final AuthLink authLink = AuthLink(getToken: () async {
-      if (this.authBloc.state is InitializedAuthState &&
-          (this.authBloc.state as InitializedAuthState).isAuthed) {
-        return 'Bearer ${(this.authBloc.state as InitializedAuthState).authString}';
-      }
-      return 'Bearer ';
-    });
-    Link link = authLink.concat(httpLink);
-
-    gqlClient = GraphQLClient(
-      cache: InMemoryCache(),
-      link: link,
-    );
-
-    var wsEndpoint = '${Constants.wsEndpoint}';
-    if (this.authBloc.state is InitializedAuthState &&
-        (this.authBloc.state as InitializedAuthState).isAuthed) {
-      wsEndpoint =
-          '$wsEndpoint?access_token=${(this.authBloc.state as InitializedAuthState).authString}';
-    }
-    websocketGQLClient = SocketClient(
-      wsEndpoint,
-    );
-
     final discussionRepository =
-        DiscussionRepository(gqlClient, websocketGQLClient);
+        DiscussionRepository(clientBloc: this.gqlClientBloc);
     final participantRepository =
-        ParticipantRepository(gqlClient, websocketGQLClient);
-    final userRepository = UserRepository(gqlClient);
-    final userDeviceRepository = UserDeviceRepository(gqlClient);
+        ParticipantRepository(clientBloc: this.gqlClientBloc);
+    final userRepository = UserRepository(clientBloc: this.gqlClientBloc);
+    final userDeviceRepository =
+        UserDeviceRepository(clientBloc: this.gqlClientBloc);
 
-    ValueNotifier<GraphQLClient> client = ValueNotifier(gqlClient);
-    return GraphQLProvider(
-        client: client,
-        child: MultiBlocProvider(
-          providers: <BlocProvider>[
-            BlocProvider<AuthBloc>.value(value: this.authBloc),
-            BlocProvider<MeBloc>(
-                create: (context) => MeBloc(userRepository, this.authBloc)),
-          ],
-          child: MultiBlocListener(
-            listeners: [
-              BlocListener<AuthBloc, AuthState>(
-                  listener: (context, AuthState state) {
-                if (state is InitializedAuthState && state.isAuthed) {
-                  BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-                } else if (state is InitializedAuthState && !state.isAuthed) {
-                  this.sendDeviceToServer(userDeviceRepository, null);
-                }
-              }),
-              BlocListener<MeBloc, MeState>(listener: (context, MeState state) {
-                if (state is LoadedMeState) {
-                  this.sendDeviceToServer(userDeviceRepository, state.me);
-                }
-              })
-            ],
-            child: BlocListener<AuthBloc, AuthState>(
+    return MultiBlocProvider(
+      providers: <BlocProvider>[
+        BlocProvider<AuthBloc>.value(value: this.authBloc),
+        BlocProvider<MeBloc>(
+            create: (context) => MeBloc(userRepository, this.authBloc)),
+      ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
               listener: (context, AuthState state) {
-                if (state is InitializedAuthState && state.isAuthed) {
-                  BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-                }
-              },
-              child: MaterialApp(
-                title: "Chatham",
-                theme: kThemeData,
-                initialRoute: '/Intro',
-                routes: {
-                  '/Intro': (context) =>
-                      IntroScreen(isInitialized: isInitialized),
-                  // This is a bit dicy but presumably any descendent of this page should listen
-                  // for the logout event.
-                  '/': (context) => BlocProvider<DiscussionBloc>(
-                        lazy: true,
-                        create: (context) =>
-                            DiscussionBloc(repository: discussionRepository)
-                              ..add(DiscussionQueryEvent(
-                                  '2589fb41-e6c5-4950-8b75-55bb3315113e')),
-                        //'c5409fad-e624-4de8-bb32-36453c562abf')),
-                        child: BlocProvider<ParticipantBloc>(
-                          lazy: true,
-                          create: (context) => ParticipantBloc(
-                              repository: participantRepository,
-                              discussionBloc:
-                                  BlocProvider.of<DiscussionBloc>(context)),
-                          child: BlocListener<AuthBloc, AuthState>(
-                            listener: (context, state) {
-                              if (state is LoggedOutAuthState) {
-                                Navigator.of(context).pushNamedAndRemoveUntil(
-                                    '/Auth', (Route<dynamic> route) => false);
-                              }
-                            },
-                            child: DelphisDiscussion(),
-                          ),
+            if (state is InitializedAuthState && state.isAuthed) {
+              BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
+            } else if (state is InitializedAuthState && !state.isAuthed) {
+              this.sendDeviceToServer(userDeviceRepository, null);
+            }
+          }),
+          BlocListener<MeBloc, MeState>(listener: (context, MeState state) {
+            if (state is LoadedMeState) {
+              this.sendDeviceToServer(userDeviceRepository, state.me);
+            }
+          })
+        ],
+        child: BlocListener<AuthBloc, AuthState>(
+          listener: (context, AuthState state) {
+            if (state is InitializedAuthState && state.isAuthed) {
+              BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
+            }
+          },
+          child: MaterialApp(
+            title: "Chatham",
+            theme: kThemeData,
+            initialRoute: '/Intro',
+            routes: {
+              '/Intro': (context) => IntroScreen(isInitialized: isInitialized),
+              // This is a bit dicy but presumably any descendent of this page should listen
+              // for the logout event.
+              '/': (context) => BlocProvider<DiscussionBloc>(
+                    lazy: true,
+                    create: (context) =>
+                        DiscussionBloc(repository: discussionRepository),
+                    //'c5409fad-e624-4de8-bb32-36453c562abf')),
+                    child: BlocProvider<ParticipantBloc>(
+                      lazy: true,
+                      create: (context) => ParticipantBloc(
+                          repository: participantRepository,
+                          discussionBloc:
+                              BlocProvider.of<DiscussionBloc>(context)),
+                      child: BlocListener<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is LoggedOutAuthState) {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/Auth', (Route<dynamic> route) => false);
+                          }
+                        },
+                        child: DelphisDiscussion(
+                          discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
                         ),
                       ),
-                  '/Auth': (context) => SignInScreen(
-                      onTwitterPressed: () =>
-                          {Navigator.of(context).pushNamed('/Auth/Twitter')}),
-                  '/Auth/Twitter': (context) => LoginScreen(),
-                },
-              ),
-            ),
+                    ),
+                  ),
+              '/Auth': (context) => SignInScreen(
+                  onTwitterPressed: () =>
+                      {Navigator.of(context).pushNamed('/Auth/Twitter')}),
+              '/Auth/Twitter': (context) => LoginScreen(),
+            },
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   void sendDeviceToServer(UserDeviceRepository repository, User me) {

@@ -1,5 +1,7 @@
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
@@ -7,17 +9,31 @@ import 'user.dart';
 
 part 'user_device.g.dart';
 
+const MAX_ATTEMPTS = 3;
+const BACKOFF = 1;
+
 enum ChathamPlatform { UNKNOWN, IOS, ANDROID, WEB }
 
 class UserDeviceRepository {
-  final GraphQLClient client;
+  final GqlClientBloc clientBloc;
 
-  const UserDeviceRepository(
-    this.client,
-  );
+  const UserDeviceRepository({@required this.clientBloc});
 
-  Future<UserDevice> upsertUserDevice(String userID, String token,
-      ChathamPlatform platform, String deviceID) async {
+  Future<UserDevice> upsertUserDevice(
+      String userID, String token, ChathamPlatform platform, String deviceID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return upsertUserDevice(userID, token, platform, deviceID,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
     final mutation = UpdateUserDeviceGQLMutation(
       userID: userID,
       token: token,

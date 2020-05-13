@@ -27,10 +27,9 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();
-        final discussion = await repository.getDiscussion(event.discussionId);
+        final discussion = await repository.getDiscussion(event.discussionID);
         yield DiscussionLoadedState(
             discussion: discussion, lastUpdate: DateTime.now());
-        return;
       } catch (err) {
         yield DiscussionErrorState(err);
       }
@@ -101,7 +100,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       if (currentState.getDiscussion() != null &&
           currentState.discussionPostStream == null) {
         final discussionStream =
-            this.repository.subscribe(currentState.getDiscussion().id);
+            await this.repository.subscribe(currentState.getDiscussion().id);
         discussionStream.listen((Post post) {
           this.add(DiscussionPostAddedEvent(post: post));
         });

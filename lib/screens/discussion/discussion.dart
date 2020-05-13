@@ -15,19 +15,25 @@ import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
 class DelphisDiscussion extends StatefulWidget {
-  const DelphisDiscussion() : super();
+  final String discussionID;
+
+  const DelphisDiscussion({
+    @required this.discussionID,
+  }) : super();
 
   @override
   State<StatefulWidget> createState() => DelphisDiscussionState();
 }
 
 class DelphisDiscussionState extends State<DelphisDiscussion> {
+  bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
   bool _isShowParticipantSettings;
 
@@ -37,6 +43,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   @override
   void initState() {
     super.initState();
+
+    this.hasSentLoadingEvent = false;
 
     this.hasAcceptedIncognitoWarning = false;
     _scrollController = ScrollController();
@@ -54,6 +62,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
 
   @override
   Widget build(BuildContext context) {
+    if (!this.hasSentLoadingEvent) {
+      this.setState(() {
+        BlocProvider.of<DiscussionBloc>(context)
+            .add(DiscussionQueryEvent(discussionID: this.widget.discussionID));
+        this.hasSentLoadingEvent = true;
+      });
+    }
     return BlocBuilder<DiscussionBloc, DiscussionState>(
       builder: (context, state) {
         if (state is DiscussionUninitializedState ||

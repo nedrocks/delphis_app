@@ -15,7 +15,6 @@ import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';
@@ -79,6 +78,11 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           return Center(
             child: Text(state.error.toString()),
           );
+        }
+        if (state is DiscussionLoadedState &&
+            state.discussionPostStream == null) {
+          BlocProvider.of<DiscussionBloc>(context)
+              .add(SubscribeToDiscussionEvent(this.widget.discussionID, true));
         }
         final discussionObj = state.getDiscussion();
         var listViewBuilder = Container(

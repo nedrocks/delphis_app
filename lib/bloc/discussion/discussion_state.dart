@@ -58,6 +58,9 @@ class DiscussionLoadedState extends DiscussionState {
       discussionPostStream: stream ?? this.discussionPostStream,
     );
   }
+
+  @override
+  List<Object> get props => [this.discussion, this.lastUpdate];
 }
 
 enum PostAddStep {

@@ -88,12 +88,28 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     } else if (event is DiscussionPostAddedEvent &&
         currentState is DiscussionLoadedState) {
       if (currentState.getDiscussion() != null) {
-        var updatedPosts = currentState.getDiscussion().posts
-          ..insert(0, event.post);
-        var updatedDiscussion = currentState.getDiscussion().copyWith(
-              posts: updatedPosts,
-            );
-        yield currentState.update(discussion: updatedDiscussion);
+        var found = false;
+        final discussion = currentState.getDiscussion();
+        for (int i = 0; i < discussion.posts.length; i++) {
+          if (discussion.posts[i].id == event.post.id) {
+            found = true;
+            break;
+          } else if (discussion.posts[i]
+              .createdAtAsDateTime()
+              .isBefore(event.post.createdAtAsDateTime())) {
+            found = false;
+            break;
+          }
+        }
+        if (!found) {
+          // This post is new.
+          var updatedPosts = currentState.getDiscussion().posts
+            ..insert(0, event.post);
+          var updatedDiscussion = currentState.getDiscussion().copyWith(
+                posts: updatedPosts,
+              );
+          yield currentState.update(discussion: updatedDiscussion);
+        }
       }
     } else if (event is SubscribeToDiscussionEvent &&
         currentState is DiscussionLoadedState) {

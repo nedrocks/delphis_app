@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -29,32 +30,37 @@ class ChathamApp extends StatefulWidget {
   State<StatefulWidget> createState() => ChathamAppState();
 }
 
-class ChathamAppState extends State<ChathamApp> {
+class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   static const methodChannel = const MethodChannel('chatham.ai/push_token');
-  //static const platform = const MethodChannel('samples.flutter.dev/battery');
 
   FlutterSecureStorage secureStorage;
   bool isInitialized;
   AuthBloc authBloc;
   MeBloc meBloc;
   GqlClientBloc gqlClientBloc;
+  AppBloc appBloc;
 
   String deviceID;
   bool didReceivePushToken;
   String pushToken;
   bool hasSentDeviceToServer;
+  bool requiresReload;
 
   @override
   void dispose() {
     this.authBloc.close();
     this.meBloc.close();
     this.gqlClientBloc.close();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+
+    this.appBloc = AppBloc();
+    WidgetsBinding.instance.addObserver(this);
 
     ChathamAppState.methodChannel
         .setMethodCallHandler(this._didReceiveTokenAndDeviceID);
@@ -75,6 +81,13 @@ class ChathamAppState extends State<ChathamApp> {
     this.deviceID = "";
     this.didReceivePushToken = false;
     this.hasSentDeviceToServer = false;
+
+    this.requiresReload = false;
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    this.appBloc.add(AppLifecycleChanged(lifecycle: state));
   }
 
   @override
@@ -127,7 +140,6 @@ class ChathamAppState extends State<ChathamApp> {
                     lazy: true,
                     create: (context) =>
                         DiscussionBloc(repository: discussionRepository),
-                    //'c5409fad-e624-4de8-bb32-36453c562abf')),
                     child: BlocProvider<ParticipantBloc>(
                       lazy: true,
                       create: (context) => ParticipantBloc(
@@ -142,7 +154,8 @@ class ChathamAppState extends State<ChathamApp> {
                           }
                         },
                         child: DelphisDiscussion(
-                          discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                          //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                          discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                         ),
                       ),
                     ),

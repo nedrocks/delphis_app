@@ -22,13 +22,14 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
   @override
   Stream<DiscussionState> mapEventToState(DiscussionEvent event) async* {
-    final currentState = this.state;
+    var currentState = this.state;
     if (event is DiscussionQueryEvent &&
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();
         final discussion = await repository.getDiscussion(event.discussionId);
-        yield DiscussionLoadedState(discussion);
+        yield DiscussionLoadedState(
+            discussion: discussion, lastUpdate: DateTime.now());
         return;
       } catch (err) {
         yield DiscussionErrorState(err);
@@ -37,7 +38,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       if (currentState.getDiscussion() != null) {
         final updatedDiscussion =
             currentState.getDiscussion().copyWith(posts: event.posts);
-        var newState = DiscussionLoadedState(updatedDiscussion);
+        var newState = DiscussionLoadedState(
+            discussion: updatedDiscussion, lastUpdate: DateTime.now());
         yield newState;
       }
     } else if (event is MeParticipantUpdatedEvent) {
@@ -45,18 +47,66 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final updatedDiscussion = currentState
             .getDiscussion()
             .copyWith(meParticipant: event.meParticipant);
-        yield DiscussionLoadedState(updatedDiscussion);
+        yield DiscussionLoadedState(
+            discussion: updatedDiscussion, lastUpdate: DateTime.now());
       }
-      // } else if (event is DiscussionPostAddEvent && currentState is DiscussionLoadedState) {
-      //   // TODO: How do we handle simultaneous post add events?
-      //   if (currentState.getDiscussion() != null) {
-      //     yield DiscussionAddPostState(discussion: currentState.getDiscussion(), postContent: event.postContent, step: PostAddStep.INITIATED);
-      //     try {
-      //       var addedPost = await repository.addPost(currentState.getDiscussion().id, event.postContent);
-      //       var updatedPosts = currentState.getDiscussion().posts..insert(0, addedPost);
-
-      //     }
-      //   }
+    } else if (event is DiscussionPostAddEvent &&
+        currentState is DiscussionLoadedState &&
+        !(currentState is DiscussionAddPostState)) {
+      if (currentState.getDiscussion() != null) {
+        yield DiscussionAddPostState(
+            discussion: currentState.getDiscussion(),
+            postContent: event.postContent,
+            step: PostAddStep.INITIATED,
+            lastUpdate: DateTime.now());
+        try {
+          var addedPost = await repository.addPost(
+              currentState.getDiscussion().id, event.postContent);
+          var updatedPosts = currentState.getDiscussion().posts
+            ..insert(0, addedPost);
+          var updatedDiscussion = currentState.getDiscussion().copyWith(
+                posts: updatedPosts,
+              );
+          currentState = DiscussionAddPostState(
+              discussion: updatedDiscussion,
+              postContent: event.postContent,
+              step: PostAddStep.SUCCESS,
+              lastUpdate: DateTime.now());
+          yield currentState;
+          yield DiscussionLoadedState(
+              discussion: updatedDiscussion, lastUpdate: DateTime.now());
+        } catch (err) {
+          yield DiscussionAddPostState(
+              discussion: currentState.getDiscussion(),
+              postContent: event.postContent,
+              step: PostAddStep.ERROR,
+              lastUpdate: DateTime.now());
+          yield DiscussionLoadedState(
+              discussion: currentState.getDiscussion(),
+              lastUpdate: DateTime.now());
+        }
+      }
+    } else if (event is DiscussionPostAddedEvent &&
+        currentState is DiscussionLoadedState) {
+      if (currentState.getDiscussion() != null) {
+        var updatedPosts = currentState.getDiscussion().posts
+          ..insert(0, event.post);
+        var updatedDiscussion = currentState.getDiscussion().copyWith(
+              posts: updatedPosts,
+            );
+        yield currentState.update(discussion: updatedDiscussion);
+      }
+    } else if (event is SubscribeToDiscussionEvent &&
+        currentState is DiscussionLoadedState) {
+      if (currentState.getDiscussion() != null &&
+          currentState.discussionPostStream == null) {
+        final discussionStream =
+            this.repository.subscribe(currentState.getDiscussion().id);
+        discussionStream.listen((Post post) {
+          this.add(DiscussionPostAddedEvent(post: post));
+        });
+        yield currentState.update(stream: discussionStream);
+      }
     }
   }
 }

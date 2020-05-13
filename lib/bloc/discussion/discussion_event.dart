@@ -54,3 +54,46 @@ class MeParticipantUpdatedEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.meParticipant];
 }
+
+class DiscussionPostAddEvent extends DiscussionEvent {
+  final String postContent;
+
+  @override
+  List<Object> get props => [this.postContent];
+
+  DiscussionPostAddEvent({
+    @required this.postContent,
+  }) : super();
+}
+
+class DiscussionPostAddedEvent extends DiscussionEvent {
+  final Post post;
+
+  @override
+  List<Object> get props => [this.post];
+
+  DiscussionPostAddedEvent({
+    @required this.post,
+  }) : super();
+}
+
+class SubscribeToDiscussionEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool isSubscribed;
+
+  SubscribeToDiscussionEvent(this.discussionID, this.isSubscribed) : super();
+
+  @override
+  List<Object> get props => [this.discussionID, this.isSubscribed];
+}
+
+class UnsubscribeFromDiscussionEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool hasUnsubscribed;
+
+  UnsubscribeFromDiscussionEvent(this.discussionID, this.hasUnsubscribed)
+      : super();
+
+  @override
+  List<Object> get props => [this.discussionID, this.hasUnsubscribed];
+}

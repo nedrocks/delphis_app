@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -117,7 +117,7 @@ class DelphisInputState extends State<DelphisInput> {
       ),
       DiscussionSubmitButton(
         onPressed: () {
-          BlocProvider.of<DiscussionPostBloc>(context).add(
+          BlocProvider.of<DiscussionBloc>(context).add(
             DiscussionPostAddEvent(postContent: this._controller.text),
           );
           this._controller.text = '';

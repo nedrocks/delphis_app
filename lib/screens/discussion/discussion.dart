@@ -1,6 +1,5 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
-import 'package:delphis_app/bloc/discussion_post/discussion_post_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
@@ -203,19 +202,12 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             animationMillis: 0,
           );
         }
-        return BlocProvider<DiscussionPostBloc>(
-          create: (context) => DiscussionPostBloc(
-            discussionID: discussionObj.id,
-            repository: BlocProvider.of<DiscussionBloc>(context).repository,
-            discussionBloc: BlocProvider.of<DiscussionBloc>(context),
-          ),
-          child: SafeArea(
-              child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.black,
-            body: toRender,
-          )),
-        );
+        return SafeArea(
+            child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: Colors.black,
+          body: toRender,
+        ));
       },
     );
   }

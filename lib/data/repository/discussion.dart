@@ -161,12 +161,13 @@ class Discussion extends Equatable {
   Discussion copyWith({
     List<Post> posts,
     Participant meParticipant,
+    List<Participant> participants,
   }) =>
       Discussion(
         id: this.id,
         moderator: this.moderator,
         anonymityType: this.anonymityType,
-        participants: this.participants,
+        participants: participants ?? this.participants,
         title: this.title,
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
@@ -180,9 +181,13 @@ class Discussion extends Equatable {
       return null;
     }
     final post = this.posts[idx];
-    return this.participants.firstWhere(
+    var participant = this.participants.firstWhere(
         (participant) =>
             participant.participantID == post.participant.participantID,
         orElse: () => null);
+    if (participant == null) {
+      // Not sure what to do here.
+    }
+    return participant;
   }
 }

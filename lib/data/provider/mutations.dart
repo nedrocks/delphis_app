@@ -24,7 +24,16 @@ class AddPostGQLMutation extends GQLMutation<Post> {
         id
         content
         participant {
+          id
           participantID
+          isAnonymous
+          gradientColor
+          flair {
+            id
+            displayName
+            imageURL
+            source
+          }
         }
         isDeleted
         createdAt

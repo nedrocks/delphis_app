@@ -15,7 +15,16 @@ class PostAddedSubscription extends GQLSubscription<Post> {
         id
         content
         participant {
+          id
+          isAnonymous
           participantID
+          gradientColor
+          flair {
+            id
+            displayName
+            imageURL
+            source
+          }
         }
         isDeleted
         createdAt

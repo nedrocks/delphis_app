@@ -168,36 +168,48 @@ class DelphisInputState extends State<DelphisInput> {
 
         return Container(
           alignment: Alignment.centerLeft,
-          child: this._input = TextField(
-            key: this._textInputKey,
-            enabled: isEnabled,
-            showCursor: true,
-            focusNode: this._inputFocusNode,
-            controller: this._controller,
-            style: textStyle,
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(
-                  horizontal: this._borderRadius / 2.0,
-                  vertical: this._textBoxVerticalPadding / 2.0),
-              hintStyle: hintStyle,
-              hintText: Intl.message("Type a message"),
-              fillColor: Color.fromRGBO(57, 58, 63, 0.4),
-              filled: true,
-              border: OutlineInputBorder(
-                borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.transparent),
+          child: GestureDetector(
+            onVerticalDragEnd: (details) {
+              if (details == null) {
+                return true;
+              }
+              print('${details.primaryVelocity}');
+              if (details.primaryVelocity >= 150.0) {
+                FocusScope.of(context).unfocus();
+                return true;
+              }
+            },
+            child: this._input = TextField(
+              key: this._textInputKey,
+              enabled: isEnabled,
+              showCursor: true,
+              focusNode: this._inputFocusNode,
+              controller: this._controller,
+              style: textStyle,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: this._borderRadius / 2.0,
+                    vertical: this._textBoxVerticalPadding / 2.0),
+                hintStyle: hintStyle,
+                hintText: Intl.message("Type a message"),
+                fillColor: Color.fromRGBO(57, 58, 63, 0.4),
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: new BorderRadius.circular(this._borderRadius),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: new BorderRadius.circular(this._borderRadius),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: new BorderRadius.circular(this._borderRadius),
+                  borderSide: BorderSide(color: Colors.transparent),
+                ),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: new BorderRadius.circular(this._borderRadius),
-                borderSide: BorderSide(color: Colors.transparent),
-              ),
+              keyboardType: TextInputType.multiline,
+              maxLines: numRows,
             ),
-            keyboardType: TextInputType.multiline,
-            maxLines: numRows,
           ),
           height: widgetHeight,
         );

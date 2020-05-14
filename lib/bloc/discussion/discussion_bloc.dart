@@ -88,8 +88,20 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     } else if (event is DiscussionPostAddedEvent &&
         currentState is DiscussionLoadedState) {
       if (currentState.getDiscussion() != null) {
+        // This is pretty gross.
         var found = false;
         final discussion = currentState.getDiscussion();
+        var isParticipantFound = false;
+        final participants = discussion.participants;
+        for (int i = 0; i < discussion.participants.length; i++) {
+          if (discussion.participants[i].id == event.post.participant.id) {
+            isParticipantFound = true;
+            break;
+          }
+        }
+        if (!isParticipantFound) {
+          participants.add(event.post.participant);
+        }
         for (int i = 0; i < discussion.posts.length; i++) {
           if (discussion.posts[i].id == event.post.id) {
             found = true;
@@ -101,12 +113,19 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             break;
           }
         }
-        if (!found) {
+        if (!found || !isParticipantFound) {
           // This post is new.
-          var updatedPosts = currentState.getDiscussion().posts
-            ..insert(0, event.post);
+          var updatedPosts = discussion.posts;
+          var participants = discussion.participants;
+          if (!found) {
+            updatedPosts.insert(0, event.post);
+          }
+          if (!isParticipantFound) {
+            participants.add(event.post.participant);
+          }
           var updatedDiscussion = currentState.getDiscussion().copyWith(
                 posts: updatedPosts,
+                participants: participants,
               );
           yield currentState.update(discussion: updatedDiscussion);
         }

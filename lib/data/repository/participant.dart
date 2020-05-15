@@ -51,19 +51,26 @@ class ParticipantRepository {
   }
 
   Future<Participant> updateParticipant(
-      String participantID,
+      {@required String discussionID,
+      @required String participantID,
       GradientName gradientName,
       Flair flair,
-      bool isAnonymous,
-      bool isUnsetFlairID,
-      bool isUnsetGradient,
-      {int attempt = 1}) async {
+      bool isAnonymous = false,
+      bool isUnsetFlairID = false,
+      bool isUnsetGradient = false,
+      int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return updateParticipant(participantID, gradientName, flair,
-            isAnonymous, isUnsetFlairID, isUnsetGradient,
+        return updateParticipant(
+            discussionID: discussionID,
+            participantID: participantID,
+            gradientName: gradientName,
+            flair: flair,
+            isAnonymous: isAnonymous,
+            isUnsetFlairID: isUnsetFlairID,
+            isUnsetGradient: isUnsetGradient,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -72,6 +79,7 @@ class ParticipantRepository {
     }
 
     final mutation = UpdateParticipantGQLMutation(
+        discussionID: discussionID,
         participantID: participantID,
         gradientName: gradientName,
         flair: flair,
@@ -82,6 +90,7 @@ class ParticipantRepository {
       MutationOptions(
         documentNode: gql(mutation.mutation()),
         variables: {
+          'discussionID': discussionID,
           'participantID': participantID,
           'updateInput': mutation.createInputObject(),
         },

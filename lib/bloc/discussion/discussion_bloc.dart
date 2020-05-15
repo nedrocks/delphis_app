@@ -67,17 +67,17 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             isLocalPost: true,
           ),
         );
-        print('pre adding local: ${currentState.getDiscussion().posts.length}');
         currentState.getDiscussion().addLocalPost(localPost);
         currentState.localPosts[localPost.key] = localPost;
-        print(
-            'about to yield with num posts: ${currentState.getDiscussion().posts.length}');
         yield currentState.update(
             discussion: currentState.getDiscussion(),
             localPosts: currentState.localPosts);
         this
             .repository
-            .addPost(currentState.getDiscussion().id, event.postContent)
+            .addPost(
+                discussionID: currentState.getDiscussion().id,
+                participantID: currentState.getDiscussion().meParticipant.id,
+                postContent: event.postContent)
             .then((addedPost) {
           // The current state may have changed since this is a future.
           this.add(LocalPostCreateSuccess(
@@ -147,7 +147,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     } else if (event is LocalPostCreateSuccess &&
         currentState is DiscussionLoadedState) {
-      print('in local post create success');
       final discussion = currentState.getDiscussion();
       // The discussion may have changed.
       if (discussion != null &&
@@ -163,7 +162,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     } else if (event is LocalPostCreateFailure &&
         currentState is DiscussionLoadedState) {
-      print('this failed.');
       // This _should_ have pointers to the correct place.
       yield currentState.update(
         discussion: currentState.discussion,

@@ -21,6 +21,7 @@ Post _$PostFromJson(Map<String, dynamic> json) {
         : Participant.fromJson(json['participant'] as Map<String, dynamic>),
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
+    isLocalPost: json['isLocalPost'] as bool,
   );
 }
 
@@ -34,6 +35,7 @@ Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
       'participant': instance.participant,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
+      'isLocalPost': instance.isLocalPost,
     };
 
 T _$enumDecode<T>(

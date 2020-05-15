@@ -11,6 +11,7 @@ import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 import 'moderator.dart';
 import 'participant.dart';
 import 'post.dart';
+import 'post_content_input.dart';
 
 part 'discussion.g.dart';
 
@@ -54,13 +55,20 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<Post> addPost(String discussionID, String postContent,
-      {int attempt = 1}) async {
+  Future<Post> addPost(
+      {@required String discussionID,
+      @required String participantID,
+      @required String postContent,
+      int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return addPost(discussionID, postContent, attempt: attempt + 1);
+        return addPost(
+            discussionID: discussionID,
+            participantID: participantID,
+            postContent: postContent,
+            attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
@@ -68,13 +76,20 @@ class DiscussionRepository {
     }
 
     final mutation = AddPostGQLMutation(
-        discussionID: discussionID, postContent: postContent);
+      discussionID: discussionID,
+      participantID: participantID,
+      postContent: PostContentInput(
+        postText: postContent,
+        postType: PostType.TEXT,
+      ),
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
         variables: {
-          'discussionId': discussionID,
-          'postContent': postContent,
+          'discussionID': discussionID,
+          'participantID': participantID,
+          'postContent': mutation.postContent.toJSON(),
         },
         update: (Cache cache, QueryResult result) {
           return cache;
@@ -130,6 +145,7 @@ class Discussion extends Equatable {
   final String createdAt;
   final String updatedAt;
   final Participant meParticipant;
+  final List<Participant> meAvailableParticipants;
 
   @override
   List<Object> get props => [
@@ -142,6 +158,7 @@ class Discussion extends Equatable {
         createdAt,
         updatedAt,
         meParticipant,
+        meAvailableParticipants,
       ];
 
   const Discussion({
@@ -154,6 +171,7 @@ class Discussion extends Equatable {
     this.createdAt,
     this.updatedAt,
     this.meParticipant,
+    this.meAvailableParticipants,
   });
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
@@ -163,6 +181,7 @@ class Discussion extends Equatable {
     List<Post> posts,
     Participant meParticipant,
     List<Participant> participants,
+    List<Participant> meAvailableParticipants,
   }) =>
       Discussion(
         id: this.id,
@@ -174,6 +193,8 @@ class Discussion extends Equatable {
         updatedAt: this.updatedAt,
         posts: posts ?? this.posts,
         meParticipant: meParticipant ?? this.meParticipant,
+        meAvailableParticipants:
+            meAvailableParticipants ?? this.meAvailableParticipants,
       );
 
   void addLocalPost(LocalPost post) {
@@ -184,7 +205,7 @@ class Discussion extends Equatable {
     final keyAsString = localPostKey.toString();
     for (int i = 0; i < this.posts.length; i++) {
       final post = this.posts[i];
-      if (post.isLocalPost && post.id == keyAsString) {
+      if ((post.isLocalPost ?? false) && post.id == keyAsString) {
         this.posts[i] = withPost;
         return true;
       }

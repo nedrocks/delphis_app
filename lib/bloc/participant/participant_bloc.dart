@@ -64,12 +64,14 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
       var updatedParticipant;
       try {
         updatedParticipant = await this.repository.updateParticipant(
-              currentState.participant.id,
-              event.gradientName,
-              event.flair,
-              event.isAnonymous ?? currentState.participant.isAnonymous,
-              event.isUnsetFlairID ?? false,
-              event.isUnsetGradient ?? false,
+              discussionID: discussionBloc.state.getDiscussion()?.id,
+              participantID: currentState.participant.id,
+              gradientName: event.gradientName,
+              flair: event.flair,
+              isAnonymous:
+                  event.isAnonymous ?? currentState.participant.isAnonymous,
+              isUnsetFlairID: event.isUnsetFlairID ?? false,
+              isUnsetGradient: event.isUnsetGradient ?? false,
             );
       } catch (err) {
         // What to do about this error?

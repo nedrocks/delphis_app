@@ -28,6 +28,10 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meParticipant: json['meParticipant'] == null
         ? null
         : Participant.fromJson(json['meParticipant'] as Map<String, dynamic>),
+    meAvailableParticipants: (json['meAvailableParticipants'] as List)
+        ?.map((e) =>
+            e == null ? null : Participant.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
   );
 }
 
@@ -42,6 +46,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
       'meParticipant': instance.meParticipant,
+      'meAvailableParticipants': instance.meAvailableParticipants,
     };
 
 T _$enumDecode<T>(

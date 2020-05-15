@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +17,12 @@ abstract class GQLMutation<T> {
 // TODO: Use fragments.
 class AddPostGQLMutation extends GQLMutation<Post> {
   final String discussionID;
-  final String postContent;
+  final String participantID;
+  final PostContentInput postContent;
 
   final String _mutation = """
-    mutation AddPost(\$discussionId: ID!, \$postContent: String!) {
-      addPost(discussionID: \$discussionId, postContent: \$postContent) {
+    mutation AddPost(\$discussionID: ID!, \$participantID: ID!, \$postContent: PostContentInput!) {
+      addPost(discussionID: \$discussionID, participantID: \$participantID, postContent: \$postContent) {
         id
         content
         participant {
@@ -44,6 +46,7 @@ class AddPostGQLMutation extends GQLMutation<Post> {
 
   const AddPostGQLMutation({
     @required this.discussionID,
+    @required this.participantID,
     @required this.postContent,
   });
 
@@ -140,6 +143,7 @@ class UpdateUserDeviceGQLMutation extends GQLMutation<UserDevice> {
 
 class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
   final String participantID;
+  final String discussionID;
   final GradientName gradientName;
   final Flair flair;
   final bool isAnonymous;
@@ -147,8 +151,8 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
   final bool isUnsetGradient;
 
   final String _mutation = """
-    mutation UpdateParticipant(\$participantID: ID!, \$updateInput: UpdateParticipantInput!) {
-      updateParticipant(participantID: \$participantID, updateInput: \$updateInput) {
+    mutation UpdateParticipant(\$discussionID: ID!, \$participantID: ID!, \$updateInput: UpdateParticipantInput!) {
+      updateParticipant(discussionID: \$discussionID, participantID: \$participantID, updateInput: \$updateInput) {
         id
         participantID
         isAnonymous
@@ -165,6 +169,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
 
   const UpdateParticipantGQLMutation({
     @required this.participantID,
+    @required this.discussionID,
     this.gradientName,
     this.flair,
     this.isAnonymous,

@@ -48,6 +48,9 @@ class Post extends Equatable {
   factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
 
   DateTime createdAtAsDateTime() {
+    if (this.isLocalPost ?? false) {
+      return DateTime.now();
+    }
     return DateTime.parse(this.createdAt);
   }
 }

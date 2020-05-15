@@ -103,7 +103,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 final post = DiscussionPost(
                     discussion: discussionObj,
                     index: index,
-                    isLocalPost: discussionObj.posts[index].isLocalPost);
+                    isLocalPost:
+                        discussionObj.posts[index].isLocalPost ?? false);
                 if (true) {
                   return post;
                 } else {

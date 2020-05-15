@@ -79,6 +79,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             child: Text(state.error.toString()),
           );
         }
+        print(
+            'received updated discussion state; num posts: ${state.getDiscussion()?.posts?.length}');
         if (state is DiscussionLoadedState &&
             state.discussionPostStream == null) {
           BlocProvider.of<DiscussionBloc>(context)
@@ -98,8 +100,10 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               controller: this._scrollController,
               reverse: true,
               itemBuilder: (context, index) {
-                final post =
-                    DiscussionPost(discussion: discussionObj, index: index);
+                final post = DiscussionPost(
+                    discussion: discussionObj,
+                    index: index,
+                    isLocalPost: discussionObj.posts[index].isLocalPost);
                 if (true) {
                   return post;
                 } else {

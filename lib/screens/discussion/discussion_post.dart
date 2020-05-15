@@ -10,10 +10,12 @@ import 'post_title.dart';
 class DiscussionPost extends StatelessWidget {
   final Discussion discussion;
   final int index;
+  final bool isLocalPost;
 
   const DiscussionPost({
-    this.discussion,
-    this.index,
+    @required this.discussion,
+    @required this.index,
+    @required this.isLocalPost,
   }) : super();
 
   @override
@@ -21,6 +23,7 @@ class DiscussionPost extends StatelessWidget {
     final post = this.discussion.posts[this.index];
     final isModeratorAuthor = post.participant.participantID == 0;
     return Container(
+      color: this.isLocalPost ? Colors.green : Colors.transparent,
       padding: EdgeInsets.only(
           left: SpacingValues.medium,
           top: SpacingValues.medium,

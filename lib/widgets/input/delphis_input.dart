@@ -121,11 +121,6 @@ class DelphisInputState extends State<DelphisInput> {
             DiscussionPostAddEvent(postContent: this._controller.text),
           );
           this._controller.text = '';
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            setState(() {
-              this._inputFocusNode.unfocus();
-            });
-          });
         },
         width: 40.0,
         height: 40.0,
@@ -149,6 +144,7 @@ class DelphisInputState extends State<DelphisInput> {
       if (!(state is LoadedMeState)) {
         return Text("Loading");
       }
+
       final inputChild = LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
         var textStyle = Theme.of(context).textTheme.bodyText2;
@@ -173,11 +169,11 @@ class DelphisInputState extends State<DelphisInput> {
               if (details == null) {
                 return true;
               }
-              print('${details.primaryVelocity}');
               if (details.primaryVelocity >= 150.0) {
                 FocusScope.of(context).unfocus();
                 return true;
               }
+              return true;
             },
             child: this._input = TextField(
               key: this._textInputKey,

@@ -4,6 +4,7 @@ import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
@@ -175,9 +176,24 @@ class Discussion extends Equatable {
         meParticipant: meParticipant ?? this.meParticipant,
       );
 
+  void addLocalPost(LocalPost post) {
+    this.posts.insert(0, post.post);
+  }
+
+  bool replaceLocalPost(Post withPost, GlobalKey localPostKey) {
+    final keyAsString = localPostKey.toString();
+    for (int i = 0; i < this.posts.length; i++) {
+      final post = this.posts[i];
+      if (post.isLocalPost && post.id == keyAsString) {
+        this.posts[i] = withPost;
+        return true;
+      }
+    }
+    return false;
+  }
+
   Participant getParticipantForPostIdx(int idx) {
     if (idx < 0 || idx >= this.posts.length) {
-      print('index is above post length');
       return null;
     }
     final post = this.posts[idx];

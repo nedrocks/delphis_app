@@ -99,3 +99,26 @@ class UnsubscribeFromDiscussionEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.discussionID, this.hasUnsubscribed];
 }
+
+class LocalPostCreateSuccess extends DiscussionEvent {
+  final Post createdPost;
+  final LocalPost localPost;
+
+  LocalPostCreateSuccess({@required this.createdPost, @required this.localPost})
+      : super();
+
+  @override
+  List<Object> get props => [this.createdPost?.id, this.localPost?.key];
+}
+
+class LocalPostCreateFailure extends DiscussionEvent {
+  final LocalPost localPost;
+  final DateTime now;
+
+  LocalPostCreateFailure({@required this.localPost})
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.localPost?.key, this.now];
+}

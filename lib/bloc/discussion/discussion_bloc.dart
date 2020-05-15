@@ -5,6 +5,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 part 'discussion_event.dart';
@@ -50,40 +51,43 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             discussion: updatedDiscussion, lastUpdate: DateTime.now());
       }
     } else if (event is DiscussionPostAddEvent &&
-        currentState is DiscussionLoadedState &&
-        !(currentState is DiscussionAddPostState)) {
+        currentState is DiscussionLoadedState) {
       if (currentState.getDiscussion() != null) {
-        yield DiscussionAddPostState(
+        final localPostKey = GlobalKey();
+        final localPost = LocalPost(
+          key: localPostKey,
+          isProcessing: true,
+          failCount: 0,
+          isFailed: false,
+          post: Post(
+            id: localPostKey.toString(),
             discussion: currentState.getDiscussion(),
-            postContent: event.postContent,
-            step: PostAddStep.INITIATED,
-            lastUpdate: DateTime.now());
-        try {
-          var addedPost = await repository.addPost(
-              currentState.getDiscussion().id, event.postContent);
-          var updatedPosts = currentState.getDiscussion().posts
-            ..insert(0, addedPost);
-          var updatedDiscussion = currentState.getDiscussion().copyWith(
-                posts: updatedPosts,
-              );
-          currentState = DiscussionAddPostState(
-              discussion: updatedDiscussion,
-              postContent: event.postContent,
-              step: PostAddStep.SUCCESS,
-              lastUpdate: DateTime.now());
-          yield currentState;
-          yield DiscussionLoadedState(
-              discussion: updatedDiscussion, lastUpdate: DateTime.now());
-        } catch (err) {
-          yield DiscussionAddPostState(
-              discussion: currentState.getDiscussion(),
-              postContent: event.postContent,
-              step: PostAddStep.ERROR,
-              lastUpdate: DateTime.now());
-          yield DiscussionLoadedState(
-              discussion: currentState.getDiscussion(),
-              lastUpdate: DateTime.now());
-        }
+            participant: currentState.getDiscussion().meParticipant,
+            content: event.postContent,
+            isLocalPost: true,
+          ),
+        );
+        print('pre adding local: ${currentState.getDiscussion().posts.length}');
+        currentState.getDiscussion().addLocalPost(localPost);
+        currentState.localPosts[localPost.key] = localPost;
+        print(
+            'about to yield with num posts: ${currentState.getDiscussion().posts.length}');
+        yield currentState.update(
+            discussion: currentState.getDiscussion(),
+            localPosts: currentState.localPosts);
+        this
+            .repository
+            .addPost(currentState.getDiscussion().id, event.postContent)
+            .then((addedPost) {
+          // The current state may have changed since this is a future.
+          this.add(LocalPostCreateSuccess(
+              createdPost: addedPost, localPost: localPost));
+        }, onError: (err) {
+          localPost.isProcessing = false;
+          localPost.failCount += 1;
+          localPost.isFailed = true;
+          this.add(LocalPostCreateFailure(localPost: localPost));
+        });
       }
     } else if (event is DiscussionPostAddedEvent &&
         currentState is DiscussionLoadedState) {
@@ -141,6 +145,30 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         });
         yield currentState.update(stream: discussionStream);
       }
+    } else if (event is LocalPostCreateSuccess &&
+        currentState is DiscussionLoadedState) {
+      print('in local post create success');
+      final discussion = currentState.getDiscussion();
+      // The discussion may have changed.
+      if (discussion != null &&
+          discussion.id == event.localPost.post.discussion.id) {
+        final didReplace =
+            discussion.replaceLocalPost(event.createdPost, event.localPost.key);
+        if (didReplace) {
+          final localPosts = currentState.localPosts;
+          localPosts.remove(event.localPost.key);
+          yield currentState.update(
+              discussion: discussion, localPosts: localPosts);
+        }
+      }
+    } else if (event is LocalPostCreateFailure &&
+        currentState is DiscussionLoadedState) {
+      print('this failed.');
+      // This _should_ have pointers to the correct place.
+      yield currentState.update(
+        discussion: currentState.discussion,
+        localPosts: currentState.localPosts,
+      );
     }
   }
 }

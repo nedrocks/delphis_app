@@ -1,6 +1,5 @@
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 
 class DiscussionSubmitButton extends StatelessWidget {

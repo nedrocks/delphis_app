@@ -153,6 +153,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         final expandedConversationView = Expanded(
           child: listViewOverlay,
         );
+        print('me participant: ${discussionObj.meParticipant}');
         var listViewWithInput = Column(
           children: <Widget>[
             Container(
@@ -210,6 +211,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                             !this._isShowParticipantSettings;
                       });
                     },
+                    parentScrollController: this._scrollController,
                   ),
           ],
         );

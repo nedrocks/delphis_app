@@ -22,12 +22,14 @@ class DelphisInput extends StatefulWidget {
   final Participant participant;
   final bool isShowingParticipantSettings;
   final VoidCallback onParticipantSettingsPressed;
+  final ScrollController parentScrollController;
 
   DelphisInput({
     @required this.discussion,
     @required this.participant,
     @required this.isShowingParticipantSettings,
     @required this.onParticipantSettingsPressed,
+    this.parentScrollController,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -42,6 +44,8 @@ class DelphisInputState extends State<DelphisInput> {
   FocusNode _inputFocusNode;
   GlobalKey _textInputKey;
   TextField _input;
+  VoidCallback _currentScrollListener;
+  double _scrollStart;
 
   @override
   void initState() {
@@ -59,6 +63,21 @@ class DelphisInputState extends State<DelphisInput> {
       }
     });
     this._textInputKey = GlobalKey();
+    this._inputFocusNode.addListener(() {
+      if (this._inputFocusNode.hasFocus) {
+        this._scrollStart = this.widget.parentScrollController.position.pixels;
+        this.widget.parentScrollController.addListener(this.scrollListener);
+      } else {
+        this.widget.parentScrollController.removeListener(this.scrollListener);
+      }
+    });
+  }
+
+  void scrollListener() {
+    if (this.widget.parentScrollController.position.pixels - this._scrollStart >
+        80.0) {
+      this._inputFocusNode.unfocus();
+    }
   }
 
   @override
@@ -135,15 +154,13 @@ class DelphisInputState extends State<DelphisInput> {
 
   @override
   Widget build(BuildContext context) {
-    final me = this._extractMe(BlocProvider.of<MeBloc>(context).state);
-    if (me == null) {
-      return Container(width: 0, height: 0);
-    }
-    final isModerator = this._isModerator(me);
     return BlocBuilder<MeBloc, MeState>(builder: (context, state) {
-      if (!(state is LoadedMeState)) {
-        return Text("Loading");
+      if (!(state is LoadedMeState) || (state as LoadedMeState).me == null) {
+        return Container(width: 0, height: 0);
       }
+      final me = (state as LoadedMeState).me;
+
+      final isModerator = this._isModerator(me);
 
       final inputChild = LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
@@ -157,7 +174,12 @@ class DelphisInputState extends State<DelphisInput> {
                 lineHeight *
                 textStyle.fontSize +
             this._textBoxVerticalPadding;
-        var numRows = min(max(1, textLayout.length), MAX_VISIBLE_ROWS);
+        // TODO: We probably want to add ellipsis when the text is truncated (i.e. no focus and
+        // the text would be more than 1 row.) This will require storing the text contents
+        // in another place when we lose focus.
+        var numRows = this._inputFocusNode.hasFocus
+            ? min(max(1, textLayout.length), MAX_VISIBLE_ROWS)
+            : 1;
         var isEnabled = !this.widget.isShowingParticipantSettings;
         final hintStyle =
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));

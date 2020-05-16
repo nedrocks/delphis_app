@@ -103,6 +103,25 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
         participant: addedParticipant,
         isUpdating: false,
       );
+    } else if (event is ParticipantJoinedDiscussion) {
+      yield ParticipantLoaded(
+          participant: currentState.participant, isUpdating: true);
+      var updatedParticipant;
+      try {
+        updatedParticipant = await this.repository.participantJoinedDiscussion(
+              discussionID: discussionBloc.state.getDiscussion()?.id,
+              participantID: event.participant.id,
+            );
+      } catch (err) {
+        yield ParticipantLoaded(
+            participant: currentState.participant, isUpdating: false);
+        return;
+      }
+      this
+          .discussionBloc
+          .add(MeParticipantUpdatedEvent(meParticipant: updatedParticipant));
+      yield ParticipantLoaded(
+          participant: updatedParticipant, isUpdating: false);
     }
   }
 }

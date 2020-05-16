@@ -25,6 +25,7 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
     flair: json['flair'] == null
         ? null
         : Flair.fromJson(json['flair'] as Map<String, dynamic>),
+    hasJoined: json['hasJoined'] as bool,
   );
 }
 
@@ -38,4 +39,5 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
       'isAnonymous': instance.isAnonymous,
       'gradientColor': instance.gradientColor,
       'flair': instance.flair,
+      'hasJoined': instance.hasJoined,
     };

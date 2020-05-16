@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -14,6 +15,7 @@ import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'discussion_header/participant_images.dart';
@@ -129,7 +131,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             )),
             animationMillis: 500,
           );
-        } else if (this._isShowParticipantSettings) {
+        } else if (this._isShowParticipantSettings &&
+            !(discussionObj.meParticipant.hasJoined ?? false)) {
           listViewOverlay = AnimatedDiscussionPopup(
             child: listViewBuilder,
             popup: DiscussionPopup(
@@ -212,13 +215,17 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
         Widget toRender = listViewWithInput;
         if (discussionObj.meParticipant != null &&
-            !this.hasAcceptedIncognitoWarning) {
+            !this.hasAcceptedIncognitoWarning &&
+            !(discussionObj.meParticipant.hasJoined ?? false)) {
           toRender = AnimatedDiscussionPopup(
             child: listViewWithInput,
             popup: DiscussionPopup(
               contents: GoneIncognitoDiscussionPopupContents(
                 moderator: discussionObj.moderator.userProfile,
                 onAccept: () {
+                  BlocProvider.of<ParticipantBloc>(context).add(
+                      ParticipantJoinedDiscussion(
+                          participant: discussionObj.meParticipant));
                   this.setState(() => this.hasAcceptedIncognitoWarning = true);
                 },
               ),

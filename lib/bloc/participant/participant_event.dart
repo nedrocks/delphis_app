@@ -69,3 +69,12 @@ class ParticipantEventAddParticipant extends ParticipantEvent {
         this.userID,
       ];
 }
+
+class ParticipantJoinedDiscussion extends ParticipantEvent {
+  final Participant participant;
+
+  ParticipantJoinedDiscussion({@required this.participant}) : super();
+
+  @override
+  List<Object> get props => [this.participant.id];
+}

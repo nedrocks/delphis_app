@@ -36,6 +36,7 @@ class AddPostGQLMutation extends GQLMutation<Post> {
             imageURL
             source
           }
+          hasJoined
         }
         isDeleted
         createdAt
@@ -89,6 +90,7 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
           imageURL
           source
         }
+        hasJoined
       }
     }
   """;
@@ -149,6 +151,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
   final bool isAnonymous;
   final bool isUnsetFlairID;
   final bool isUnsetGradient;
+  final bool hasJoined;
 
   final String _mutation = """
     mutation UpdateParticipant(\$discussionID: ID!, \$participantID: ID!, \$updateInput: UpdateParticipantInput!) {
@@ -163,6 +166,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
           imageURL
           source
         }
+        hasJoined
       }
     }
   """;
@@ -173,8 +177,9 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
     this.gradientName,
     this.flair,
     this.isAnonymous,
-    this.isUnsetFlairID,
-    this.isUnsetGradient,
+    this.isUnsetFlairID = false,
+    this.isUnsetGradient = false,
+    this.hasJoined = true,
   })  : assert(!isUnsetFlairID || flair == null,
             'Cannot unset flair ID and pass non-null flair'),
         assert(!isUnsetGradient || gradientName == null,
@@ -188,6 +193,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
       'isUnsetFlairID': this.isUnsetFlairID,
       'isUnsetGradient': this.isUnsetGradient,
       'gradientColor': null,
+      'hasJoined': this.hasJoined,
     };
 
     if (this.gradientName != null) {

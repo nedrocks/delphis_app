@@ -107,6 +107,48 @@ class ParticipantRepository {
     return mutation.parseResult(result.data);
   }
 
+  Future<Participant> participantJoinedDiscussion(
+      {@required String discussionID,
+      @required String participantID,
+      int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return participantJoinedDiscussion(
+            discussionID: discussionID,
+            participantID: participantID,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+    final mutation = UpdateParticipantGQLMutation(
+        discussionID: discussionID,
+        participantID: participantID,
+        hasJoined: true);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'participantID': participantID,
+          'updateInput': mutation.createInputObject(),
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
+
   Future<Participant> addDiscussionParticipant(
       String discussionID,
       String userID,
@@ -166,8 +208,10 @@ class Participant extends Equatable {
   final bool isAnonymous;
   final String gradientColor;
   final Flair flair;
+  final bool hasJoined;
 
-  List<Object> get props => [participantID, discussion, viewer, posts];
+  List<Object> get props =>
+      [participantID, discussion, viewer, posts, flair, hasJoined];
 
   const Participant({
     this.id,
@@ -178,6 +222,7 @@ class Participant extends Equatable {
     this.isAnonymous,
     this.gradientColor,
     this.flair,
+    this.hasJoined,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) =>

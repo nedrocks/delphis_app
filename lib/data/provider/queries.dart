@@ -106,6 +106,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
             imageURL
             source
           }
+          hasJoined
         }
         participants {
           id

@@ -40,6 +40,8 @@ class DelphisInputState extends State<DelphisInput> {
   double _textBoxVerticalPadding = 26.0;
   int _textLength = 0;
 
+  String _fullText;
+
   TextEditingController _controller;
   FocusNode _inputFocusNode;
   GlobalKey _textInputKey;
@@ -50,6 +52,8 @@ class DelphisInputState extends State<DelphisInput> {
   @override
   void initState() {
     super.initState();
+
+    this._fullText = "";
 
     this._controller = TextEditingController();
     this._controller.addListener(() => this.setState(() {
@@ -65,9 +69,11 @@ class DelphisInputState extends State<DelphisInput> {
     this._textInputKey = GlobalKey();
     this._inputFocusNode.addListener(() {
       if (this._inputFocusNode.hasFocus) {
+        this._controller.text = this._fullText;
         this._scrollStart = this.widget.parentScrollController.position.pixels;
         this.widget.parentScrollController.addListener(this.scrollListener);
       } else {
+        this._fullText = this._controller.text;
         this.widget.parentScrollController.removeListener(this.scrollListener);
       }
     });
@@ -85,15 +91,6 @@ class DelphisInputState extends State<DelphisInput> {
     this._inputFocusNode.dispose();
     this._controller.dispose();
     super.dispose();
-  }
-
-  User _extractMe(MeState state) {
-    if (state is LoadedMeState) {
-      return state.me;
-    } else {
-      // This should never happen and we should probably throw an error here?
-      return null;
-    }
   }
 
   List<Widget> buildNonInputRowElems(BuildContext context, MeState state,
@@ -152,6 +149,34 @@ class DelphisInputState extends State<DelphisInput> {
   bool _isModerator(User me) =>
       this.widget.discussion.moderator.userProfile.id == me.profile.id;
 
+  void _truncateTextAndAddEllipses(
+      BuildContext context, BoxConstraints constraints) {
+    final text = this._fullText;
+    var top = text.length;
+    var bottom = 0;
+    var curr = top;
+    var textLayout = calculateTextLayoutRows(
+        context, constraints, this._borderRadius, text.substring(0, curr));
+    while (true) {
+      if (top - bottom < 2 ||
+          (textLayout.length == 2 &&
+              textLayout[1].right - textLayout[1].left < 5)) {
+        break;
+      }
+      if (textLayout.length == 1) {
+        bottom = curr;
+      } else {
+        top = curr;
+      }
+      curr = ((top + bottom) / 2).round();
+      textLayout = calculateTextLayoutRows(
+          context, constraints, this._borderRadius, text.substring(0, curr));
+    }
+
+    this._controller.text =
+        this._fullText.substring(0, max(curr - 3, 0)) + "...";
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MeBloc, MeState>(builder: (context, state) {
@@ -170,16 +195,20 @@ class DelphisInputState extends State<DelphisInput> {
             this._controller.text.length == 0 ? ' ' : this._controller.text;
         List<TextBox> textLayout = calculateTextLayoutRows(
             context, constraints, this._borderRadius, text);
-        var widgetHeight = min(textLayout.length, MAX_VISIBLE_ROWS) *
-                lineHeight *
-                textStyle.fontSize +
-            this._textBoxVerticalPadding;
         // TODO: We probably want to add ellipsis when the text is truncated (i.e. no focus and
         // the text would be more than 1 row.) This will require storing the text contents
         // in another place when we lose focus.
         var numRows = this._inputFocusNode.hasFocus
             ? min(max(1, textLayout.length), MAX_VISIBLE_ROWS)
             : 1;
+        if (textLayout.length > 1 && !this._inputFocusNode.hasFocus) {
+          // Truncate the text and show ellipses.
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            this._truncateTextAndAddEllipses(context, constraints);
+          });
+        }
+        var widgetHeight = numRows * lineHeight * textStyle.fontSize +
+            this._textBoxVerticalPadding;
         var isEnabled = !this.widget.isShowingParticipantSettings;
         final hintStyle =
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));

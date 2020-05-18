@@ -22,19 +22,21 @@ class ProfileImageWithGradient extends StatelessWidget {
     @required this.participant,
     @required this.width,
     @required this.height,
-    this.anonymousOverride = false,
+    this.anonymousOverride,
     this.me,
     this.isPressable = false,
     this.onPressed,
     this.isModerator = false,
     this.gradientNameOverride,
-  })  : assert(!anonymousOverride || !isModerator,
-            'Cannot make moderator anonymous'),
-        assert(
+  })  : assert(
             !isModerator || me != null, 'A moderator must pass a `me` object'),
         assert(!isPressable || onPressed != null,
             'If pressable, must pass onPressed'),
         super();
+
+  bool get showAnonymous => anonymousOverride != null
+      ? anonymousOverride
+      : this.participant.isAnonymous;
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +104,7 @@ class ProfileImageWithGradient extends StatelessWidget {
       );
     }
     // Is anonymous
-    if (this.participant.isAnonymous || this.anonymousOverride) {
+    if (this.showAnonymous) {
       return AnonProfileImage(
         width: this.width,
         height: this.height,

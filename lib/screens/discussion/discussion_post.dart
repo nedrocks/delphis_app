@@ -74,7 +74,6 @@ class DiscussionPost extends StatelessWidget {
                     participant:
                         this.discussion.getParticipantForPostIdx(this.index),
                     height: 20.0,
-                    post: post,
                   ),
                   Container(
                     child: Column(

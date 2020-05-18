@@ -1,6 +1,6 @@
+import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
-import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
@@ -9,68 +9,31 @@ class PostTitle extends StatelessWidget {
   final Moderator moderator;
   final Participant participant;
   final double height;
-  final Post post;
 
   const PostTitle({
+    Key key,
     @required this.moderator,
     @required this.participant,
     @required this.height,
-    @required this.post,
-  }) : super();
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    //var now = DateTime.now();
-    // var difference = now.difference(post.createdAtAsDateTime());
-    // var differenceToDisplay = '${difference.inMinutes}m';
-    // if (difference.inMinutes > 60) {
-    //   differenceToDisplay = '${difference.inHours}h';
-    //   if (difference.inHours > 24) {
-    //     differenceToDisplay = '${difference.inDays}d';
-    //     if (difference.inDays > 30) {
-    //       differenceToDisplay = '>30d';
-    //     }
-    //   }
-    // }
-
     // TODO: If the post is an announcement update the name to be something like `The mysterious <name>` with
     // different embedded fonts. the preamble should be the nonAnon text but at 13 font, w400. The name should
     // be the anon text style.
+    final textKey = Key('${this.key.toString}-displayName');
+
     var name = Text(
         '${participant.gradientColor} #${participant.participantID}',
-        style: TextThemes.discussionPostAuthorAnon);
+        style: TextThemes.discussionPostAuthorAnon,
+        key: textKey);
     if (participant.participantID == 0) {
       // This is the moderator
       name = Text(moderator.userProfile.displayName,
-          style: TextThemes.discussionPostAuthorNonAnon);
+          style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
     } else if (!participant.isAnonymous) {
       // Need to pass the profile down from the backend.
-    }
-
-    Widget flair = Container(width: 0, height: 0);
-    if (participant.flair != null) {
-      flair = Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: this.height,
-            height: this.height,
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.transparent,
-              image: DecorationImage(
-                fit: BoxFit.fill,
-                image: NetworkImage(participant.flair.imageURL),
-              ),
-            ),
-          ),
-          SizedBox(width: SpacingValues.xxSmall),
-          Text(
-            participant.flair.displayName,
-            style: kThemeData.textTheme.headline3,
-          )
-        ],
-      );
     }
 
     return Container(
@@ -80,28 +43,59 @@ class PostTitle extends StatelessWidget {
         children: <Widget>[
           name,
           SizedBox(width: SpacingValues.small),
-          flair,
-          // Container(
-          //   padding: EdgeInsets.only(left: SpacingValues.small),
-          //   child: Text(differenceToDisplay,
-          //       style: TextThemes.discussionPostAuthorAnonDescriptor),
-          // ),
-          // Container(
-          //   padding: EdgeInsets.only(left: SpacingValues.extraSmall, right: SpacingValues.extraSmall),
-          //   child: Text('•', style: rhsTextStyle)
-          // ),
-          // VerifiedProfileImage(
-          //   height: 20.0,
-          //   width: 20.0,
-          //   profileImageURL: this.discussion.moderator.userProfile.profileImageURL,
-          //   checkmarkAlignment: Alignment.bottomRight,
-          // ),
-          // Container(
-          //   padding: EdgeInsets.only(left: SpacingValues.xxSmall),
-          //   child: Text('Invited by ${this.discussion.moderator.userProfile.displayName}', style: rhsTextStyle),
-          // ),
+          PostTitleFlair(
+              flair: this.participant.flair,
+              height: this.height,
+              key: Key('${this.key.toString()}-flair')),
         ],
       ),
     );
+  }
+}
+
+class PostTitleFlair extends StatelessWidget {
+  final Flair flair;
+  final double height;
+
+  const PostTitleFlair({
+    Key key,
+    @required this.flair,
+    @required this.height,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (flair != null) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            key: Key('${this.key.toString()}-icon'),
+            width: this.height,
+            height: this.height,
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              color: Colors.transparent,
+              image: DecorationImage(
+                fit: BoxFit.fill,
+                alignment: Alignment.center,
+                image: NetworkImage(flair.imageURL),
+              ),
+            ),
+          ),
+          SizedBox(width: SpacingValues.xxSmall),
+          Text(
+            flair.displayName,
+            key: Key('${this.key.toString()}-display-name'),
+            style: kThemeData.textTheme.headline3,
+          )
+        ],
+      );
+    } else {
+      return Container(
+          height: 0,
+          width: 0,
+          key: Key('${this.key.toString()}-empty-container'));
+    }
   }
 }

@@ -66,6 +66,7 @@ class DiscussionPost extends StatelessWidget {
             Expanded(
                 child: Container(
               child: Column(
+                key: Key('${this.key.toString()}-content-column'),
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[

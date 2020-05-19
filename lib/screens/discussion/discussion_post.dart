@@ -36,11 +36,15 @@ class DiscussionPost extends StatelessWidget {
           // TODO: We need to hook this up to use the correct image for non-anonymous participants.
           children: <Widget>[
             Container(
-              key:
-                  Key('${this.key.toString()}-profile-image-padding-container'),
+              key: this.key == null
+                  ? null
+                  : Key(
+                      '${this.key.toString()}-profile-image-padding-container'),
               padding: EdgeInsets.only(right: SpacingValues.medium),
               child: Container(
-                key: Key('${this.key.toString()}-profile-image-container'),
+                key: this.key == null
+                    ? null
+                    : Key('${this.key.toString()}-profile-image-container'),
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
@@ -66,7 +70,9 @@ class DiscussionPost extends StatelessWidget {
             Expanded(
                 child: Container(
               child: Column(
-                key: Key('${this.key.toString()}-content-column'),
+                key: this.key == null
+                    ? null
+                    : Key('${this.key.toString()}-content-column'),
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[

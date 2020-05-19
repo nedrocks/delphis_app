@@ -22,7 +22,8 @@ class PostTitle extends StatelessWidget {
     // TODO: If the post is an announcement update the name to be something like `The mysterious <name>` with
     // different embedded fonts. the preamble should be the nonAnon text but at 13 font, w400. The name should
     // be the anon text style.
-    final textKey = Key('${this.key.toString}-displayName');
+    final textKey =
+        this.key == null ? null : Key('${this.key.toString}-displayName');
 
     var name = Text(
         '${participant.gradientColor} #${participant.participantID}',
@@ -46,7 +47,9 @@ class PostTitle extends StatelessWidget {
           PostTitleFlair(
               flair: this.participant.flair,
               height: this.height,
-              key: Key('${this.key.toString()}-flair')),
+              key: this.key == null
+                  ? null
+                  : Key('${this.key.toString()}-flair')),
         ],
       ),
     );
@@ -70,7 +73,7 @@ class PostTitleFlair extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            key: Key('${this.key.toString()}-icon'),
+            key: this.key == null ? null : Key('${this.key.toString()}-icon'),
             width: this.height,
             height: this.height,
             decoration: BoxDecoration(
@@ -86,7 +89,9 @@ class PostTitleFlair extends StatelessWidget {
           SizedBox(width: SpacingValues.xxSmall),
           Text(
             flair.displayName,
-            key: Key('${this.key.toString()}-display-name'),
+            key: this.key == null
+                ? null
+                : Key('${this.key.toString()}-display-name'),
             style: kThemeData.textTheme.headline3,
           )
         ],
@@ -95,7 +100,9 @@ class PostTitleFlair extends StatelessWidget {
       return Container(
           height: 0,
           width: 0,
-          key: Key('${this.key.toString()}-empty-container'));
+          key: this.key == null
+              ? null
+              : Key('${this.key.toString()}-empty-container'));
     }
   }
 }

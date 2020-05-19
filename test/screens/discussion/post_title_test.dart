@@ -1,7 +1,3 @@
-import 'package:delphis_app/data/repository/flair.dart';
-import 'package:delphis_app/data/repository/moderator.dart';
-import 'package:delphis_app/data/repository/participant.dart';
-import 'package:delphis_app/data/repository/user_profile.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/post_title.dart';
 import 'package:flutter/material.dart';
@@ -9,32 +5,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image_test_utils/image_test_utils.dart';
 
-void main() {
-  final moderatorParticipant = Participant(
-    gradientColor: 'taupe',
-    participantID: 0,
-    isAnonymous: false,
-    flair: null,
-  );
-  final noFlairParticipant = Participant(
-    gradientColor: 'taupe',
-    participantID: 1,
-    isAnonymous: false,
-    flair: null,
-  );
-  final flair =
-      Flair(imageURL: 'http://an.image/foo.jpg', displayName: 'Some Flair!');
-  final participantWithFlair = Participant(
-    gradientColor: 'taupe',
-    participantID: 1,
-    isAnonymous: false,
-    flair: flair,
-  );
-  final moderatorUserProfile = UserProfile(
-    displayName: 'A person\'s name',
-  );
-  final moderator = Moderator(userProfile: moderatorUserProfile);
+import '../../test_objects.dart';
 
+void main() {
+  final moderatorParticipant = TestObjects.moderatorParticipant;
+  final moderator = TestObjects.moderator;
+  final moderatorUserProfile = TestObjects.moderatorUserProfile;
+  final noFlairParticipant = TestObjects.noFlairParticipant;
+  final participantWithFlair = TestObjects.participantWithFlair;
+  final flair = TestObjects.flair;
   group('PostTitle tests', () {
     testWidgets('when participant ID is 0 the moderator title is shown',
         (WidgetTester tester) async {

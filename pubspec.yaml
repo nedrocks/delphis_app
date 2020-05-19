@@ -22,29 +22,30 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons: 0.1.2
 
-  flutter_svg: ^0.17.4
-  url_launcher: ^5.4.5
-  random_words: ^1.0.2
+  flutter_svg: 0.17.4
+  url_launcher: 5.4.5
+  random_words: 1.0.2
 
   flutter_webview_plugin: 0.3.10+1
-  provider: ^4.0.4
+  provider: 4.0.5
 
-  intl: ^0.16.1
+  intl: 0.16.1
   flutter_secure_storage: 3.3.1+1
 
-  graphql_flutter: ^3.0.0
-  json_annotation: ^3.0.0
+  graphql_flutter: 3.0.0
+  json_annotation: 3.0.0
 
-  flutter_bloc: ^4.0.0
-  equatable: ^1.1.1
+  flutter_bloc: 4.0.0
+  equatable: 1.1.1
 
 dev_dependencies:
+  lipsum: 1.0.1
   build_runner: ^1.0.0
-  json_serializable: ^3.2.5
+  json_serializable: 3.2.5
   test: 1.14.3
-  image_test_utils: ^1.0.0
+  image_test_utils: 1.0.0
   flutter_test:
     sdk: flutter
 

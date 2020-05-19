@@ -182,10 +182,11 @@ class Discussion extends Equatable {
     Participant meParticipant,
     List<Participant> participants,
     List<Participant> meAvailableParticipants,
+    Moderator moderator,
   }) =>
       Discussion(
         id: this.id,
-        moderator: this.moderator,
+        moderator: moderator ?? this.moderator,
         anonymityType: this.anonymityType,
         participants: participants ?? this.participants,
         title: this.title,

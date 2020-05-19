@@ -13,10 +13,11 @@ class DiscussionPost extends StatelessWidget {
   final bool isLocalPost;
 
   const DiscussionPost({
+    Key key,
     @required this.discussion,
     @required this.index,
     @required this.isLocalPost,
-  }) : super();
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +36,19 @@ class DiscussionPost extends StatelessWidget {
           // TODO: We need to hook this up to use the correct image for non-anonymous participants.
           children: <Widget>[
             Container(
+              key:
+                  Key('${this.key.toString()}-profile-image-padding-container'),
               padding: EdgeInsets.only(right: SpacingValues.medium),
               child: Container(
+                key: Key('${this.key.toString()}-profile-image-container'),
                 width: 36.0,
                 height: 36.0,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: isModeratorAuthor
                       ? ChathamColors.gradients[moderatorGradientName]
-                      : ChathamColors.gradients[anonymousGradients[this
-                              .discussion
-                              .posts[this.index]
-                              .participant
-                              .participantID %
-                          anonymousGradients.length]],
+                      : ChathamColors.gradients[gradientNameFromString(
+                          post.participant.gradientColor)],
                   border: Border.all(color: Colors.transparent, width: 2.0),
                 ),
                 child: isModeratorAuthor

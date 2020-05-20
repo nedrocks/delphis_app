@@ -41,6 +41,9 @@ dependencies:
   equatable: 1.1.1
 
 dev_dependencies:
+  # TODO: We need to update image_test_utils to depend on the later version of mockito
+  # (^4.0.0) so we can use the newer version of mockito
+  mockito: 3.0.2
   lipsum: 1.0.1
   build_runner: ^1.0.0
   json_serializable: 3.2.5

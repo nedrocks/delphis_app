@@ -60,6 +60,11 @@ class DiscussionRepository {
       @required String participantID,
       @required String postContent,
       int attempt = 1}) async {
+    if (postContent == null || postContent.length == 0) {
+      // Don't allow for empty posts.
+      return null;
+    }
+
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {

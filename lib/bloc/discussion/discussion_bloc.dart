@@ -116,6 +116,11 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                 participantID: currentState.getDiscussion().meParticipant.id,
                 postContent: event.postContent)
             .then((addedPost) {
+          if (addedPost == null) {
+            // The response may not be a post if it's malformed or something.
+            this.add(LocalPostCreateFailure(localPost: localPost));
+            return;
+          }
           // The current state may have changed since this is a future.
           this.add(LocalPostCreateSuccess(
               createdPost: addedPost, localPost: localPost));

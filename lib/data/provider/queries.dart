@@ -95,6 +95,19 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
             profileImageURL
           }
         }
+        meAvailableParticipants {
+          id
+          participantID
+          isAnonymous
+          gradientColor
+          flair {
+            id
+            displayName
+            imageURL
+            source
+          }
+          hasJoined
+        }
         meParticipant {
           id
           participantID

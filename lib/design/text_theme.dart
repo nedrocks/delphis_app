@@ -162,4 +162,12 @@ class TextThemes {
     letterSpacing: -0.19,
     height: 1.6667,
   );
+
+  static final textOverlayNotification = TextStyle(
+    fontSize: 17.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: -0.22,
+    height: 1.3,
+  );
 }

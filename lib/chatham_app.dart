@@ -151,8 +151,11 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                         child: BlocListener<AuthBloc, AuthState>(
                           listener: (context, state) {
                             if (state is LoggedOutAuthState) {
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                  '/Auth', (Route<dynamic> route) => false);
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                '/Auth',
+                                (Route<dynamic> route) => false,
+                              );
                             }
                           },
                           child: DelphisDiscussion(

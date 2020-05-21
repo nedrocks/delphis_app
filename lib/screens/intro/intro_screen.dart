@@ -15,13 +15,13 @@ class IntroScreen extends StatelessWidget {
         if (isInitialized && state is InitializedAuthState) {
           if (state.isAuthed) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/', (Route<dynamic> route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/', (Route<dynamic> route) => false);
             });
           } else if (this.isInitialized) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/Auth', (Route<dynamic> route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/Auth', (Route<dynamic> route) => false);
             });
           }
         }

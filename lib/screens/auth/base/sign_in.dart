@@ -13,12 +13,6 @@ class SignInScreen extends StatelessWidget {
   static const feedbackLink =
       'mailto:ned@chatham.ai?subject=Twitter%20Makes%20Me%20Mad';
 
-  final VoidCallback onTwitterPressed;
-
-  const SignInScreen({
-    @required this.onTwitterPressed,
-  }) : super();
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -61,7 +55,8 @@ class SignInScreen extends StatelessWidget {
                                 textAlign: TextAlign.center),
                             SizedBox(height: SpacingValues.mediumLarge),
                             LoginWithTwitterButton(
-                              onPressed: this.onTwitterPressed,
+                              onPressed: () => Navigator.of(context)
+                                  .pushNamed('/Auth/Twitter'),
                               width: constraints.maxWidth,
                               height: 56.0,
                             ),

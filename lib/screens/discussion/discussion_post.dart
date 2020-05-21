@@ -53,7 +53,7 @@ class DiscussionPost extends StatelessWidget {
                       ? ChathamColors.gradients[moderatorGradientName]
                       : ChathamColors.gradients[gradientNameFromString(
                           post.participant.gradientColor)],
-                  border: Border.all(color: Colors.transparent, width: 2.0),
+                  border: Border.all(color: Colors.transparent, width: 1.0),
                 ),
                 child: isModeratorAuthor
                     ? ModeratorProfileImage(
@@ -88,7 +88,7 @@ class DiscussionPost extends StatelessWidget {
                       children: <Widget>[
                         Container(
                           padding:
-                              EdgeInsets.only(top: SpacingValues.extraSmall),
+                              EdgeInsets.only(top: SpacingValues.xxSmall),
                           child: Text(
                             '${this.discussion.posts[this.index].content}',
                             style: Theme.of(context).textTheme.bodyText1,

@@ -24,6 +24,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 0.1.2
 
+  page_transition: ^1.1.4
+
   flutter_svg: 0.17.4
   url_launcher: 5.4.5
   random_words: 1.0.2

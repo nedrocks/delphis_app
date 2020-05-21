@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:page_transition/page_transition.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
@@ -132,37 +133,50 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
             title: "Chatham",
             theme: kThemeData,
             initialRoute: '/Intro',
-            routes: {
-              '/Intro': (context) => IntroScreen(isInitialized: isInitialized),
-              // This is a bit dicy but presumably any descendent of this page should listen
-              // for the logout event.
-              '/': (context) => BlocProvider<DiscussionBloc>(
-                    lazy: true,
-                    create: (context) =>
-                        DiscussionBloc(repository: discussionRepository),
-                    child: BlocProvider<ParticipantBloc>(
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/':
+                  return PageTransition(
+                    type: PageTransitionType.fade,
+                    child: BlocProvider<DiscussionBloc>(
                       lazy: true,
-                      create: (context) => ParticipantBloc(
-                          repository: participantRepository,
-                          discussionBloc:
-                              BlocProvider.of<DiscussionBloc>(context)),
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/Auth', (Route<dynamic> route) => false);
-                          }
-                        },
-                        child: DelphisDiscussion(
-                          discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                          //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                      create: (context) =>
+                          DiscussionBloc(repository: discussionRepository),
+                      child: BlocProvider<ParticipantBloc>(
+                        lazy: true,
+                        create: (context) => ParticipantBloc(
+                            repository: participantRepository,
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context)),
+                        child: BlocListener<AuthBloc, AuthState>(
+                          listener: (context, state) {
+                            if (state is LoggedOutAuthState) {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                  '/Auth', (Route<dynamic> route) => false);
+                            }
+                          },
+                          child: DelphisDiscussion(
+                            discussionID:
+                                '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                            //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              '/Auth': (context) => SignInScreen(
-                  onTwitterPressed: () =>
-                      {Navigator.of(context).pushNamed('/Auth/Twitter')}),
+                  );
+                  break;
+                case '/Auth':
+                  return PageTransition(
+                    type: PageTransitionType.fade,
+                    child: SignInScreen(),
+                  );
+                  break;
+                default:
+                  return null;
+              }
+            },
+            routes: {
+              '/Intro': (context) => IntroScreen(isInitialized: isInitialized),
               '/Auth/Twitter': (context) => LoginScreen(),
             },
           ),

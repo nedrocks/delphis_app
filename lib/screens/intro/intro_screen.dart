@@ -1,7 +1,6 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class IntroScreen extends StatelessWidget {

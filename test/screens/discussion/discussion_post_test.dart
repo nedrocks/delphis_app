@@ -69,7 +69,7 @@ void main() {
           expect(decoration.gradient,
               ChathamColors.gradients[moderatorGradientName]);
           expect(decoration.border,
-              Border.all(color: Colors.transparent, width: 2.0));
+              Border.all(color: Colors.transparent, width: 1.0));
           expect(
               profileImageContainer.child.runtimeType, ModeratorProfileImage);
           final profileImage =
@@ -103,7 +103,7 @@ void main() {
         expect(
             decoration.gradient, ChathamColors.gradients[GradientName.TAUPE]);
         expect(decoration.border,
-            Border.all(color: Colors.transparent, width: 2.0));
+            Border.all(color: Colors.transparent, width: 1.0));
         expect(profileImageContainer.child.runtimeType, AnonProfileImage);
       });
     });

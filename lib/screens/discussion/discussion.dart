@@ -13,12 +13,8 @@ import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_cont
 import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
-import 'package:delphis_app/widgets/overlay/overlay_builder.dart';
-import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
-import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'discussion_header/participant_images.dart';
@@ -78,7 +74,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
       builder: (context, state) {
         if (state is DiscussionUninitializedState ||
             state is DiscussionLoadingState) {
-          return Center();
+          return Center(child: CircularProgressIndicator());
         }
         if (state is DiscussionErrorState) {
           return Center(

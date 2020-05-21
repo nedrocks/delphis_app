@@ -35,7 +35,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   static const methodChannel = const MethodChannel('chatham.ai/push_token');
 
   FlutterSecureStorage secureStorage;
-  bool isInitialized;
   AuthBloc authBloc;
   MeBloc meBloc;
   GqlClientBloc gqlClientBloc;
@@ -70,15 +69,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
     this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage));
     this.gqlClientBloc = GqlClientBloc(authBloc: this.authBloc);
     this.authBloc.add(FetchAuthEvent());
-
-    this.isInitialized = false;
-    this.authBloc.listen((state) {
-      if (state is InitializedAuthState && !this.isInitialized) {
-        setState(() {
-          this.isInitialized = true;
-        });
-      }
-    });
     this.deviceID = "";
     this.didReceivePushToken = false;
     this.hasSentDeviceToServer = false;
@@ -103,6 +93,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
 
     return MultiBlocProvider(
       providers: <BlocProvider>[
+        BlocProvider<GqlClientBloc>.value(value: this.gqlClientBloc),
         BlocProvider<AuthBloc>.value(value: this.authBloc),
         BlocProvider<MeBloc>(
             create: (context) => MeBloc(userRepository, this.authBloc)),
@@ -163,21 +154,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                                 '2589fb41-e6c5-4950-8b75-55bb3315113e',
                             //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                           ),
-                      create: (context) => ParticipantBloc(
-                          repository: participantRepository,
-                          discussionBloc:
-                              BlocProvider.of<DiscussionBloc>(context)),
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/Auth', (Route<dynamic> route) => false);
-                          }
-                        },
-                        child: DelphisDiscussion(
-                          //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                          key: Key('c5409fad-e624-4de8-bb32-36453c562abf'),
-                          discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                         ),
                       ),
                     ),
@@ -194,7 +170,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
               }
             },
             routes: {
-              '/Intro': (context) => IntroScreen(isInitialized: isInitialized),
+              '/Intro': (context) => IntroScreen(),
               '/Auth/Twitter': (context) => LoginScreen(),
             },
           ),

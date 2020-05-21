@@ -27,8 +27,8 @@ class Post extends Equatable {
         isDeleted,
         deletedReasonCode,
         content,
-        discussion,
-        participant,
+        discussion?.id,
+        participant?.id,
         createdAt,
         updatedAt
       ];

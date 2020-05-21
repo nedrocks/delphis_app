@@ -12,24 +12,28 @@ class TestObjects {
   static final now = DateTime.now();
 
   static final moderatorParticipant = Participant(
+    id: 'participant-1',
     gradientColor: 'taupe',
     participantID: 0,
     isAnonymous: false,
     flair: null,
   );
   static final noFlairParticipant = Participant(
+    id: 'participant-2',
     gradientColor: 'taupe',
     participantID: 1,
     isAnonymous: false,
     flair: null,
   );
   static final noFlairParticipantAnon = Participant(
+    id: 'participant-3',
     gradientColor: 'taupe',
     participantID: 2,
     isAnonymous: true,
     flair: null,
   );
   static final participantWithFlair = Participant(
+    id: 'participant-4',
     gradientColor: 'taupe',
     participantID: 2,
     isAnonymous: false,

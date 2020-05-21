@@ -160,6 +160,20 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                                 '2589fb41-e6c5-4950-8b75-55bb3315113e',
                             //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                           ),
+                      create: (context) => ParticipantBloc(
+                          repository: participantRepository,
+                          discussionBloc:
+                              BlocProvider.of<DiscussionBloc>(context)),
+                      child: BlocListener<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is LoggedOutAuthState) {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/Auth', (Route<dynamic> route) => false);
+                          }
+                        },
+                        child: DelphisDiscussion(
+                          //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                          discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                         ),
                       ),
                     ),

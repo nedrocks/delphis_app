@@ -21,6 +21,43 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   @override
   DiscussionState get initialState => DiscussionUninitializedState();
 
+  bool isLikelyPendingPost(
+      DiscussionLoadedState state, Discussion discussion, Post post) {
+    // Checks if the post is a likely pending post. This happens if the post
+    // is either by the current participant and there are local posts pending
+    // and the text matches the exact text of a local pending post.
+    if (state.localPosts.length == 0) {
+      return false;
+    }
+    LocalPost foundLocalPost;
+    for (final localPost in state.localPosts.values) {
+      if (localPost != null && localPost.post.content == post.content) {
+        foundLocalPost = localPost;
+      }
+    }
+    if (foundLocalPost == null) {
+      return false;
+    }
+    if (!foundLocalPost.isProcessing) {
+      return false;
+    }
+    if (post.participant?.id != null) {
+      // Effectively: For all the available participants to the current user
+      // does one of their IDs match the post we're about to add?
+      if (discussion.meAvailableParticipants != null &&
+          discussion.meAvailableParticipants.length > 0) {
+        for (final participant in discussion.meAvailableParticipants) {
+          if (participant.id == post.participant.id) {
+            return true;
+          }
+        }
+      }
+    }
+    // This is a very strange case that we should track when it happens. I think
+    // someting like copy/pasta could cause this.
+    return false;
+  }
+
   @override
   Stream<DiscussionState> mapEventToState(DiscussionEvent event) async* {
     var currentState = this.state;
@@ -79,6 +116,11 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                 participantID: currentState.getDiscussion().meParticipant.id,
                 postContent: event.postContent)
             .then((addedPost) {
+          if (addedPost == null) {
+            // The response may not be a post if it's malformed or something.
+            this.add(LocalPostCreateFailure(localPost: localPost));
+            return;
+          }
           // The current state may have changed since this is a future.
           this.add(LocalPostCreateSuccess(
               createdPost: addedPost, localPost: localPost));
@@ -95,6 +137,12 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         // This is pretty gross.
         var found = false;
         final discussion = currentState.getDiscussion();
+        if (this.isLikelyPendingPost(currentState, discussion, event.post)) {
+          // In this case there should be a local post here. I know this is
+          // introducing a potential issue if the local post flow breaks down
+          // but I think this is a relatively safe approach
+          return;
+        }
         var isParticipantFound = false;
         final participants = discussion.participants;
         for (int i = 0; i < discussion.participants.length; i++) {

@@ -133,10 +133,12 @@ class DelphisInputState extends State<DelphisInput> {
       ),
       DiscussionSubmitButton(
         onPressed: () {
-          BlocProvider.of<DiscussionBloc>(context).add(
-            DiscussionPostAddEvent(postContent: this._controller.text),
-          );
-          this._controller.text = '';
+          if (this._controller.text.isNotEmpty) {
+            BlocProvider.of<DiscussionBloc>(context).add(
+              DiscussionPostAddEvent(postContent: this._controller.text),
+            );
+            this._controller.text = '';
+          }
         },
         width: 40.0,
         height: 40.0,

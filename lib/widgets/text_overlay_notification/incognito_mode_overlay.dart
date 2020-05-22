@@ -14,8 +14,11 @@ class IncognitoModeTextOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextOverlayNotification(
-        text: Intl.message(
-            'Incognito mode activated. Remember, don\'t be a scallywag.'),
+        text: this.hasGoneIncognito
+            ? Intl.message(
+                'Incognito mode activated. Remember, don\'t be a scallywag.')
+            : Intl.message(
+                'Incognito made deactivated. Your face will appear next to your future messages!'),
         borderGradient: LinearGradient(colors: [
           Color.fromRGBO(42, 190, 94, 1.0),
           Color.fromRGBO(60, 116, 156, 1.0),

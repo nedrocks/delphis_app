@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
@@ -13,7 +14,9 @@ import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_cont
 import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -123,7 +126,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 contents: ParticipantSettings(
               meParticipant: this._fakeParticipant,
               me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-              onClose: () {
+              onClose: (_) {
                 // TODO: Show a spinner
               },
               discussion: discussionObj,
@@ -138,10 +141,26 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               contents: ParticipantSettings(
                 meParticipant: state.getDiscussion().meParticipant,
                 me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-                onClose: () {
+                onClose: (didUpdate) {
                   this.setState(() {
                     this._isShowParticipantSettings = false;
                   });
+                  if (didUpdate) {
+                    BlocProvider.of<NotificationBloc>(context)
+                        .add(NewNotificationEvent(
+                      notification: OverlayTopMessage(
+                        child: IncognitoModeTextOverlay(
+                          hasGoneIncognito: didUpdate
+                              ? !discussionObj.meParticipant.isAnonymous
+                              : discussionObj.meParticipant.isAnonymous,
+                        ),
+                        onDismiss: () {
+                          BlocProvider.of<NotificationBloc>(context)
+                              .add(DismissNotification());
+                        },
+                      ),
+                    ));
+                  }
                 },
                 discussion: discussionObj,
               ),
@@ -152,7 +171,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         final expandedConversationView = Expanded(
           child: listViewOverlay,
         );
-        print('me participant: ${discussionObj.meParticipant}');
         var listViewWithInput = Column(
           children: <Widget>[
             Container(
@@ -174,8 +192,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                       children: <Widget>[
                         ParticipantImages(
                           height: HeightValues.appBarItemsHeight,
-                          participants: discussionObj
-                              .participants, //discussionObj.participants,
+                          participants: discussionObj.participants,
                         ),
                         SizedBox(width: SpacingValues.small),
                         ModeratorProfileImage(

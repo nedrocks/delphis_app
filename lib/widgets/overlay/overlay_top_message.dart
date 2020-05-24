@@ -1,6 +1,7 @@
-import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
+import 'overlay_builder.dart';
 
 class OverlayTopMessage extends StatefulWidget {
   final Widget child;
@@ -55,40 +56,34 @@ class _OverlayTopMessageState extends State<OverlayTopMessage> {
   }
 
   Widget build(BuildContext context) {
-    return Directionality(
-      // This is not localized but required to remove weird debug issue.
-      textDirection: TextDirection.ltr,
-      child: SafeArea(
-        child: AnimatedOpacity(
-          duration: Duration(milliseconds: this.widget.fadeTimeMs),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [this.widget.child],
-          ),
-          opacity: this._opacity,
-          curve: Curves.decelerate,
-          onEnd: () {
-            if (this._showState == OverlayMessageState.FADE_IN) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                this._showState = OverlayMessageState.IS_SHOWING;
-                Future.delayed(Duration(milliseconds: this.widget.showForMs))
-                    .then((_) {
-                  this.setState(() {
-                    this._showState = OverlayMessageState.FADE_OUT;
-                    this._opacity = 0.0;
-                  });
-                });
-              });
-            } else if (this._showState == OverlayMessageState.FADE_OUT) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedOpacity(
+        duration: Duration(milliseconds: this.widget.fadeTimeMs),
+        child: this.widget.child,
+        opacity: this._opacity,
+        curve: Curves.decelerate,
+        onEnd: () {
+          if (this._showState == OverlayMessageState.FADE_IN) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              this._showState = OverlayMessageState.IS_SHOWING;
+              Future.delayed(Duration(milliseconds: this.widget.showForMs))
+                  .then((_) {
                 this.setState(() {
-                  this._showState = OverlayMessageState.DONE;
-                  this.fadeOutComplete();
+                  this._showState = OverlayMessageState.FADE_OUT;
+                  this._opacity = 0.0;
                 });
               });
-            }
-          },
-        ),
+            });
+          } else if (this._showState == OverlayMessageState.FADE_OUT) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              this.setState(() {
+                this._showState = OverlayMessageState.DONE;
+                this.fadeOutComplete();
+              });
+            });
+          }
+        },
       ),
     );
   }

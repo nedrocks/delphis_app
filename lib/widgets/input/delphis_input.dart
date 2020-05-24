@@ -127,6 +127,17 @@ class DelphisInputState extends State<DelphisInput> {
   List<Widget> buildInputRowElems(BuildContext context, MeState state, User me,
       bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
+      ParticipantSettingsButton(
+        onPressed: this.widget.onParticipantSettingsPressed,
+        me: me,
+        isModerator: isModerator,
+        participant: this.widget.participant,
+        width: 39.0,
+        height: 39.0,
+      ),
+      SizedBox(
+        width: SpacingValues.medium,
+      ),
       textInput,
       SizedBox(
         width: SpacingValues.medium,

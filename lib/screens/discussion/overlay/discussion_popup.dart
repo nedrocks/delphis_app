@@ -12,9 +12,12 @@ class DiscussionPopup extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     double maxWidgetSize = screenHeight / 2.0;
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxWidgetSize),
-      child: this.contents,
+    return Container(
+      margin: EdgeInsets.only(top: 60),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: maxWidgetSize),
+        child: this.contents,
+      ),
     );
   }
 }

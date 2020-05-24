@@ -15,7 +15,6 @@ import 'package:page_transition/page_transition.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
 import 'bloc/me/me_bloc.dart';
-import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
 import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
@@ -32,8 +31,6 @@ class ChathamApp extends StatefulWidget {
   State<StatefulWidget> createState() => ChathamAppState();
 }
 
-final navKey = GlobalKey<NavigatorState>();
-
 class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   static const methodChannel = const MethodChannel('chatham.ai/push_token');
 
@@ -42,7 +39,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   MeBloc meBloc;
   GqlClientBloc gqlClientBloc;
   AppBloc appBloc;
-  NotificationBloc notifBloc;
 
   String deviceID;
   bool didReceivePushToken;
@@ -72,7 +68,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
     this.secureStorage = FlutterSecureStorage();
     this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage));
     this.gqlClientBloc = GqlClientBloc(authBloc: this.authBloc);
-    this.notifBloc = NotificationBloc(navKey: navKey);
     this.authBloc.add(FetchAuthEvent());
     this.deviceID = "";
     this.didReceivePushToken = false;
@@ -117,19 +112,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
             if (state is LoadedMeState) {
               this.sendDeviceToServer(userDeviceRepository, state.me);
             }
-          }),
-          // BlocListener<NotificationBloc, NotificationState>(
-          //     listener: (context, state) {
-          //   if (state.runtimeType == NotificationShowing) {
-          //     final overlayEntry = OverlayEntry(
-          //         builder: (state as NotificationShowing)
-          //             .showingNotification
-          //             .overlayBuilder);
-          //     navkey.currentState.insert(overlayEntry);
-          //   } else if (state.runtimeType == DismissingNotificationState) {
-          //     print('dismissing');
-          //   }
-          // })
+          })
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, AuthState state) {
@@ -138,7 +121,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
             }
           },
           child: MaterialApp(
-            navigatorKey: navKey,
             title: "Chatham",
             theme: kThemeData,
             initialRoute: '/Intro',
@@ -147,37 +129,31 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                 case '/':
                   return PageTransition(
                     type: PageTransitionType.fade,
-                    child: MultiBlocProvider(
-                      providers: [
-                        BlocProvider<NotificationBloc>.value(
-                          value: this.notifBloc,
-                        ),
-                        BlocProvider<DiscussionBloc>(
-                          lazy: true,
-                          create: (context) =>
-                              DiscussionBloc(repository: discussionRepository),
-                        ),
-                        BlocProvider<ParticipantBloc>(
-                          lazy: true,
-                          create: (context) => ParticipantBloc(
-                              repository: participantRepository,
-                              discussionBloc:
-                                  BlocProvider.of<DiscussionBloc>(context)),
-                        ),
-                      ],
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/Auth',
-                              (Route<dynamic> route) => false,
-                            );
-                          }
-                        },
-                        child: DelphisDiscussion(
-                          discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                          //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                    child: BlocProvider<DiscussionBloc>(
+                      lazy: true,
+                      create: (context) =>
+                          DiscussionBloc(repository: discussionRepository),
+                      child: BlocProvider<ParticipantBloc>(
+                        lazy: true,
+                        create: (context) => ParticipantBloc(
+                            repository: participantRepository,
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context)),
+                        child: BlocListener<AuthBloc, AuthState>(
+                          listener: (context, state) {
+                            if (state is LoggedOutAuthState) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                '/Auth',
+                                (Route<dynamic> route) => false,
+                              );
+                            }
+                          },
+                          child: DelphisDiscussion(
+                            discussionID:
+                                '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                            //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                          ),
                         ),
                       ),
                     ),

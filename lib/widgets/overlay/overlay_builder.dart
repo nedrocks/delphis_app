@@ -4,13 +4,12 @@ import 'package:flutter/scheduler.dart';
 class ChathamOverlayBuilder extends StatefulWidget {
   final bool showOverlay;
   final Function(BuildContext) overlayBuilder;
-  // A reference to what is built in the overlayBuilder. May not be necessary?
-  final Widget embeddedWidget;
+  final Widget child;
 
   ChathamOverlayBuilder({
     @required this.overlayBuilder,
     this.showOverlay = false,
-    @required this.embeddedWidget,
+    this.child,
   }) : super();
 
   @override
@@ -80,6 +79,6 @@ class _ChathamOverlayBuilderState extends State<ChathamOverlayBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(width: 0, height: 0);
+    return this.widget.child ?? Container(width: 0, height: 0);
   }
 }

@@ -6,7 +6,6 @@ import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
-import 'package:delphis_app/util/callbacks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +32,7 @@ class ParticipantSettings extends StatefulWidget {
   final Participant meParticipant;
   final User me;
   final SettingsFlow settingsFlow;
-  final SuccessCallback onClose;
+  final VoidCallback onClose;
 
   const ParticipantSettings({
     @required this.discussion,
@@ -133,7 +132,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                           SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
                       ? GestureDetector(
                           onTap: () {
-                            this.widget.onClose(false);
+                            this.widget.onClose();
                           },
                           child: Text(
                             Intl.message('Cancel'),
@@ -241,7 +240,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           orElse: () => null),
       isUnsetFlairID: this._selectedFlairID == null,
     ));
-    this.widget.onClose(true);
+    this.widget.onClose();
   }
 
   void joinDiscussion() {
@@ -254,6 +253,6 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
       hasJoined: true,
       isAnonymous: this._selectedIdx == 1,
     ));
-    this.widget.onClose(true);
+    this.widget.onClose();
   }
 }

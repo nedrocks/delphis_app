@@ -50,7 +50,7 @@ class ProfileImageWithGradient extends StatelessWidget {
       gradient = ChathamColors
           .gradients[gradientNameFromString(this.participant.gradientColor)];
     }
-    final borderRadius = this.width / 3.0;
+    final borderRadius = this.width / 1.0;
     final profileImage = this._getProfileImage(borderRadius);
     // This stinks but currently argument explosion doesn't exist.
     if (this.isPressable) {

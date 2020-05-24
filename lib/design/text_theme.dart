@@ -34,12 +34,11 @@ class TextThemes {
       height: 1.0);
 
   static final discussionPostText = TextStyle(
-    fontSize: 17.0,
-    fontWeight: FontWeight.w400,
-    color: Color.fromRGBO(255, 255, 255, 0.92),
-    letterSpacing: -0.39,
-    height: 1.2,
-  );
+      fontSize: 17.0,
+      fontWeight: FontWeight.w400,
+      color: Color.fromRGBO(255, 255, 255, 0.92),
+      letterSpacing: -0.39,
+      height: 1.2);
   static final discussionPostInput = TextStyle(
       fontSize: 16.0,
       fontWeight: FontWeight.w400,
@@ -170,6 +169,5 @@ class TextThemes {
     color: Color.fromRGBO(255, 255, 255, 1.0),
     letterSpacing: -0.22,
     height: 1.3,
-    inherit: false,
   );
 }

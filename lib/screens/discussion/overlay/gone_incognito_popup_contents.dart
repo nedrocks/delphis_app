@@ -29,13 +29,14 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 20.0,
-                    spreadRadius: 5.0,
-                    offset: Offset(
-                      0.0,
-                      -5.0,
-                    ))
+                  color: Colors.black,
+                  blurRadius: 20.0,
+                  spreadRadius: 5.0,
+                  offset: Offset(
+                    0.0,
+                    -5.0,
+                  ),
+                )
               ],
               border: Border.all(
                 color: Colors.grey,
@@ -46,8 +47,9 @@ class GoneIncognitoDiscussionPopupContents extends StatelessWidget {
             ),
             child: Container(
               padding: EdgeInsets.symmetric(
-                  horizontal: SpacingValues.xxLarge,
-                  vertical: SpacingValues.large),
+                horizontal: SpacingValues.xxLarge,
+                vertical: SpacingValues.large,
+              ),
               decoration: BoxDecoration(
                 border: Border.all(
                   color: Colors.grey,

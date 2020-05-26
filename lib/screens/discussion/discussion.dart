@@ -125,12 +125,11 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           child: DelphisInput(
             discussion: discussionObj,
             participant: discussionObj.meParticipant,
-            isShowingParticipantSettings:
-            this._isShowParticipantSettings,
+            isShowingParticipantSettings: this._isShowParticipantSettings,
             onParticipantSettingsPressed: () {
               setState(() {
                 this._isShowParticipantSettings =
-                !this._isShowParticipantSettings;
+                    !this._isShowParticipantSettings;
               });
             },
             parentScrollController: this._scrollController,
@@ -143,14 +142,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             child: inputViewBuilder,
             popup: DiscussionPopup(
                 contents: ParticipantSettings(
-                  meParticipant: this._fakeParticipant,
-                  me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-                  onClose: () {
-                    // TODO: Show a spinner
-                  },
-                  discussion: discussionObj,
-                  settingsFlow: SettingsFlow.JOIN_CHAT,
-                )),
+              meParticipant: this._fakeParticipant,
+              me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
+              onClose: () {
+                // TODO: Show a spinner
+              },
+              discussion: discussionObj,
+              settingsFlow: SettingsFlow.JOIN_CHAT,
+            )),
             animationMillis: 500,
           );
         } else if (this._isShowParticipantSettings) {

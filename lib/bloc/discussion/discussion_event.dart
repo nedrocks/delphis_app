@@ -59,12 +59,14 @@ class MeParticipantUpdatedEvent extends DiscussionEvent {
 
 class DiscussionPostAddEvent extends DiscussionEvent {
   final String postContent;
+  final String uniqueID;
 
   @override
   List<Object> get props => [this.postContent];
 
   DiscussionPostAddEvent({
     @required this.postContent,
+    @required this.uniqueID,
   }) : super();
 }
 

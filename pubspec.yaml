@@ -42,6 +42,9 @@ dependencies:
   flutter_bloc: 4.0.0
   equatable: 1.1.1
 
+  flutter_segment: 2.0.2
+  uuid: 2.0.4
+
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito
   # (^4.0.0) so we can use the newer version of mockito

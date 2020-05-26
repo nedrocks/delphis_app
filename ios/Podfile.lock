@@ -5,6 +5,7 @@ PODS:
     - SAMKeychain (= 1.5.3)
     - SocketRocketAblyFork (= 0.5.2-ably-7)
     - ULID (= 1.1.0)
+  - Analytics (3.7.0)
   - connectivity (0.0.1):
     - Flutter
     - Reachability
@@ -12,6 +13,9 @@ PODS:
     - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (3.3.1):
+    - Flutter
+  - flutter_segment (0.0.1):
+    - Analytics (= 3.7.0)
     - Flutter
   - flutter_webview_plugin (0.0.1):
     - Flutter
@@ -100,6 +104,7 @@ DEPENDENCIES:
   - connectivity_macos (from `.symlinks/plugins/connectivity_macos/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - flutter_segment (from `.symlinks/plugins/flutter_segment/ios`)
   - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
@@ -110,6 +115,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Ably
+    - Analytics
     - KSCrashAblyFork
     - msgpack
     - Reachability
@@ -126,6 +132,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  flutter_segment:
+    :path: ".symlinks/plugins/flutter_segment/ios"
   flutter_webview_plugin:
     :path: ".symlinks/plugins/flutter_webview_plugin/ios"
   path_provider:
@@ -141,10 +149,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Ably: 6fca6cd8d6688ce4d646e66e96ffe50179df4388
+  Analytics: 77fd5fb102a4a5eedafa2c2b0245ceb7b7c15e45
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   connectivity_macos: e2e9731b6b22dda39eb1b128f6969d574460e191
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
+  flutter_segment: 31dce829260fc896cd391d7cee4fc3609003f93c
   flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   KSCrashAblyFork: aeded013077defcc1422e803e32a40c3411548e7
   msgpack: a14de9216d29cfd0a7aff5af5150601a27e899a4

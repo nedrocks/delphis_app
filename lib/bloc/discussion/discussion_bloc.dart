@@ -4,8 +4,10 @@ import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/tracking/constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 import 'package:meta/meta.dart';
 
 part 'discussion_event.dart';
@@ -116,6 +118,17 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                 participantID: currentState.getDiscussion().meParticipant.id,
                 postContent: event.postContent)
             .then((addedPost) {
+          final success = addedPost != null;
+          Segment.track(
+              eventName: ChathamTrackingEventNames.POST_ADD,
+              properties: {
+                'funnelID': event.uniqueID,
+                'error': false,
+                'success': success,
+                'discussionID': currentState.getDiscussion().id,
+                'participantID': currentState.getDiscussion().meParticipant.id,
+                'contentLength': event.postContent.length,
+              });
           if (addedPost == null) {
             // The response may not be a post if it's malformed or something.
             this.add(LocalPostCreateFailure(localPost: localPost));
@@ -125,6 +138,16 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           this.add(LocalPostCreateSuccess(
               createdPost: addedPost, localPost: localPost));
         }, onError: (err) {
+          Segment.track(
+              eventName: ChathamTrackingEventNames.POST_ADD,
+              properties: {
+                'funnelID': event.uniqueID,
+                'error': true,
+                'success': false,
+                'discussionID': currentState.getDiscussion().id,
+                'participantID': currentState.getDiscussion().meParticipant.id,
+                'contentLength': event.postContent.length,
+              });
           localPost.isProcessing = false;
           localPost.failCount += 1;
           localPost.isFailed = true;

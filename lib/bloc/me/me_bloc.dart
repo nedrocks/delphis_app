@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 
 part 'me_event.dart';
 part 'me_state.dart';
@@ -28,9 +28,13 @@ class MeBloc extends Bloc<MeEvent, MeState> {
   Stream<MeState> mapEventToState(
     MeEvent event,
   ) async* {
-    if (event is FetchMeEvent) {
+    final currentState = this.state;
+    if (event is FetchMeEvent && !(currentState is LoadedMeState)) {
       try {
         final me = await repository.getMe();
+        if (me != null) {
+          Segment.identify(userId: me.id);
+        }
         yield LoadedMeState(me);
       } catch (err) {
         print('caught error ${err}');

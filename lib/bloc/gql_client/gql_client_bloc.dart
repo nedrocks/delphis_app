@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/constants.dart';
+import 'package:delphis_app/tracking/constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 part 'gql_client_event.dart';
@@ -61,8 +63,8 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
           currentSocketClient.dispose();
         }
       }
-      var gqlClient;
-      var socketClient;
+      GraphQLClient gqlClient;
+      SocketClient socketClient;
       final HttpLink httpLink = HttpLink(
         uri: Constants.gqlEndpoint,
       );
@@ -85,6 +87,14 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
         link: link,
       );
       socketClient = SocketClient(wsEndpoint);
+
+      Segment.track(
+          eventName: ChathamTrackingEventNames.BACKEND_CONNECTION,
+          properties: {
+            // TODO: Update this to have the correct success metric.
+            'success': true,
+            'isAuthed': event.isAuthed,
+          });
 
       yield GqlClientConnectedState(
           client: gqlClient,

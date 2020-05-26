@@ -19,6 +19,7 @@ import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 
 import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';
@@ -47,6 +48,10 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   @override
   void initState() {
     super.initState();
+
+    Segment.screen(screenName: "Discussion", properties: {
+      'discussionID': this.widget.discussionID,
+    });
 
     this.hasSentLoadingEvent = false;
 

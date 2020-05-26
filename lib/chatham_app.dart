@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 import 'package:page_transition/page_transition.dart';
 
 import 'bloc/auth/auth_bloc.dart';
@@ -17,6 +18,7 @@ import 'bloc/discussion/discussion_bloc.dart';
 import 'bloc/me/me_bloc.dart';
 import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
+import 'constants.dart';
 import 'data/repository/auth.dart';
 import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
@@ -28,6 +30,12 @@ import 'design/text_theme.dart';
 import 'screens/intro/intro_screen.dart';
 
 class ChathamApp extends StatefulWidget {
+  final Environment env;
+
+  const ChathamApp({
+    @required this.env,
+  });
+
   @override
   State<StatefulWidget> createState() => ChathamAppState();
 }
@@ -79,6 +87,12 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
     this.hasSentDeviceToServer = false;
 
     this.requiresReload = false;
+
+    Segment.enable();
+
+    Segment.setContext({
+      'env': this.widget.env.toString(),
+    });
   }
 
   @override
@@ -176,8 +190,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                           }
                         },
                         child: DelphisDiscussion(
-                          discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                          //discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                          //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                          discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
                         ),
                       ),
                     ),
@@ -197,6 +211,9 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
               '/Intro': (context) => IntroScreen(),
               '/Auth/Twitter': (context) => LoginScreen(),
             },
+            navigatorObservers: [
+              SegmentObserver(),
+            ],
           ),
         ),
       ),

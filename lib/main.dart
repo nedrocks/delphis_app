@@ -14,5 +14,5 @@ void main() {
   ));
   Constants.setEnvironment(Environment.STAGING);
   BlocSupervisor.delegate = ChathamBlocDelegate();
-  runApp(ChathamApp());
+  runApp(ChathamApp(env: Environment.STAGING));
 }

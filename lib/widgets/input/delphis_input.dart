@@ -6,6 +6,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/tracking/constants.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:delphis_app/widgets/input/discussion_submit_button.dart';
 import 'package:delphis_app/widgets/input/moderator_input_button.dart';
@@ -13,7 +14,9 @@ import 'package:delphis_app/widgets/settings/participant_settings_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 const MAX_VISIBLE_ROWS = 5;
 
@@ -133,16 +136,28 @@ class DelphisInputState extends State<DelphisInput> {
       ),
       DiscussionSubmitButton(
         onPressed: () {
-          if (this._controller.text.isNotEmpty) {
+          final isButtonActive = this._controller.text.isNotEmpty;
+          final pressID = Uuid().v4();
+          Segment.track(
+              eventName: ChathamTrackingEventNames.POST_ADD_BUTTON_PRESS,
+              properties: {
+                'funnelID': pressID,
+                'isActive': isButtonActive,
+                'contentLength': this._controller.text.length,
+                'discussionID': this.widget.discussion.id,
+                'participantID': this.widget.participant.id,
+              });
+          if (isButtonActive) {
             BlocProvider.of<DiscussionBloc>(context).add(
-              DiscussionPostAddEvent(postContent: this._controller.text),
+              DiscussionPostAddEvent(
+                  postContent: this._controller.text, uniqueID: pressID),
             );
             this._controller.text = '';
           }
         },
         width: 40.0,
         height: 40.0,
-        isActive: this._controller.text.length > 0,
+        isActive: this._controller.text.isNotEmpty,
       ),
     ];
     return rowElems;
@@ -197,9 +212,6 @@ class DelphisInputState extends State<DelphisInput> {
             this._controller.text.length == 0 ? ' ' : this._controller.text;
         List<TextBox> textLayout = calculateTextLayoutRows(
             context, constraints, this._borderRadius, text);
-        // TODO: We probably want to add ellipsis when the text is truncated (i.e. no focus and
-        // the text would be more than 1 row.) This will require storing the text contents
-        // in another place when we lose focus.
         var numRows = this._inputFocusNode.hasFocus
             ? min(max(1, textLayout.length), MAX_VISIBLE_ROWS)
             : 1;

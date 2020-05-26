@@ -118,10 +118,23 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 }
               }),
         );
-        Widget listViewOverlay = listViewBuilder;
+        var inputViewBuilder = DelphisInput(
+          discussion: discussionObj,
+          participant: discussionObj.meParticipant,
+          isShowingParticipantSettings:
+          this._isShowParticipantSettings,
+          onParticipantSettingsPressed: () {
+            setState(() {
+              this._isShowParticipantSettings =
+              !this._isShowParticipantSettings;
+            });
+          },
+          parentScrollController: this._scrollController,
+        );
+        Widget inputViewOverlay = inputViewBuilder;
         if (discussionObj.meParticipant == null) {
-          listViewOverlay = AnimatedDiscussionPopup(
-            child: listViewBuilder,
+          inputViewOverlay = AnimatedDiscussionPopup(
+            child: inputViewBuilder,
             popup: DiscussionPopup(
                 contents: ParticipantSettings(
               meParticipant: this._fakeParticipant,
@@ -135,8 +148,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             animationMillis: 500,
           );
         } else if (this._isShowParticipantSettings) {
-          listViewOverlay = AnimatedDiscussionPopup(
-            child: listViewBuilder,
+          inputViewOverlay = AnimatedDiscussionPopup(
+            child: inputViewBuilder,
             popup: DiscussionPopup(
               contents: ParticipantSettings(
                 meParticipant: state.getDiscussion().meParticipant,
@@ -169,7 +182,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           );
         }
         final expandedConversationView = Expanded(
-          child: listViewOverlay,
+          child: listViewBuilder,
         );
         var listViewWithInput = Column(
           children: <Widget>[
@@ -216,19 +229,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             expandedConversationView,
             discussionObj.meParticipant == null
                 ? Container(width: 0, height: 0)
-                : DelphisInput(
-                    discussion: discussionObj,
-                    participant: discussionObj.meParticipant,
-                    isShowingParticipantSettings:
-                        this._isShowParticipantSettings,
-                    onParticipantSettingsPressed: () {
-                      setState(() {
-                        this._isShowParticipantSettings =
-                            !this._isShowParticipantSettings;
-                      });
-                    },
-                    parentScrollController: this._scrollController,
-                  ),
+                : inputViewOverlay,
           ],
         );
         Widget toRender = listViewWithInput;

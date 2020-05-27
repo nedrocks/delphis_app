@@ -5,8 +5,10 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/colors.dart';
+import 'package:delphis_app/tracking/constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 
 part 'participant_event.dart';
 part 'participant_state.dart';
@@ -112,7 +114,23 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
               discussionID: discussionBloc.state.getDiscussion()?.id,
               participantID: event.participant.id,
             );
+        Segment.track(
+            eventName: ChathamTrackingEventNames.PARTICIPANT_JOINED_DISCUSSION,
+            properties: {
+              'discussionID': discussionBloc.state.getDiscussion()?.id,
+              'participantID': event.participant.id,
+              'numParticipants':
+                  discussionBloc.state.getDiscussion().participants.length,
+              'numPosts': discussionBloc.state.getDiscussion().posts.length,
+            });
       } catch (err) {
+        Segment.track(
+            eventName:
+                ChathamTrackingEventNames.PARTICIPANT_JOINED_DISCUSSION_FAILURE,
+            properties: {
+              'discussionID': discussionBloc.state.getDiscussion()?.id,
+              'participantID': event.participant.id,
+            });
         yield ParticipantLoaded(
             participant: currentState.participant, isUpdating: false);
         return;

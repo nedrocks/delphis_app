@@ -12,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:smartlook/smartlook.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
@@ -70,6 +71,9 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    Smartlook.setupAndStartRecording(
+        'b014d394b5b6be3ea88a8f3fab8aa04c1a670aca');
 
     this.appBloc = AppBloc();
     WidgetsBinding.instance.addObserver(this);

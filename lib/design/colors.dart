@@ -85,6 +85,19 @@ class ChathamColors {
   static final signInTwitterBackground = Color.fromRGBO(57, 58, 63, 1.0);
   static final twitterLogoColor = Color.fromRGBO(102, 196, 254, 1.0);
 
+  static final LinearGradient notificationIconGradient = LinearGradient(
+    colors: [
+      Color.fromRGBO(186, 76, 186, 1.0),
+      Color.fromRGBO(255, 135, 16, 1.0),
+    ],
+    begin: UnitCircleLocations.TOP_LEFT,
+    end: UnitCircleLocations.BOTTOM_RIGHT,
+    stops: [
+      0.0,
+      1.0,
+    ],
+  );
+
   static final Map<GradientName, Gradient> gradients = {
     GradientName.MOD_PURPLE: LinearGradient(
         colors: [

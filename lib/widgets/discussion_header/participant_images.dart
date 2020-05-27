@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:delphis_app/data/repository/participant.dart';
-import 'package:delphis_app/screens/discussion/discussion_header/additional_pariticipants.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
+import './additional_pariticipants.dart';
 
 class ParticipantImages extends StatelessWidget {
   static const emptyParticipantList = <Participant>[];
@@ -39,9 +39,9 @@ class ParticipantImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final anonParticipants =
-        this.participants.where((p) => p.participantID != 0).toList();
+        this.participants.where((p) => p.isAnonymous).toList();
     final nonAnonParticipants =
-        this.participants.where((p) => p.participantID == 0).toList();
+        this.participants.where((p) => !p.isAnonymous).toList();
     final notShownParticipants = anonParticipants.length +
         max(nonAnonParticipants.length - this.maxNonAnonToShow, 0);
 

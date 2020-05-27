@@ -172,4 +172,45 @@ class TextThemes {
     height: 1.3,
     inherit: false,
   );
+
+  static final moderatorNameChatTab = TextStyle(
+    fontSize: 12.0,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(255, 255, 255, 0.92),
+    letterSpacing: -0.25,
+    height: 1.3636,
+  );
+  static final inviteTextChatTab = TextStyle(
+    fontSize: 11.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(255, 255, 255, 0.64),
+    letterSpacing: -0.23,
+    height: 1.5,
+  );
+  static final discussionTitleChatTab = TextStyle(
+    fontSize: 19.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(247, 247, 255, 0.92),
+    letterSpacing: -0.42,
+    height: 1.3684,
+  );
+  static final joinButtonTextChatTab = TextStyle(
+    fontSize: 17.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(23, 23, 28, 1.0),
+    letterSpacing: -0.22,
+  );
+  static final deleteButtonTextChatTab = TextStyle(
+    fontSize: 10.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: -0.13,
+  );
+
+  static final notificationBadgeText = TextStyle(
+    fontSize: 9.0,
+    fontWeight: FontWeight.w800,
+    color: Color.fromRGBO(247, 247, 255, 1.0),
+    letterSpacing: -1.6,
+  );
 }

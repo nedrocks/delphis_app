@@ -12,6 +12,7 @@ import 'package:delphis_app/screens/discussion/discussion_announcement_post.dart
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
+import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
@@ -21,7 +22,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 
-import 'discussion_header/participant_images.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 

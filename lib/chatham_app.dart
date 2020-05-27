@@ -6,6 +6,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
+import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -183,21 +184,22 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                                   BlocProvider.of<DiscussionBloc>(context)),
                         ),
                       ],
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/Auth',
-                              (Route<dynamic> route) => false,
-                            );
-                          }
-                        },
-                        child: DelphisDiscussion(
-                          //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                          discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
-                        ),
-                      ),
+                      // child: BlocListener<AuthBloc, AuthState>(
+                      //   listener: (context, state) {
+                      //     if (state is LoggedOutAuthState) {
+                      //       Navigator.pushNamedAndRemoveUntil(
+                      //         context,
+                      //         '/Auth',
+                      //         (Route<dynamic> route) => false,
+                      //       );
+                      //     }
+                      //   },
+                      //   child: DelphisDiscussion(
+                      //     //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
+                      //     discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
+                      //   ),
+                      // ),
+                      child: ChatsScreen(),
                     ),
                   );
                   break;

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/discussion_header/additional_pariticipants.dart';
+import 'package:delphis_app/widgets/discussion_header/additional_pariticipants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

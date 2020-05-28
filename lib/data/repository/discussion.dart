@@ -42,8 +42,6 @@ class DiscussionRepository {
 
     final query = SingleDiscussionGQLQuery();
 
-    print(query.query());
-
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
       variables: {
@@ -153,6 +151,7 @@ class Discussion extends Equatable {
   final String updatedAt;
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
+  final String iconURL;
 
   @override
   List<Object> get props => [
@@ -166,6 +165,7 @@ class Discussion extends Equatable {
         updatedAt,
         meParticipant,
         meAvailableParticipants,
+        iconURL,
       ];
 
   const Discussion({
@@ -179,6 +179,7 @@ class Discussion extends Equatable {
     this.updatedAt,
     this.meParticipant,
     this.meAvailableParticipants,
+    this.iconURL,
   });
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
@@ -203,6 +204,7 @@ class Discussion extends Equatable {
         meParticipant: meParticipant ?? this.meParticipant,
         meAvailableParticipants:
             meAvailableParticipants ?? this.meAvailableParticipants,
+        iconURL: this.iconURL,
       );
 
   void addLocalPost(LocalPost post) {

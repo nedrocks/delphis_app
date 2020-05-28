@@ -36,15 +36,10 @@ const DiscussionModeratorFragment = """
   fragment DiscussionModeratorFragment on Moderator {
     id
     userProfile {
-      id
-      displayName
-      twitterURL {
-        displayText
-        url
-      }
-      profileImageURL
+      ...UserProfileFullFragment
     }
   }
+  $UserProfileFragment
 """;
 
 // Does not fetch specific information about the Discussion, only enough
@@ -54,20 +49,12 @@ const DiscussionListFragment = """
     id
     title
     moderator {
-      id
-      userProfile {
-        id
-        displayName
-        twitterURL {
-          displayText
-          url
-        }
-        profileImageURL
-      }
+      ...DiscussionModeratorFragment
     }
     anonymityType
     iconURL
   }
+  $DiscussionModeratorFragment
 """;
 
 const DiscussionFragmentFull = """

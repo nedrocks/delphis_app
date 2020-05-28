@@ -4,6 +4,7 @@ import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
+import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:delphis_app/widgets/notification_badge/notification_badge.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -23,11 +24,8 @@ class SingleChatJoined extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget discussionIcon = Container(
-      width: 28,
-      height: 28,
-      color: Colors.blue,
-    );
+    Widget discussionIcon = DiscussionIcon(
+        width: 28, height: 28, imageURL: this.discussion.iconURL);
     if (this.notificationCount > 0) {
       discussionIcon = Container(
         width: 34,

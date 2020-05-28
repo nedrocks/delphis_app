@@ -1,6 +1,7 @@
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
+import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -35,11 +36,10 @@ class SingleChatUnjoined extends StatelessWidget {
                 onTap: this.onPressed,
                 child: Row(
                   children: [
-                    Container(
-                      width: 28,
-                      height: 28,
-                      color: Colors.blue,
-                    ),
+                    DiscussionIcon(
+                        width: 28,
+                        height: 28,
+                        imageURL: this.discussion.iconURL),
                     SizedBox(width: SpacingValues.small),
                     Expanded(
                       child: Column(

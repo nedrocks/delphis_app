@@ -1,59 +1,31 @@
+import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/moderator.dart';
-import 'package:delphis_app/data/repository/user_profile.dart';
-import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
+import 'package:delphis_app/screens/home_page/chats/chat_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ChatsScreen extends StatefulWidget {
-  const ChatsScreen() : super();
+  final DiscussionRepository discussionRepository;
+
+  const ChatsScreen({@required this.discussionRepository}) : super();
 
   @override
   State<StatefulWidget> createState() => _ChatsScreenState();
 }
 
 class _ChatsScreenState extends State<ChatsScreen> {
-  List<Discussion> discussions;
-
   @override
-  void initState() {
+  initState() {
     super.initState();
   }
 
+  @override
   Widget build(BuildContext context) {
-    final userProfile = UserProfile(
-        displayName: "Ned Rockson",
-        profileImageURL:
-            'https://pbs.twimg.com/profile_images/569623151382765568/IXqTQzHo_normal.jpeg');
-    final moderator = Moderator(
-      id: 'moderator-1',
-      discussion: null,
-      userProfile: userProfile,
-    );
-    var discussionObj = Discussion(
-        id: '12345',
-        moderator: moderator,
-        meParticipant: null,
-        title: 'Blue Ridge Ventures');
-
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.black,
-        body: ListView(children: [
-          SingleChat(
-            discussion: discussionObj,
-            onJoinPressed: () {
-              print('on pressed');
-            },
-            onDeletePressed: () {
-              print('on delete');
-            },
-            onPressed: () {
-              print('onPressed');
-            },
-          )
-        ]),
-      ),
+    return BlocProvider<DiscussionListBloc>(
+      lazy: true,
+      create: (context) =>
+          DiscussionListBloc(repository: this.widget.discussionRepository),
+      child: ChatList(),
     );
   }
 }

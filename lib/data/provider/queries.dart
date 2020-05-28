@@ -51,15 +51,6 @@ const DiscussionListFragment = """
     moderator {
       ...DiscussionModeratorFragment
     }
-    anonymityType
-    iconURL
-  }
-  $DiscussionModeratorFragment
-""";
-
-const DiscussionFragmentFull = """
-  fragment DiscussionFragmentFull on Discussion {
-    ...DiscussionListFragment
     meAvailableParticipants {
       ...ParticipantInfoFragment
     }
@@ -69,6 +60,16 @@ const DiscussionFragmentFull = """
     participants {
       ...ParticipantInfoFragment
     }
+    anonymityType
+    iconURL
+  }
+  $DiscussionModeratorFragment
+  $ParticipantInfoFragment
+""";
+
+const DiscussionFragmentFull = """
+  fragment DiscussionFragmentFull on Discussion {
+    ...DiscussionListFragment
     posts {
       id
       content
@@ -82,7 +83,6 @@ const DiscussionFragmentFull = """
     }
   }
   $DiscussionListFragment
-  $ParticipantInfoFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -175,23 +175,25 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 }
 
-class DiscussionsGQLQuery extends GQLQuery<Discussion> {
+class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
   final String _query = """
     query Discussions() {
       listDiscussions {
         ...DiscussionListFragment
       }
     }
+    $DiscussionListFragment
   """;
 
-  const DiscussionsGQLQuery() : super();
+  const ListDiscussionsGQLQuery() : super();
 
   String query() {
     return this._query;
   }
 
-  // TODO: This is wrong -- needs to be a list.
-  Discussion parseResult(dynamic data) {
-    return Discussion.fromJson(data["listDiscussions"]);
+  List<Discussion> parseResult(dynamic data) {
+    return (data["listDiscussions"] as List<dynamic>)
+        .map((elem) => Discussion.fromJson(elem))
+        .toList();
   }
 }

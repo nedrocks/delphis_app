@@ -28,7 +28,7 @@ class SingleChatJoined extends StatelessWidget {
       height: 28,
       color: Colors.blue,
     );
-    if (true || this.notificationCount > 0) {
+    if (this.notificationCount > 0) {
       discussionIcon = Container(
         width: 34,
         height: 34,
@@ -75,15 +75,7 @@ class SingleChatJoined extends StatelessWidget {
               ParticipantImages(
                 height: 28.0,
                 maxNonAnonToShow: 4,
-                participants: [
-                  //this.discussion.participants,
-                  Participant(isAnonymous: false),
-                  Participant(isAnonymous: false),
-                  Participant(isAnonymous: false),
-                  Participant(isAnonymous: false),
-                  Participant(isAnonymous: false),
-                  Participant(isAnonymous: false),
-                ],
+                participants: this.discussion.participants,
               ),
               SizedBox(width: SpacingValues.small),
               ModeratorProfileImage(

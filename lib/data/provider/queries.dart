@@ -4,6 +4,100 @@ import 'package:flutter/material.dart';
 import '../repository/discussion.dart';
 import '../repository/user.dart';
 
+const ParticipantInfoFragment = """
+  fragment ParticipantInfoFragment on Participant {
+    id
+    participantID
+    isAnonymous
+    gradientColor
+    flair {
+      id
+      displayName
+      imageURL
+      source
+    }
+    hasJoined
+  }
+""";
+
+const UserProfileFragment = """
+  fragment UserProfileFullFragment on UserProfile {
+    id
+    displayName
+    twitterURL {
+      displayText
+      url
+    }
+    profileImageURL
+  }
+""";
+
+const DiscussionModeratorFragment = """
+  fragment DiscussionModeratorFragment on Moderator {
+    id
+    userProfile {
+      id
+      displayName
+      twitterURL {
+        displayText
+        url
+      }
+      profileImageURL
+    }
+  }
+""";
+
+// Does not fetch specific information about the Discussion, only enough
+// to show it in a list of discussions.
+const DiscussionListFragment = """
+  fragment DiscussionListFragment on Discussion {
+    id
+    title
+    moderator {
+      id
+      userProfile {
+        id
+        displayName
+        twitterURL {
+          displayText
+          url
+        }
+        profileImageURL
+      }
+    }
+    anonymityType
+    iconURL
+  }
+""";
+
+const DiscussionFragmentFull = """
+  fragment DiscussionFragmentFull on Discussion {
+    ...DiscussionListFragment
+    meAvailableParticipants {
+      ...ParticipantInfoFragment
+    }
+    meParticipant {
+      ...ParticipantInfoFragment
+    }
+    participants {
+      ...ParticipantInfoFragment
+    }
+    posts {
+      id
+      content
+      participant {
+        id
+        participantID
+      }
+      isDeleted
+      createdAt
+      updatedAt
+    }
+  }
+  $DiscussionListFragment
+  $ParticipantInfoFragment
+""";
+
 abstract class GQLQuery<T> {
   T parseResult(dynamic data);
   String query();
@@ -47,18 +141,10 @@ class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
   final String _query = """
     query Discussion(\$id: ID!) {
       participants {
-        id
-        participantID
-        isAnonymous
-        gradientColor
-        flair {
-          id
-          displayName
-          imageURL
-          source
-        }
+        ...ParticipantInfoFragment
       }
     }
+    $ParticipantInfoFragment
   """;
 
   const ParticipantsForDiscussionQuery({
@@ -82,72 +168,10 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   final String _query = """
     query Discussion(\$id: ID!) {
       discussion(id: \$id){
-        id
-        moderator {
-          id
-          userProfile {
-            id
-            displayName
-            twitterURL {
-              displayText
-              url
-            }
-            profileImageURL
-          }
-        }
-        meAvailableParticipants {
-          id
-          participantID
-          isAnonymous
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-          hasJoined
-        }
-        meParticipant {
-          id
-          participantID
-          isAnonymous
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-          hasJoined
-        }
-        participants {
-          id
-          participantID
-          isAnonymous
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-        }
-        anonymityType
-        posts {
-          id
-          content
-          participant {
-            id
-            participantID
-          }
-          isDeleted
-          createdAt
-          updatedAt
-        }
-        title
+        ...DiscussionFragmentFull
       }
     }
+    $DiscussionFragmentFull
   """;
 
   const SingleDiscussionGQLQuery({
@@ -168,20 +192,7 @@ class DiscussionsGQLQuery extends GQLQuery<Discussion> {
   final String _query = """
     query Discussions() {
       listDiscussions {
-        id
-        title
-        moderator {
-          id
-          userProfile {
-            id
-            displayName
-            twitterURL {
-              displayText
-              url
-            }
-          }
-        }
-        anonymityType
+        ...DiscussionListFragment
       }
     }
   """;

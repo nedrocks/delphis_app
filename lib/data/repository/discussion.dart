@@ -42,6 +42,8 @@ class DiscussionRepository {
 
     final query = SingleDiscussionGQLQuery();
 
+    print(query.query());
+
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
       variables: {

@@ -19,15 +19,13 @@ class SingleChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget contents;
-    if (true ||
-        this.discussion.meParticipant != null &&
-            this.discussion.meParticipant.hasJoined) {
+    if (this.discussion.meParticipant != null &&
+        this.discussion.meParticipant.hasJoined) {
       contents = SingleChatJoined(
           discussion: this.discussion,
           onPressed: this.onPressed,
           notificationCount: 0);
-    } else if (false ||
-        this.discussion.meParticipant == null ||
+    } else if (this.discussion.meParticipant == null ||
         !this.discussion.meParticipant.hasJoined) {
       // I have not joined this chat.
       contents = SingleChatUnjoined(

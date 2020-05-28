@@ -12,7 +12,7 @@ void main() {
     systemNavigationBarColor: Colors.white, // navigation bar color
     statusBarColor: Colors.white, // status bar color
   ));
-  Constants.setEnvironment(Environment.STAGING);
+  Constants.setEnvironment(Environment.DEV);
   BlocSupervisor.delegate = ChathamBlocDelegate();
-  runApp(ChathamApp(env: Environment.STAGING));
+  runApp(ChathamApp(env: Environment.DEV));
 }

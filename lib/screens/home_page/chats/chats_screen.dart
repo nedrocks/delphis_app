@@ -12,6 +12,8 @@ class ChatsScreen extends StatefulWidget {
 }
 
 class _ChatsScreenState extends State<ChatsScreen> {
+  List<Discussion> discussions;
+
   @override
   void initState() {
     super.initState();

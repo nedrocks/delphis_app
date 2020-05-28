@@ -25,7 +25,15 @@ import 'package:flutter_segment/flutter_segment.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
+class DiscussionArguments {
+  final String discussionID;
+
+  DiscussionArguments({@required this.discussionID});
+}
+
 class DelphisDiscussion extends StatefulWidget {
+  static final routeName = '/discussion';
+
   final String discussionID;
 
   const DelphisDiscussion({

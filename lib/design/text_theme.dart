@@ -213,4 +213,17 @@ class TextThemes {
     color: Color.fromRGBO(247, 247, 255, 1.0),
     letterSpacing: -1.6,
   );
+
+  static final homeScreenTitle = TextStyle(
+    fontSize: 34,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.41,
+  );
+  static final homeScreenActionBarNewChat = TextStyle(
+    fontSize: 17.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(23, 23, 28, 1.0),
+    letterSpacing: -0.22,
+  );
 }

@@ -17,6 +17,7 @@ import 'package:smartlook/smartlook.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
+import 'bloc/discussion_list/discussion_list_bloc.dart';
 import 'bloc/me/me_bloc.dart';
 import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
@@ -29,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'data/repository/participant.dart';
 import 'data/repository/user_device.dart';
 import 'design/text_theme.dart';
+import 'screens/home_page/home_page.dart';
 import 'screens/intro/intro_screen.dart';
 
 class ChathamApp extends StatefulWidget {
@@ -184,22 +186,59 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                                   BlocProvider.of<DiscussionBloc>(context)),
                         ),
                       ],
-                      // child: BlocListener<AuthBloc, AuthState>(
-                      //   listener: (context, state) {
-                      //     if (state is LoggedOutAuthState) {
-                      //       Navigator.pushNamedAndRemoveUntil(
-                      //         context,
-                      //         '/Auth',
-                      //         (Route<dynamic> route) => false,
-                      //       );
-                      //     }
-                      //   },
-                      //   child: DelphisDiscussion(
-                      //     //discussionID: '2589fb41-e6c5-4950-8b75-55bb3315113e',
-                      //     discussionID: 'c5409fad-e624-4de8-bb32-36453c562abf',
-                      //   ),
-                      // ),
-                      child: ChatsScreen(),
+                      child: BlocListener<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is LoggedOutAuthState) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/Auth',
+                              (Route<dynamic> route) => false,
+                            );
+                          }
+                        },
+                        child: HomePageScreen(
+                            discussionRepository: discussionRepository),
+                      ),
+                    ),
+                  );
+                  break;
+                case '/Discussion':
+                  DiscussionArguments arguments =
+                      settings.arguments as DiscussionArguments;
+                  return PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    child: MultiBlocProvider(
+                      providers: [
+                        BlocProvider<NotificationBloc>.value(
+                          value: this.notifBloc,
+                        ),
+                        BlocProvider<DiscussionBloc>(
+                          lazy: true,
+                          create: (context) =>
+                              DiscussionBloc(repository: discussionRepository),
+                        ),
+                        BlocProvider<ParticipantBloc>(
+                          lazy: true,
+                          create: (context) => ParticipantBloc(
+                              repository: participantRepository,
+                              discussionBloc:
+                                  BlocProvider.of<DiscussionBloc>(context)),
+                        ),
+                      ],
+                      child: BlocListener<AuthBloc, AuthState>(
+                        listener: (context, state) {
+                          if (state is LoggedOutAuthState) {
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              '/Auth',
+                              (Route<dynamic> route) => false,
+                            );
+                          }
+                        },
+                        child: DelphisDiscussion(
+                          discussionID: arguments.discussionID,
+                        ),
+                      ),
                     ),
                   );
                   break;

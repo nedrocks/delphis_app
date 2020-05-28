@@ -1,24 +1,19 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
-import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/moderator.dart';
-import 'package:delphis_app/data/repository/user_profile.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
+import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// class ChatsScreen extends StatefulWidget {
-//   const ChatsScreen() : super();
-
-//   @override
-//   State<StatefulWidget> createState() => _ChatsScreenState();
-// }
-
 class ChatsList extends StatelessWidget {
-  void joinDiscussionPressed(Discussion discussion) {}
+  final DiscussionCallback onJoinDiscussionPressed;
+  final DiscussionCallback onDeleteDiscussionInvitePressed;
+  final DiscussionCallback onDiscussionPressed;
 
-  void deleteDiscussionInvitePressed(Discussion discussion) {}
-
-  void discussionPressed(Discussion discussion) {}
+  const ChatsList({
+    @required this.onJoinDiscussionPressed,
+    @required this.onDeleteDiscussionInvitePressed,
+    @required this.onDiscussionPressed,
+  }) : super();
 
   Widget build(BuildContext context) {
     return BlocBuilder<DiscussionListBloc, DiscussionListState>(
@@ -32,32 +27,27 @@ class ChatsList extends StatelessWidget {
         return Center(child: CircularProgressIndicator());
       } else {
         final discussionList = (state as DiscussionListLoaded).discussionList;
-        return SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.black,
-            body: ListView.builder(
-              key: Key('discussion-list-view'),
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: discussionList.length,
-              itemBuilder: (context, index) {
-                final discussionElem = discussionList.elementAt(index);
-                return SingleChat(
-                  discussion: discussionElem,
-                  onJoinPressed: () {
-                    this.joinDiscussionPressed(discussionElem);
-                  },
-                  onDeletePressed: () {
-                    this.deleteDiscussionInvitePressed(discussionElem);
-                  },
-                  onPressed: () {
-                    this.discussionPressed(discussionElem);
-                  },
-                );
+        return ListView.builder(
+          padding: EdgeInsets.zero,
+          key: Key('discussion-list-view'),
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemCount: discussionList.length,
+          itemBuilder: (context, index) {
+            final discussionElem = discussionList.elementAt(index);
+            return SingleChat(
+              discussion: discussionElem,
+              onJoinPressed: () {
+                this.onJoinDiscussionPressed(discussionElem);
               },
-            ),
-          ),
+              onDeletePressed: () {
+                this.onDeleteDiscussionInvitePressed(discussionElem);
+              },
+              onPressed: () {
+                this.onDiscussionPressed(discussionElem);
+              },
+            );
+          },
         );
       }
     });

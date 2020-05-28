@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/screens/home_page/chats/chat_list.dart';
+import 'package:delphis_app/screens/discussion/discussion.dart';
+import 'package:delphis_app/screens/home_page/chats/chats_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +16,7 @@ class ChatsScreen extends StatefulWidget {
 
 class _ChatsScreenState extends State<ChatsScreen> {
   @override
-  initState() {
+  void initState() {
     super.initState();
   }
 
@@ -25,7 +26,14 @@ class _ChatsScreenState extends State<ChatsScreen> {
       lazy: true,
       create: (context) =>
           DiscussionListBloc(repository: this.widget.discussionRepository),
-      child: ChatList(),
+      child: ChatsList(
+        onJoinDiscussionPressed: (Discussion discussion) {},
+        onDeleteDiscussionInvitePressed: (Discussion discussion) {},
+        onDiscussionPressed: (Discussion discussion) {
+          Navigator.of(context).pushNamed('/Discussion',
+              arguments: DiscussionArguments(discussionID: discussion.id));
+        },
+      ),
     );
   }
 }

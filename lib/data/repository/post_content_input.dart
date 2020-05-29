@@ -10,21 +10,24 @@ enum PostType { TEXT, MEDIA, POLL }
 class PostContentInput extends Equatable {
   final String postText;
   final PostType postType;
-  final List<String> mentionedUserIDs;
+  final List<String> mentionedEntities;
   final String quotedPostID;
+  final String mediaID;
 
   List<Object> get props => [
         this.postText,
         this.postType,
-        this.mentionedUserIDs,
+        this.mentionedEntities,
         this.quotedPostID,
+        this.mediaID,
       ];
 
   const PostContentInput({
     @required this.postText,
     @required this.postType,
-    this.mentionedUserIDs,
+    this.mentionedEntities,
     this.quotedPostID,
+    this.mediaID,
   });
 
   Map<String, dynamic> toJSON() {

@@ -2,6 +2,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
+import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 
@@ -87,10 +88,10 @@ class DiscussionPost extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Container(
-                          padding:
-                              EdgeInsets.only(top: SpacingValues.xxSmall),
-                          child: Text(
-                            '${this.discussion.posts[this.index].content}',
+                          padding: EdgeInsets.only(top: SpacingValues.xxSmall),
+                          child: EmojiText(
+                            text:
+                                '${this.discussion.posts[this.index].content}',
                             style: Theme.of(context).textTheme.bodyText1,
                           ),
                         ),

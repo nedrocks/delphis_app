@@ -10,9 +10,10 @@ PostContentInput _$PostContentInputFromJson(Map<String, dynamic> json) {
   return PostContentInput(
     postText: json['postText'] as String,
     postType: _$enumDecodeNullable(_$PostTypeEnumMap, json['postType']),
-    mentionedUserIDs:
-        (json['mentionedUserIDs'] as List)?.map((e) => e as String)?.toList(),
+    mentionedEntities:
+        (json['mentionedEntities'] as List)?.map((e) => e as String)?.toList(),
     quotedPostID: json['quotedPostID'] as String,
+    mediaID: json['mediaID'] as String,
   );
 }
 
@@ -20,8 +21,9 @@ Map<String, dynamic> _$PostContentInputToJson(PostContentInput instance) =>
     <String, dynamic>{
       'postText': instance.postText,
       'postType': _$PostTypeEnumMap[instance.postType],
-      'mentionedUserIDs': instance.mentionedUserIDs,
+      'mentionedEntities': instance.mentionedEntities,
       'quotedPostID': instance.quotedPostID,
+      'mediaID': instance.mediaID,
     };
 
 T _$enumDecode<T>(

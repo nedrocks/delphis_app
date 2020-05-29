@@ -37,6 +37,8 @@ class TextThemes {
     fontSize: 17.0,
     fontWeight: FontWeight.w400,
     color: Color.fromRGBO(255, 255, 255, 0.92),
+    textBaseline: TextBaseline.alphabetic,
+    height: 1.0,
     letterSpacing: -0.39,
   );
   static final discussionPostInput = TextStyle(

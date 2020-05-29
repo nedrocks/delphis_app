@@ -3,21 +3,17 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
-import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
-import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/discussion_announcement_post.dart';
+import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
-import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
 import 'package:delphis_app/widgets/input/delphis_input.dart';
-import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
-import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,8 +30,6 @@ class DiscussionArguments {
 }
 
 class DelphisDiscussion extends StatefulWidget {
-  static final routeName = '/discussion';
-
   final String discussionID;
 
   const DelphisDiscussion({
@@ -51,6 +45,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
   bool _isShowParticipantSettings;
+  bool _isMenuOpen;
 
   ScrollController _scrollController;
   Participant _fakeParticipant;
@@ -62,6 +57,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     Segment.screen(screenName: "Discussion", properties: {
       'discussionID': this.widget.discussionID,
     });
+
+    this._isMenuOpen = false;
 
     this.hasSentLoadingEvent = false;
 
@@ -99,8 +96,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             child: Text(state.error.toString()),
           );
         }
-        print(
-            'received updated discussion state; num posts: ${state.getDiscussion()?.posts?.length}');
         if (state is DiscussionLoadedState &&
             state.discussionPostStream == null) {
           BlocProvider.of<DiscussionBloc>(context)
@@ -190,8 +185,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           children: <Widget>[
             DiscussionHeader(
               discussion: discussionObj,
-              onEllipsesPressed: () {
-                print('ellipses pressed');
+              onHeaderOptionSelected: (HeaderOption option) {
+                switch (option) {
+                  case HeaderOption.logout:
+                    BlocProvider.of<AuthBloc>(context).add(LogoutAuthEvent());
+                    break;
+                  default:
+                    break;
+                }
               },
             ),
             expandedConversationView,

@@ -27,7 +27,7 @@ final kThemeData = ThemeData(
 
 class TextThemes {
   static final discussionTitle = TextStyle(
-    fontSize: 28.0,
+    fontSize: 22.0,
     fontWeight: FontWeight.w600,
     color: Color.fromRGBO(255, 255, 255, 0.92),
     letterSpacing: 0.14,

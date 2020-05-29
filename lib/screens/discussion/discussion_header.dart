@@ -1,19 +1,19 @@
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
-import 'package:delphis_app/widgets/more/more_button.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class DiscussionHeader extends StatelessWidget {
   final Discussion discussion;
-  final VoidCallback onEllipsesPressed;
+  final HeaderOptionsCallback onHeaderOptionSelected;
 
   const DiscussionHeader({
     @required this.discussion,
-    @required this.onEllipsesPressed,
+    @required this.onHeaderOptionSelected,
   }) : super();
 
   @override
@@ -63,13 +63,9 @@ class DiscussionHeader extends StatelessWidget {
                     this.discussion.moderator.userProfile.profileImageURL,
               ),
               SizedBox(width: SpacingValues.medium),
-              MoreButton(
+              HeaderOptionsButton(
                 diameter: HeightValues.appBarItemsHeight,
-                onPressed: () {
-                  // BlocProvider.of<AuthBloc>(context)
-                  //     .add(LogoutAuthEvent());
-                  this.onEllipsesPressed();
-                },
+                onPressed: this.onHeaderOptionSelected,
               ),
             ],
           ),

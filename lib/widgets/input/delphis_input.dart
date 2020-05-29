@@ -207,7 +207,7 @@ class DelphisInputState extends State<DelphisInput> {
       final inputChild = LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
         var textStyle = Theme.of(context).textTheme.bodyText2;
-        var lineHeight = textStyle.height;
+        var lineHeight = textStyle.height == null ? 1.0 : textStyle.height;
         var text =
             this._controller.text.length == 0 ? ' ' : this._controller.text;
         List<TextBox> textLayout = calculateTextLayoutRows(

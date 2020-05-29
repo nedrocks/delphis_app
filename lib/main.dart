@@ -8,10 +8,13 @@ import 'chatham_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.white, // navigation bar color
-    statusBarColor: Colors.white, // status bar color
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.white, // navigation bar color
+      statusBarColor: Colors.white, // status bar color
+      statusBarBrightness: Brightness.light,
+    ),
+  );
   Constants.setEnvironment(Environment.DEV);
   BlocSupervisor.delegate = ChathamBlocDelegate();
   runApp(ChathamApp(env: Environment.DEV));

@@ -22,8 +22,7 @@ class DiscussionIcon extends StatelessWidget {
       return Container(
           width: this.width,
           height: this.height,
-          child: Image.asset(
-              'assets/images/anon_face_transparent/anon_face_transparent.png'));
+          child: Image.asset('assets/images/app_icon/image.png'));
     }
   }
 }

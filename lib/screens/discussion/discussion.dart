@@ -3,6 +3,7 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 
+import 'discussion_header.dart';
 import 'discussion_post.dart';
 import 'overlay/discussion_popup.dart';
 
@@ -186,46 +188,12 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
         var listViewWithInput = Column(
           children: <Widget>[
-            Container(
-                height: HeightValues.appBarHeight,
-                padding:
-                    EdgeInsets.symmetric(horizontal: SpacingValues.mediumLarge),
-                decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                          color: Color.fromRGBO(151, 151, 151, 1.0))),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(discussionObj.title,
-                          style: Theme.of(context).textTheme.headline1),
-                    ),
-                    Row(
-                      children: <Widget>[
-                        ParticipantImages(
-                          height: HeightValues.appBarItemsHeight,
-                          participants: discussionObj.participants,
-                        ),
-                        SizedBox(width: SpacingValues.small),
-                        ModeratorProfileImage(
-                          diameter: HeightValues.appBarItemsHeight,
-                          profileImageURL: discussionObj
-                              .moderator.userProfile.profileImageURL,
-                        ),
-                        SizedBox(width: SpacingValues.medium),
-                        MoreButton(
-                          diameter: HeightValues.appBarItemsHeight,
-                          onPressed: () {
-                            // TODO: This will log us out for now. Add a menu here though.
-                            BlocProvider.of<AuthBloc>(context)
-                                .add(LogoutAuthEvent());
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                )),
+            DiscussionHeader(
+              discussion: discussionObj,
+              onEllipsesPressed: () {
+                print('ellipses pressed');
+              },
+            ),
             expandedConversationView,
             discussionObj.meParticipant == null
                 ? Container(width: 0, height: 0)

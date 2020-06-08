@@ -171,7 +171,8 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
 
   Discussion parseResult(dynamic data) {
     var discussion = Discussion.fromJson(data["discussion"]);
-    return discussion.copyWith(posts: discussion.posts.reversed.toList());
+    return discussion.copyWith(
+        posts: (discussion.posts ?? []).reversed.toList());
   }
 }
 

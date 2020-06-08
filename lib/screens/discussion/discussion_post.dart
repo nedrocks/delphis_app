@@ -1,4 +1,6 @@
-import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/moderator.dart';
+import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
@@ -9,23 +11,22 @@ import 'package:flutter/material.dart';
 import 'post_title.dart';
 
 class DiscussionPost extends StatelessWidget {
-  final Discussion discussion;
-  final int index;
-  final bool isLocalPost;
+  final Post post;
+  final Participant participant;
+  final Moderator moderator;
 
   const DiscussionPost({
     Key key,
-    @required this.discussion,
-    @required this.index,
-    @required this.isLocalPost,
+    @required this.participant,
+    @required this.post,
+    @required this.moderator,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final post = this.discussion.posts[this.index];
-    final isModeratorAuthor = post.participant.participantID == 0;
+    final isModeratorAuthor = this.participant.participantID == 0;
     return Opacity(
-      opacity: this.isLocalPost ? 0.4 : 1.0,
+      opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
         padding: EdgeInsets.only(
             left: SpacingValues.medium,
@@ -53,18 +54,15 @@ class DiscussionPost extends StatelessWidget {
                   gradient: isModeratorAuthor
                       ? ChathamColors.gradients[moderatorGradientName]
                       : ChathamColors.gradients[gradientNameFromString(
-                          post.participant.gradientColor)],
+                          this.participant.gradientColor)],
                   border: Border.all(color: Colors.transparent, width: 1.0),
                 ),
                 child: isModeratorAuthor
                     ? ModeratorProfileImage(
                         diameter: 36.0,
                         outerBorderWidth: 0.0,
-                        profileImageURL: this
-                            .discussion
-                            .moderator
-                            .userProfile
-                            .profileImageURL)
+                        profileImageURL:
+                            this.moderator.userProfile.profileImageURL)
                     : AnonProfileImage(),
               ),
             ),
@@ -78,9 +76,8 @@ class DiscussionPost extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   PostTitle(
-                    moderator: this.discussion.moderator,
-                    participant:
-                        this.discussion.getParticipantForPostIdx(this.index),
+                    moderator: this.moderator,
+                    participant: this.participant,
                     height: 20.0,
                   ),
                   Container(
@@ -90,8 +87,7 @@ class DiscussionPost extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.only(top: SpacingValues.xxSmall),
                           child: EmojiText(
-                            text:
-                                '${this.discussion.posts[this.index].content}',
+                            text: '${this.post.content}',
                             style: Theme.of(context).textTheme.bodyText1,
                           ),
                         ),

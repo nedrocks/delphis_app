@@ -1,27 +1,13 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
-import 'package:delphis_app/bloc/me/me_bloc.dart';
-import 'package:delphis_app/bloc/notification/notification_bloc.dart';
-import 'package:delphis_app/bloc/participant/participant_bloc.dart';
-import 'package:delphis_app/data/repository/participant.dart';
-import 'package:delphis_app/data/repository/post.dart';
-import 'package:delphis_app/data/repository/user.dart';
-import 'package:delphis_app/design/colors.dart';
-import 'package:delphis_app/screens/discussion/discussion_announcement_post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
-import 'package:delphis_app/screens/discussion/overlay/animated_discussion_popup.dart';
-import 'package:delphis_app/screens/discussion/overlay/gone_incognito_popup_contents.dart';
-import 'package:delphis_app/screens/discussion/overlay/participant_settings.dart';
-import 'package:delphis_app/widgets/input/delphis_input.dart';
-import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
-import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
+import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 
+import 'discussion_content.dart';
 import 'discussion_header.dart';
-import 'discussion_post.dart';
-import 'overlay/discussion_popup.dart';
 
 class DiscussionArguments {
   final String discussionID;
@@ -45,10 +31,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
   bool _isShowParticipantSettings;
-  bool _isMenuOpen;
+  bool _isShowJoinFlow;
 
   ScrollController _scrollController;
-  Participant _fakeParticipant;
 
   @override
   void initState() {
@@ -58,22 +43,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
       'discussionID': this.widget.discussionID,
     });
 
-    this._isMenuOpen = false;
+    this._isShowJoinFlow = false;
 
     this.hasSentLoadingEvent = false;
 
     this.hasAcceptedIncognitoWarning = false;
     _scrollController = ScrollController();
     this._isShowParticipantSettings = false;
-    this._fakeParticipant = Participant(
-      participantID: 0,
-      discussion: null,
-      viewer: null,
-      posts: <Post>[],
-      isAnonymous: true,
-      gradientColor: gradientColorFromGradientName(randomAnonymousGradient()),
-      flair: null,
-    );
   }
 
   @override
@@ -102,84 +78,27 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               .add(SubscribeToDiscussionEvent(this.widget.discussionID, true));
         }
         final discussionObj = state.getDiscussion();
-        var listViewBuilder = Container(
-          decoration: BoxDecoration(
-            border: Border(
-                bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 1.0))),
-          ),
-          child: ListView.builder(
-              key: Key('discussion-posts-' + state.getDiscussion().id),
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: discussionObj.posts.length,
-              controller: this._scrollController,
-              reverse: true,
-              itemBuilder: (context, index) {
-                final post = DiscussionPost(
-                    discussion: discussionObj,
-                    index: index,
-                    isLocalPost:
-                        discussionObj.posts[index].isLocalPost ?? false);
-                if (true) {
-                  return post;
-                } else {
-                  // TODO: This should be hooked up to announcement posts.
-                  return DiscussionAnnouncementPost(post: post);
-                }
-              }),
-        );
-        Widget listViewOverlay = listViewBuilder;
-        if (discussionObj.meParticipant == null) {
-          listViewOverlay = AnimatedDiscussionPopup(
-            child: listViewBuilder,
-            popup: DiscussionPopup(
-                contents: ParticipantSettings(
-              meParticipant: this._fakeParticipant,
-              me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-              onClose: (_) {
-                // TODO: Show a spinner
-              },
-              discussion: discussionObj,
-              settingsFlow: SettingsFlow.JOIN_CHAT,
-            )),
-            animationMillis: 500,
-          );
-        } else if (this._isShowParticipantSettings) {
-          listViewOverlay = AnimatedDiscussionPopup(
-            child: listViewBuilder,
-            popup: DiscussionPopup(
-              contents: ParticipantSettings(
-                meParticipant: state.getDiscussion().meParticipant,
-                me: this._extractMe(BlocProvider.of<MeBloc>(context).state),
-                onClose: (didUpdate) {
-                  this.setState(() {
-                    this._isShowParticipantSettings = false;
-                  });
-                  if (didUpdate) {
-                    BlocProvider.of<NotificationBloc>(context)
-                        .add(NewNotificationEvent(
-                      notification: OverlayTopMessage(
-                        child: IncognitoModeTextOverlay(
-                          hasGoneIncognito: didUpdate
-                              ? !discussionObj.meParticipant.isAnonymous
-                              : discussionObj.meParticipant.isAnonymous,
-                        ),
-                        onDismiss: () {
-                          BlocProvider.of<NotificationBloc>(context)
-                              .add(DismissNotification());
-                        },
-                      ),
-                    ));
-                  }
-                },
-                discussion: discussionObj,
-              ),
-            ),
-            animationMillis: 500,
-          );
-        }
         final expandedConversationView = Expanded(
-          child: listViewOverlay,
+          child: DiscussionContent(
+            scrollController: this._scrollController,
+            discussion: discussionObj,
+            isDiscussionVisible: true,
+            isShowParticipantSettings: this._isShowParticipantSettings,
+            isShowJoinFlow: this._isShowJoinFlow,
+            onJoinFlowClose: (bool isJoined) {
+              if (isJoined) {
+                // Not sure we need to do anything here?
+              }
+              setState(() {
+                this._isShowJoinFlow = false;
+              });
+            },
+            onSettingsOverlayClose: (_) {
+              this.setState(() {
+                this._isShowParticipantSettings = false;
+              });
+            },
+          ),
         );
         var listViewWithInput = Column(
           children: <Widget>[
@@ -196,43 +115,47 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               },
             ),
             expandedConversationView,
-            discussionObj.meParticipant == null
-                ? Container(width: 0, height: 0)
-                : DelphisInput(
-                    discussion: discussionObj,
-                    participant: discussionObj.meParticipant,
-                    isShowingParticipantSettings:
-                        this._isShowParticipantSettings,
-                    onParticipantSettingsPressed: () {
-                      setState(() {
-                        this._isShowParticipantSettings =
-                            !this._isShowParticipantSettings;
-                      });
-                    },
-                    parentScrollController: this._scrollController,
-                  ),
+            DelphisInputContainer(
+              hasJoined: discussionObj.meParticipant != null,
+              isJoinable: true,
+              discussion: discussionObj,
+              participant: discussionObj.meParticipant,
+              isShowingParticipantSettings: this._isShowParticipantSettings,
+              parentScrollController: this._scrollController,
+              onParticipantSettingsPressed: () {
+                setState(() {
+                  this._isShowParticipantSettings =
+                      !this._isShowParticipantSettings;
+                });
+              },
+              onJoinPressed: () {
+                setState(() {
+                  this._isShowJoinFlow = true;
+                });
+              },
+            ),
           ],
         );
         Widget toRender = listViewWithInput;
-        if (discussionObj.meParticipant != null &&
-            !this.hasAcceptedIncognitoWarning &&
-            !(discussionObj.meParticipant.hasJoined ?? false)) {
-          toRender = AnimatedDiscussionPopup(
-            child: listViewWithInput,
-            popup: DiscussionPopup(
-              contents: GoneIncognitoDiscussionPopupContents(
-                moderator: discussionObj.moderator.userProfile,
-                onAccept: () {
-                  BlocProvider.of<ParticipantBloc>(context).add(
-                      ParticipantJoinedDiscussion(
-                          participant: discussionObj.meParticipant));
-                  this.setState(() => this.hasAcceptedIncognitoWarning = true);
-                },
-              ),
-            ),
-            animationMillis: 0,
-          );
-        }
+        // if (discussionObj.meParticipant != null &&
+        //     !this.hasAcceptedIncognitoWarning &&
+        //     !(discussionObj.meParticipant.hasJoined ?? false)) {
+        //   toRender = AnimatedDiscussionPopup(
+        //     child: listViewWithInput,
+        //     popup: DiscussionPopup(
+        //       contents: GoneIncognitoDiscussionPopupContents(
+        //         moderator: discussionObj.moderator.userProfile,
+        //         onAccept: () {
+        //           BlocProvider.of<ParticipantBloc>(context).add(
+        //               ParticipantJoinedDiscussion(
+        //                   participant: discussionObj.meParticipant));
+        //           this.setState(() => this.hasAcceptedIncognitoWarning = true);
+        //         },
+        //       ),
+        //     ),
+        //     animationMillis: 0,
+        //   );
+        // }
         return SafeArea(
             child: Scaffold(
           resizeToAvoidBottomInset: true,
@@ -241,14 +164,5 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         ));
       },
     );
-  }
-
-  User _extractMe(MeState state) {
-    if (state is LoadedMeState) {
-      return state.me;
-    } else {
-      // This should never happen and we should probably throw an error here?
-      return null;
-    }
   }
 }

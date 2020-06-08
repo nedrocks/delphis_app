@@ -23,7 +23,7 @@ class DiscussionHeader extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: SpacingValues.mediumLarge),
       decoration: BoxDecoration(
         border: Border(
-            bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 1.0))),
+            bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.4))),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

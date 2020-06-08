@@ -49,7 +49,6 @@ class DelphisInputState extends State<DelphisInput> {
   FocusNode _inputFocusNode;
   GlobalKey _textInputKey;
   TextField _input;
-  VoidCallback _currentScrollListener;
   double _scrollStart;
 
   @override

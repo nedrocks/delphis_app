@@ -21,6 +21,15 @@ class MeBloc extends Bloc<MeEvent, MeState> {
     });
   }
 
+  static User extractMe(MeState state) {
+    if (state is LoadedMeState) {
+      return state.me;
+    } else {
+      // This should never happen and we should probably throw an error here?
+      return null;
+    }
+  }
+
   @override
   MeState get initialState => MeInitial();
 

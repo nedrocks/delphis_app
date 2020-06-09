@@ -10,7 +10,7 @@ class DiscussionPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-    double maxWidgetSize = screenHeight / 2.0;
+    double maxWidgetSize = 7 * screenHeight / 8.0;
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: maxWidgetSize),

@@ -17,6 +17,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
   final VoidCallback onSelected;
   final VoidCallback onEdit;
   final double height;
+  final bool showEditButton;
 
   const ParticipantAnonymitySettingOption({
     @required this.participant,
@@ -27,10 +28,21 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
     @required this.onSelected,
     @required this.onEdit,
     @required this.height,
+    this.showEditButton = true,
   }) : super();
 
   @override
   Widget build(BuildContext context) {
+    Widget editContent = Text(
+      Intl.message('Edit'),
+      style: TextThemes.goIncognitoOptionAction,
+      textAlign: TextAlign.end,
+    );
+
+    if (!this.showEditButton) {
+      editContent = Container(width: 0, height: 0);
+    }
+
     return SettingOption(
       isSelected: this.isSelected,
       onSelected: this.onSelected,
@@ -55,11 +67,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
         SizedBox(width: SpacingValues.small),
         this._renderFlair(),
       ]),
-      editContent: Text(
-        Intl.message('Edit'),
-        style: TextThemes.goIncognitoOptionAction,
-        textAlign: TextAlign.end,
-      ),
+      editContent: editContent,
     );
   }
 

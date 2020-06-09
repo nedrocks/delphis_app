@@ -34,6 +34,7 @@ class ParticipantSettings extends StatefulWidget {
   final User me;
   final SettingsFlow settingsFlow;
   final SuccessCallback onClose;
+  final ParticipantBloc participantBloc;
 
   const ParticipantSettings({
     @required this.discussion,
@@ -41,6 +42,7 @@ class ParticipantSettings extends StatefulWidget {
     @required this.me,
     @required this.onClose,
     this.settingsFlow = SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT,
+    this.participantBloc,
   }) : super();
 
   @override
@@ -68,6 +70,35 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     Widget child;
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
+        Color actionButtonColor = Color.fromRGBO(247, 247, 255, 0.2);
+        Text actionButtonText = Text(
+          Intl.message('Update'),
+          style: TextThemes.goIncognitoButton,
+        );
+        if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+          actionButtonColor = Color.fromRGBO(247, 247, 255, 1.0);
+          actionButtonText = Text(
+            Intl.message('Join'),
+            style: TextThemes.joinButtonTextChatTab,
+          );
+        }
+
+        final actionButton = RaisedButton(
+          padding: EdgeInsets.symmetric(
+              horizontal: SpacingValues.xxLarge,
+              vertical: SpacingValues.medium),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+          color: actionButtonColor,
+          child: actionButtonText,
+          onPressed: () {
+            if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+              this.joinDiscussion();
+            } else {
+              this.updateExistingParticipant();
+            }
+          },
+        );
         child = Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -89,22 +120,25 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             SizedBox(height: SpacingValues.mediumLarge),
             ListView(shrinkWrap: true, children: [
               ParticipantAnonymitySettingOption(
-                  height: 40.0,
-                  user: this.widget.me,
-                  anonymousGradient: this._selectedGradient,
-                  showAnonymous: false,
-                  participant: this.widget.meParticipant,
-                  isSelected: this._selectedIdx == 0,
-                  onSelected: () {
-                    setState(() {
-                      this._selectedIdx = 0;
-                    });
-                  },
-                  onEdit: () {
-                    this.setState(() {
-                      this._settingsState = _SettingsState.FLAIR_SELECT;
-                    });
-                  }),
+                height: 40.0,
+                user: this.widget.me,
+                anonymousGradient: this._selectedGradient,
+                showAnonymous: false,
+                participant: this.widget.meParticipant,
+                isSelected: this._selectedIdx == 0,
+                onSelected: () {
+                  setState(() {
+                    this._selectedIdx = 0;
+                  });
+                },
+                onEdit: () {
+                  this.setState(() {
+                    this._settingsState = _SettingsState.FLAIR_SELECT;
+                  });
+                },
+                showEditButton: this.widget.me.flairs != null &&
+                    this.widget.me.flairs.length > 0,
+              ),
               SizedBox(height: SpacingValues.mediumLarge),
               ParticipantAnonymitySettingOption(
                   height: 40.0,
@@ -143,26 +177,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      RaisedButton(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: SpacingValues.xxLarge,
-                            vertical: SpacingValues.medium),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25.0)),
-                        color: Color.fromRGBO(247, 247, 255, 0.2),
-                        child: Text(Intl.message('Update'),
-                            style: TextThemes.goIncognitoButton),
-                        onPressed: () {
-                          if (this.widget.settingsFlow ==
-                              SettingsFlow.JOIN_CHAT) {
-                            this.joinDiscussion();
-                          } else {
-                            this.updateExistingParticipant();
-                          }
-                        },
-                      ),
-                    ],
+                    children: [actionButton],
                   ),
                 ])),
           ],
@@ -231,7 +246,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   void updateExistingParticipant() {
-    BlocProvider.of<ParticipantBloc>(context)
+    (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
         .add(ParticipantEventUpdateParticipant(
       participantID: this.widget.meParticipant.id,
       isAnonymous: this._selectedIdx == 1,
@@ -245,7 +260,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   void joinDiscussion() {
-    BlocProvider.of<ParticipantBloc>(context)
+    (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
         .add(ParticipantEventAddParticipant(
       discussionID: this.widget.discussion.id,
       userID: this.widget.me.id,

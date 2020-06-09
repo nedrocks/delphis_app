@@ -1,6 +1,5 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/screens/home_page/chats/chats_list.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +19,11 @@ enum HomePageTab {
 
 class HomePageScreen extends StatefulWidget {
   final DiscussionRepository discussionRepository;
+  final RouteObserver routeObserver;
 
   const HomePageScreen({
     @required this.discussionRepository,
+    @required this.routeObserver,
   }) : super();
 
   @override
@@ -77,7 +78,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       backgroundColor: this._topBarBackgroundColor),
                   Expanded(
                     child: ChatsScreen(
-                        discussionRepository: this.widget.discussionRepository),
+                      discussionRepository: this.widget.discussionRepository,
+                      routeObserver: this.widget.routeObserver,
+                    ),
                   ),
                 ],
               ),

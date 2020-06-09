@@ -13,7 +13,7 @@ class DiscussionIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (this.imageURL != null) {
+    if (this.imageURL != null && this.imageURL != '') {
       return Container(
           width: this.width,
           height: this.height,

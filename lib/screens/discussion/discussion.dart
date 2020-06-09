@@ -3,8 +3,10 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_content.dart';
 import 'discussion_header.dart';
@@ -34,6 +36,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool _isShowJoinFlow;
 
   ScrollController _scrollController;
+  RefreshController _refreshController;
+
+  OverlayEntry _contentOverlayEntry;
 
   @override
   void initState() {
@@ -48,8 +53,18 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     this.hasSentLoadingEvent = false;
 
     this.hasAcceptedIncognitoWarning = false;
-    _scrollController = ScrollController();
+    this._scrollController = ScrollController();
+    this._refreshController = RefreshController();
     this._isShowParticipantSettings = false;
+  }
+
+  @override
+  void deactivate() {
+    if (this._contentOverlayEntry != null) {
+      this._contentOverlayEntry.remove();
+      this._contentOverlayEntry = null;
+    }
+    super.deactivate();
   }
 
   @override
@@ -80,6 +95,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         final discussionObj = state.getDiscussion();
         final expandedConversationView = Expanded(
           child: DiscussionContent(
+            refreshController: this._refreshController,
             scrollController: this._scrollController,
             discussion: discussionObj,
             isDiscussionVisible: true,
@@ -91,12 +107,19 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               }
               setState(() {
                 this._isShowJoinFlow = false;
+                this._contentOverlayEntry.remove();
+                this._contentOverlayEntry = null;
               });
             },
             onSettingsOverlayClose: (_) {
               this.setState(() {
                 this._isShowParticipantSettings = false;
+                this._contentOverlayEntry.remove();
+                this._contentOverlayEntry = null;
               });
+            },
+            onOverlayOpen: (OverlayEntry entry) {
+              this._onOverlayEntry(context, entry);
             },
           ),
         );
@@ -104,9 +127,15 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
           children: <Widget>[
             DiscussionHeader(
               discussion: discussionObj,
+              onBackButtonPressed: () {
+                Navigator.of(context).pop();
+              },
               onHeaderOptionSelected: (HeaderOption option) {
                 switch (option) {
                   case HeaderOption.logout:
+                    if (this._contentOverlayEntry != null) {
+                      this._contentOverlayEntry.remove();
+                    }
                     BlocProvider.of<AuthBloc>(context).add(LogoutAuthEvent());
                     break;
                   default:
@@ -164,5 +193,19 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         ));
       },
     );
+  }
+
+  void _onOverlayEntry(BuildContext context, OverlayEntry entry) {
+    if (this._contentOverlayEntry != null) {
+      // Because the child widgets are stateless this can be called multiple
+      // times. Do nothing.
+    } else {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        this.setState(() {
+          this._contentOverlayEntry = entry;
+        });
+        Overlay.of(context).insert(entry);
+      });
+    }
   }
 }

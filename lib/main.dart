@@ -15,7 +15,7 @@ void main() {
       statusBarBrightness: Brightness.light,
     ),
   );
-  Constants.setEnvironment(Environment.STAGING);
+  Constants.setEnvironment(Environment.DEV);
   BlocSupervisor.delegate = ChathamBlocDelegate();
-  runApp(ChathamApp(env: Environment.STAGING));
+  runApp(ChathamApp(env: Environment.DEV));
 }

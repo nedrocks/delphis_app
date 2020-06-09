@@ -5,7 +5,6 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
-import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:delphis_app/widgets/notification_badge/notification_badge.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';

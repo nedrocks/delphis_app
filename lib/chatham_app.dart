@@ -6,7 +6,6 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
-import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +16,6 @@ import 'package:smartlook/smartlook.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
-import 'bloc/discussion_list/discussion_list_bloc.dart';
 import 'bloc/me/me_bloc.dart';
 import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
@@ -62,6 +60,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   bool hasSentDeviceToServer;
   bool requiresReload;
 
+  RouteObserver _routeObserver;
+
   @override
   void dispose() {
     this.authBloc.close();
@@ -94,6 +94,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
     this.hasSentDeviceToServer = false;
 
     this.requiresReload = false;
+
+    this._routeObserver = RouteObserver<PageRoute>();
 
     Segment.enable();
 
@@ -139,18 +141,6 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
               this.sendDeviceToServer(userDeviceRepository, state.me);
             }
           }),
-          // BlocListener<NotificationBloc, NotificationState>(
-          //     listener: (context, state) {
-          //   if (state.runtimeType == NotificationShowing) {
-          //     final overlayEntry = OverlayEntry(
-          //         builder: (state as NotificationShowing)
-          //             .showingNotification
-          //             .overlayBuilder);
-          //     navkey.currentState.insert(overlayEntry);
-          //   } else if (state.runtimeType == DismissingNotificationState) {
-          //     print('dismissing');
-          //   }
-          // })
         ],
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, AuthState state) {
@@ -197,7 +187,9 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                           }
                         },
                         child: HomePageScreen(
-                            discussionRepository: discussionRepository),
+                          discussionRepository: discussionRepository,
+                          routeObserver: this._routeObserver,
+                        ),
                       ),
                     ),
                   );
@@ -258,6 +250,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
             },
             navigatorObservers: [
               SegmentObserver(),
+              this._routeObserver,
             ],
           ),
         ),

@@ -10,10 +10,12 @@ import 'package:flutter_svg/svg.dart';
 class DiscussionHeader extends StatelessWidget {
   final Discussion discussion;
   final HeaderOptionsCallback onHeaderOptionSelected;
+  final VoidCallback onBackButtonPressed;
 
   const DiscussionHeader({
     @required this.discussion,
     @required this.onHeaderOptionSelected,
+    @required this.onBackButtonPressed,
   }) : super();
 
   @override
@@ -30,7 +32,7 @@ class DiscussionHeader extends StatelessWidget {
         children: <Widget>[
           GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              this.onBackButtonPressed();
             },
             child: Row(
               children: [

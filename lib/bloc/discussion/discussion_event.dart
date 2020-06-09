@@ -8,13 +8,15 @@ abstract class DiscussionEvent extends Equatable {
 
 class DiscussionQueryEvent extends DiscussionEvent {
   final String discussionID;
+  final DateTime nonce;
 
   DiscussionQueryEvent({
     @required this.discussionID,
+    this.nonce,
   }) : super();
 
   @override
-  List<Object> get props => [this.discussionID];
+  List<Object> get props => [this.discussionID, this.nonce];
 }
 
 class DiscussionErrorEvent extends DiscussionEvent {

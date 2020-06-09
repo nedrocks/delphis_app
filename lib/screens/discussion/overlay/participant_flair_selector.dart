@@ -73,14 +73,15 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
                   <ParticipantFlairSelectorOption>[]) +
               [
                 ParticipantFlairSelectorOption(
-                    flair: null,
-                    height: 40.0,
-                    isSelected: this._selectedFlairID == null,
-                    onSelected: () {
-                      this.setState(() {
-                        this._selectedFlairID = null;
-                      });
-                    })
+                  flair: null,
+                  height: 40.0,
+                  isSelected: this._selectedFlairID == null,
+                  onSelected: () {
+                    this.setState(() {
+                      this._selectedFlairID = null;
+                    });
+                  },
+                )
               ],
         ),
         SizedBox(height: SpacingValues.mediumLarge),

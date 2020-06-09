@@ -45,6 +45,7 @@ class DiscussionRepository {
       QueryOptions(
         documentNode: gql(query.query()),
         variables: {},
+        fetchPolicy: FetchPolicy.noCache,
       ),
     );
 
@@ -74,6 +75,7 @@ class DiscussionRepository {
       variables: {
         'id': discussionID,
       },
+      fetchPolicy: FetchPolicy.noCache,
     ));
     // Handle exceptions
     if (result.hasException) {

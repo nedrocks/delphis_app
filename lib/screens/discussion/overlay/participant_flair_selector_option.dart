@@ -52,7 +52,7 @@ class ParticipantFlairSelectorOption extends StatelessWidget {
             style: TextThemes.goIncognitoOptionName),
         SizedBox(width: SpacingValues.medium),
         VerifiedCheckmark(
-            height: TextThemes.goIncognitoOptionName.height *
+            height: (TextThemes.goIncognitoOptionName.height ?? 1.0) *
                 TextThemes.goIncognitoOptionName.fontSize),
       ]),
     );

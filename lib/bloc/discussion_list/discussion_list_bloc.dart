@@ -24,7 +24,6 @@ class DiscussionListBloc
     DiscussionListEvent event,
   ) async* {
     final currentState = this.state;
-
     if (event is DiscussionListFetchEvent &&
         (!(currentState is DiscussionListLoaded && currentState.isLoading))) {
       List<Discussion> currentList;

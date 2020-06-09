@@ -66,7 +66,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     this._selectedGradient =
         gradientNameFromString(this.widget.meParticipant?.gradientColor);
     this._selectedFlairID = this.widget.meParticipant?.flair?.id;
-    this._showLoading = true;
+    this._showLoading = false;
   }
 
   @override

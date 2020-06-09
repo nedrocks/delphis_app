@@ -73,6 +73,22 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       } catch (err) {
         yield DiscussionErrorState(err);
       }
+    } else if (event is RefreshPostsEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      try {
+        final updatedState = currentState.update(isLoading: true);
+        yield updatedState;
+        final discussionPosts =
+            await repository.getDiscussionPosts(currentState.discussion.id);
+        final updatedDiscussion =
+            updatedState.discussion.copyWith(posts: discussionPosts);
+        yield updatedState.update(
+            discussion: updatedDiscussion, isLoading: false);
+      } catch (err) {
+        // Not sure what to do here... it failed but need to capture it somehow.
+        yield currentState;
+      }
     } else if (event is DiscussionPostsUpdatedEvent) {
       if (currentState.getDiscussion() != null) {
         final updatedDiscussion =

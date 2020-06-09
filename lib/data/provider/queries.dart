@@ -1,4 +1,5 @@
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:flutter/material.dart';
 
 import '../repository/discussion.dart';
@@ -17,6 +18,20 @@ const ParticipantInfoFragment = """
       source
     }
     hasJoined
+  }
+""";
+
+const PostInfoFragment = """
+  fragment PostInfoFragment on Post {
+    id
+    content
+    participant {
+      id
+      participantID
+    }
+    isDeleted
+    createdAt
+    updatedAt
   }
 """;
 
@@ -71,18 +86,11 @@ const DiscussionFragmentFull = """
   fragment DiscussionFragmentFull on Discussion {
     ...DiscussionListFragment
     posts {
-      id
-      content
-      participant {
-        id
-        participantID
-      }
-      isDeleted
-      createdAt
-      updatedAt
+      ...PostInfoFragment
     }
   }
   $DiscussionListFragment
+  $PostInfoFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -120,6 +128,33 @@ class MeGQLQuery extends GQLQuery<User> {
 
   User parseResult(dynamic data) {
     return User.fromJson(data["me"]);
+  }
+}
+
+class PostsForDiscussionQuery extends GQLQuery<List<Post>> {
+  final String discussionID;
+  final String _query = """
+    query Discussion(\$id: ID!) {
+      posts {
+        ...PostInfoFragment
+      }
+    }
+    $PostInfoFragment
+  """;
+
+  const PostsForDiscussionQuery({
+    @required this.discussionID,
+  }) : super();
+
+  String query() {
+    return this._query;
+  }
+
+  List<Post> parseResult(dynamic data) {
+    var posts = data['discussion']['posts'] as List<dynamic>;
+    return posts.map<Post>((dynamic serPost) {
+      return Post.fromJson(serPost);
+    });
   }
 }
 

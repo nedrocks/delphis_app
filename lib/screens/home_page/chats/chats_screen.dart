@@ -61,7 +61,13 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
       child: ChatsList(
         key: this._chatListKey,
         refreshController: this._refreshController,
-        onJoinDiscussionPressed: (Discussion discussion) {},
+        onJoinDiscussionPressed: (Discussion discussion) {
+          Navigator.of(context).pushNamed('/Discussion',
+              arguments: DiscussionArguments(
+                discussionID: discussion.id,
+                isStartJoinFlow: true,
+              ));
+        },
         onDeleteDiscussionInvitePressed: (Discussion discussion) {},
         onDiscussionPressed: (Discussion discussion) {
           Navigator.of(context).pushNamed('/Discussion',

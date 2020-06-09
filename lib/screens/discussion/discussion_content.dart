@@ -29,7 +29,8 @@ class DiscussionContent extends StatelessWidget {
   final OverlayEntryCallback onOverlayOpen;
   final RefreshController refreshController;
 
-  const DiscussionContent({
+  DiscussionContent({
+    @required key,
     @required this.scrollController,
     @required this.discussion,
     @required this.isDiscussionVisible,
@@ -39,11 +40,13 @@ class DiscussionContent extends StatelessWidget {
     @required this.onSettingsOverlayClose,
     @required this.onOverlayOpen,
     @required this.refreshController,
-  }) : super();
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Widget postListView = DiscussionPostListView(
+      key: Key('${this.key}-postlist'),
+      isRefreshEnabled: !this.isShowJoinFlow && !this.isShowParticipantSettings,
       discussion: this.discussion,
       scrollController: this.scrollController,
       isVisible: true,

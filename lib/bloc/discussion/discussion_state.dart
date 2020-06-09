@@ -39,9 +39,12 @@ class DiscussionLoadedState extends DiscussionState {
   final Stream<Post> discussionPostStream;
   final Map<GlobalKey, LocalPost> localPosts;
 
+  final bool isLoading;
+
   DiscussionLoadedState({
     @required this.discussion,
     @required this.lastUpdate,
+    this.isLoading = false,
     this.discussionPostStream,
     localPosts,
   })  : this.localPosts = localPosts ?? Map<GlobalKey, LocalPost>(),
@@ -55,17 +58,19 @@ class DiscussionLoadedState extends DiscussionState {
     Stream<Post> stream,
     Discussion discussion,
     Map<GlobalKey, LocalPost> localPosts,
+    bool isLoading,
   }) {
     return DiscussionLoadedState(
       discussion: discussion ?? this.discussion,
       lastUpdate: DateTime.now(),
       discussionPostStream: stream ?? this.discussionPostStream,
       localPosts: localPosts ?? this.localPosts,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 
   @override
-  List<Object> get props => [this.discussion, this.lastUpdate];
+  List<Object> get props => [this.discussion, this.lastUpdate, this.isLoading];
 }
 
 // enum PostAddStep {

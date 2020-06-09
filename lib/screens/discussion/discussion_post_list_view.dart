@@ -17,13 +17,16 @@ class DiscussionPostListView extends StatelessWidget {
   final bool isVisible;
 
   final RefreshController refreshController;
+  final bool isRefreshEnabled;
 
-  const DiscussionPostListView({
+  DiscussionPostListView({
+    @required key,
     @required this.scrollController,
     @required this.discussion,
     @required this.refreshController,
+    @required this.isRefreshEnabled,
     this.isVisible = true,
-  }) : super();
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,7 @@ class DiscussionPostListView extends StatelessWidget {
             bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.4))),
       ),
       child: SmartRefresher(
-        enablePullDown: true,
+        enablePullDown: this.isRefreshEnabled,
         header: CustomHeader(
           builder: (context, status) {
             Widget body;
@@ -63,11 +66,12 @@ class DiscussionPostListView extends StatelessWidget {
         ),
         controller: this.refreshController,
         onRefresh: () async {
-          BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
-              discussionID: this.discussion.id, nonce: DateTime.now()));
+          final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
+          discussionBloc
+              .add(RefreshPostsEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
             await Future.delayed(Duration(milliseconds: 300 * (i + 1)));
-            final currState = BlocProvider.of<DiscussionBloc>(context).state;
+            final currState = discussionBloc.state;
             if (currState is DiscussionLoadedState) {
               break;
             }

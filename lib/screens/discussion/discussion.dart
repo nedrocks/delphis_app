@@ -13,16 +13,22 @@ import 'discussion_header.dart';
 
 class DiscussionArguments {
   final String discussionID;
+  final bool isStartJoinFlow;
 
-  DiscussionArguments({@required this.discussionID});
+  DiscussionArguments({
+    @required this.discussionID,
+    this.isStartJoinFlow = false,
+  });
 }
 
 class DelphisDiscussion extends StatefulWidget {
   final String discussionID;
+  final bool isStartJoinFlow;
 
   const DelphisDiscussion({
     key,
     @required this.discussionID,
+    @required this.isStartJoinFlow,
   }) : super(key: key);
 
   @override
@@ -40,6 +46,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
 
   OverlayEntry _contentOverlayEntry;
 
+  Key _key;
+
   @override
   void initState() {
     super.initState();
@@ -48,7 +56,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
       'discussionID': this.widget.discussionID,
     });
 
-    this._isShowJoinFlow = false;
+    this._isShowJoinFlow = this.widget.isStartJoinFlow;
 
     this.hasSentLoadingEvent = false;
 
@@ -56,6 +64,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     this._scrollController = ScrollController();
     this._refreshController = RefreshController();
     this._isShowParticipantSettings = false;
+
+    this._key = Key(
+        'discussion-${this.widget.discussionID}-${DateTime.now().millisecondsSinceEpoch}');
   }
 
   @override
@@ -95,6 +106,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         final discussionObj = state.getDiscussion();
         final expandedConversationView = Expanded(
           child: DiscussionContent(
+            key: Key('${this._key}-content'),
             refreshController: this._refreshController,
             scrollController: this._scrollController,
             discussion: discussionObj,

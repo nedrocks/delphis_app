@@ -126,3 +126,15 @@ class LocalPostCreateFailure extends DiscussionEvent {
   @override
   List<Object> get props => [this.localPost?.key, this.now];
 }
+
+class RefreshPostsEvent extends DiscussionEvent {
+  final String discussionID;
+  final DateTime now;
+
+  RefreshPostsEvent({@required this.discussionID})
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.discussionID, this.now];
+}

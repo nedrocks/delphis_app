@@ -229,6 +229,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                         },
                         child: DelphisDiscussion(
                           discussionID: arguments.discussionID,
+                          isStartJoinFlow: arguments.isStartJoinFlow,
                         ),
                       ),
                     ),

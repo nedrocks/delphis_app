@@ -8,6 +8,7 @@ import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -55,6 +56,8 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   int _selectedIdx;
   _SettingsState _settingsState;
 
+  bool _showLoading;
+
   @override
   void initState() {
     super.initState();
@@ -63,6 +66,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     this._selectedGradient =
         gradientNameFromString(this.widget.meParticipant?.gradientColor);
     this._selectedFlairID = this.widget.meParticipant?.flair?.id;
+    this._showLoading = true;
   }
 
   @override
@@ -71,11 +75,15 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
         Color actionButtonColor = Color.fromRGBO(247, 247, 255, 0.2);
-        Text actionButtonText = Text(
+        Widget actionButtonText = Text(
           Intl.message('Update'),
           style: TextThemes.goIncognitoButton,
         );
-        if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+        if (this._showLoading) {
+          actionButtonText = Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
           actionButtonColor = Color.fromRGBO(247, 247, 255, 1.0);
           actionButtonText = Text(
             Intl.message('Join'),
@@ -218,6 +226,13 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
         );
         break;
     }
+    if (this._showLoading) {
+      child = Opacity(
+        opacity: 0.4,
+        child: child,
+      );
+    }
+
     return Card(
         elevation: 50.0,
         color: Color.fromRGBO(22, 23, 28, 1.0),
@@ -259,9 +274,11 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     this.widget.onClose(true);
   }
 
-  void joinDiscussion() {
-    (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
-        .add(ParticipantEventAddParticipant(
+  void joinDiscussion() async {
+    final participantBloc = this.widget.participantBloc ??
+        BlocProvider.of<ParticipantBloc>(context);
+
+    participantBloc.add(ParticipantEventAddParticipant(
       discussionID: this.widget.discussion.id,
       userID: this.widget.me.id,
       gradientName: this._selectedGradient,
@@ -269,6 +286,18 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
       hasJoined: true,
       isAnonymous: this._selectedIdx == 1,
     ));
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      setState(() {
+        this._showLoading = true;
+      });
+    });
+    while (true) {
+      await Future.delayed(Duration(milliseconds: 300));
+      final state = participantBloc.state;
+      if (state is ParticipantLoaded && !state.isUpdating) {
+        break;
+      }
+    }
     this.widget.onClose(true);
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/tracking/constants.dart';
@@ -8,12 +10,12 @@ import 'package:flutter_segment/flutter_segment.dart';
 class IntroScreen extends StatelessWidget {
   IntroScreen() : super();
 
-  bool _navigateIfReady(
-      BuildContext context, GqlClientState clientState, AuthState authState) {
+  FutureOr<bool> _navigateIfReady(BuildContext context,
+      GqlClientState clientState, AuthState authState) async {
     if (clientState is GqlClientConnectedState) {
       if (authState is InitializedAuthState && authState.isAuthed) {
         Navigator.pushNamedAndRemoveUntil(
-            context, '/', (Route<dynamic> route) => false);
+            context, '/Home', (Route<dynamic> route) => false);
         return true;
       } else if (authState is InitializedAuthState) {
         Navigator.pushNamedAndRemoveUntil(
@@ -24,9 +26,10 @@ class IntroScreen extends StatelessWidget {
     return false;
   }
 
-  void _navigateWhenReady(
-      BuildContext context, GqlClientState clientState, AuthState authState) {
-    final isNavigating = this._navigateIfReady(context, clientState, authState);
+  void _navigateWhenReady(BuildContext context, GqlClientState clientState,
+      AuthState authState) async {
+    final isNavigating =
+        await this._navigateIfReady(context, clientState, authState);
     if (!isNavigating) {
       Future.delayed(Duration(milliseconds: 200), () {
         _navigateWhenReady(context, clientState, authState);

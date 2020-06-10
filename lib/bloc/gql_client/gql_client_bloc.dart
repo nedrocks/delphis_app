@@ -14,6 +14,7 @@ part 'gql_client_state.dart';
 
 class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
   final AuthBloc authBloc;
+  StreamSubscription websocketStateListener;
 
   GqlClientBloc({
     @required this.authBloc,
@@ -96,10 +97,25 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
             'isAuthed': event.isAuthed,
           });
 
-      yield GqlClientConnectedState(
+      this.websocketStateListener =
+          socketClient.connectionState.listen((cxState) {
+        if (cxState == SocketConnectionState.CONNECTED) {
+          this.add(GqlClientSocketConnected());
+          // TODO: Keep this going and listen for when we lose the connection
+          // so we can reestablish it!
+          this.websocketStateListener.cancel();
+        }
+      });
+      yield GqlClientConnectingState(
           client: gqlClient,
           websocketGQLClient: socketClient,
           equatableID: DateTime.now().toString());
+    } else if (event is GqlClientSocketConnected &&
+        currentState is GqlClientConnectingState) {
+      yield GqlClientConnectedState(
+          client: currentState.client,
+          websocketGQLClient: currentState.websocketGQLClient,
+          equatableID: currentState.equatableID);
     }
   }
 }

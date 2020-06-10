@@ -11,16 +11,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'discussion_content.dart';
 import 'discussion_header.dart';
 
-class DiscussionArguments {
-  final String discussionID;
-  final bool isStartJoinFlow;
-
-  DiscussionArguments({
-    @required this.discussionID,
-    this.isStartJoinFlow = false,
-  });
-}
-
 class DelphisDiscussion extends StatefulWidget {
   final String discussionID;
   final bool isStartJoinFlow;

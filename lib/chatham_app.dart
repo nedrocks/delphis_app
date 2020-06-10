@@ -6,6 +6,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
+import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'data/repository/participant.dart';
 import 'data/repository/user_device.dart';
 import 'design/text_theme.dart';
+import 'screens/discussion/screen_args/discussion.dart';
 import 'screens/home_page/home_page.dart';
 import 'screens/intro/intro_screen.dart';
 
@@ -62,6 +64,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
 
   RouteObserver _routeObserver;
 
+  Key _homePageKey;
+
   @override
   void dispose() {
     this.authBloc.close();
@@ -95,7 +99,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
 
     this.requiresReload = false;
 
-    this._routeObserver = RouteObserver<PageRoute>();
+    this._routeObserver = chathamRouteObserverSingleton;
+    this._homePageKey = Key('${DateTime.now().microsecondsSinceEpoch}');
 
     Segment.enable();
 
@@ -155,8 +160,9 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
             initialRoute: '/Intro',
             onGenerateRoute: (settings) {
               switch (settings.name) {
-                case '/':
+                case '/Home':
                   return PageTransition(
+                    settings: settings,
                     type: PageTransitionType.fade,
                     child: MultiBlocProvider(
                       providers: [
@@ -187,6 +193,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                           }
                         },
                         child: HomePageScreen(
+                          key: this._homePageKey,
                           discussionRepository: discussionRepository,
                           routeObserver: this._routeObserver,
                         ),
@@ -198,6 +205,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                   DiscussionArguments arguments =
                       settings.arguments as DiscussionArguments;
                   return PageTransition(
+                    settings: settings,
                     type: PageTransitionType.rightToLeft,
                     child: MultiBlocProvider(
                       providers: [
@@ -228,6 +236,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                           }
                         },
                         child: DelphisDiscussion(
+                          key: Key(
+                              'discussion-screen-${arguments.discussionID}'),
                           discussionID: arguments.discussionID,
                           isStartJoinFlow: arguments.isStartJoinFlow,
                         ),
@@ -237,6 +247,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                   break;
                 case '/Auth':
                   return PageTransition(
+                    settings: settings,
                     type: PageTransitionType.fade,
                     child: SignInScreen(),
                   );

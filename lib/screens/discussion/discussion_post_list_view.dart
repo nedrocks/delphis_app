@@ -37,6 +37,7 @@ class DiscussionPostListView extends StatelessWidget {
       ),
       child: SmartRefresher(
         enablePullDown: this.isRefreshEnabled,
+        enablePullUp: true,
         header: CustomHeader(
           builder: (context, status) {
             Widget body;

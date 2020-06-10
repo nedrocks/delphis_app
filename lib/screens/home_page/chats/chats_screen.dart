@@ -1,8 +1,10 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/screens/discussion/discussion.dart';
+import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_list.dart';
+import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -10,7 +12,7 @@ class ChatsScreen extends StatefulWidget {
   final DiscussionRepository discussionRepository;
   final RouteObserver routeObserver;
 
-  const ChatsScreen({
+  ChatsScreen({
     @required this.discussionRepository,
     @required this.routeObserver,
   }) : super();
@@ -40,6 +42,21 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
     this._chatListKey = GlobalKey();
     this._discussionListBloc =
         DiscussionListBloc(repository: this.widget.discussionRepository);
+    _loadLastRoute();
+  }
+
+  void _loadLastRoute() async {
+    var routeName = await chathamRouteObserverSingleton.retrieveLastRouteName();
+    var routeArgs =
+        await chathamRouteObserverSingleton.retriveLastRouteArguments();
+    if (routeName != null &&
+        routeName.startsWith('/Discussion') &&
+        routeArgs != null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
+        chathamRouteObserverSingleton.hasLoadedApp = true;
+      });
+    }
   }
 
   @override

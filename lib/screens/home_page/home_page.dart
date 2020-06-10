@@ -21,10 +21,11 @@ class HomePageScreen extends StatefulWidget {
   final DiscussionRepository discussionRepository;
   final RouteObserver routeObserver;
 
-  const HomePageScreen({
+  HomePageScreen({
+    key: Key,
     @required this.discussionRepository,
     @required this.routeObserver,
-  }) : super();
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _HomePageScreenState();
@@ -45,6 +46,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void initState() {
     super.initState();
+
+    print('loading init state for home page');
 
     this._currentTab = HomePageTab.CHAT;
 

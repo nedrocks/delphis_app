@@ -47,6 +47,7 @@ dependencies:
   smartlook: 0.0.9
 
   pull_to_refresh: 1.5.8
+  shared_preferences: 0.5.7+3
 
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito

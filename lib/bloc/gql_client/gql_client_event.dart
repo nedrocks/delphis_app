@@ -4,6 +4,17 @@ abstract class GqlClientEvent extends Equatable {
   const GqlClientEvent();
 }
 
+class GqlClientSocketConnected extends GqlClientEvent {
+  final String equatableID;
+
+  GqlClientSocketConnected()
+      : this.equatableID = DateTime.now().toString(),
+        super();
+
+  @override
+  List<Object> get props => [this.equatableID];
+}
+
 class GqlClientAuthChanged extends GqlClientEvent {
   final String authString;
   final bool isAuthed;

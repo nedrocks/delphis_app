@@ -39,11 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     flutterWebviewPlugin.close();
 
     // Add a listener to on destroy WebView, so you can make came actions.
-    _onDestroy = flutterWebviewPlugin.onDestroy.listen((_) {
-    });
+    _onDestroy = flutterWebviewPlugin.onDestroy.listen((_) {});
 
-    _onStateChanged = flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
-    });
+    _onStateChanged = flutterWebviewPlugin.onStateChanged
+        .listen((WebViewStateChanged state) {});
 
     // Add a listener to on url changed
     _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) {
@@ -62,7 +61,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void successfulLogin() {
-    Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil('/Home', (Route<dynamic> route) => false);
   }
 
   @override
@@ -96,7 +96,8 @@ class _LoginScreenState extends State<LoginScreen> {
               title: Text("Login to Chatham"),
             ),
           );
-        };
+        }
+        ;
       },
     );
   }

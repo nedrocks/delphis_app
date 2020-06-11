@@ -138,3 +138,18 @@ class RefreshPostsEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.discussionID, this.now];
 }
+
+class NewDiscussionEvent extends DiscussionEvent {
+  final String title;
+  final AnonymityType anonymityType;
+  final String nonce;
+
+  NewDiscussionEvent(
+      {@required this.title,
+      @required this.anonymityType,
+      @required this.nonce})
+      : super();
+
+  @override
+  List<Object> get props => [this.nonce];
+}

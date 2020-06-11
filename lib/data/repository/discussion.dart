@@ -116,6 +116,48 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<Discussion> createDiscussion(
+      {@required String title,
+      @required AnonymityType anonymityType,
+      int attempt = 1}) async {
+    if (title == null || title.length == 0) {
+      return null;
+    }
+
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return createDiscussion(
+            title: title, anonymityType: anonymityType, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to createDiscussion because backend connection is severed');
+    }
+
+    final mutation =
+        CreateDiscussionGQLMutation(anonymityType: anonymityType, title: title);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'anonymityType': anonymityType.toString().split('.')[1].toUpperCase(),
+          'title': title,
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
+
   Future<Post> addPost(
       {@required String discussionID,
       @required String participantID,
@@ -229,11 +271,11 @@ class Discussion extends Equatable {
         iconURL,
       ];
 
-  const Discussion({
+  Discussion({
     this.id,
     this.moderator,
     this.anonymityType,
-    this.posts,
+    posts,
     this.participants,
     this.title,
     this.createdAt,
@@ -241,7 +283,8 @@ class Discussion extends Equatable {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-  });
+  })  : this.posts = posts ?? List<Post>(),
+        super();
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);

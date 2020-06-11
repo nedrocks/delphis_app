@@ -1,3 +1,5 @@
+import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
@@ -57,6 +59,33 @@ class AddPostGQLMutation extends GQLMutation<Post> {
 
   Post parseResult(dynamic data) {
     return Post.fromJson(data["addPost"]);
+  }
+}
+
+class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
+  final String title;
+  final AnonymityType anonymityType;
+
+  const CreateDiscussionGQLMutation({
+    @required this.title,
+    @required this.anonymityType,
+  });
+
+  final String _mutation = """
+    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!) {
+      createDiscussion(anonymityType: \$anonymityType, title: \$title) {
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data['createDiscussion']);
   }
 }
 

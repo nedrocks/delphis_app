@@ -56,6 +56,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   AppBloc appBloc;
   NotificationBloc notifBloc;
 
+  UserRepository userRepository;
+
   String deviceID;
   bool didReceivePushToken;
   String pushToken;
@@ -93,6 +95,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
     this.gqlClientBloc = GqlClientBloc(authBloc: this.authBloc);
     this.notifBloc = NotificationBloc(navKey: navKey);
     this.authBloc.add(FetchAuthEvent());
+    this.userRepository = UserRepository(clientBloc: this.gqlClientBloc);
+    this.meBloc = MeBloc(this.userRepository, this.authBloc);
     this.deviceID = "";
     this.didReceivePushToken = false;
     this.hasSentDeviceToServer = false;
@@ -120,16 +124,17 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
         DiscussionRepository(clientBloc: this.gqlClientBloc);
     final participantRepository =
         ParticipantRepository(clientBloc: this.gqlClientBloc);
-    final userRepository = UserRepository(clientBloc: this.gqlClientBloc);
     final userDeviceRepository =
         UserDeviceRepository(clientBloc: this.gqlClientBloc);
+    // I am not sure what will happen if we leak this Bloc between discussions.
+    // We may need to reset the state of the discussion bloc whenever the route changes.
+    final discussionBloc = DiscussionBloc(repository: discussionRepository);
 
     return MultiBlocProvider(
       providers: <BlocProvider>[
         BlocProvider<GqlClientBloc>.value(value: this.gqlClientBloc),
         BlocProvider<AuthBloc>.value(value: this.authBloc),
-        BlocProvider<MeBloc>(
-            create: (context) => MeBloc(userRepository, this.authBloc)),
+        BlocProvider<MeBloc>.value(value: this.meBloc),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -169,17 +174,14 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                         BlocProvider<NotificationBloc>.value(
                           value: this.notifBloc,
                         ),
-                        BlocProvider<DiscussionBloc>(
-                          lazy: true,
-                          create: (context) =>
-                              DiscussionBloc(repository: discussionRepository),
+                        BlocProvider<DiscussionBloc>.value(
+                          value: discussionBloc,
                         ),
                         BlocProvider<ParticipantBloc>(
                           lazy: true,
                           create: (context) => ParticipantBloc(
                               repository: participantRepository,
-                              discussionBloc:
-                                  BlocProvider.of<DiscussionBloc>(context)),
+                              discussionBloc: discussionBloc),
                         ),
                       ],
                       child: BlocListener<AuthBloc, AuthState>(
@@ -194,6 +196,7 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                         },
                         child: HomePageScreen(
                           key: this._homePageKey,
+                          discussionBloc: discussionBloc,
                           discussionRepository: discussionRepository,
                           routeObserver: this._routeObserver,
                         ),
@@ -212,17 +215,14 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
                         BlocProvider<NotificationBloc>.value(
                           value: this.notifBloc,
                         ),
-                        BlocProvider<DiscussionBloc>(
-                          lazy: true,
-                          create: (context) =>
-                              DiscussionBloc(repository: discussionRepository),
+                        BlocProvider<DiscussionBloc>.value(
+                          value: discussionBloc,
                         ),
                         BlocProvider<ParticipantBloc>(
                           lazy: true,
                           create: (context) => ParticipantBloc(
                               repository: participantRepository,
-                              discussionBloc:
-                                  BlocProvider.of<DiscussionBloc>(context)),
+                              discussionBloc: discussionBloc),
                         ),
                       ],
                       child: BlocListener<AuthBloc, AuthState>(

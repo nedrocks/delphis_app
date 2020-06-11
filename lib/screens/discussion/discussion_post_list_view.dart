@@ -83,7 +83,7 @@ class DiscussionPostListView extends StatelessWidget {
           key: Key('discussion-posts-' + this.discussion.id),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: this.discussion.posts.length,
+          itemCount: (this.discussion.posts ?? []).length,
           controller: this.scrollController,
           reverse: true,
           itemBuilder: (context, index) {

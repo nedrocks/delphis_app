@@ -70,12 +70,19 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
 
   @override
   Widget build(BuildContext context) {
-    if (!this.hasSentLoadingEvent) {
+    final currentDiscussionBlocState =
+        BlocProvider.of<DiscussionBloc>(context).state;
+    if (!this.hasSentLoadingEvent &&
+        (!(currentDiscussionBlocState is DiscussionLoadedState) ||
+            currentDiscussionBlocState.getDiscussion().id !=
+                this.widget.discussionID)) {
       this.setState(() {
         BlocProvider.of<DiscussionBloc>(context)
             .add(DiscussionQueryEvent(discussionID: this.widget.discussionID));
         this.hasSentLoadingEvent = true;
       });
+    } else {
+      this.hasSentLoadingEvent = true;
     }
     return BlocBuilder<DiscussionBloc, DiscussionState>(
       builder: (context, state) {

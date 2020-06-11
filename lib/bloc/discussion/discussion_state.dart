@@ -73,38 +73,17 @@ class DiscussionLoadedState extends DiscussionState {
   List<Object> get props => [this.discussion, this.lastUpdate, this.isLoading];
 }
 
-// enum PostAddStep {
-//   INITIATED,
-//   SUCCESS,
-//   ERROR,
-// }
+class AddingDiscussionState extends DiscussionState {
+  final String title;
+  final AnonymityType anonymityType;
 
-// class DiscussionAddPostState extends DiscussionLoadedState {
-//   final PostAddStep step;
-//   final String postContent;
+  AddingDiscussionState({@required this.title, @required this.anonymityType})
+      : super();
 
-//   DiscussionAddPostState(
-//       {@required discussion,
-//       @required this.step,
-//       @required this.postContent,
-//       @required lastUpdate,
-//       discussionPostStream})
-//       : super(
-//             discussion: discussion,
-//             lastUpdate: lastUpdate,
-//             discussionPostStream: discussionPostStream);
+  Discussion getDiscussion() {
+    return null;
+  }
 
-//   @override
-//   List<Object> get props => super.props + [this.postContent, this.step];
-
-//   @override
-//   DiscussionAddPostState update({Stream<Post> stream, Discussion discussion}) {
-//     return DiscussionAddPostState(
-//       discussion: discussion ?? this.discussion,
-//       step: this.step,
-//       postContent: this.postContent,
-//       lastUpdate: DateTime.now(),
-//       discussionPostStream: stream ?? this.discussionPostStream,
-//     );
-//   }
-// }
+  @override
+  List<Object> get props => [this.title, this.anonymityType];
+}

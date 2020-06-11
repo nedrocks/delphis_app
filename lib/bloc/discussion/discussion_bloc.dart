@@ -254,6 +254,19 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         discussion: currentState.discussion,
         localPosts: currentState.localPosts,
       );
+    } else if (event is NewDiscussionEvent) {
+      final originalState = currentState;
+      yield AddingDiscussionState(
+          anonymityType: event.anonymityType, title: event.title);
+      try {
+        final discussion = await this.repository.createDiscussion(
+            title: event.title, anonymityType: event.anonymityType);
+        yield DiscussionLoadedState(
+            discussion: discussion, lastUpdate: DateTime.now());
+      } catch (err) {
+        // TODO: We should probably say that we failed somewhere.
+        yield originalState;
+      }
     }
   }
 }

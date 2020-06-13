@@ -49,6 +49,8 @@ dependencies:
   pull_to_refresh: 1.5.8
   shared_preferences: 0.5.7+3
 
+  emoji_picker: 0.1.0
+
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito
   # (^4.0.0) so we can use the newer version of mockito

@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
@@ -153,9 +154,19 @@ class _HomePageScreenState extends State<HomePageScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: backgroundColor,
-      body: BlocProvider<DiscussionListBloc>.value(
-        value: this._discussionListBloc,
-        child: content,
+      // body: BlocProvider<DiscussionListBloc>.value(
+      //   value: this._discussionListBloc,
+      //   child: content,
+      // ),
+      body: DiscussionNamingScreen(
+        selectedEmoji: '🦆',
+        textController: TextEditingController(),
+        onSavePressed: () {
+          print('save');
+        },
+        onClosePressed: () {
+          print('close');
+        },
       ),
     );
   }

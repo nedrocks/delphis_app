@@ -214,4 +214,11 @@ class TextThemes {
     color: Color.fromRGBO(23, 23, 28, 1.0),
     letterSpacing: -0.22,
   );
+
+  static final emojiPickerText = TextStyle(
+    fontSize: 11.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(137, 137, 142, 1.0),
+    letterSpacing: -0.22,
+  );
 }

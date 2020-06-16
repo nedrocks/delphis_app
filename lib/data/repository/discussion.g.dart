@@ -15,8 +15,8 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     anonymityType:
         _$enumDecodeNullable(_$AnonymityTypeEnumMap, json['anonymityType']),
     posts: (json['posts'] as List)
-        ?.map(
-            (e) => e == null ? null : Post.fromJson(e as Map<String, dynamic>))
+        ?.map((e) =>
+            e == null ? null : Post.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     participants: (json['participants'] as List)
         ?.map((e) =>

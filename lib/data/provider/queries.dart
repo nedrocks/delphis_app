@@ -35,6 +35,24 @@ const PostInfoFragment = """
   }
 """;
 
+const PostsConnectionFragment = """
+  fragment PostsConnectionFragment on PostsConnection {
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        ...PostInfoFragment
+      }
+    }
+  }
+  $PostInfoFragment
+""";
+
+
 const UserProfileFragment = """
   fragment UserProfileFullFragment on UserProfile {
     id
@@ -157,6 +175,35 @@ class PostsForDiscussionQuery extends GQLQuery<List<Post>> {
     });
   }
 }
+
+class PostsConnectionForDiscussionQuery extends GQLQuery<PostsConnection> {
+  final String discussionID;
+  final String after;
+  final String _query = """
+    query Discussion(\$id: ID!, \$after: ID) {
+      discussion(id: \$id) {
+        postsConnection(after: \$after) {
+          ...PostsConnectionFragment
+        }
+      }
+    }
+    $PostsConnectionFragment
+  """;
+
+  const PostsConnectionForDiscussionQuery({
+    @required this.discussionID,
+    this.after,
+  }) : super();
+
+  String query() {
+    return this._query;
+  }
+
+  PostsConnection parseResult(dynamic data) {
+    return PostsConnection.fromJson(data['discussion']['postsConnection']);
+  }
+}
+
 
 class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
   final String discussionID;

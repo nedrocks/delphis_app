@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'discussion.dart';
+import 'page_info.dart';
 import 'participant.dart';
 
 part 'post.g.dart';
@@ -70,4 +71,40 @@ class LocalPost {
     @required this.post,
     @required this.key,
   }) : super();
+}
+
+@JsonSerializable()
+class PostsEdge extends Equatable {
+  final String cursor;
+  final Post node;
+
+  PostsEdge({this.cursor, this.node});
+
+  List<Object> get props => [
+        cursor,
+        node
+      ];
+
+  factory PostsEdge.fromJson(Map<String, dynamic> json) => _$PostsEdgeFromJson(json);
+
+}
+
+@JsonSerializable()
+class PostsConnection extends Equatable {
+  final List<PostsEdge> edges;
+  final PageInfo pageInfo;
+
+  PostsConnection({this.edges, this.pageInfo});
+
+  List<Object> get props => [
+        edges,
+        pageInfo
+      ];
+
+  factory PostsConnection.fromJson(Map<String, dynamic> json) => _$PostsConnectionFromJson(json);
+  
+  List<Post> asPostList() {
+    return edges.map((e) => e.node);
+  }
+
 }

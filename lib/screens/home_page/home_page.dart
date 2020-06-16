@@ -157,6 +157,16 @@ class _HomePageScreenState extends State<HomePageScreen> {
         value: this._discussionListBloc,
         child: content,
       ),
+      // body: DiscussionNamingScreen(
+      //   title: 'Ned\'s discussion',
+      //   selectedEmoji: '🦆',
+      //   onSavePressed: (selectedEmoji, title) {
+      //     print('save');
+      //   },
+      //   onClosePressed: () {
+      //     print('close');
+      //   },
+      // ),
     );
   }
 }

@@ -7,6 +7,7 @@ class SpacingValues {
   static const xxSmall = 2.0;
   static const extraSmall = 4.0;
   static const small = 6.0;
+  static const smallMedium = 10.0;
   static const medium = 12.0;
   static const mediumLarge = 16.0;
   static const large = 20.0;

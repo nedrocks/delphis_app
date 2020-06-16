@@ -1,21 +1,23 @@
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
-import 'package:emoji_picker/emoji_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class ChathamEmojiPicker extends StatelessWidget {
-  final String selectedEmoji;
-  final VoidCallback onPressed;
-
   final double width;
   final double height;
 
+  final FocusNode textFocusNode;
+  final TextEditingController textController;
+  final TextInputFormatter formatter;
+
   const ChathamEmojiPicker({
-    @required this.selectedEmoji,
-    @required this.onPressed,
     @required this.width,
     @required this.height,
+    @required this.textFocusNode,
+    @required this.textController,
+    @required this.formatter,
   }) : super();
 
   @override
@@ -29,14 +31,24 @@ class ChathamEmojiPicker extends StatelessWidget {
         border: Border.all(color: Color.fromRGBO(51, 51, 56, 1.0), width: 2.0),
       ),
       onPressed: () {
-        this.onPressed();
+        this.textController.text = '';
+        this.textFocusNode.requestFocus();
       },
       child: Container(
         width: double.infinity,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(this.selectedEmoji,
+            TextField(
+                enabled: true,
+                showCursor: false,
+                focusNode: this.textFocusNode,
+                controller: this.textController,
+                keyboardType: TextInputType.text,
+                inputFormatters: [this.formatter],
+                maxLines: 1,
+                decoration: InputDecoration(border: InputBorder.none),
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: this.height * 2 / 3 * 0.7)),
             Text(Intl.message('Pick an emoji or photo'),
                 style: TextThemes.emojiPickerText),

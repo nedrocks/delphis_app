@@ -80,7 +80,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
         final discussionPosts =
-            await repository.getDiscussionPostsConnection(currentState.discussion.id).then((value) => value.asPostList());
+            await repository.getDiscussionPosts(currentState.discussion.id);
         final updatedDiscussion =
             updatedState.discussion.copyWith(posts: discussionPosts);
         yield updatedState.update(

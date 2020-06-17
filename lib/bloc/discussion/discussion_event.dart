@@ -153,3 +153,15 @@ class NewDiscussionEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.nonce];
 }
+
+class LoadPreviousPostsPageEvent extends DiscussionEvent {
+  final String discussionID;
+  final DateTime now;
+
+  LoadPreviousPostsPageEvent({@required this.discussionID})
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.discussionID, this.now];
+}

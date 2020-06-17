@@ -75,3 +75,35 @@ const _$PostDeletedReasonEnumMap = {
   PostDeletedReason.MODERATOR_REMOVED: 'MODERATOR_REMOVED',
   PostDeletedReason.PARTICIPANT_REMOVED: 'PARTICIPANT_REMOVED',
 };
+
+PostsEdge _$PostsEdgeFromJson(Map<String, dynamic> json) {
+  return PostsEdge(
+    cursor: json['cursor'] as String,
+    node: json['node'] == null
+        ? null
+        : Post.fromJson(json['node'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$PostsEdgeToJson(PostsEdge instance) => <String, dynamic>{
+      'cursor': instance.cursor,
+      'node': instance.node,
+    };
+
+PostsConnection _$PostsConnectionFromJson(Map<String, dynamic> json) {
+  return PostsConnection(
+    edges: (json['edges'] as List)
+        ?.map((e) =>
+            e == null ? null : PostsEdge.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    pageInfo: json['pageInfo'] == null
+        ? null
+        : PageInfo.fromJson(json['pageInfo'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$PostsConnectionToJson(PostsConnection instance) =>
+    <String, dynamic>{
+      'edges': instance.edges,
+      'pageInfo': instance.pageInfo,
+    };

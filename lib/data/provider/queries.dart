@@ -35,6 +35,24 @@ const PostInfoFragment = """
   }
 """;
 
+const PostsConnectionFragment = """
+  fragment PostsConnectionFragment on PostsConnection {
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        ...PostInfoFragment
+      }
+    }
+  }
+  $PostInfoFragment
+""";
+
+
 const UserProfileFragment = """
   fragment UserProfileFullFragment on UserProfile {
     id
@@ -85,12 +103,12 @@ const DiscussionListFragment = """
 const DiscussionFragmentFull = """
   fragment DiscussionFragmentFull on Discussion {
     ...DiscussionListFragment
-    posts {
-      ...PostInfoFragment
+    postsConnection {
+      ...PostsConnectionFragment
     }
   }
   $DiscussionListFragment
-  $PostInfoFragment
+  $PostsConnectionFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -131,32 +149,34 @@ class MeGQLQuery extends GQLQuery<User> {
   }
 }
 
-class PostsForDiscussionQuery extends GQLQuery<List<Post>> {
+class PostsConnectionForDiscussionQuery extends GQLQuery<PostsConnection> {
   final String discussionID;
+  final String after;
   final String _query = """
-    query Discussion(\$id: ID!) {
-      posts {
-        ...PostInfoFragment
+    query Discussion(\$id: ID!, \$after: ID) {
+      discussion(id: \$id) {
+        postsConnection(after: \$after) {
+          ...PostsConnectionFragment
+        }
       }
     }
-    $PostInfoFragment
+    $PostsConnectionFragment
   """;
 
-  const PostsForDiscussionQuery({
+  const PostsConnectionForDiscussionQuery({
     @required this.discussionID,
+    this.after,
   }) : super();
 
   String query() {
     return this._query;
   }
 
-  List<Post> parseResult(dynamic data) {
-    var posts = data['discussion']['posts'] as List<dynamic>;
-    return posts.map<Post>((dynamic serPost) {
-      return Post.fromJson(serPost);
-    });
+  PostsConnection parseResult(dynamic data) {
+    return PostsConnection.fromJson(data['discussion']['postsConnection']);
   }
 }
+
 
 class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
   final String discussionID;
@@ -205,9 +225,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 
   Discussion parseResult(dynamic data) {
-    var discussion = Discussion.fromJson(data["discussion"]);
-    return discussion.copyWith(
-        posts: (discussion.posts ?? []).reversed.toList());
+    return Discussion.fromJson(data["discussion"]);
   }
 }
 

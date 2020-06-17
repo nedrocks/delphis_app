@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,7 @@ class DiscussionPostListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -48,7 +50,7 @@ class DiscussionPostListView extends StatelessWidget {
             } else if (status == RefreshStatus.failed) {
               body = Text(Intl.message("Refresh failed..."));
             } else if (status == RefreshStatus.canRefresh) {
-              body = Text("Release to refresh");
+              body = Text(Intl.message("Release to refresh"));
             } else {
               body = Container(width: 0, height: 0);
             }
@@ -65,9 +67,40 @@ class DiscussionPostListView extends StatelessWidget {
             );
           },
         ),
+        footer: CustomFooter(
+          builder: (context, status) {
+            bool noMore = false;
+            var currState = discussionBloc.state;
+            if(currState is DiscussionLoadedState) {
+              if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+                noMore = true;
+              }
+            }
+            Widget body;
+            if (status == LoadStatus.idle && noMore) {
+              body = DiscussionIcon(height: 44, width: 44);
+            } else if (status == LoadStatus.idle) {
+              body = CupertinoActivityIndicator();
+            } else if (status == LoadStatus.loading) {
+              body = CupertinoActivityIndicator();
+            } else if (status == LoadStatus.failed) {
+              body = Text(Intl.message("Loading failed..."));
+            } else if (status == LoadStatus.canLoading) {
+              body = CupertinoActivityIndicator();
+            } else {
+              body = Container(width: 0, height: 0);
+            }
+
+            return Container(
+                height: 55.0,
+                child: Center(
+                  child: body,
+                ),
+            );
+          },
+        ),
         controller: this.refreshController,
         onRefresh: () async {
-          final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
           discussionBloc
               .add(RefreshPostsEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
@@ -79,16 +112,37 @@ class DiscussionPostListView extends StatelessWidget {
           }
           this.refreshController.refreshCompleted();
         },
+        onLoading: () async {
+          var currState = discussionBloc.state;
+          if(currState is DiscussionLoadedState) {
+            if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+              // Simulate a little loading
+              await Future.delayed(Duration(milliseconds: 300));
+              this.refreshController.loadComplete();
+              return;
+            }
+          }
+          discussionBloc
+              .add(LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
+          for (var i = 0; i < 3; i++) {
+            await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
+            currState = discussionBloc.state;
+            if (currState is DiscussionLoadedState && !currState.isLoading) {
+              break;
+            }
+          }
+          this.refreshController.loadComplete();
+        },
         child: ListView.builder(
           key: Key('discussion-posts-' + this.discussion.id),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: (this.discussion.posts ?? []).length,
+          itemCount: (this.discussion.postsCache ?? []).length,
           controller: this.scrollController,
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
-              post: this.discussion.posts[index],
+              post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
             );

@@ -55,26 +55,28 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<List<Post>> getDiscussionPosts(String discussionID,
-      {int attempt = 1}) async {
+  Future<PostsConnection> getDiscussionPostsConnection(String discussionID, 
+      {PostsConnection postsConnection, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionPosts(discussionID, attempt: attempt + 1);
+        return getDiscussionPostsConnection(discussionID, postsConnection: postsConnection, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = PostsForDiscussionQuery(discussionID: discussionID);
+    var after = postsConnection == null ? null : postsConnection.pageInfo.endCursor;
+    final query = PostsConnectionForDiscussionQuery(discussionID: discussionID, after: after);
 
     final QueryResult result = await client.query(
       QueryOptions(
         documentNode: gql(query.query()),
         variables: {
           'id': discussionID,
+          'after': after
         },
         fetchPolicy: FetchPolicy.noCache,
       ),
@@ -247,7 +249,7 @@ class Discussion extends Equatable {
   final String id;
   final Moderator moderator;
   final AnonymityType anonymityType;
-  final List<Post> posts;
+  final PostsConnection postsConnection;
   final List<Participant> participants;
   final String title;
   final String createdAt;
@@ -255,13 +257,14 @@ class Discussion extends Equatable {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
+  List<Post> postsCache;
 
   @override
   List<Object> get props => [
         id,
         moderator,
         anonymityType,
-        posts,
+        postsConnection,
         participants,
         title,
         createdAt,
@@ -275,7 +278,7 @@ class Discussion extends Equatable {
     this.id,
     this.moderator,
     this.anonymityType,
-    posts,
+    this.postsConnection,
     this.participants,
     this.title,
     this.createdAt,
@@ -283,18 +286,19 @@ class Discussion extends Equatable {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-  })  : this.posts = posts ?? List<Post>(),
-        super();
+    postsCache
+  }) : this.postsCache = postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
 
   Discussion copyWith({
-    List<Post> posts,
+    PostsConnection postsConnection,
     Participant meParticipant,
     List<Participant> participants,
     List<Participant> meAvailableParticipants,
     Moderator moderator,
+    List<Post> postsCache
   }) =>
       Discussion(
         id: this.id,
@@ -304,23 +308,24 @@ class Discussion extends Equatable {
         title: this.title,
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
-        posts: posts ?? this.posts,
+        postsConnection: postsConnection ?? this.postsConnection,
         meParticipant: meParticipant ?? this.meParticipant,
         meAvailableParticipants:
             meAvailableParticipants ?? this.meAvailableParticipants,
         iconURL: this.iconURL,
+        postsCache : postsCache ?? this.postsCache
       );
 
   void addLocalPost(LocalPost post) {
-    this.posts.insert(0, post.post);
+    this.postsCache.insert(0, post.post);
   }
 
   bool replaceLocalPost(Post withPost, GlobalKey localPostKey) {
     final keyAsString = localPostKey.toString();
-    for (int i = 0; i < this.posts.length; i++) {
-      final post = this.posts[i];
+    for (int i = 0; i < this.postsCache.length; i++) {
+      final post = this.postsCache[i];
       if ((post.isLocalPost ?? false) && post.id == keyAsString) {
-        this.posts[i] = withPost;
+        this.postsCache[i] = withPost;
         return true;
       }
     }
@@ -328,10 +333,10 @@ class Discussion extends Equatable {
   }
 
   Participant getParticipantForPostIdx(int idx) {
-    if (idx < 0 || idx >= this.posts.length) {
+    if (idx < 0 || idx >= this.postsCache.length) {
       return null;
     }
-    final post = this.posts[idx];
+    final post = this.postsCache[idx];
     var participant = this.participants.firstWhere(
         (participant) =>
             participant.participantID == post.participant.participantID,

@@ -144,7 +144,7 @@ void main() {
                 as Container;
         expect(postContentContainer.child.runtimeType, Text);
         expect((postContentContainer.child as Text).data,
-            discussionAsAnon.posts[0].content);
+            discussionAsAnon.postsCache[0].content);
       });
     });
   });

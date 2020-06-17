@@ -154,11 +154,11 @@ class NewDiscussionEvent extends DiscussionEvent {
   List<Object> get props => [this.nonce];
 }
 
-class LoadNextPostsPageEvent extends DiscussionEvent {
+class LoadPreviousPostsPageEvent extends DiscussionEvent {
   final String discussionID;
   final DateTime now;
 
-  LoadNextPostsPageEvent({@required this.discussionID})
+  LoadPreviousPostsPageEvent({@required this.discussionID})
       : this.now = DateTime.now(),
         super();
 

@@ -87,7 +87,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         // Not sure what to do here... it failed but need to capture it somehow.
         yield currentState;
       }
-    } else if (event is LoadNextPostsPageEvent &&
+    } else if (event is LoadPreviousPostsPageEvent &&
         currentState is DiscussionLoadedState &&
         currentState.discussion.id == event.discussionID
         && !currentState.isLoading) {
@@ -97,7 +97,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final newPostsConnection = await repository.getDiscussionPostsConnection(currentState.discussion.id,
             postsConnection: currentState.discussion.postsConnection);
         final updatedDiscussion = currentState.discussion.copyWith(postsConnection: newPostsConnection,
-          posts : currentState.discussion.posts + newPostsConnection.asPostList());
+          postsCache: currentState.discussion.postsCache + newPostsConnection.asPostList());
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -107,7 +107,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     } else if (event is DiscussionPostsUpdatedEvent) {
       if (currentState.getDiscussion() != null) {
         final updatedDiscussion =
-            currentState.getDiscussion().copyWith(posts: event.posts);
+            currentState.getDiscussion().copyWith(postsCache: event.posts);
         var newState = DiscussionLoadedState(
             discussion: updatedDiscussion, lastUpdate: DateTime.now());
         yield newState;
@@ -208,11 +208,11 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         if (!isParticipantFound) {
           participants.add(event.post.participant);
         }
-        for (int i = 0; i < discussion.posts.length; i++) {
-          if (discussion.posts[i].id == event.post.id) {
+        for (int i = 0; i < discussion.postsCache.length; i++) {
+          if (discussion.postsCache[i].id == event.post.id) {
             found = true;
             break;
-          } else if (discussion.posts[i]
+          } else if (discussion.postsCache[i]
               .createdAtAsDateTime()
               .isBefore(event.post.createdAtAsDateTime())) {
             found = false;
@@ -221,7 +221,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         }
         if (!found || !isParticipantFound) {
           // This post is new.
-          var updatedPosts = discussion.posts;
+          var updatedPosts = discussion.postsCache;
           var participants = discussion.participants;
           if (!found) {
             updatedPosts.insert(0, event.post);
@@ -230,7 +230,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             participants.add(event.post.participant);
           }
           var updatedDiscussion = currentState.getDiscussion().copyWith(
-                posts: updatedPosts,
+                postsCache: updatedPosts,
                 participants: participants,
               );
           yield currentState.update(discussion: updatedDiscussion);

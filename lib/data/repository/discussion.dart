@@ -257,7 +257,7 @@ class Discussion extends Equatable {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
-  List<Post> posts;
+  List<Post> postsCache;
 
   @override
   List<Object> get props => [
@@ -286,8 +286,8 @@ class Discussion extends Equatable {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-    posts
-  }) : this.posts = posts ?? (postsConnection?.asPostList() ?? List());
+    postsCache
+  }) : this.postsCache = postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
@@ -298,7 +298,7 @@ class Discussion extends Equatable {
     List<Participant> participants,
     List<Participant> meAvailableParticipants,
     Moderator moderator,
-    List<Post> posts
+    List<Post> postsCache
   }) =>
       Discussion(
         id: this.id,
@@ -313,19 +313,19 @@ class Discussion extends Equatable {
         meAvailableParticipants:
             meAvailableParticipants ?? this.meAvailableParticipants,
         iconURL: this.iconURL,
-        posts : posts ?? this.posts
+        postsCache : postsCache ?? this.postsCache
       );
 
   void addLocalPost(LocalPost post) {
-    this.posts.insert(0, post.post);
+    this.postsCache.insert(0, post.post);
   }
 
   bool replaceLocalPost(Post withPost, GlobalKey localPostKey) {
     final keyAsString = localPostKey.toString();
-    for (int i = 0; i < this.posts.length; i++) {
-      final post = this.posts[i];
+    for (int i = 0; i < this.postsCache.length; i++) {
+      final post = this.postsCache[i];
       if ((post.isLocalPost ?? false) && post.id == keyAsString) {
-        this.posts[i] = withPost;
+        this.postsCache[i] = withPost;
         return true;
       }
     }
@@ -333,10 +333,10 @@ class Discussion extends Equatable {
   }
 
   Participant getParticipantForPostIdx(int idx) {
-    if (idx < 0 || idx >= this.posts.length) {
+    if (idx < 0 || idx >= this.postsCache.length) {
       return null;
     }
-    final post = this.posts[idx];
+    final post = this.postsCache[idx];
     var participant = this.participants.firstWhere(
         (participant) =>
             participant.participantID == post.participant.participantID,

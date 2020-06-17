@@ -10,9 +10,9 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setSystemUIOverlayStyle(
     SystemUiOverlayStyle(
-      systemNavigationBarColor: Colors.white, // navigation bar color
-      statusBarColor: Colors.white, // status bar color
-      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.black, // navigation bar color
+      statusBarColor: Colors.black, // status bar color
+      statusBarBrightness: Brightness.dark,
     ),
   );
   Constants.setEnvironment(Environment.STAGING);

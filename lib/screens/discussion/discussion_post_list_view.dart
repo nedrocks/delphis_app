@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -49,7 +50,7 @@ class DiscussionPostListView extends StatelessWidget {
             } else if (status == RefreshStatus.failed) {
               body = Text(Intl.message("Refresh failed..."));
             } else if (status == RefreshStatus.canRefresh) {
-              body = Text("Release to refresh");
+              body = Text(Intl.message("Release to refresh"));
             } else {
               body = Container(width: 0, height: 0);
             }
@@ -77,20 +78,19 @@ class DiscussionPostListView extends StatelessWidget {
             }
             Widget body;
             if (status == LoadStatus.idle && noMore) {
-              body = Text("No more messages");
+              body = DiscussionIcon(height: 44, width: 44);
             } else if (status == LoadStatus.idle) {
-              body = Text(Intl.message("Pull to load more"));
+              body = CupertinoActivityIndicator();
             } else if (status == LoadStatus.loading) {
               body = CupertinoActivityIndicator();
             } else if (status == LoadStatus.failed) {
               body = Text(Intl.message("Loading failed..."));
             } else if (status == LoadStatus.canLoading) {
-              body = Text("Release to load");
+              body = CupertinoActivityIndicator();
             } else {
               body = Container(width: 0, height: 0);
             }
-            // Rotate is used here because the widget is displayed upside
-            // down.
+
             return Container(
                 height: 55.0,
                 child: Center(
@@ -123,7 +123,7 @@ class DiscussionPostListView extends StatelessWidget {
             }
           }
           discussionBloc
-              .add(LoadNextPostsPageEvent(discussionID: this.discussion.id));
+              .add(LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
             await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
             currState = discussionBloc.state;
@@ -137,12 +137,12 @@ class DiscussionPostListView extends StatelessWidget {
           key: Key('discussion-posts-' + this.discussion.id),
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
-          itemCount: (this.discussion.posts ?? []).length,
+          itemCount: (this.discussion.postsCache ?? []).length,
           controller: this.scrollController,
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
-              post: this.discussion.posts[index],
+              post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
             );

@@ -30,6 +30,7 @@ class DiscussionPostListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -65,9 +66,41 @@ class DiscussionPostListView extends StatelessWidget {
             );
           },
         ),
+        footer: CustomFooter(
+          builder: (context, status) {
+            bool noMore = false;
+            var currState = discussionBloc.state;
+            if(currState is DiscussionLoadedState) {
+              if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+                noMore = true;
+              }
+            }
+            Widget body;
+            if (status == LoadStatus.idle && noMore) {
+              return Container(width: 0, height: 0);
+            } else if (status == LoadStatus.idle) {
+              body = Text(Intl.message("Pull to load more"));
+            } else if (status == LoadStatus.loading) {
+              body = CupertinoActivityIndicator();
+            } else if (status == LoadStatus.failed) {
+              body = Text(Intl.message("Loading failed..."));
+            } else if (status == LoadStatus.canLoading) {
+              body = Text("Release to load");
+            } else {
+              body = Container(width: 0, height: 0);
+            }
+            // Rotate is used here because the widget is displayed upside
+            // down.
+            return Container(
+                height: 55.0,
+                child: Center(
+                  child: body,
+                ),
+            );
+          },
+        ),
         controller: this.refreshController,
         onRefresh: () async {
-          final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
           discussionBloc
               .add(RefreshPostsEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
@@ -80,11 +113,9 @@ class DiscussionPostListView extends StatelessWidget {
           this.refreshController.refreshCompleted();
         },
         onLoading: () async {
-          final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
           var currState = discussionBloc.state;
           if(currState is DiscussionLoadedState) {
             if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
-              await Future.delayed(Duration(milliseconds: 500));
               this.refreshController.loadComplete();
               return;
             }
@@ -95,11 +126,10 @@ class DiscussionPostListView extends StatelessWidget {
             await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
             currState = discussionBloc.state;
             if (currState is DiscussionLoadedState && !currState.isLoading) {
-              this.refreshController.loadComplete();
-              return;
+              break;
             }
           }
-          this.refreshController.loadFailed();
+          this.refreshController.loadComplete();
         },
         child: ListView.builder(
           key: Key('discussion-posts-' + this.discussion.id),

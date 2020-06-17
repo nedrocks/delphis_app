@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smartlook/smartlook.dart';
+import 'package:uni_links/uni_links.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
@@ -46,7 +46,8 @@ class ChathamApp extends StatefulWidget {
 
 final navKey = GlobalKey<NavigatorState>();
 
-class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
+class ChathamAppState extends State<ChathamApp>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   static const methodChannel = const MethodChannel('chatham.ai/push_token');
 
   FlutterSecureStorage secureStorage;
@@ -68,8 +69,15 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
 
   Key _homePageKey;
 
+  StreamSubscription _deepLinkSubscription;
+  Uri _latestDeeplinkURI;
+  String _latestDeeplink = 'Unknown';
+
   @override
   void dispose() {
+    if (_deepLinkSubscription != null) {
+      _deepLinkSubscription.cancel();
+    }
     this.authBloc.close();
     this.meBloc.close();
     this.gqlClientBloc.close();
@@ -81,8 +89,8 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
 
-    Smartlook.setupAndStartRecording(
-        'b014d394b5b6be3ea88a8f3fab8aa04c1a670aca');
+    // Smartlook.setupAndStartRecording(
+    //     'b014d394b5b6be3ea88a8f3fab8aa04c1a670aca');
 
     this.appBloc = AppBloc();
     WidgetsBinding.instance.addObserver(this);
@@ -110,6 +118,61 @@ class ChathamAppState extends State<ChathamApp> with WidgetsBindingObserver {
 
     Segment.setContext({
       'env': this.widget.env.toString(),
+    });
+
+    this.initPlatformState();
+  }
+
+  void initPlatformState() async {
+    // Attach a listener to the links stream
+    _deepLinkSubscription = getLinksStream().listen((String link) {
+      if (!mounted) return;
+      setState(() {
+        _latestDeeplink = link ?? 'Unknown';
+        _latestDeeplinkURI = null;
+        try {
+          if (link != null) _latestDeeplinkURI = Uri.parse(link);
+        } on FormatException {}
+      });
+    }, onError: (err) {
+      if (!mounted) return;
+      setState(() {
+        _latestDeeplink = 'Failed to get latest link: $err.';
+        _latestDeeplinkURI = null;
+      });
+    });
+
+    // Attach a second listener to the stream
+    getLinksStream().listen((String link) {
+      print('got link: $link');
+    }, onError: (err) {
+      print('got err: $err');
+    });
+
+    // Get the latest link
+    String initialLink;
+    Uri initialUri;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      initialLink = await getInitialLink();
+      print('initial link: $initialLink');
+      if (initialLink != null) initialUri = Uri.parse(initialLink);
+    } on PlatformException {
+      initialLink = 'Failed to get initial link.';
+      initialUri = null;
+    } on FormatException {
+      initialLink = 'Failed to parse the initial link as Uri.';
+      initialUri = null;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _latestDeeplink = initialLink;
+      _latestDeeplinkURI = initialUri;
     });
   }
 

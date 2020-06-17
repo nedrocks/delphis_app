@@ -11,8 +11,6 @@ PODS:
     - Reachability
   - connectivity_macos (0.0.1):
     - Flutter
-  - emoji_picker (0.0.3):
-    - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (3.3.1):
     - Flutter
@@ -97,10 +95,10 @@ PODS:
     - Flutter
   - shared_preferences_web (0.0.1):
     - Flutter
-  - smartlook (0.0.5):
-    - Flutter
   - SocketRocketAblyFork (0.5.2-ably-7)
   - ULID (1.1.0)
+  - uni_links (0.0.1):
+    - Flutter
   - url_launcher (0.0.1):
     - Flutter
   - url_launcher_macos (0.0.1):
@@ -112,7 +110,6 @@ DEPENDENCIES:
   - Ably (~> 1.1.15)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - connectivity_macos (from `.symlinks/plugins/connectivity_macos/ios`)
-  - emoji_picker (from `.symlinks/plugins/emoji_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - flutter_segment (from `.symlinks/plugins/flutter_segment/ios`)
@@ -122,7 +119,7 @@ DEPENDENCIES:
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
   - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
-  - smartlook (from `.symlinks/plugins/smartlook/ios`)
+  - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
   - url_launcher_macos (from `.symlinks/plugins/url_launcher_macos/ios`)
   - url_launcher_web (from `.symlinks/plugins/url_launcher_web/ios`)
@@ -143,8 +140,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/connectivity/ios"
   connectivity_macos:
     :path: ".symlinks/plugins/connectivity_macos/ios"
-  emoji_picker:
-    :path: ".symlinks/plugins/emoji_picker/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
@@ -163,8 +158,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_macos/ios"
   shared_preferences_web:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
-  smartlook:
-    :path: ".symlinks/plugins/smartlook/ios"
+  uni_links:
+    :path: ".symlinks/plugins/uni_links/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
   url_launcher_macos:
@@ -177,7 +172,6 @@ SPEC CHECKSUMS:
   Analytics: 77fd5fb102a4a5eedafa2c2b0245ceb7b7c15e45
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   connectivity_macos: e2e9731b6b22dda39eb1b128f6969d574460e191
-  emoji_picker: 0e868059aa18f9473d234f3d0701fbd4d5fd310c
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   flutter_segment: 31dce829260fc896cd391d7cee4fc3609003f93c
@@ -191,9 +185,9 @@ SPEC CHECKSUMS:
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
   shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
-  smartlook: bda0b1561935a02ef0fea5448258d5ac75027859
   SocketRocketAblyFork: 33ff506ecb565498051b8f358d60ae44274c3981
   ULID: b4714891a02819364faecd574a53e391c4c6de9d
+  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   url_launcher_macos: fd7894421cd39320dce5f292fc99ea9270b2a313
   url_launcher_web: e5527357f037c87560776e36436bf2b0288b965c

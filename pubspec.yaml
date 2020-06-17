@@ -44,10 +44,11 @@ dependencies:
 
   flutter_segment: 2.0.2
   uuid: 2.0.4
-  smartlook: 0.0.9
 
   pull_to_refresh: 1.5.8
   shared_preferences: 0.5.7+3
+
+  uni_links: 0.4.0
 
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito

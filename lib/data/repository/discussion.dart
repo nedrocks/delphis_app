@@ -55,38 +55,6 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<List<Post>> getDiscussionPosts(String discussionID,
-      {int attempt = 1}) async {
-    final client = this.clientBloc.getClient();
-
-    if (client == null && attempt <= MAX_ATTEMPTS) {
-      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionPosts(discussionID, attempt: attempt + 1);
-      });
-    } else if (client == null) {
-      throw Exception(
-          "Failed to get discussion because backend connection is severed");
-    }
-
-    final query = PostsForDiscussionQuery(discussionID: discussionID);
-
-    final QueryResult result = await client.query(
-      QueryOptions(
-        documentNode: gql(query.query()),
-        variables: {
-          'id': discussionID,
-        },
-        fetchPolicy: FetchPolicy.noCache,
-      ),
-    );
-
-    if (result.hasException) {
-      throw result.exception;
-    }
-
-    return query.parseResult(result.data);
-  }
-
   Future<PostsConnection> getDiscussionPostsConnection(String discussionID, 
       {PostsConnection postsConnection, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
@@ -100,14 +68,15 @@ class DiscussionRepository {
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = PostsConnectionForDiscussionQuery(discussionID: discussionID, after: postsConnection?.pageInfo?.endCursor ?? null);
+    var after = postsConnection == null ? null : postsConnection.pageInfo.endCursor;
+    final query = PostsConnectionForDiscussionQuery(discussionID: discussionID, after: after);
 
     final QueryResult result = await client.query(
       QueryOptions(
         documentNode: gql(query.query()),
         variables: {
-          'id': query.discussionID,
-          'after': query.after
+          'id': discussionID,
+          'after': after
         },
         fetchPolicy: FetchPolicy.noCache,
       ),
@@ -280,7 +249,7 @@ class Discussion extends Equatable {
   final String id;
   final Moderator moderator;
   final AnonymityType anonymityType;
-  final List<Post> posts;
+  final PostsConnection postsConnection;
   final List<Participant> participants;
   final String title;
   final String createdAt;
@@ -288,13 +257,14 @@ class Discussion extends Equatable {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
+  List<Post> posts;
 
   @override
   List<Object> get props => [
         id,
         moderator,
         anonymityType,
-        posts,
+        postsConnection,
         participants,
         title,
         createdAt,
@@ -308,7 +278,7 @@ class Discussion extends Equatable {
     this.id,
     this.moderator,
     this.anonymityType,
-    posts,
+    this.postsConnection,
     this.participants,
     this.title,
     this.createdAt,
@@ -316,18 +286,19 @@ class Discussion extends Equatable {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-  })  : this.posts = posts ?? List<Post>(),
-        super();
+    posts
+  }) : this.posts = posts ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
 
   Discussion copyWith({
-    List<Post> posts,
+    PostsConnection postsConnection,
     Participant meParticipant,
     List<Participant> participants,
     List<Participant> meAvailableParticipants,
     Moderator moderator,
+    List<Post> posts
   }) =>
       Discussion(
         id: this.id,
@@ -337,11 +308,12 @@ class Discussion extends Equatable {
         title: this.title,
         createdAt: this.createdAt,
         updatedAt: this.updatedAt,
-        posts: posts ?? this.posts,
+        postsConnection: postsConnection ?? this.postsConnection,
         meParticipant: meParticipant ?? this.meParticipant,
         meAvailableParticipants:
             meAvailableParticipants ?? this.meAvailableParticipants,
         iconURL: this.iconURL,
+        posts : posts ?? this.posts
       );
 
   void addLocalPost(LocalPost post) {

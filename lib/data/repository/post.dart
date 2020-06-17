@@ -104,7 +104,7 @@ class PostsConnection extends Equatable {
   factory PostsConnection.fromJson(Map<String, dynamic> json) => _$PostsConnectionFromJson(json);
   
   List<Post> asPostList() {
-    return edges.map((e) => e.node);
+    return edges.map((e) => e.node).toList();
   }
 
 }

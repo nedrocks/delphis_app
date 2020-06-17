@@ -121,7 +121,7 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
               'participantID': event.participant.id,
               'numParticipants':
                   discussionBloc.state.getDiscussion().participants.length,
-              'numPosts': discussionBloc.state.getDiscussion().posts.length,
+              //'numPosts': discussionBloc.state.getDiscussion().posts.length,
             });
       } catch (err) {
         Segment.track(

@@ -14,10 +14,10 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         : Moderator.fromJson(json['moderator'] as Map<String, dynamic>),
     anonymityType:
         _$enumDecodeNullable(_$AnonymityTypeEnumMap, json['anonymityType']),
-    posts: (json['posts'] as List)
-        ?.map((e) =>
-            e == null ? null : Post.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    postsConnection: json['postsConnection'] == null
+        ? null
+        : PostsConnection.fromJson(
+            json['postsConnection'] as Map<String, dynamic>),
     participants: (json['participants'] as List)
         ?.map((e) =>
             e == null ? null : Participant.fromJson(e as Map<String, dynamic>))
@@ -41,7 +41,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'id': instance.id,
       'moderator': instance.moderator,
       'anonymityType': _$AnonymityTypeEnumMap[instance.anonymityType],
-      'posts': instance.posts,
+      'postsConnection': instance.postsConnection,
       'participants': instance.participants,
       'title': instance.title,
       'createdAt': instance.createdAt,

@@ -79,6 +79,28 @@ class DiscussionPostListView extends StatelessWidget {
           }
           this.refreshController.refreshCompleted();
         },
+        onLoading: () async {
+          final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
+          var currState = discussionBloc.state;
+          if(currState is DiscussionLoadedState) {
+            if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+              await Future.delayed(Duration(milliseconds: 500));
+              this.refreshController.loadComplete();
+              return;
+            }
+          }
+          discussionBloc
+              .add(LoadNextPostsPageEvent(discussionID: this.discussion.id));
+          for (var i = 0; i < 3; i++) {
+            await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
+            currState = discussionBloc.state;
+            if (currState is DiscussionLoadedState && !currState.isLoading) {
+              this.refreshController.loadComplete();
+              return;
+            }
+          }
+          this.refreshController.loadFailed();
+        },
         child: ListView.builder(
           key: Key('discussion-posts-' + this.discussion.id),
           scrollDirection: Axis.vertical,

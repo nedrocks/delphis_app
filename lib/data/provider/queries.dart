@@ -103,12 +103,12 @@ const DiscussionListFragment = """
 const DiscussionFragmentFull = """
   fragment DiscussionFragmentFull on Discussion {
     ...DiscussionListFragment
-    posts {
-      ...PostInfoFragment
+    postsConnection {
+      ...PostsConnectionFragment
     }
   }
   $DiscussionListFragment
-  $PostInfoFragment
+  $PostsConnectionFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -146,33 +146,6 @@ class MeGQLQuery extends GQLQuery<User> {
 
   User parseResult(dynamic data) {
     return User.fromJson(data["me"]);
-  }
-}
-
-class PostsForDiscussionQuery extends GQLQuery<List<Post>> {
-  final String discussionID;
-  final String _query = """
-    query Discussion(\$id: ID!) {
-      posts {
-        ...PostInfoFragment
-      }
-    }
-    $PostInfoFragment
-  """;
-
-  const PostsForDiscussionQuery({
-    @required this.discussionID,
-  }) : super();
-
-  String query() {
-    return this._query;
-  }
-
-  List<Post> parseResult(dynamic data) {
-    var posts = data['discussion']['posts'] as List<dynamic>;
-    return posts.map<Post>((dynamic serPost) {
-      return Post.fromJson(serPost);
-    });
   }
 }
 
@@ -252,9 +225,7 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 
   Discussion parseResult(dynamic data) {
-    var discussion = Discussion.fromJson(data["discussion"]);
-    return discussion.copyWith(
-        posts: (discussion.posts ?? []).reversed.toList());
+    return Discussion.fromJson(data["discussion"]);
   }
 }
 

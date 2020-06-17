@@ -33,6 +33,7 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
             e == null ? null : Participant.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     iconURL: json['iconURL'] as String,
+    postsCache: json['postsCache'],
   );
 }
 
@@ -49,6 +50,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meParticipant': instance.meParticipant,
       'meAvailableParticipants': instance.meAvailableParticipants,
       'iconURL': instance.iconURL,
+      'postsCache': instance.postsCache,
     };
 
 T _$enumDecode<T>(

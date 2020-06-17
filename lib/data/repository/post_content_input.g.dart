@@ -59,7 +59,7 @@ T _$enumDecodeNullable<T>(
 }
 
 const _$PostTypeEnumMap = {
-  PostType.TEXT: 'TEXT',
-  PostType.MEDIA: 'MEDIA',
-  PostType.POLL: 'POLL',
+  PostType.STANDARD: 'STANDARD',
+  PostType.IMPORTED_CONTENT: 'IMPORTED_CONTENT',
+  PostType.ALERT: 'ALERT',
 };

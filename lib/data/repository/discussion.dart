@@ -55,29 +55,29 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<PostsConnection> getDiscussionPostsConnection(String discussionID, 
+  Future<PostsConnection> getDiscussionPostsConnection(String discussionID,
       {PostsConnection postsConnection, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionPostsConnection(discussionID, postsConnection: postsConnection, attempt: attempt + 1);
+        return getDiscussionPostsConnection(discussionID,
+            postsConnection: postsConnection, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    var after = postsConnection == null ? null : postsConnection.pageInfo.endCursor;
-    final query = PostsConnectionForDiscussionQuery(discussionID: discussionID, after: after);
+    var after =
+        postsConnection == null ? null : postsConnection.pageInfo.endCursor;
+    final query = PostsConnectionForDiscussionQuery(
+        discussionID: discussionID, after: after);
 
     final QueryResult result = await client.query(
       QueryOptions(
         documentNode: gql(query.query()),
-        variables: {
-          'id': discussionID,
-          'after': after
-        },
+        variables: {'id': discussionID, 'after': after},
         fetchPolicy: FetchPolicy.noCache,
       ),
     );
@@ -190,7 +190,7 @@ class DiscussionRepository {
       participantID: participantID,
       postContent: PostContentInput(
         postText: postContent,
-        postType: PostType.TEXT,
+        postType: PostType.STANDARD,
       ),
     );
     final QueryResult result = await client.mutate(
@@ -274,47 +274,46 @@ class Discussion extends Equatable {
         iconURL,
       ];
 
-  Discussion({
-    this.id,
-    this.moderator,
-    this.anonymityType,
-    this.postsConnection,
-    this.participants,
-    this.title,
-    this.createdAt,
-    this.updatedAt,
-    this.meParticipant,
-    this.meAvailableParticipants,
-    this.iconURL,
-    postsCache
-  }) : this.postsCache = postsCache ?? (postsConnection?.asPostList() ?? List());
+  Discussion(
+      {this.id,
+      this.moderator,
+      this.anonymityType,
+      this.postsConnection,
+      this.participants,
+      this.title,
+      this.createdAt,
+      this.updatedAt,
+      this.meParticipant,
+      this.meAvailableParticipants,
+      this.iconURL,
+      postsCache})
+      : this.postsCache =
+            postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
 
-  Discussion copyWith({
-    PostsConnection postsConnection,
-    Participant meParticipant,
-    List<Participant> participants,
-    List<Participant> meAvailableParticipants,
-    Moderator moderator,
-    List<Post> postsCache
-  }) =>
+  Discussion copyWith(
+          {PostsConnection postsConnection,
+          Participant meParticipant,
+          List<Participant> participants,
+          List<Participant> meAvailableParticipants,
+          Moderator moderator,
+          List<Post> postsCache}) =>
       Discussion(
-        id: this.id,
-        moderator: moderator ?? this.moderator,
-        anonymityType: this.anonymityType,
-        participants: participants ?? this.participants,
-        title: this.title,
-        createdAt: this.createdAt,
-        updatedAt: this.updatedAt,
-        postsConnection: postsConnection ?? this.postsConnection,
-        meParticipant: meParticipant ?? this.meParticipant,
-        meAvailableParticipants:
-            meAvailableParticipants ?? this.meAvailableParticipants,
-        iconURL: this.iconURL,
-        postsCache : postsCache ?? this.postsCache
-      );
+          id: this.id,
+          moderator: moderator ?? this.moderator,
+          anonymityType: this.anonymityType,
+          participants: participants ?? this.participants,
+          title: this.title,
+          createdAt: this.createdAt,
+          updatedAt: this.updatedAt,
+          postsConnection: postsConnection ?? this.postsConnection,
+          meParticipant: meParticipant ?? this.meParticipant,
+          meAvailableParticipants:
+              meAvailableParticipants ?? this.meAvailableParticipants,
+          iconURL: this.iconURL,
+          postsCache: postsCache ?? this.postsCache);
 
   void addLocalPost(LocalPost post) {
     this.postsCache.insert(0, post.post);

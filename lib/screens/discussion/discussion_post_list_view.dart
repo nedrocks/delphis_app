@@ -77,7 +77,7 @@ class DiscussionPostListView extends StatelessWidget {
             }
             Widget body;
             if (status == LoadStatus.idle && noMore) {
-              return Container(width: 0, height: 0);
+              body = Text("No more messages");
             } else if (status == LoadStatus.idle) {
               body = Text(Intl.message("Pull to load more"));
             } else if (status == LoadStatus.loading) {
@@ -116,6 +116,8 @@ class DiscussionPostListView extends StatelessWidget {
           var currState = discussionBloc.state;
           if(currState is DiscussionLoadedState) {
             if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+              // Simulate a little loading
+              await Future.delayed(Duration(milliseconds: 300));
               this.refreshController.loadComplete();
               return;
             }

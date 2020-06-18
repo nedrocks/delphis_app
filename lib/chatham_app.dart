@@ -100,7 +100,7 @@ class ChathamAppState extends State<ChathamApp>
 
     this.secureStorage = FlutterSecureStorage();
     this.authBloc = AuthBloc(DelphisAuthRepository(this.secureStorage));
-    this.gqlClientBloc = GqlClientBloc(authBloc: this.authBloc);
+    this.gqlClientBloc = GqlClientBloc();
     this.notifBloc = NotificationBloc(navKey: navKey);
     this.authBloc.add(FetchAuthEvent());
     this.userRepository = UserRepository(clientBloc: this.gqlClientBloc);
@@ -203,9 +203,20 @@ class ChathamAppState extends State<ChathamApp>
         listeners: [
           BlocListener<AuthBloc, AuthState>(
               listener: (context, AuthState state) {
-            if (state is InitializedAuthState && state.isAuthed) {
+            if (state is InitializedAuthState) {
+              this.gqlClientBloc.add(GqlClientAuthChanged(
+                  isAuthed: state.isAuthed, authString: state.authString));
+            }
+          }),
+          BlocListener<GqlClientBloc, GqlClientState>(
+              listener: (context, state) {
+            final authState = this.authBloc.state;
+            if (authState is InitializedAuthState &&
+                authState.isAuthed &&
+                state is GqlClientConnectedState) {
               BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-            } else if (state is InitializedAuthState && !state.isAuthed) {
+            } else if (authState is InitializedAuthState &&
+                !authState.isAuthed) {
               this.sendDeviceToServer(userDeviceRepository, null);
             }
           }),
@@ -215,118 +226,110 @@ class ChathamAppState extends State<ChathamApp>
             }
           }),
         ],
-        child: BlocListener<AuthBloc, AuthState>(
-          listener: (context, AuthState state) {
-            if (state is InitializedAuthState && state.isAuthed) {
-              BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
+        child: MaterialApp(
+          navigatorKey: navKey,
+          title: "Chatham",
+          theme: kThemeData,
+          initialRoute: '/Intro',
+          onGenerateRoute: (settings) {
+            switch (settings.name) {
+              case '/Home':
+                return PageTransition(
+                  settings: settings,
+                  type: PageTransitionType.fade,
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider<NotificationBloc>.value(
+                        value: this.notifBloc,
+                      ),
+                      BlocProvider<DiscussionBloc>.value(
+                        value: discussionBloc,
+                      ),
+                      BlocProvider<ParticipantBloc>(
+                        lazy: true,
+                        create: (context) => ParticipantBloc(
+                            repository: participantRepository,
+                            discussionBloc: discussionBloc),
+                      ),
+                    ],
+                    child: BlocListener<AuthBloc, AuthState>(
+                      listener: (context, state) {
+                        if (state is LoggedOutAuthState) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/Auth',
+                            (Route<dynamic> route) => false,
+                          );
+                        }
+                      },
+                      child: HomePageScreen(
+                        key: this._homePageKey,
+                        discussionBloc: discussionBloc,
+                        discussionRepository: discussionRepository,
+                        routeObserver: this._routeObserver,
+                      ),
+                    ),
+                  ),
+                );
+                break;
+              case '/Discussion':
+                DiscussionArguments arguments =
+                    settings.arguments as DiscussionArguments;
+                return PageTransition(
+                  settings: settings,
+                  type: PageTransitionType.rightToLeft,
+                  child: MultiBlocProvider(
+                    providers: [
+                      BlocProvider<NotificationBloc>.value(
+                        value: this.notifBloc,
+                      ),
+                      BlocProvider<DiscussionBloc>.value(
+                        value: discussionBloc,
+                      ),
+                      BlocProvider<ParticipantBloc>(
+                        lazy: true,
+                        create: (context) => ParticipantBloc(
+                            repository: participantRepository,
+                            discussionBloc: discussionBloc),
+                      ),
+                    ],
+                    child: BlocListener<AuthBloc, AuthState>(
+                      listener: (context, state) {
+                        if (state is LoggedOutAuthState) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/Auth',
+                            (Route<dynamic> route) => false,
+                          );
+                        }
+                      },
+                      child: DelphisDiscussion(
+                        key: Key('discussion-screen-${arguments.discussionID}'),
+                        discussionID: arguments.discussionID,
+                        isStartJoinFlow: arguments.isStartJoinFlow,
+                      ),
+                    ),
+                  ),
+                );
+                break;
+              case '/Auth':
+                return PageTransition(
+                  settings: settings,
+                  type: PageTransitionType.fade,
+                  child: SignInScreen(),
+                );
+                break;
+              default:
+                return null;
             }
           },
-          child: MaterialApp(
-            navigatorKey: navKey,
-            title: "Chatham",
-            theme: kThemeData,
-            initialRoute: '/Intro',
-            onGenerateRoute: (settings) {
-              switch (settings.name) {
-                case '/Home':
-                  return PageTransition(
-                    settings: settings,
-                    type: PageTransitionType.fade,
-                    child: MultiBlocProvider(
-                      providers: [
-                        BlocProvider<NotificationBloc>.value(
-                          value: this.notifBloc,
-                        ),
-                        BlocProvider<DiscussionBloc>.value(
-                          value: discussionBloc,
-                        ),
-                        BlocProvider<ParticipantBloc>(
-                          lazy: true,
-                          create: (context) => ParticipantBloc(
-                              repository: participantRepository,
-                              discussionBloc: discussionBloc),
-                        ),
-                      ],
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/Auth',
-                              (Route<dynamic> route) => false,
-                            );
-                          }
-                        },
-                        child: HomePageScreen(
-                          key: this._homePageKey,
-                          discussionBloc: discussionBloc,
-                          discussionRepository: discussionRepository,
-                          routeObserver: this._routeObserver,
-                        ),
-                      ),
-                    ),
-                  );
-                  break;
-                case '/Discussion':
-                  DiscussionArguments arguments =
-                      settings.arguments as DiscussionArguments;
-                  return PageTransition(
-                    settings: settings,
-                    type: PageTransitionType.rightToLeft,
-                    child: MultiBlocProvider(
-                      providers: [
-                        BlocProvider<NotificationBloc>.value(
-                          value: this.notifBloc,
-                        ),
-                        BlocProvider<DiscussionBloc>.value(
-                          value: discussionBloc,
-                        ),
-                        BlocProvider<ParticipantBloc>(
-                          lazy: true,
-                          create: (context) => ParticipantBloc(
-                              repository: participantRepository,
-                              discussionBloc: discussionBloc),
-                        ),
-                      ],
-                      child: BlocListener<AuthBloc, AuthState>(
-                        listener: (context, state) {
-                          if (state is LoggedOutAuthState) {
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              '/Auth',
-                              (Route<dynamic> route) => false,
-                            );
-                          }
-                        },
-                        child: DelphisDiscussion(
-                          key: Key(
-                              'discussion-screen-${arguments.discussionID}'),
-                          discussionID: arguments.discussionID,
-                          isStartJoinFlow: arguments.isStartJoinFlow,
-                        ),
-                      ),
-                    ),
-                  );
-                  break;
-                case '/Auth':
-                  return PageTransition(
-                    settings: settings,
-                    type: PageTransitionType.fade,
-                    child: SignInScreen(),
-                  );
-                  break;
-                default:
-                  return null;
-              }
-            },
-            routes: {
-              '/Intro': (context) => IntroScreen(),
-            },
-            navigatorObservers: [
-              SegmentObserver(),
-              this._routeObserver,
-            ],
-          ),
+          routes: {
+            '/Intro': (context) => IntroScreen(),
+          },
+          navigatorObservers: [
+            SegmentObserver(),
+            this._routeObserver,
+          ],
         ),
       ),
     );

@@ -24,7 +24,6 @@ class UserRepository {
 
   Future<User> getMe({int attempt = 1}) async {
     final client = this.clientBloc.getClient();
-
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
         return getMe(attempt: attempt + 1);

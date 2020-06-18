@@ -321,7 +321,6 @@ class ChathamAppState extends State<ChathamApp>
             },
             routes: {
               '/Intro': (context) => IntroScreen(),
-              '/Auth/Twitter': (context) => LoginScreen(),
             },
             navigatorObservers: [
               SegmentObserver(),

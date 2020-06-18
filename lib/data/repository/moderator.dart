@@ -13,9 +13,7 @@ class Moderator extends Equatable {
   final UserProfile userProfile;
 
   @override
-  List<Object> get props => [
-    id, discussion, userProfile
-  ];
+  List<Object> get props => [id, discussion, userProfile];
 
   const Moderator({
     this.id,
@@ -23,5 +21,6 @@ class Moderator extends Equatable {
     this.userProfile,
   });
 
-  factory Moderator.fromJson(Map<String, dynamic> json) => _$ModeratorFromJson(json);
+  factory Moderator.fromJson(Map<String, dynamic> json) =>
+      _$ModeratorFromJson(json);
 }

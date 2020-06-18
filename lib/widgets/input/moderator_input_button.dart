@@ -12,7 +12,7 @@ class ModeratorInputButton extends StatelessWidget {
     @required this.onPressed,
     @required this.height,
     @required this.width,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -32,20 +32,18 @@ class ModeratorInputButton extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Container(
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              color: Color.fromRGBO(31, 31, 31, 1.0)
-            )
-          ),
+              decoration: BoxDecoration(
+                  borderRadius: borderRadius,
+                  color: Color.fromRGBO(31, 31, 31, 1.0))),
           Container(
-            width: this.width / 3.0,
-            height: this.height / 3.0,
-            decoration: BoxDecoration(
-              // 1/2 of the star
-              borderRadius: BorderRadius.all(Radius.circular(this.width / 4.0)),
-              color: Colors.white,
-            )
-          ),
+              width: this.width / 3.0,
+              height: this.height / 3.0,
+              decoration: BoxDecoration(
+                // 1/2 of the star
+                borderRadius:
+                    BorderRadius.all(Radius.circular(this.width / 4.0)),
+                color: Colors.white,
+              )),
           // Next: Put a white background in the center for the lightning bolt.
           ImageWidget(
             boxShape: BoxShape.rectangle,

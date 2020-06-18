@@ -10,31 +10,16 @@ class PageInfo extends Equatable {
   final bool hasNextPage;
 
   @override
-  List<Object> get props => [
-        startCursor,
-        endCursor,  
-        hasNextPage
-      ];
+  List<Object> get props => [startCursor, endCursor, hasNextPage];
 
-  PageInfo({
-    this.startCursor, 
-    this.endCursor,
-    this.hasNextPage
-  });
-  
-  factory PageInfo.fromJson(Map<String, dynamic> json) => 
-    _$PageInfoFromJson(json);
+  PageInfo({this.startCursor, this.endCursor, this.hasNextPage});
 
-  PageInfo copyWith({
-    startCursor,
-    endCursor,
-    hasNextPage
-  }) =>
-      PageInfo(
+  factory PageInfo.fromJson(Map<String, dynamic> json) =>
+      _$PageInfoFromJson(json);
+
+  PageInfo copyWith({startCursor, endCursor, hasNextPage}) => PageInfo(
         startCursor: startCursor ?? this.startCursor,
         endCursor: endCursor ?? this.endCursor,
         hasNextPage: hasNextPage ?? this.hasNextPage,
-        
       );
-
 }

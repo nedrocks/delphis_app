@@ -71,8 +71,12 @@ class DiscussionPostListView extends StatelessWidget {
           builder: (context, status) {
             bool noMore = false;
             var currState = discussionBloc.state;
-            if(currState is DiscussionLoadedState) {
-              if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+            if (currState is DiscussionLoadedState) {
+              if (!currState
+                  .getDiscussion()
+                  .postsConnection
+                  .pageInfo
+                  .hasNextPage) {
                 noMore = true;
               }
             }
@@ -92,10 +96,10 @@ class DiscussionPostListView extends StatelessWidget {
             }
 
             return Container(
-                height: 55.0,
-                child: Center(
-                  child: body,
-                ),
+              height: 55.0,
+              child: Center(
+                child: body,
+              ),
             );
           },
         ),
@@ -114,16 +118,20 @@ class DiscussionPostListView extends StatelessWidget {
         },
         onLoading: () async {
           var currState = discussionBloc.state;
-          if(currState is DiscussionLoadedState) {
-            if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+          if (currState is DiscussionLoadedState) {
+            if (!currState
+                .getDiscussion()
+                .postsConnection
+                .pageInfo
+                .hasNextPage) {
               // Simulate a little loading
               await Future.delayed(Duration(milliseconds: 300));
               this.refreshController.loadComplete();
               return;
             }
           }
-          discussionBloc
-              .add(LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
+          discussionBloc.add(
+              LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
             await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
             currState = discussionBloc.state;

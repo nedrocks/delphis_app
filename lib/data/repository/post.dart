@@ -80,13 +80,10 @@ class PostsEdge extends Equatable {
 
   PostsEdge({this.cursor, this.node});
 
-  List<Object> get props => [
-        cursor,
-        node
-      ];
+  List<Object> get props => [cursor, node];
 
-  factory PostsEdge.fromJson(Map<String, dynamic> json) => _$PostsEdgeFromJson(json);
-
+  factory PostsEdge.fromJson(Map<String, dynamic> json) =>
+      _$PostsEdgeFromJson(json);
 }
 
 @JsonSerializable()
@@ -96,15 +93,12 @@ class PostsConnection extends Equatable {
 
   PostsConnection({this.edges, this.pageInfo});
 
-  List<Object> get props => [
-        edges,
-        pageInfo
-      ];
+  List<Object> get props => [edges, pageInfo];
 
-  factory PostsConnection.fromJson(Map<String, dynamic> json) => _$PostsConnectionFromJson(json);
-  
+  factory PostsConnection.fromJson(Map<String, dynamic> json) =>
+      _$PostsConnectionFromJson(json);
+
   List<Post> asPostList() {
     return edges.map((e) => e.node).toList();
   }
-
 }

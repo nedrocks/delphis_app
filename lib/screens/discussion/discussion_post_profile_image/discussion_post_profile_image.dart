@@ -9,7 +9,7 @@ class DiscussionPostProfileImage extends StatelessWidget {
   const DiscussionPostProfileImage({
     @required this.post,
     @required this.diameter,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {

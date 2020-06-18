@@ -13,9 +13,7 @@ class Viewer extends Equatable {
   final DateTime lastViewed;
   final Post lastViewedPost;
 
-  List<Object> get props => [
-    id, discussion, lastViewed, lastViewedPost
-  ];
+  List<Object> get props => [id, discussion, lastViewed, lastViewedPost];
 
   const Viewer({
     this.id,

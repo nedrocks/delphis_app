@@ -21,7 +21,7 @@ class ImageWidget extends StatelessWidget {
     this.color = Colors.black,
     this.fit = BoxFit.contain,
     @required this.localImagePath,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,8 @@ class ImageWidget extends StatelessWidget {
       decoration = decoration.copyWith(border: this.border);
     }
     if (this.boxShape == BoxShape.rectangle) {
-      decoration = decoration.copyWith(borderRadius: BorderRadius.all(Radius.circular(this.borderRadius)));
+      decoration = decoration.copyWith(
+          borderRadius: BorderRadius.all(Radius.circular(this.borderRadius)));
     }
 
     return Container(

@@ -14,9 +14,8 @@ class UserProfile extends Equatable {
   final URL twitterURL;
   final String profileImageURL;
 
-  List<Object> get props => [
-    id, displayName, moderatedDiscussions, twitterURL, profileImageURL
-  ];
+  List<Object> get props =>
+      [id, displayName, moderatedDiscussions, twitterURL, profileImageURL];
 
   const UserProfile({
     this.id,
@@ -26,5 +25,6 @@ class UserProfile extends Equatable {
     this.profileImageURL,
   });
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);
+  factory UserProfile.fromJson(Map<String, dynamic> json) =>
+      _$UserProfileFromJson(json);
 }

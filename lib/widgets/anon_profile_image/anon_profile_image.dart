@@ -15,7 +15,7 @@ class AnonProfileImage extends StatelessWidget {
     this.border,
     this.borderShape = BoxShape.circle,
     this.borderRadius = 25.0,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,8 @@ class AnonProfileImage extends StatelessWidget {
       boxShape: this.borderShape,
       borderRadius: this.borderRadius,
       border: this.border,
-      localImagePath: 'assets/images/anon_face_transparent/anon_face_transparent.png',
+      localImagePath:
+          'assets/images/anon_face_transparent/anon_face_transparent.png',
     );
   }
 }

@@ -15,7 +15,7 @@ class AnonProfileImageWithNonAnon extends StatelessWidget {
     this.width,
     this.checkmark,
     this.profileImageURL,
-  }): super();
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +30,14 @@ class AnonProfileImageWithNonAnon extends StatelessWidget {
             width: this.width,
             height: this.height,
             child: AnonProfileImage(
-              height: this.height * SCALE_FACTOR, 
+              height: this.height * SCALE_FACTOR,
               width: this.width * SCALE_FACTOR,
               border: Border.all(color: Colors.blueGrey),
             ),
           ),
           VerifiedProfileImage(
-            height: this.height * SCALE_FACTOR / 2.0, 
-            width: this.width * SCALE_FACTOR / 2.0, 
+            height: this.height * SCALE_FACTOR / 2.0,
+            width: this.width * SCALE_FACTOR / 2.0,
             profileImageURL: this.profileImageURL,
             border: Border.all(color: Colors.blueAccent),
             checkmarkAlignment: Alignment.bottomLeft,

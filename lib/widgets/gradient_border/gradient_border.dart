@@ -23,8 +23,7 @@ class GradientBorder extends StatelessWidget {
     );
     if (this.boxShape == BoxShape.rectangle) {
       decoration = decoration.copyWith(
-        borderRadius: BorderRadius.all(Radius.circular(this.borderRadius))
-      );
+          borderRadius: BorderRadius.all(Radius.circular(this.borderRadius)));
     }
     return Container(
       padding: EdgeInsets.all(this.borderWidth),

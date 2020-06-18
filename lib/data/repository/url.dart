@@ -8,9 +8,7 @@ class URL extends Equatable {
   final String displayText;
   final String url;
 
-  List<Object> get props => [
-    displayText, url
-  ];
+  List<Object> get props => [displayText, url];
 
   const URL({
     this.displayText,

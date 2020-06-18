@@ -52,7 +52,6 @@ const PostsConnectionFragment = """
   $PostInfoFragment
 """;
 
-
 const UserProfileFragment = """
   fragment UserProfileFullFragment on UserProfile {
     id
@@ -176,7 +175,6 @@ class PostsConnectionForDiscussionQuery extends GQLQuery<PostsConnection> {
     return PostsConnection.fromJson(data['discussion']['postsConnection']);
   }
 }
-
 
 class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
   final String discussionID;

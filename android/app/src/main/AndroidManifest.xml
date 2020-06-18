@@ -42,14 +42,14 @@
               <action android:name="android.intent.action.VIEW" />
               <category android:name="android.intent.category.DEFAULT" />
               <category android:name="android.intent.category.BROWSABLE" />
-              <data android:scheme="https" android:host="m.chatham.ai" />
+              <data android:scheme="delphis-chatham"/>
             </intent-filter>
             <intent-filter>
               <action android:name="android.intent.action.VIEW" />
               <category android:name="android.intent.category.DEFAULT" />
               <category android:name="android.intent.category.BROWSABLE" />
               <data
-                android:scheme="delphis-chatham" />
+                android:scheme="https" android:host="app-staging.delphishq.com"/>
             </intent-filter>
         </activity>
         <meta-data android:name="com.claimsforce.segment.WRITE_KEY" android:value="JEfqEqlR5gL7wVtnYGqNKm78lYaadIXF" />

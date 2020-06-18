@@ -40,14 +40,14 @@ class _Config {
   static const WS_ENDPOINT = "ws-endpoint";
 
   static Map<String, dynamic> debugConstants = {
-    TWITTER_REDIRECT_URL_PREFIX: "http://local.delphishq.com:8000/",
+    TWITTER_REDIRECT_URL_PREFIX: "delphis-chatham://local.delphishq.com:8000/",
     TWITTER_LOGIN_URL: "http://localhost:8080/twitter/login",
     GQL_ENDPOINT: "http://localhost:8080/query",
     WS_ENDPOINT: "ws://localhost:8080/query",
   };
 
   static Map<String, dynamic> stagingConstants = {
-    TWITTER_REDIRECT_URL_PREFIX: "https://app-staging.delphishq.com",
+    TWITTER_REDIRECT_URL_PREFIX: "delphis-chatham://app-staging.delphishq.com",
     TWITTER_LOGIN_URL: "https://staging.delphishq.com/twitter/login",
     GQL_ENDPOINT: "https://staging.delphishq.com/query",
     WS_ENDPOINT: "wss://staging.delphishq.com/query",

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/constants.dart';
 import 'package:delphis_app/tracking/constants.dart';
 import 'package:equatable/equatable.dart';
@@ -13,18 +12,14 @@ part 'gql_client_event.dart';
 part 'gql_client_state.dart';
 
 class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
-  final AuthBloc authBloc;
   StreamSubscription websocketStateListener;
 
-  GqlClientBloc({
-    @required this.authBloc,
-  }) : super() {
-    this.authBloc.listen((state) {
-      if (state is InitializedAuthState) {
-        this.add(GqlClientAuthChanged(
-            isAuthed: state.isAuthed, authString: state.authString));
-      }
-    });
+  GqlClientBloc() : super();
+
+  @override
+  Future<void> close() async {
+    this.websocketStateListener?.cancel();
+    super.close();
   }
 
   GraphQLClient getClient() {

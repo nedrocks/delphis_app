@@ -3,7 +3,7 @@ import 'screens/auth/index.dart';
 
 class Routes {
   final routes = <String, WidgetBuilder>{
-    '/TwitterAuth': (BuildContext context) => new LoginScreen()
+    
   };
 
   // Routes() {

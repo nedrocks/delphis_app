@@ -22,7 +22,6 @@ import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
 import 'constants.dart';
 import 'data/repository/auth.dart';
-import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
 

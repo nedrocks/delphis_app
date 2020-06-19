@@ -38,8 +38,15 @@ public class MainActivity extends FlutterActivity {
                     return;
                 }
 
+                String deviceId = task.getResult().getId();
+                if(deviceId == null || deviceId.length() == 0) {
+                    Log.w(this.getClass().getSimpleName(), "Received a bad FCM device instance ID");
+                    return;
+                }
+                Log.d(this.getClass().getSimpleName(), "FCM DEVICE INSTANCE ID: " + deviceId);
+
                 try {
-                    flutterDeviceChannel.invokeMethod(CHANNEL_METHOD_BOTH, "FCM-UNUSED." + token);
+                    flutterDeviceChannel.invokeMethod(CHANNEL_METHOD_BOTH, deviceId + "." + token);
                 }
                 catch (Exception e) {
                     Log.w(this.getClass().getSimpleName(), "Error while sending FCM to Flutter channel" + e.getMessage());

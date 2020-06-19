@@ -22,7 +22,6 @@ import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
 import 'constants.dart';
 import 'data/repository/auth.dart';
-import 'package:delphis_app/screens/auth/index.dart';
 import 'package:delphis_app/screens/discussion/discussion.dart';
 import 'package:flutter/material.dart';
 
@@ -367,6 +366,7 @@ class ChathamAppState extends State<ChathamApp>
     final String args = call.arguments;
     switch (call.method) {
       case "didReceiveToken":
+        print("Received token from Ably: $args");
         this.setState(() {
           this.didReceivePushToken = true;
           if (args.length > 0) {
@@ -375,11 +375,13 @@ class ChathamAppState extends State<ChathamApp>
         });
         break;
       case "didReceiveDeviceID":
+        print("Received deviceid from Ably: $args");
         this.setState(() {
           this.deviceID = args;
         });
         break;
       case "didReceiveTokenAndDeviceID":
+        print("Received token and deviceid from Ably: $args");
         final parts = args.split('.');
         if (parts.length == 1) {
           // Only device ID

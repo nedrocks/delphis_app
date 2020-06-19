@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "912290078541",
+    "firebase_url": "https://delphis-chatham.firebaseio.com",
+    "project_id": "delphis-chatham",
+    "storage_bucket": "delphis-chatham.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912290078541:android:f8f9cfa3df38ae3a152104",
+        "android_client_info": {
+          "package_name": "ai.chatham.alpha"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912290078541-io314j3s5stbv6tu6o2kucb20eqsq45s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARpuHMUuR4xcTM1mFHy07d3oxZu8YYGx4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "912290078541-io314j3s5stbv6tu6o2kucb20eqsq45s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

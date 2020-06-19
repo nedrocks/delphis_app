@@ -50,6 +50,8 @@ dependencies:
 
   uni_links: 0.4.0
 
+  firebase_messaging: ^6.0.16
+
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito
   # (^4.0.0) so we can use the newer version of mockito

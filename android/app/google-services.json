@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "75668733228",
+    "firebase_url": "https://chatham-staging.firebaseio.com",
+    "project_id": "chatham-staging",
+    "storage_bucket": "chatham-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75668733228:android:67cd02989bd95ffff88089",
+        "android_client_info": {
+          "package_name": "ai.chatham.alpha"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75668733228-m3dhi7dgvb2ioshpe77s8ns9qm5ssona.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAp0DrFzZcDkAK-3XNeTbBbHSu7Hk6Gc_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75668733228-m3dhi7dgvb2ioshpe77s8ns9qm5ssona.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

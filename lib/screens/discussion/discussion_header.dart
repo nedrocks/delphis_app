@@ -24,14 +24,26 @@ class DiscussionHeader extends StatefulWidget {
 
 class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerProviderStateMixin {
   bool isMultilineTile;
+  bool isFirstBuild;
 
   @override
   void initState() {
-    this.isMultilineTile = false;
+    this.isMultilineTile = true;
+    this.isFirstBuild = true;
   }
 
   @override
   Widget build(BuildContext context) {
+    if(isFirstBuild) {
+      setState(() {
+        isFirstBuild = false;
+        Future.delayed(Duration(milliseconds: 2000), () {
+          setState(() {
+            isMultilineTile = false;
+          });
+        });
+      });
+    }
     return AnimatedSize(
       vsync: this,
       duration: Duration(milliseconds: 200),

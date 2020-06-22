@@ -13,7 +13,7 @@ class DelphisInputContainer extends StatelessWidget {
   final Discussion discussion;
   final Participant participant;
   final bool isShowingParticipantSettings;
-  final VoidCallback onParticipantSettingsPressed;
+  final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
 
   final VoidCallback onJoinPressed;

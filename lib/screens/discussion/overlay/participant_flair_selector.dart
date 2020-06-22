@@ -55,8 +55,8 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
             textAlign: TextAlign.center),
         SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-        SizedBox(height: SpacingValues.mediumLarge),
         ListView(
+          padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
           shrinkWrap: true,
           children: (this.widget.user.flairs?.map((flairObj) {
                     return ParticipantFlairSelectorOption(
@@ -81,10 +81,9 @@ class _ParticipantFlairSettingsState extends State<ParticipantFlairSettings>
                       this._selectedFlairID = null;
                     });
                   },
-                )
+                ),
               ],
         ),
-        SizedBox(height: SpacingValues.mediumLarge),
         Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
         // TODO: Life Achievement not here...?
         Padding(

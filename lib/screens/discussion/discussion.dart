@@ -30,6 +30,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   bool hasAcceptedIncognitoWarning;
   bool _isShowParticipantSettings;
   bool _isShowJoinFlow;
+  FocusNode _lastFocusedNode;
 
   ScrollController _scrollController;
   RefreshController _refreshController;
@@ -54,7 +55,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     this._scrollController = ScrollController();
     this._refreshController = RefreshController();
     this._isShowParticipantSettings = false;
-
+    this._lastFocusedNode = null;
     this._key = Key(
         'discussion-${this.widget.discussionID}-${DateTime.now().millisecondsSinceEpoch}');
   }
@@ -109,6 +110,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             discussion: discussionObj,
             isDiscussionVisible: true,
             isShowParticipantSettings: this._isShowParticipantSettings,
+            isAnimationEnabled: this._lastFocusedNode == null,
             isShowJoinFlow: this._isShowJoinFlow,
             onJoinFlowClose: (bool isJoined) {
               if (isJoined) {
@@ -122,6 +124,12 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             },
             onSettingsOverlayClose: (_) {
               this.setState(() {
+                if(this._lastFocusedNode != null) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    FocusScope.of(context).requestFocus(this._lastFocusedNode);
+                    this._lastFocusedNode = null;
+                  });
+                }
                 this._isShowParticipantSettings = false;
                 this._contentOverlayEntry.remove();
                 this._contentOverlayEntry = null;
@@ -160,8 +168,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               participant: discussionObj.meParticipant,
               isShowingParticipantSettings: this._isShowParticipantSettings,
               parentScrollController: this._scrollController,
-              onParticipantSettingsPressed: () {
+              onParticipantSettingsPressed: (lastFocusedNode) {
                 setState(() {
+                  this._lastFocusedNode = lastFocusedNode;
                   this._isShowParticipantSettings =
                       !this._isShowParticipantSettings;
                 });

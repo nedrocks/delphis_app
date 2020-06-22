@@ -23,6 +23,7 @@ class DiscussionContent extends StatelessWidget {
   final bool isDiscussionVisible;
   final bool isShowParticipantSettings;
   final bool isShowJoinFlow;
+  final bool isAnimationEnabled;
 
   final SuccessCallback onJoinFlowClose;
   final SuccessCallback onSettingsOverlayClose;
@@ -37,6 +38,7 @@ class DiscussionContent extends StatelessWidget {
     @required this.onJoinFlowClose,
     @required this.isShowParticipantSettings,
     @required this.isShowJoinFlow,
+    @required this.isAnimationEnabled,
     @required this.onSettingsOverlayClose,
     @required this.onOverlayOpen,
     @required this.refreshController,
@@ -116,7 +118,7 @@ class DiscussionContent extends StatelessWidget {
               },
             ),
           ),
-          animationMillis: 500,
+          animationMillis: this.isAnimationEnabled ? 500 : 0,
         ),
       );
 

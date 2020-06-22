@@ -24,7 +24,7 @@ class DelphisInput extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
   final bool isShowingParticipantSettings;
-  final VoidCallback onParticipantSettingsPressed;
+  final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
 
   DelphisInput({
@@ -75,7 +75,6 @@ class DelphisInputState extends State<DelphisInput> {
         this._scrollStart = this.widget.parentScrollController.position.pixels;
         this.widget.parentScrollController.addListener(this.scrollListener);
       } else {
-        this._fullText = this._controller.text;
         this.widget.parentScrollController.removeListener(this.scrollListener);
       }
     });
@@ -99,7 +98,7 @@ class DelphisInputState extends State<DelphisInput> {
       User me, bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
       ParticipantSettingsButton(
-        onPressed: this.widget.onParticipantSettingsPressed,
+        onPressed: () => this.widget.onParticipantSettingsPressed(this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
         me: me,
         isModerator: isModerator,
         participant: this.widget.participant,
@@ -129,6 +128,17 @@ class DelphisInputState extends State<DelphisInput> {
   List<Widget> buildInputRowElems(BuildContext context, MeState state, User me,
       bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
+      ParticipantSettingsButton(
+        onPressed: () => this.widget.onParticipantSettingsPressed(this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
+        me: me,
+        isModerator: isModerator,
+        participant: this.widget.participant,
+        width: 39.0,
+        height: 39.0,
+      ),
+      SizedBox(
+        width: SpacingValues.medium,
+      ),
       textInput,
       SizedBox(
         width: SpacingValues.medium,
@@ -225,6 +235,11 @@ class DelphisInputState extends State<DelphisInput> {
         var isEnabled = !this.widget.isShowingParticipantSettings;
         final hintStyle =
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
+
+        /* Change fulltext state only when building and having focus */
+        if(this._inputFocusNode.hasFocus) {
+          this._fullText = this._controller.text;
+        }
 
         return Container(
           alignment: Alignment.centerLeft,

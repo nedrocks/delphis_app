@@ -1,4 +1,5 @@
 import 'package:delphis_app/data/repository/flair.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
@@ -25,6 +26,7 @@ class ParticipantFlairSelectorOption extends StatelessWidget {
     return SettingOption(
       isSelected: this.isSelected,
       onSelected: this.onSelected,
+      selectedColor: Color.fromRGBO(110, 111, 121, 0.4),
       height: this.height,
       leftSideContent: Row(children: [
         SizedBox(width: SpacingValues.small),

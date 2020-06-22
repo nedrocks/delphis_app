@@ -67,6 +67,7 @@ class SingleChatJoined extends StatelessWidget {
                 child: Text(
                   this.discussion.title,
                   style: TextThemes.discussionTitleChatTab,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               ParticipantImages(

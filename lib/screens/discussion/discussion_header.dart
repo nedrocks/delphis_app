@@ -25,11 +25,20 @@ class DiscussionHeader extends StatefulWidget {
 class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerProviderStateMixin {
   bool isMultilineTile;
   bool isFirstBuild;
+  bool isDisposed;
 
   @override
   void initState() {
     this.isMultilineTile = true;
     this.isFirstBuild = true;
+    this.isDisposed = false;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    this.isDisposed = true;
+    super.dispose();
   }
 
   @override
@@ -38,9 +47,11 @@ class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerPr
       setState(() {
         isFirstBuild = false;
         Future.delayed(Duration(milliseconds: 2000), () {
-          setState(() {
-            isMultilineTile = false;
-          });
+          if(!isDisposed) {
+             setState(() {
+              isMultilineTile = false;
+            });
+          }   
         });
       });
     }

@@ -229,9 +229,6 @@ class DiscussionRepository {
         mentionedEntities.add(entity);
       }
     }
-
-    print(postContent);
-    print(mentionedEntities);
         
     return PostContentInput(
       postText: postContent,

@@ -19,19 +19,13 @@ class Entity extends Equatable {
 
   factory Entity.fromJson(Map<String, dynamic> json) {
     /* Is it a discussion ? */
-    print(json);
     try {
       var res = Discussion.fromJson(json);
       if(res.title.length > 0)
         return res;
     } catch (e) { }
 
-    /* Is it a participant ? */
-    try {
-      var res = Participant.fromJson(json);
-      return res;
-    } catch (e) { } 
-    
-    throw Exception("Unknown entity json");
+    /* It must be a participant */
+    return Participant.fromJson(json);
   }
 }

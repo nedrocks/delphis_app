@@ -117,13 +117,10 @@ class DiscussionPost extends StatelessWidget {
     var postContent = post.content;
     var entitiesCount = post.mentionedEntities?.length ?? 0;
 
-    print("ENTITIES " + post.mentionedEntities?.map((e) => e.id)?.toList().toString());
-
     /* Solve mentions */
     for(var i = 0; i < entitiesCount; i++) {
       /* Handle participants mentions */
       var id = post.mentionedEntities[i].id;
-      print(id);
       var p = discussion.participants.firstWhere((e) => e.id.compareTo(id) == 0, orElse: () => null);
       if(p != null && postContent.contains("<${p.participantID}>")) {
         postContent = postContent.replaceAll("<${p.participantID}>", "@" + Participant.getUniqueNameInDiscussion(discussion, p));

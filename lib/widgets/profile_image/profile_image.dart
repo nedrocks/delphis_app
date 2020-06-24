@@ -25,7 +25,7 @@ class ProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (this.isAnonymous) {
+    if (this.isAnonymous || profileImageURL == null) {
       return AnonProfileImage(
           height: this.height,
           width: this.width,

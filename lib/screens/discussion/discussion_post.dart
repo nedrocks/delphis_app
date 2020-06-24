@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
@@ -7,6 +8,7 @@ import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'post_title.dart';
 
@@ -14,17 +16,28 @@ class DiscussionPost extends StatelessWidget {
   final Post post;
   final Participant participant;
   final Moderator moderator;
+  final Discussion discussion;
 
   const DiscussionPost({
     Key key,
     @required this.participant,
     @required this.post,
     @required this.moderator,
+    @required this.discussion
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isModeratorAuthor = this.participant.participantID == 0;
+    var textWidget = EmojiText(
+      text: '${formatPostContent(this.post, this.discussion)}',
+      style: Theme.of(context).textTheme.bodyText1,
+    );
+
+    /* Hacky way to color participants mentions */
+    var participantMentionPattern = discussion.participants.map((p) => "@${Participant.getUniqueNameInDiscussion(discussion, p)}").join("|");
+    textWidget.regexPatternStyle[RegExp(participantMentionPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+
     return Opacity(
       opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
@@ -86,10 +99,7 @@ class DiscussionPost extends StatelessWidget {
                       children: <Widget>[
                         Container(
                           padding: EdgeInsets.only(top: SpacingValues.xxSmall),
-                          child: EmojiText(
-                            text: '${this.post.content}',
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
+                          child: textWidget,
                         ),
                       ],
                     ),
@@ -102,4 +112,37 @@ class DiscussionPost extends StatelessWidget {
       ),
     );
   }
+
+  String formatPostContent(Post post, Discussion discussion) {
+    var postContent = post.content;
+    var entitiesCount = post.mentionedEntities?.length ?? 0;
+
+    print("ENTITIES " + post.mentionedEntities?.map((e) => e.id)?.toList().toString());
+
+    /* Solve mentions */
+    for(var i = 0; i < entitiesCount; i++) {
+      /* Handle participants mentions */
+      var id = post.mentionedEntities[i].id;
+      print(id);
+      var p = discussion.participants.firstWhere((e) => e.id.compareTo(id) == 0, orElse: () => null);
+      if(p != null && postContent.contains("<${p.participantID}>")) {
+        postContent = postContent.replaceAll("<${p.participantID}>", "@" + Participant.getUniqueNameInDiscussion(discussion, p));
+      }
+    }
+
+    /* Solve unmatched mentions */
+    RegExp mentionRegex = RegExp("<[A-Za-z0-9_-]*>");
+    if(mentionRegex.hasMatch(postContent)) {
+      for(var match in mentionRegex.allMatches(postContent)) {
+        postContent = postContent.replaceAll(match.group(0), Intl.message("@none"));
+      }
+    }
+    
+    /* Restored altered user characters */
+    postContent = postContent.replaceAll("&lt", "<");
+    postContent = postContent.replaceAll("&gt", ">");
+
+    return postContent;
+  }
+
 }

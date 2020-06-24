@@ -26,12 +26,16 @@ class DelphisInput extends StatefulWidget {
   final bool isShowingParticipantSettings;
   final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
+  final TextEditingController textController;
+  final FocusNode inputFocusNode;
 
   DelphisInput({
     @required this.discussion,
     @required this.participant,
     @required this.isShowingParticipantSettings,
     @required this.onParticipantSettingsPressed,
+    this.inputFocusNode,
+    this.textController,
     this.parentScrollController,
   });
 
@@ -57,11 +61,11 @@ class DelphisInputState extends State<DelphisInput> {
 
     this._fullText = "";
 
-    this._controller = TextEditingController();
+    this._controller = this.widget.textController ?? TextEditingController();
     this._controller.addListener(() => this.setState(() {
           this._textLength = this._controller.text.length;
         }));
-    this._inputFocusNode = FocusNode();
+    this._inputFocusNode = this.widget.inputFocusNode ?? FocusNode();
     this._inputFocusNode.addListener(() {
       if (this._inputFocusNode.hasFocus) {
         this._controller.selection = TextSelection.fromPosition(
@@ -89,8 +93,10 @@ class DelphisInputState extends State<DelphisInput> {
 
   @override
   void dispose() {
-    this._inputFocusNode.dispose();
-    this._controller.dispose();
+    if(this._inputFocusNode != this.widget.inputFocusNode)
+      this._inputFocusNode.dispose();
+    if(this._controller != this.widget.textController)
+      this._controller.dispose();
     super.dispose();
   }
 

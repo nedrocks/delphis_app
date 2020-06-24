@@ -43,6 +43,17 @@ class AddPostGQLMutation extends GQLMutation<Post> {
         isDeleted
         createdAt
         updatedAt
+        mentionedEntities {
+          id
+          ... on Discussion {
+            title
+            anonymityType
+          }
+          ... on Participant {
+            isAnonymous
+            participantID
+          }
+        }
       }
     }
   """;

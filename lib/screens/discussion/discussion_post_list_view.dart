@@ -145,6 +145,7 @@ class DiscussionPostListView extends StatelessWidget {
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
+              discussion: this.discussion,
             );
             if (true) {
               return post;

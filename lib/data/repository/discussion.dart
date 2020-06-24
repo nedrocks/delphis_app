@@ -12,6 +12,7 @@ import 'moderator.dart';
 import 'participant.dart';
 import 'post.dart';
 import 'post_content_input.dart';
+import 'entity.dart';
 
 part 'discussion.g.dart';
 
@@ -161,7 +162,7 @@ class DiscussionRepository {
   }
 
   Future<Post> addPost(
-      {@required String discussionID,
+      {@required Discussion discussion,
       @required String participantID,
       @required String postContent,
       int attempt = 1}) async {
@@ -175,7 +176,7 @@ class DiscussionRepository {
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
         return addPost(
-            discussionID: discussionID,
+            discussion: discussion,
             participantID: participantID,
             postContent: postContent,
             attempt: attempt + 1);
@@ -185,21 +186,19 @@ class DiscussionRepository {
           "Failed to addPost to discussion because backend connection is severed");
     }
 
+    var postInputContent = _createNewPostContentInput(discussion, participantID, postContent, PostType.STANDARD);
     final mutation = AddPostGQLMutation(
-      discussionID: discussionID,
+      discussionID: discussion.id,
       participantID: participantID,
-      postContent: PostContentInput(
-        postText: postContent,
-        postType: PostType.STANDARD,
-      ),
+      postContent: postInputContent,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
         variables: {
-          'discussionID': discussionID,
+          'discussionID': discussion.id,
           'participantID': participantID,
-          'postContent': mutation.postContent.toJSON(),
+          'postContent': postInputContent.toJSON(),
         },
         update: (Cache cache, QueryResult result) {
           return cache;
@@ -211,6 +210,34 @@ class DiscussionRepository {
       throw result.exception;
     }
     return mutation.parseResult(result.data);
+  }
+
+  PostContentInput _createNewPostContentInput(Discussion discussion,
+      String participantID, String postContent, PostType postType) {
+    /* Save special characters used for mentionings */
+    postContent = postContent.replaceAll("<", "&lt");
+    postContent = postContent.replaceAll(">", "&gt");
+
+    /* Encode participants mentions (Naive algorithm, but yet sufficient for now) */
+    List<String> mentionedEntities = [];
+    for(var participant in discussion.participants) {
+      var tag = "@" + Participant.getUniqueNameInDiscussion(discussion, participant);
+      if(postContent.contains(tag)) {
+        var replace = "<${participant.participantID}>";
+        var entity = "participant:${participant.id}";
+        postContent = postContent.replaceAll(tag, replace);
+        mentionedEntities.add(entity);
+      }
+    }
+
+    print(postContent);
+    print(mentionedEntities);
+        
+    return PostContentInput(
+      postText: postContent,
+      postType: postType,
+      mentionedEntities: mentionedEntities
+    );
   }
 
   Future<Stream<Post>> subscribe(String discussionID, {int attempt = 1}) async {
@@ -245,7 +272,7 @@ class DiscussionRepository {
 }
 
 @JsonAnnotation.JsonSerializable()
-class Discussion extends Equatable {
+class Discussion extends Equatable implements Entity {
   final String id;
   final Moderator moderator;
   final AnonymityType anonymityType;
@@ -292,6 +319,10 @@ class Discussion extends Equatable {
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
+
+  Map<String, dynamic> toJSON() {
+    return _$DiscussionToJson(this);
+  }
 
   Discussion copyWith(
           {PostsConnection postsConnection,

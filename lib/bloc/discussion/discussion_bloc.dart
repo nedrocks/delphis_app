@@ -145,7 +145,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         this
             .repository
             .addPost(
-                discussionID: currentState.getDiscussion().id,
+                discussion: currentState.getDiscussion(),
                 participantID: currentState.getDiscussion().meParticipant.id,
                 postContent: event.postContent)
             .then((addedPost) {

@@ -21,6 +21,10 @@ Post _$PostFromJson(Map<String, dynamic> json) {
         : Participant.fromJson(json['participant'] as Map<String, dynamic>),
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
+    mentionedEntities: (json['mentionedEntities'] as List)
+        ?.map((e) =>
+            e == null ? null : Entity.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
     isLocalPost: json['isLocalPost'] as bool,
   );
 }
@@ -35,6 +39,7 @@ Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
       'participant': instance.participant,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
+      'mentionedEntities': instance.mentionedEntities,
       'isLocalPost': instance.isLocalPost,
     };
 

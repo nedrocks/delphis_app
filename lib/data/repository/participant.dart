@@ -11,6 +11,7 @@ import 'discussion.dart';
 import 'flair.dart';
 import 'post.dart';
 import 'viewer.dart';
+import 'entity.dart';
 
 part 'participant.g.dart';
 
@@ -199,7 +200,7 @@ class ParticipantRepository {
 }
 
 @JsonAnnotation.JsonSerializable()
-class Participant extends Equatable {
+class Participant extends Equatable implements Entity {
   final String id;
   final int participantID;
   final Discussion discussion;
@@ -227,4 +228,27 @@ class Participant extends Equatable {
 
   factory Participant.fromJson(Map<String, dynamic> json) =>
       _$ParticipantFromJson(json);
+  
+  Map<String, dynamic> toJSON() {
+    return _$ParticipantToJson(this);
+  }
+
+  static String getNameInDiscussion(Discussion discussion, Participant participant) {
+    var name = '${participant.gradientColor} ${participant.participantID}';
+    if (participant.participantID == 0) {
+      name = discussion.moderator.userProfile.displayName;
+    }
+    return name;
+  }
+
+  static String getUniqueNameInDiscussion(Discussion discussion, Participant participant) {
+    // TODO: this has to be changed when proper naming is implemented. Would be cool
+    // to encapsulate the naming logic in a single class in order to be consistent.
+    var name = '${participant.gradientColor} ${participant.participantID}';
+    if (participant.participantID == 0) {
+      name = discussion.moderator.userProfile.displayName + ' ${participant.participantID}';
+    }
+    return name;
+  }
+
 }

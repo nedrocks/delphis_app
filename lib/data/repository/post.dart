@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'discussion.dart';
+import 'entity.dart';
 import 'page_info.dart';
 import 'participant.dart';
 
@@ -20,7 +21,7 @@ class Post extends Equatable {
   final Participant participant;
   final String createdAt;
   final String updatedAt;
-
+  final List<Entity> mentionedEntities;
   final bool isLocalPost;
 
   List<Object> get props => [
@@ -31,7 +32,8 @@ class Post extends Equatable {
         discussion?.id,
         participant?.id,
         createdAt,
-        updatedAt
+        updatedAt,
+        mentionedEntities
       ];
 
   const Post({
@@ -43,6 +45,7 @@ class Post extends Equatable {
     this.participant,
     this.createdAt,
     this.updatedAt,
+    this.mentionedEntities,
     this.isLocalPost = false,
   });
 

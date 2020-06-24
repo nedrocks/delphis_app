@@ -165,3 +165,54 @@ class LoadPreviousPostsPageEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.discussionID, this.now];
 }
+
+class DiscussionConciergeOptionSelectedEvent extends DiscussionEvent {
+  final String discussionID;
+  final String mutationID;
+  final List<String> selectedOptionIDs;
+
+  DiscussionConciergeOptionSelectedEvent({
+    @required this.discussionID,
+    @required this.mutationID,
+    @required this.selectedOptionIDs,
+  }) : super();
+
+  @override
+  List<Object> get props =>
+      [this.discussionID, this.mutationID, this.selectedOptionIDs];
+}
+
+class DiscussionShowOnboardingEvent extends DiscussionEvent {
+  final String discussionID;
+
+  DiscussionShowOnboardingEvent({
+    @required this.discussionID,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.discussionID];
+}
+
+class DiscussionUpdateEvent extends DiscussionEvent {
+  final String discussionID;
+  final String title;
+
+  DiscussionUpdateEvent({
+    @required this.title,
+    @required this.discussionID,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.title, this.discussionID];
+}
+
+class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {
+  final DateTime nonce;
+
+  NextDiscussionOnboardingConciergeStep({
+    @required this.nonce,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.nonce];
+}

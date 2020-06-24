@@ -1,8 +1,11 @@
+import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -10,28 +13,43 @@ import 'package:flutter/material.dart';
 
 import 'post_title.dart';
 
+typedef ConciergePostOptionPressed(
+    Post post, ConciergeContent content, ConciergeOption option);
+
 class DiscussionPost extends StatelessWidget {
   final Post post;
   final Participant participant;
   final Moderator moderator;
+
+  final int conciergeIndex;
+  final int onboardingConciergeStep;
+
+  final ConciergePostOptionPressed onConciergeOptionPressed;
 
   const DiscussionPost({
     Key key,
     @required this.participant,
     @required this.post,
     @required this.moderator,
+    @required this.conciergeIndex,
+    @required this.onboardingConciergeStep,
+    @required this.onConciergeOptionPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final isModeratorAuthor = this.participant.participantID == 0;
+
+    if (this.post.postType == PostType.CONCIERGE &&
+        (this.onboardingConciergeStep == null ||
+            this.conciergeIndex > this.onboardingConciergeStep)) {
+      return Container(width: 0, height: 0);
+    }
+    print('onboarding step: $onboardingConciergeStep, idx: $conciergeIndex');
     return Opacity(
       opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
-        padding: EdgeInsets.only(
-            left: SpacingValues.medium,
-            top: SpacingValues.medium,
-            bottom: SpacingValues.medium),
+        padding: EdgeInsets.all(SpacingValues.medium),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,6 +108,12 @@ class DiscussionPost extends StatelessWidget {
                             text: '${this.post.content}',
                             style: Theme.of(context).textTheme.bodyText1,
                           ),
+                        ),
+                        ConciergeDiscussionPostOptions(
+                          participant: this.participant,
+                          post: this.post,
+                          onConciergeOptionPressed:
+                              this.onConciergeOptionPressed,
                         ),
                       ],
                     ),

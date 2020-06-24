@@ -43,6 +43,9 @@ class AddPostGQLMutation extends GQLMutation<Post> {
         isDeleted
         createdAt
         updatedAt
+        quotedPost
+        postType
+        conciergeContent
       }
     }
   """;
@@ -169,6 +172,68 @@ class UpdateUserDeviceGQLMutation extends GQLMutation<UserDevice> {
 
   UserDevice parseResult(dynamic data) {
     return UserDevice.fromJson(data["upsertUserDevice"]);
+  }
+}
+
+class ConciergeOptionMutation extends GQLMutation<Post> {
+  final String discussionID;
+  final String mutationID;
+  final List<String> selectedOptionIDs;
+
+  final String _mutation = """
+    mutation ConciergeMutation(\$discussionID: ID!, \$mutationID: ID!, \$selectedOptions: [String!]) {
+      conciergeMutation(discussionID: \$discussionID, mutationID: \$mutationID, selectedOptions: \$selectedOptions) {
+        ...PostInfoFragment
+      }
+    }
+    $PostInfoFragment
+  """;
+
+  const ConciergeOptionMutation({
+    @required this.discussionID,
+    @required this.mutationID,
+    @required this.selectedOptionIDs,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Post parseResult(dynamic data) {
+    return Post.fromJson(data["conciergeMutation"]);
+  }
+}
+
+class UpdateDiscussionMutation extends GQLMutation<Discussion> {
+  final String discussionID;
+  final String title;
+
+  final String _mutation = """
+    mutation UpdateDiscussion(\$discussionID: ID!, \$input: DiscussionInput!) {
+      updateDiscussion(discussionID: \$discussionID, input: \$input) {
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  const UpdateDiscussionMutation({
+    @required this.discussionID,
+    @required this.title,
+  }) : super();
+
+  Map<String, dynamic> createInputObject() {
+    return {
+      'title': this.title,
+    };
+  }
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["updateDiscussion"]);
   }
 }
 

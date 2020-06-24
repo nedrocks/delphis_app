@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,18 +21,29 @@ class DiscussionPostListView extends StatelessWidget {
   final RefreshController refreshController;
   final bool isRefreshEnabled;
 
+  final int onboardingConciergeStep;
+
+  final ConciergePostOptionPressed onConciergeOptionPressed;
+
   DiscussionPostListView({
     @required key,
     @required this.scrollController,
     @required this.discussion,
     @required this.refreshController,
     @required this.isRefreshEnabled,
+    @required this.onboardingConciergeStep,
+    @required this.onConciergeOptionPressed,
     this.isVisible = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
+
+    final numConciergePosts = (this.discussion.postsCache ?? []).where((post) {
+      return post.postType == PostType.CONCIERGE;
+    }).length;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -142,6 +154,11 @@ class DiscussionPostListView extends StatelessWidget {
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
+              onConciergeOptionPressed: this.onConciergeOptionPressed,
+              // I think this will break due to paging.
+              conciergeIndex:
+                  numConciergePosts - this.numConciergePostsUpTo(index) - 1,
+              onboardingConciergeStep: this.onboardingConciergeStep,
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
@@ -156,5 +173,15 @@ class DiscussionPostListView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int numConciergePostsUpTo(int index) {
+    var counter = 0;
+    for (int i = 0; i < this.discussion.postsCache.length && i < index; i++) {
+      if (this.discussion.postsCache[index].postType == PostType.CONCIERGE) {
+        counter++;
+      }
+    }
+    return counter;
   }
 }

@@ -5,6 +5,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
+import 'package:delphis_app/screens/discussion/discussion_post.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -30,6 +31,9 @@ class DiscussionContent extends StatelessWidget {
   final OverlayEntryCallback onOverlayOpen;
   final RefreshController refreshController;
 
+  final int onboardingConciergeStep;
+  final ConciergePostOptionPressed onConciergeOptionPressed;
+
   DiscussionContent({
     @required key,
     @required this.scrollController,
@@ -42,6 +46,8 @@ class DiscussionContent extends StatelessWidget {
     @required this.onSettingsOverlayClose,
     @required this.onOverlayOpen,
     @required this.refreshController,
+    @required this.onboardingConciergeStep,
+    @required this.onConciergeOptionPressed,
   }) : super(key: key);
 
   @override
@@ -53,6 +59,8 @@ class DiscussionContent extends StatelessWidget {
       scrollController: this.scrollController,
       isVisible: true,
       refreshController: this.refreshController,
+      onboardingConciergeStep: this.onboardingConciergeStep,
+      onConciergeOptionPressed: this.onConciergeOptionPressed,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);

@@ -22,6 +22,14 @@ Post _$PostFromJson(Map<String, dynamic> json) {
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
     isLocalPost: json['isLocalPost'] as bool,
+    quotedPost: json['quotedPost'] == null
+        ? null
+        : Post.fromJson(json['quotedPost'] as Map<String, dynamic>),
+    postType: _$enumDecodeNullable(_$PostTypeEnumMap, json['postType']),
+    conciergeContent: json['conciergeContent'] == null
+        ? null
+        : ConciergeContent.fromJson(
+            json['conciergeContent'] as Map<String, dynamic>),
   );
 }
 
@@ -35,6 +43,9 @@ Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
       'participant': instance.participant,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
+      'quotedPost': instance.quotedPost,
+      'postType': _$PostTypeEnumMap[instance.postType],
+      'conciergeContent': instance.conciergeContent,
       'isLocalPost': instance.isLocalPost,
     };
 
@@ -74,6 +85,13 @@ const _$PostDeletedReasonEnumMap = {
   PostDeletedReason.UNKNOWN: 'UNKNOWN',
   PostDeletedReason.MODERATOR_REMOVED: 'MODERATOR_REMOVED',
   PostDeletedReason.PARTICIPANT_REMOVED: 'PARTICIPANT_REMOVED',
+};
+
+const _$PostTypeEnumMap = {
+  PostType.STANDARD: 'STANDARD',
+  PostType.IMPORTED_CONTENT: 'IMPORTED_CONTENT',
+  PostType.ALERT: 'ALERT',
+  PostType.CONCIERGE: 'CONCIERGE',
 };
 
 PostsEdge _$PostsEdgeFromJson(Map<String, dynamic> json) {

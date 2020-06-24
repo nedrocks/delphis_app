@@ -41,11 +41,14 @@ class DiscussionLoadedState extends DiscussionState {
 
   final bool isLoading;
 
+  final int onboardingConciergeStep;
+
   DiscussionLoadedState({
     @required this.discussion,
     @required this.lastUpdate,
     this.isLoading = false,
     this.discussionPostStream,
+    this.onboardingConciergeStep,
     localPosts,
   })  : this.localPosts = localPosts ?? Map<GlobalKey, LocalPost>(),
         super();
@@ -59,14 +62,16 @@ class DiscussionLoadedState extends DiscussionState {
     Discussion discussion,
     Map<GlobalKey, LocalPost> localPosts,
     bool isLoading,
+    int onboardingConciergeStep,
   }) {
     return DiscussionLoadedState(
-      discussion: discussion ?? this.discussion,
-      lastUpdate: DateTime.now(),
-      discussionPostStream: stream ?? this.discussionPostStream,
-      localPosts: localPosts ?? this.localPosts,
-      isLoading: isLoading ?? this.isLoading,
-    );
+        discussion: discussion ?? this.discussion,
+        lastUpdate: DateTime.now(),
+        discussionPostStream: stream ?? this.discussionPostStream,
+        localPosts: localPosts ?? this.localPosts,
+        isLoading: isLoading ?? this.isLoading,
+        onboardingConciergeStep:
+            onboardingConciergeStep ?? this.onboardingConciergeStep);
   }
 
   @override

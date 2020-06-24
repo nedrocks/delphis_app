@@ -55,6 +55,48 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<Post> selectConciergeMutation(
+      String discussionID, String mutationID, List<String> selectedOptionIDs,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return selectConciergeMutation(
+            discussionID, mutationID, selectedOptionIDs,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final mutation = ConciergeOptionMutation(
+        discussionID: discussionID,
+        mutationID: mutationID,
+        selectedOptionIDs: selectedOptionIDs);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'mutationID': mutationID,
+          'selectedOptionIDs': selectedOptionIDs,
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
+
   Future<PostsConnection> getDiscussionPostsConnection(String discussionID,
       {PostsConnection postsConnection, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
@@ -210,6 +252,46 @@ class DiscussionRepository {
     if (result.hasException) {
       throw result.exception;
     }
+    return mutation.parseResult(result.data);
+  }
+
+  Future<Discussion> updateDiscussion(String discussionID, String title,
+      {int attempt = 1}) async {
+    if (title == null || title.length == 0) {
+      return null;
+    }
+
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return updateDiscussion(discussionID, title, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to createDiscussion because backend connection is severed');
+    }
+
+    final mutation =
+        UpdateDiscussionMutation(discussionID: discussionID, title: title);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'input': mutation.createInputObject(),
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
     return mutation.parseResult(result.data);
   }
 

@@ -1,5 +1,8 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/data/repository/concierge_content.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_content.dart';
 import 'discussion_header.dart';
+import 'screen_args/discussion_naming.dart';
 
 class DelphisDiscussion extends StatefulWidget {
   final String discussionID;
@@ -67,6 +71,43 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
       this._contentOverlayEntry = null;
     }
     super.deactivate();
+  }
+
+  void handleConciergePostOptionPressed(Discussion discussion, Post post,
+      ConciergeContent content, ConciergeOption option) async {
+    if (option != null) {
+      if (content.appActionID != null) {
+        // This means something will happen within the app. The only one we have so far is copy
+        // to clipboard.
+        switch (content.appActionID) {
+          case ConciergeOption.kAppActionCopyToClipboard:
+            // TODO: Copy this to clipboard!
+            break;
+          case ConciergeOption.kAppActionRenameChat:
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              Navigator.pushNamed(context, '/Discussion/Naming',
+                  arguments: DiscussionNamingArguments(
+                      title: discussion.title, discussionID: discussion.id));
+            });
+            BlocProvider.of<DiscussionBloc>(context).add(
+                NextDiscussionOnboardingConciergeStep(nonce: DateTime.now()));
+            break;
+          default:
+            break;
+        }
+      } else if (content.mutationID != null) {
+        BlocProvider.of<DiscussionBloc>(context).add(
+          DiscussionConciergeOptionSelectedEvent(
+              discussionID: discussion.id,
+              mutationID: content.mutationID,
+              selectedOptionIDs: [option.value]),
+        );
+      }
+    }
+
+    setState(() {
+      //this._onboardingConciergeStep++;
+    });
   }
 
   @override
@@ -137,6 +178,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             },
             onOverlayOpen: (OverlayEntry entry) {
               this._onOverlayEntry(context, entry);
+            },
+            onboardingConciergeStep:
+                (state as DiscussionLoadedState).onboardingConciergeStep,
+            onConciergeOptionPressed:
+                (Post post, ConciergeContent content, ConciergeOption option) {
+              this.handleConciergePostOptionPressed(
+                  discussionObj, post, content, option);
             },
           ),
         );

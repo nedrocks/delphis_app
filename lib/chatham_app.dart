@@ -6,6 +6,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
+import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,7 @@ import 'data/repository/participant.dart';
 import 'data/repository/user_device.dart';
 import 'design/text_theme.dart';
 import 'screens/discussion/screen_args/discussion.dart';
+import 'screens/discussion/screen_args/discussion_naming.dart';
 import 'screens/home_page/home_page.dart';
 import 'screens/intro/intro_screen.dart';
 
@@ -310,6 +312,27 @@ class ChathamAppState extends State<ChathamApp>
                     ),
                   ),
                 );
+                break;
+              case '/Discussion/Naming':
+                DiscussionNamingArguments arguments =
+                    settings.arguments as DiscussionNamingArguments;
+                return PageTransition(
+                    settings: settings,
+                    type: PageTransitionType.rightToLeft,
+                    child: DiscussionNamingScreen(
+                        title: arguments.title,
+                        selectedEmoji: '🦆',
+                        onSavePressed: (context, selectedEmoji, title) {
+                          discussionBloc.add(
+                            DiscussionUpdateEvent(
+                                discussionID: arguments.discussionID,
+                                title: title),
+                          );
+                          Navigator.pop(context);
+                        },
+                        onClosePressed: (context) {
+                          Navigator.pop(context);
+                        }));
                 break;
               case '/Auth':
                 return PageTransition(

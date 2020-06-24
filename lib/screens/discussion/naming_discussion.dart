@@ -5,13 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
-typedef void NameCallback(String selectedEmoji, String title);
+typedef void NameCallback(
+    BuildContext context, String selectedEmoji, String title);
+typedef void ContextCallback(BuildContext context);
 
 class DiscussionNamingScreen extends StatefulWidget {
   final String selectedEmoji;
   final String title;
   final NameCallback onSavePressed;
-  final VoidCallback onClosePressed;
+  final ContextCallback onClosePressed;
 
   static final emojiRegex = RegExp(
       r'^(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+$');
@@ -99,7 +101,9 @@ class _DiscussionNamingScreenState extends State<DiscussionNamingScreen> {
             Pressable(
               height: 35.0,
               width: 35.0,
-              onPressed: this.widget.onClosePressed,
+              onPressed: () {
+                this.widget.onClosePressed(context);
+              },
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Color.fromRGBO(33, 34, 39, 1.0),
@@ -158,8 +162,8 @@ class _DiscussionNamingScreenState extends State<DiscussionNamingScreen> {
                   ),
                   color: Color.fromRGBO(227, 227, 237, 1.0),
                   onPressed: () {
-                    this.widget.onSavePressed(
-                        this._selectedEmoji, this._titleInputController.text);
+                    this.widget.onSavePressed(context, this._selectedEmoji,
+                        this._titleInputController.text);
                   },
                   child: Container(
                     width: double.infinity,

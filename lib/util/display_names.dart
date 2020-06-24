@@ -21,16 +21,15 @@ class DisplayNames {
   }
 
   static String formatParticipantMention(Moderator moderator, Participant participant) {
-    var name = '${participant.gradientColor}';
+    var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
     if (participant.participantID == 0) {
-      name = moderator.userProfile.displayName;
+      name = moderator.userProfile.twitterURL.displayText.substring(1);
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
-      name = participant.userProfile.displayName;
+      name = participant.userProfile.twitterURL.displayText.substring(1);
     }
 
     name = name.replaceAll(" ", "");
-    name = '$name${participant.participantID}';
     return name;
   }
 

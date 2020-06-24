@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -263,7 +264,7 @@ class DiscussionRepository {
     /* Encode participants mentions (Naive algorithm, but yet sufficient for now) */
     List<String> mentionedEntities = [];
     for(var participant in discussion.participants) {
-      var tag = "@" + Participant.getUniqueNameInDiscussion(discussion, participant);
+      var tag = DisplayNames.formatParticipantMentionWithSymbol(discussion.moderator, participant);
       if(postContent.contains(tag)) {
         var replace = "<${participant.participantID}>";
         var entity = "participant:${participant.id}";

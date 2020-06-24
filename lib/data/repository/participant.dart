@@ -236,22 +236,4 @@ class Participant extends Equatable implements Entity {
     return _$ParticipantToJson(this);
   }
 
-  static String getNameInDiscussion(Discussion discussion, Participant participant) {
-    var name = '${participant.gradientColor} ${participant.participantID}';
-    if (participant.participantID == 0) {
-      name = discussion.moderator.userProfile.displayName;
-    }
-    return name;
-  }
-
-  static String getUniqueNameInDiscussion(Discussion discussion, Participant participant) {
-    // TODO: this has to be changed when proper naming is implemented. Would be cool
-    // to encapsulate the naming logic in a single class in order to be consistent.
-    var name = '${participant.gradientColor} ${participant.participantID}';
-    if (participant.participantID == 0) {
-      name = discussion.moderator.userProfile.displayName + ' ${participant.participantID}';
-    }
-    return name;
-  }
-
 }

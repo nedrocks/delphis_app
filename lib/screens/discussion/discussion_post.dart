@@ -7,6 +7,7 @@ import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
@@ -48,9 +49,8 @@ class DiscussionPost extends StatelessWidget {
       style: Theme.of(context).textTheme.bodyText1,
     );
 
-    /* Hacky way to color participants mentions */
-    var participantMentionPattern = discussion.participants.map((p) => "@${Participant.getUniqueNameInDiscussion(discussion, p)}").join("|");
-    textWidget.regexPatternStyle[RegExp(participantMentionPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    /* Color participants mentions */
+    textWidget.regexPatternStyle[RegExp(DisplayNames.participantMentionRegexPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
 
     if (this.post.postType == PostType.CONCIERGE &&
         (this.onboardingConciergeStep == null ||
@@ -148,7 +148,7 @@ class DiscussionPost extends StatelessWidget {
       var id = post.mentionedEntities[i].id;
       var p = discussion.participants.firstWhere((e) => e.id.compareTo(id) == 0, orElse: () => null);
       if(p != null && postContent.contains("<${p.participantID}>")) {
-        postContent = postContent.replaceAll("<${p.participantID}>", "@" + Participant.getUniqueNameInDiscussion(discussion, p));
+        postContent = postContent.replaceAll("<${p.participantID}>", DisplayNames.formatParticipantMentionWithSymbol(this.moderator, p));
       }
     }
 
@@ -156,7 +156,7 @@ class DiscussionPost extends StatelessWidget {
     RegExp mentionRegex = RegExp("<[A-Za-z0-9_-]*>");
     if(mentionRegex.hasMatch(postContent)) {
       for(var match in mentionRegex.allMatches(postContent)) {
-        postContent = postContent.replaceAll(match.group(0), Intl.message("@none"));
+        postContent = postContent.replaceAll(match.group(0), Intl.message("${DisplayNames.participantMentionSymbol}unknown"));
       }
     }
     

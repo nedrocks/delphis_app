@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/input/participant_mention_hint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
       this.popupHeight = 0;
       if(participantMention != null) {
         setState(() {
-          participantsHint = getParticipantHints(participantMention);
+          participantsHint = getParticipantHints(this.textController.text, participantMention);
           this.popupHeight = popupEntryHeight;
           participantsHint.then((value) => setState(() {
             popupHeight = min(popupMaxEntries.toDouble(), value.length.toDouble()) * popupEntryHeight;
@@ -179,18 +180,19 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     if(offset < 0 || offset > text.length)
       return null;
     text = text.substring(0, offset);
-    RegExp regex = RegExp("@[A-Za-z0-9_-]*");
+    RegExp regex = RegExp(DisplayNames.participantMentionRegexPattern);
     if(regex.hasMatch(text)) {
       var matches = regex.allMatches(text);
       var match = matches.last.group(0).substring(1);
-      if ((match.length == 0 && text.endsWith("@")) || (match.length > 0 && text.endsWith(match)))
+      if ((match.length == 0 && text.endsWith(DisplayNames.participantMentionSymbol)) || (match.length > 0 && text.endsWith(match)))
         return match;
     }
     return null;
   }
 
   void participantMentionAutoComplete(Participant participant) {
-    var hint = Participant.getUniqueNameInDiscussion(this.widget.discussion, participant);
+    var hint = DisplayNames.formatParticipantMention(this.widget.discussion.moderator, participant);
+    var hintWithSymbol = DisplayNames.formatParticipantMentionWithSymbol(this.widget.discussion.moderator, participant);
     var attempt = getLastParticipantMentionAttempt();
     var text = textController.text;
     var offset = textController.selection.baseOffset;
@@ -200,22 +202,26 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
     newText += text.substring(offset);
 
-    this.textController.regexPatternStyle[RegExp("@$hint")] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    this.textController.regexPatternStyle[RegExp("$hintWithSymbol")] = 
+        (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
     this.textController.text = newText;
     this.textController.selection = newSelection;
     this.textController.notifyListeners();
   }
 
-  Future<List<Participant>> getParticipantHints(String mention) {
+  Future<List<Participant>> getParticipantHints(String wholeText, String mention) {
     var list = this.widget.discussion.participants
         .where((e) => 
-          Participant.getUniqueNameInDiscussion(this.widget.discussion, e).toLowerCase()
+          DisplayNames.formatParticipant(this.widget.discussion.moderator, e).toLowerCase()
             .startsWith(mention.toLowerCase()))
+        /* Block the user from mentioning themselves */
         .where((e) => e.id != this.widget.discussion.meParticipant.id)
+        /* Block the user from mentioning someone twice */
+        .where((e) => !wholeText.contains(DisplayNames.formatParticipantMentionWithSymbol(this.widget.discussion.moderator, e)))
         .toList();
     list.sort((a, b) {
-      return Participant.getUniqueNameInDiscussion(this.widget.discussion,a).
-        compareTo(Participant.getUniqueNameInDiscussion(this.widget.discussion,b));
+      return DisplayNames.formatParticipantMention(this.widget.discussion.moderator, a).
+        compareTo(DisplayNames.formatParticipantMention(this.widget.discussion.moderator, b));
     });
     return Future.value(list);
   }

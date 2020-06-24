@@ -2,7 +2,6 @@ import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/post_title.dart';
-import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
@@ -20,23 +19,21 @@ class ParticipantMentionHintWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final isModeratorAuthor = this.participant?.participantID == 0 ?? false;
     Widget profileImage;
-    if(participant.isAnonymous || participant.flair == null) {
-      profileImage = AnonProfileImage(height: 32, width: 32);
-    }
-    else if(participant.participantID == 0) {
+    
+    if(isModeratorAuthor ) {
       profileImage = ModeratorProfileImage(
         diameter: 32.0,
         outerBorderWidth: 0.0,
-        profileImageURL: this.moderator.userProfile.profileImageURL
-      );
+        profileImageURL: this.moderator.userProfile.profileImageURL);
     }
     else {
       profileImage = ProfileImage(
-        width: 32,
         height: 32,
-        profileImageURL: participant.flair.imageURL,
-      );
+        width: 32,
+        profileImageURL: this.participant.userProfile?.profileImageURL,
+        isAnonymous: this.participant.isAnonymous);
     }
 
     return Material(

@@ -88,6 +88,13 @@ class TextThemes {
     decoration: TextDecoration.underline,
   );
 
+  static final cancelText = TextStyle(
+    fontSize: 11.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(247, 247, 255, 0.88),
+    letterSpacing: 0.06,
+  );
+
   static final discussionPostAuthorAnonDescriptor = TextStyle(
     fontSize: 12.0,
     fontWeight: FontWeight.w700,

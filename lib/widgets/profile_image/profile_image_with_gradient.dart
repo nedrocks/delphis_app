@@ -60,16 +60,13 @@ class ProfileImageWithGradient extends StatelessWidget {
         height: this.height,
         decoration: BoxDecoration(
           gradient: gradient,
-          shape: this.isModerator ? BoxShape.circle : BoxShape.rectangle,
+          shape: BoxShape.circle,
           border: this.isModerator
               ? null
               : Border.all(
                   color: Colors.transparent,
                   width: 1.5,
                 ),
-          borderRadius: this.isModerator
-              ? null
-              : BorderRadius.all(Radius.circular(borderRadius)),
         ),
         child: profileImage,
       );

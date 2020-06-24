@@ -301,3 +301,26 @@ class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
         .toList();
   }
 }
+
+class ListMyDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
+  final String _query = """
+    query MyDiscussions() {
+      me {
+        discussions {
+          ...DiscussionListFragment
+        }
+      }
+    }
+    $DiscussionListFragment
+  """;
+
+  const ListMyDiscussionsGQLQuery() : super();
+
+  String query() {
+    return this._query;
+  }
+
+  List<Discussion> parseResult(dynamic data) {
+    return User.fromJson(data["me"]).discussions;
+  }
+}

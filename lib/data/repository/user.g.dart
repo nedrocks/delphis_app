@@ -24,6 +24,10 @@ User _$UserFromJson(Map<String, dynamic> json) {
         ?.map(
             (e) => e == null ? null : Flair.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    discussions: (json['discussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
   );
 }
 
@@ -33,4 +37,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'viewers': instance.viewers,
       'profile': instance.profile,
       'flairs': instance.flairs,
+      'discussions': instance.discussions,
     };

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -11,9 +12,11 @@ part 'discussion_list_state.dart';
 class DiscussionListBloc
     extends Bloc<DiscussionListEvent, DiscussionListState> {
   final DiscussionRepository repository;
+  final MeBloc meBloc;
 
   DiscussionListBloc({
     @required this.repository,
+    @required this.meBloc,
   }) : super();
 
   @override
@@ -30,9 +33,18 @@ class DiscussionListBloc
       if (currentState is DiscussionListLoaded) {
         currentList = currentState.discussionList;
       }
+
       yield DiscussionListLoaded(discussionList: currentList, isLoading: true);
       try {
-        currentList = await this.repository.getDiscussionList();
+        if (meBloc.state is LoadedMeState) {
+          try {
+            currentList = await this.repository.getMyDiscussionList();
+          } catch (err) {
+            currentList = await this.repository.getDiscussionList();
+          }
+        } else {
+          currentList = await this.repository.getDiscussionList();
+        }
         yield DiscussionListLoaded(
             discussionList: currentList, isLoading: false);
       } catch (err) {

@@ -162,7 +162,9 @@ class _DiscussionNamingScreenState extends State<DiscussionNamingScreen> {
                   ),
                   color: Color.fromRGBO(227, 227, 237, 1.0),
                   onPressed: () {
-                    this.widget.onSavePressed(context, this._selectedEmoji,
+                    this.widget.onSavePressed(
+                        context,
+                        this._emojiInputController.text,
                         this._titleInputController.text);
                   },
                   child: Container(

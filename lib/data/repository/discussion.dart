@@ -255,7 +255,8 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
-  Future<Discussion> updateDiscussion(String discussionID, String title,
+  Future<Discussion> updateDiscussion(
+      String discussionID, String title, String iconURL,
       {int attempt = 1}) async {
     if (title == null || title.length == 0) {
       return null;
@@ -265,15 +266,16 @@ class DiscussionRepository {
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return updateDiscussion(discussionID, title, attempt: attempt + 1);
+        return updateDiscussion(discussionID, title, iconURL,
+            attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           'Failed to createDiscussion because backend connection is severed');
     }
 
-    final mutation =
-        UpdateDiscussionMutation(discussionID: discussionID, title: title);
+    final mutation = UpdateDiscussionMutation(
+        discussionID: discussionID, title: title, iconURL: iconURL);
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -399,6 +401,14 @@ class Discussion extends Equatable {
 
   void addLocalPost(LocalPost post) {
     this.postsCache.insert(0, post.post);
+  }
+
+  String getEmojiIcon() {
+    // Emoji Icon is a weird internally defined "url" for an emoji.
+    if (this.iconURL != null && this.iconURL.startsWith("emoji://")) {
+      return iconURL.substring("emoji://".length);
+    }
+    return null;
   }
 
   bool replaceLocalPost(Post withPost, GlobalKey localPostKey) {

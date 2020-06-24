@@ -14,10 +14,15 @@ class DiscussionIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (this.imageURL != null && this.imageURL != '') {
+      final isEmoji = this.imageURL.startsWith("emoji://");
       return Container(
           width: this.width,
           height: this.height,
-          child: Image.network(this.imageURL));
+          child: isEmoji
+              ? Text(this.imageURL.substring("emoji://".length),
+                  style:
+                      TextStyle(fontSize: this.height * 5 / 6, height: 6 / 5))
+              : Image.network(this.imageURL));
     } else {
       return Container(
           width: this.width,

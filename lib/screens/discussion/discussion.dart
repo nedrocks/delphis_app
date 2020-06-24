@@ -1,12 +1,16 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -81,13 +85,20 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         // to clipboard.
         switch (content.appActionID) {
           case ConciergeOption.kAppActionCopyToClipboard:
-            // TODO: Copy this to clipboard!
+            Clipboard.setData(ClipboardData(text: option.value));
+            BlocProvider.of<NotificationBloc>(context).add(NewNotificationEvent(
+                notification: OverlayTopMessage(
+              child: IncognitoModeTextOverlay(
+                  hasGoneIncognito: false, textOverride: "Copied to clipboard"),
+            )));
             break;
           case ConciergeOption.kAppActionRenameChat:
             SchedulerBinding.instance.addPostFrameCallback((_) {
               Navigator.pushNamed(context, '/Discussion/Naming',
                   arguments: DiscussionNamingArguments(
-                      title: discussion.title, discussionID: discussion.id));
+                      title: discussion.title,
+                      discussionID: discussion.id,
+                      selectedEmoji: discussion.getEmojiIcon()));
             });
             BlocProvider.of<DiscussionBloc>(context).add(
                 NextDiscussionOnboardingConciergeStep(nonce: DateTime.now()));
@@ -165,7 +176,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             },
             onSettingsOverlayClose: (_) {
               this.setState(() {
-                if(this._lastFocusedNode != null) {
+                if (this._lastFocusedNode != null) {
                   SchedulerBinding.instance.addPostFrameCallback((_) {
                     FocusScope.of(context).requestFocus(this._lastFocusedNode);
                     this._lastFocusedNode = null;

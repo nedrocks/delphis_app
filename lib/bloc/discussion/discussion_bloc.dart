@@ -106,15 +106,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     } else if (event is LoadPreviousPostsPageEvent &&
         currentState is DiscussionLoadedState &&
-        currentState.discussion.id == event.discussionID
-        && !currentState.isLoading) {
+        currentState.discussion.id == event.discussionID &&
+        !currentState.isLoading) {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final newPostsConnection = await repository.getDiscussionPostsConnection(currentState.discussion.id,
-            postsConnection: currentState.discussion.postsConnection);
-        final updatedDiscussion = currentState.discussion.copyWith(postsConnection: newPostsConnection,
-          postsCache: currentState.discussion.postsCache + newPostsConnection.asPostList());
+        final newPostsConnection = await repository
+            .getDiscussionPostsConnection(currentState.discussion.id,
+                postsConnection: currentState.discussion.postsConnection);
+        final updatedDiscussion = currentState.discussion.copyWith(
+            postsConnection: newPostsConnection,
+            postsCache: currentState.discussion.postsCache +
+                newPostsConnection.asPostList());
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -339,9 +342,12 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedDiscussion = await this
-            .repository
-            .updateDiscussion(event.discussionID, event.title);
+        final updatedDiscussion = await this.repository.updateDiscussion(
+            event.discussionID,
+            event.title,
+            event.selectedEmoji == null
+                ? null
+                : "emoji://${event.selectedEmoji}");
         yield loadingState.update(
           isLoading: false,
           discussion: updatedDiscussion,

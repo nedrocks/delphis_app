@@ -9,10 +9,12 @@ part 'discussion_naming.g.dart';
 class DiscussionNamingArguments {
   final String title;
   final String discussionID;
+  final String selectedEmoji;
 
   const DiscussionNamingArguments({
     @required this.title,
     @required this.discussionID,
+    @required this.selectedEmoji,
   });
 
   factory DiscussionNamingArguments.fromJsonString(String input) =>

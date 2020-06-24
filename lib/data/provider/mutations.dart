@@ -207,6 +207,7 @@ class ConciergeOptionMutation extends GQLMutation<Post> {
 class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   final String discussionID;
   final String title;
+  final String iconURL;
 
   final String _mutation = """
     mutation UpdateDiscussion(\$discussionID: ID!, \$input: DiscussionInput!) {
@@ -219,12 +220,14 @@ class UpdateDiscussionMutation extends GQLMutation<Discussion> {
 
   const UpdateDiscussionMutation({
     @required this.discussionID,
-    @required this.title,
+    this.title,
+    this.iconURL,
   }) : super();
 
   Map<String, dynamic> createInputObject() {
     return {
       'title': this.title,
+      'iconURL': this.iconURL,
     };
   }
 

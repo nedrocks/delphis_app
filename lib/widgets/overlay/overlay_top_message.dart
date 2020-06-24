@@ -51,7 +51,9 @@ class _OverlayTopMessageState extends State<OverlayTopMessage> {
   void fadeOutComplete() {
     this._entry?.remove();
     this._entry = null;
-    this.widget.onDismiss();
+    if (this.widget != null && this.widget.onDismiss != null) {
+      this.widget.onDismiss();
+    }
   }
 
   Widget build(BuildContext context) {

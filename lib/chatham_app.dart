@@ -321,12 +321,13 @@ class ChathamAppState extends State<ChathamApp>
                     type: PageTransitionType.rightToLeft,
                     child: DiscussionNamingScreen(
                         title: arguments.title,
-                        selectedEmoji: '🦆',
+                        selectedEmoji: arguments.selectedEmoji,
                         onSavePressed: (context, selectedEmoji, title) {
                           discussionBloc.add(
                             DiscussionUpdateEvent(
                                 discussionID: arguments.discussionID,
-                                title: title),
+                                title: title,
+                                selectedEmoji: selectedEmoji),
                           );
                           Navigator.pop(context);
                         },

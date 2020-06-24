@@ -196,14 +196,16 @@ class DiscussionShowOnboardingEvent extends DiscussionEvent {
 class DiscussionUpdateEvent extends DiscussionEvent {
   final String discussionID;
   final String title;
+  final String selectedEmoji;
 
   DiscussionUpdateEvent({
     @required this.title,
     @required this.discussionID,
+    @required this.selectedEmoji,
   }) : super();
 
   @override
-  List<Object> get props => [this.title, this.discussionID];
+  List<Object> get props => [this.title, this.discussionID, this.selectedEmoji];
 }
 
 class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {

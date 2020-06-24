@@ -25,37 +25,10 @@ class AddPostGQLMutation extends GQLMutation<Post> {
   final String _mutation = """
     mutation AddPost(\$discussionID: ID!, \$participantID: ID!, \$postContent: PostContentInput!) {
       addPost(discussionID: \$discussionID, participantID: \$participantID, postContent: \$postContent) {
-        id
-        content
-        participant {
-          id
-          participantID
-          isAnonymous
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-          hasJoined
-        }
-        isDeleted
-        createdAt
-        updatedAt
-        mentionedEntities {
-          id
-          ... on Discussion {
-            title
-            anonymityType
-          }
-          ... on Participant {
-            isAnonymous
-            participantID
-          }
-        }
+        ...PostInfoFragment
       }
     }
+    $PostInfoFragment
   """;
 
   const AddPostGQLMutation({
@@ -180,6 +153,71 @@ class UpdateUserDeviceGQLMutation extends GQLMutation<UserDevice> {
 
   UserDevice parseResult(dynamic data) {
     return UserDevice.fromJson(data["upsertUserDevice"]);
+  }
+}
+
+class ConciergeOptionMutation extends GQLMutation<Post> {
+  final String discussionID;
+  final String mutationID;
+  final List<String> selectedOptionIDs;
+
+  final String _mutation = """
+    mutation ConciergeMutation(\$discussionID: ID!, \$mutationID: ID!, \$selectedOptions: [String!]) {
+      conciergeMutation(discussionID: \$discussionID, mutationID: \$mutationID, selectedOptions: \$selectedOptions) {
+        ...PostInfoFragment
+      }
+    }
+    $PostInfoFragment
+  """;
+
+  const ConciergeOptionMutation({
+    @required this.discussionID,
+    @required this.mutationID,
+    @required this.selectedOptionIDs,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Post parseResult(dynamic data) {
+    return Post.fromJson(data["conciergeMutation"]);
+  }
+}
+
+class UpdateDiscussionMutation extends GQLMutation<Discussion> {
+  final String discussionID;
+  final String title;
+  final String iconURL;
+
+  final String _mutation = """
+    mutation UpdateDiscussion(\$discussionID: ID!, \$input: DiscussionInput!) {
+      updateDiscussion(discussionID: \$discussionID, input: \$input) {
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  const UpdateDiscussionMutation({
+    @required this.discussionID,
+    this.title,
+    this.iconURL,
+  }) : super();
+
+  Map<String, dynamic> createInputObject() {
+    return {
+      'title': this.title,
+      'iconURL': this.iconURL,
+    };
+  }
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["updateDiscussion"]);
   }
 }
 

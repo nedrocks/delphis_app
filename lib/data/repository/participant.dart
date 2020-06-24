@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/repository/user_profile.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -210,6 +211,7 @@ class Participant extends Equatable implements Entity {
   final String gradientColor;
   final Flair flair;
   final bool hasJoined;
+  final UserProfile userProfile;
 
   List<Object> get props =>
       [participantID, discussion, viewer, posts, flair, hasJoined];
@@ -224,6 +226,7 @@ class Participant extends Equatable implements Entity {
     this.gradientColor,
     this.flair,
     this.hasJoined,
+    this.userProfile,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) =>

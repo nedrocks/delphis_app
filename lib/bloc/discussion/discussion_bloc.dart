@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/tracking/constants.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     return false;
   }
 
+  int getConciergeStep(Discussion discussion) {
+    if (discussion.postsCache != null) {
+      for (int i = 0; i < discussion.postsCache.length; i++) {
+        if (discussion.postsCache[i].postType == PostType.CONCIERGE) {
+          // We may want to keep state in the future.
+          return 0;
+        }
+      }
+    }
+    return null;
+  }
+
   @override
   Stream<DiscussionState> mapEventToState(DiscussionEvent event) async* {
     var currentState = this.state;
@@ -68,8 +81,12 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         yield DiscussionLoadingState();
         final discussion = await repository.getDiscussion(event.discussionID);
+        int conciergeStep = getConciergeStep(discussion);
         yield DiscussionLoadedState(
-            discussion: discussion, lastUpdate: DateTime.now());
+          discussion: discussion,
+          lastUpdate: DateTime.now(),
+          onboardingConciergeStep: conciergeStep,
+        );
       } catch (err) {
         yield DiscussionErrorState(err);
       }
@@ -89,15 +106,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     } else if (event is LoadPreviousPostsPageEvent &&
         currentState is DiscussionLoadedState &&
-        currentState.discussion.id == event.discussionID
-        && !currentState.isLoading) {
+        currentState.discussion.id == event.discussionID &&
+        !currentState.isLoading) {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final newPostsConnection = await repository.getDiscussionPostsConnection(currentState.discussion.id,
-            postsConnection: currentState.discussion.postsConnection);
-        final updatedDiscussion = currentState.discussion.copyWith(postsConnection: newPostsConnection,
-          postsCache: currentState.discussion.postsCache + newPostsConnection.asPostList());
+        final newPostsConnection = await repository
+            .getDiscussionPostsConnection(currentState.discussion.id,
+                postsConnection: currentState.discussion.postsConnection);
+        final updatedDiscussion = currentState.discussion.copyWith(
+            postsConnection: newPostsConnection,
+            postsCache: currentState.discussion.postsCache +
+                newPostsConnection.asPostList());
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -281,6 +301,59 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       } catch (err) {
         // TODO: We should probably say that we failed somewhere.
         yield originalState;
+      }
+    } else if (event is DiscussionConciergeOptionSelectedEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final loadingState = currentState.update(isLoading: true);
+      yield loadingState;
+      try {
+        final updatedPost = await this.repository.selectConciergeMutation(
+            event.discussionID, event.mutationID, event.selectedOptionIDs);
+        final postsCache = loadingState.discussion.postsCache;
+        for (int i = 0; i < postsCache.length; i++) {
+          if (postsCache[i].id == updatedPost.id) {
+            postsCache[i] = updatedPost;
+            break;
+          }
+        }
+        yield loadingState.update(
+            isLoading: false,
+            onboardingConciergeStep:
+                loadingState.onboardingConciergeStep == null
+                    ? 0
+                    : loadingState.onboardingConciergeStep + 1);
+      } catch (err) {
+        yield loadingState.update(isLoading: false);
+      }
+    } else if (event is DiscussionShowOnboardingEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      yield currentState.update(onboardingConciergeStep: 0);
+    } else if (event is NextDiscussionOnboardingConciergeStep &&
+        currentState is DiscussionLoadedState) {
+      yield currentState.update(
+          onboardingConciergeStep: currentState.onboardingConciergeStep == null
+              ? 0
+              : currentState.onboardingConciergeStep + 1);
+    } else if (event is DiscussionUpdateEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final loadingState = currentState.update(isLoading: true);
+      yield loadingState;
+      try {
+        final updatedDiscussion = await this.repository.updateDiscussion(
+            event.discussionID,
+            event.title,
+            event.selectedEmoji == null
+                ? null
+                : "emoji://${event.selectedEmoji}");
+        yield loadingState.update(
+          isLoading: false,
+          discussion: updatedDiscussion,
+        );
+      } catch (err) {
+        yield loadingState.update(isLoading: false);
       }
     }
   }

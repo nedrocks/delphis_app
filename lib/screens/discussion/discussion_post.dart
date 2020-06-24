@@ -1,16 +1,22 @@
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
-import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
+import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'post_title.dart';
+
+typedef ConciergePostOptionPressed(
+    Post post, ConciergeContent content, ConciergeOption option);
 
 class DiscussionPost extends StatelessWidget {
   final Post post;
@@ -18,17 +24,25 @@ class DiscussionPost extends StatelessWidget {
   final Moderator moderator;
   final Discussion discussion;
 
+  final int conciergeIndex;
+  final int onboardingConciergeStep;
+
+  final ConciergePostOptionPressed onConciergeOptionPressed;
+
   const DiscussionPost({
     Key key,
     @required this.participant,
     @required this.post,
     @required this.moderator,
-    @required this.discussion
+    @required this.discussion,
+    @required this.conciergeIndex,
+    @required this.onboardingConciergeStep,
+    @required this.onConciergeOptionPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isModeratorAuthor = this.participant.participantID == 0;
+    final isModeratorAuthor = this.participant?.participantID == 0 ?? false;
     var textWidget = EmojiText(
       text: '${formatPostContent(this.post, this.discussion)}',
       style: Theme.of(context).textTheme.bodyText1,
@@ -38,17 +52,18 @@ class DiscussionPost extends StatelessWidget {
     var participantMentionPattern = discussion.participants.map((p) => "@${Participant.getUniqueNameInDiscussion(discussion, p)}").join("|");
     textWidget.regexPatternStyle[RegExp(participantMentionPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
 
+    if (this.post.postType == PostType.CONCIERGE &&
+        (this.onboardingConciergeStep == null ||
+            this.conciergeIndex > this.onboardingConciergeStep)) {
+      return Container(width: 0, height: 0);
+    }
     return Opacity(
       opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
-        padding: EdgeInsets.only(
-            left: SpacingValues.medium,
-            top: SpacingValues.medium,
-            bottom: SpacingValues.medium),
+        padding: EdgeInsets.all(SpacingValues.medium),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          // TODO: We need to hook this up to use the correct image for non-anonymous participants.
           children: <Widget>[
             Container(
               key: this.key == null
@@ -76,7 +91,11 @@ class DiscussionPost extends StatelessWidget {
                         outerBorderWidth: 0.0,
                         profileImageURL:
                             this.moderator.userProfile.profileImageURL)
-                    : AnonProfileImage(),
+                    : ProfileImage(
+                        profileImageURL:
+                            this.participant.userProfile?.profileImageURL,
+                        isAnonymous: this.participant.isAnonymous,
+                      ),
               ),
             ),
             Expanded(
@@ -100,6 +119,12 @@ class DiscussionPost extends StatelessWidget {
                         Container(
                           padding: EdgeInsets.only(top: SpacingValues.xxSmall),
                           child: textWidget,
+                        ),
+                        ConciergeDiscussionPostOptions(
+                          participant: this.participant,
+                          post: this.post,
+                          onConciergeOptionPressed:
+                              this.onConciergeOptionPressed,
                         ),
                       ],
                     ),

@@ -1,7 +1,9 @@
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'concierge_content.dart';
 import 'discussion.dart';
 import 'entity.dart';
 import 'page_info.dart';
@@ -22,6 +24,10 @@ class Post extends Equatable {
   final String createdAt;
   final String updatedAt;
   final List<Entity> mentionedEntities;
+  final Post quotedPost;
+  final PostType postType;
+  final ConciergeContent conciergeContent;
+
   final bool isLocalPost;
 
   List<Object> get props => [
@@ -47,6 +53,9 @@ class Post extends Equatable {
     this.updatedAt,
     this.mentionedEntities,
     this.isLocalPost = false,
+    this.quotedPost,
+    this.postType,
+    this.conciergeContent,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);

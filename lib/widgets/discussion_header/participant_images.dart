@@ -28,9 +28,7 @@ class ParticipantImages extends StatelessWidget {
       response.add(ProfileImage(
         height: this.height,
         width: this.height,
-        // TODO: Change this once we have profile images for non-anon.
-        profileImageURL:
-            'https://pbs.twimg.com/profile_images/569623151382765568/IXqTQzHo_normal.jpeg',
+        profileImageURL: nonAnon[i].userProfile.profileImageURL,
       ));
     }
     return response;

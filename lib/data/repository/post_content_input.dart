@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'post_content_input.g.dart';
 
-enum PostType { STANDARD, IMPORTED_CONTENT, ALERT }
+enum PostType { STANDARD, IMPORTED_CONTENT, ALERT, CONCIERGE }
 
 @JsonSerializable()
 class PostContentInput extends Equatable {

@@ -11,6 +11,7 @@ DiscussionNamingArguments _$DiscussionNamingArgumentsFromJson(
   return DiscussionNamingArguments(
     title: json['title'] as String,
     discussionID: json['discussionID'] as String,
+    selectedEmoji: json['selectedEmoji'] as String,
   );
 }
 
@@ -19,4 +20,5 @@ Map<String, dynamic> _$DiscussionNamingArgumentsToJson(
     <String, dynamic>{
       'title': instance.title,
       'discussionID': instance.discussionID,
+      'selectedEmoji': instance.selectedEmoji,
     };

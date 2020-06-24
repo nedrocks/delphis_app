@@ -33,8 +33,10 @@ class PostTitle extends StatelessWidget {
       // This is the moderator
       name = Text(moderator.userProfile.displayName,
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
-    } else if (!(participant.isAnonymous ?? true)) {
-      // Need to pass the profile down from the backend.
+    } else if (!(participant.isAnonymous ?? true) &&
+        participant.userProfile != null) {
+      name = Text(participant.userProfile.displayName,
+          style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
     }
 
     return Container(

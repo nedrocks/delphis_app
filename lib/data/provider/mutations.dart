@@ -25,29 +25,10 @@ class AddPostGQLMutation extends GQLMutation<Post> {
   final String _mutation = """
     mutation AddPost(\$discussionID: ID!, \$participantID: ID!, \$postContent: PostContentInput!) {
       addPost(discussionID: \$discussionID, participantID: \$participantID, postContent: \$postContent) {
-        id
-        content
-        participant {
-          id
-          participantID
-          isAnonymous
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-          hasJoined
-        }
-        isDeleted
-        createdAt
-        updatedAt
-        quotedPost
-        postType
-        conciergeContent
+        ...PostInfoFragment
       }
     }
+    $PostInfoFragment
   """;
 
   const AddPostGQLMutation({

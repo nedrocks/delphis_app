@@ -2,6 +2,7 @@ import UIKit
 import Flutter
 import Ably
 import UserNotifications
+import Firebase
 
 let apiKey = ""
 let myClientId = "foo"
@@ -24,8 +25,6 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-
-
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     _tokenChannel = FlutterMethodChannel(name: "chatham.ai/push_token",
                                               binaryMessenger: controller.binaryMessenger)
@@ -44,7 +43,6 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
     } else {
         // Fallback on earlier versions
     }
-
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

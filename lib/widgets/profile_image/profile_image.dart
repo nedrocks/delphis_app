@@ -1,7 +1,9 @@
+import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:flutter/material.dart';
 
 class ProfileImage extends StatelessWidget {
   final String profileImageURL;
+  final bool isAnonymous;
   final double height;
   final double width;
   final BoxBorder border;
@@ -9,6 +11,7 @@ class ProfileImage extends StatelessWidget {
   final double gradientWidth;
 
   const ProfileImage({
+    this.isAnonymous = false,
     this.profileImageURL,
     this.height,
     this.width,
@@ -22,6 +25,13 @@ class ProfileImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (this.isAnonymous) {
+      return AnonProfileImage(
+          height: this.height,
+          width: this.width,
+          borderShape: BoxShape.circle,
+          border: this.border);
+    }
     return Container(
       height: this.height,
       width: this.width,

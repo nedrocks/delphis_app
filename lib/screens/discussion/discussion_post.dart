@@ -9,6 +9,7 @@ import 'package:delphis_app/screens/discussion/concierge_discussion_post_options
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
 
 import 'post_title.dart';
@@ -52,7 +53,6 @@ class DiscussionPost extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          // TODO: We need to hook this up to use the correct image for non-anonymous participants.
           children: <Widget>[
             Container(
               key: this.key == null
@@ -80,7 +80,11 @@ class DiscussionPost extends StatelessWidget {
                         outerBorderWidth: 0.0,
                         profileImageURL:
                             this.moderator.userProfile.profileImageURL)
-                    : AnonProfileImage(),
+                    : ProfileImage(
+                        profileImageURL:
+                            this.participant.userProfile?.profileImageURL,
+                        isAnonymous: this.participant.isAnonymous,
+                      ),
               ),
             ),
             Expanded(

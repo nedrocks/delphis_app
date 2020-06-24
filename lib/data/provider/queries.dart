@@ -18,7 +18,11 @@ const ParticipantInfoFragment = """
       source
     }
     hasJoined
+    userProfile{
+      ...ParticipantUserProfileFragment
+    }
   }
+  $ParticipantUserProfileFragment
 """;
 
 const QuotedPostInfoFragment = """
@@ -90,16 +94,25 @@ const PostsConnectionFragment = """
   $PostInfoFragment
 """;
 
+const _userProfileFields = """
+  id
+  displayName
+  twitterURL {
+    displayText
+    url
+  }
+  profileImageURL
+""";
 
 const UserProfileFragment = """
   fragment UserProfileFullFragment on UserProfile {
-    id
-    displayName
-    twitterURL {
-      displayText
-      url
-    }
-    profileImageURL
+    $_userProfileFields
+  }
+""";
+
+const ParticipantUserProfileFragment = """
+  fragment ParticipantUserProfileFragment on UserProfile {
+    $_userProfileFields
   }
 """;
 
@@ -214,7 +227,6 @@ class PostsConnectionForDiscussionQuery extends GQLQuery<PostsConnection> {
     return PostsConnection.fromJson(data['discussion']['postsConnection']);
   }
 }
-
 
 class ParticipantsForDiscussionQuery extends GQLQuery<List<Participant>> {
   final String discussionID;

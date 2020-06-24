@@ -62,4 +62,5 @@ const _$PostTypeEnumMap = {
   PostType.STANDARD: 'STANDARD',
   PostType.IMPORTED_CONTENT: 'IMPORTED_CONTENT',
   PostType.ALERT: 'ALERT',
+  PostType.CONCIERGE: 'CONCIERGE',
 };

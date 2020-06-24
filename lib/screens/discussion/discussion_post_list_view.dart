@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,18 +21,29 @@ class DiscussionPostListView extends StatelessWidget {
   final RefreshController refreshController;
   final bool isRefreshEnabled;
 
+  final int onboardingConciergeStep;
+
+  final ConciergePostOptionPressed onConciergeOptionPressed;
+
   DiscussionPostListView({
     @required key,
     @required this.scrollController,
     @required this.discussion,
     @required this.refreshController,
     @required this.isRefreshEnabled,
+    @required this.onboardingConciergeStep,
+    @required this.onConciergeOptionPressed,
     this.isVisible = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
+
+    final numConciergePosts = (this.discussion.postsCache ?? []).where((post) {
+      return post.postType == PostType.CONCIERGE;
+    }).length;
+
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -71,8 +83,12 @@ class DiscussionPostListView extends StatelessWidget {
           builder: (context, status) {
             bool noMore = false;
             var currState = discussionBloc.state;
-            if(currState is DiscussionLoadedState) {
-              if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+            if (currState is DiscussionLoadedState) {
+              if (!currState
+                  .getDiscussion()
+                  .postsConnection
+                  .pageInfo
+                  .hasNextPage) {
                 noMore = true;
               }
             }
@@ -92,10 +108,10 @@ class DiscussionPostListView extends StatelessWidget {
             }
 
             return Container(
-                height: 55.0,
-                child: Center(
-                  child: body,
-                ),
+              height: 55.0,
+              child: Center(
+                child: body,
+              ),
             );
           },
         ),
@@ -114,16 +130,20 @@ class DiscussionPostListView extends StatelessWidget {
         },
         onLoading: () async {
           var currState = discussionBloc.state;
-          if(currState is DiscussionLoadedState) {
-            if(!currState.getDiscussion().postsConnection.pageInfo.hasNextPage) {
+          if (currState is DiscussionLoadedState) {
+            if (!currState
+                .getDiscussion()
+                .postsConnection
+                .pageInfo
+                .hasNextPage) {
               // Simulate a little loading
               await Future.delayed(Duration(milliseconds: 300));
               this.refreshController.loadComplete();
               return;
             }
           }
-          discussionBloc
-              .add(LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
+          discussionBloc.add(
+              LoadPreviousPostsPageEvent(discussionID: this.discussion.id));
           for (var i = 0; i < 3; i++) {
             await Future.delayed(Duration(milliseconds: 500 * (i + 1)));
             currState = discussionBloc.state;
@@ -142,6 +162,11 @@ class DiscussionPostListView extends StatelessWidget {
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
+              onConciergeOptionPressed: this.onConciergeOptionPressed,
+              // I think this will break due to paging.
+              conciergeIndex: max(
+                  numConciergePosts - this.numConciergePostsUpTo(index) - 1, 0),
+              onboardingConciergeStep: this.onboardingConciergeStep,
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
@@ -156,5 +181,15 @@ class DiscussionPostListView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  int numConciergePostsUpTo(int index) {
+    var counter = 0;
+    for (int i = 0; i < this.discussion.postsCache.length && i < index; i++) {
+      if (this.discussion.postsCache[index].postType == PostType.CONCIERGE) {
+        counter++;
+      }
+    }
+    return counter;
   }
 }

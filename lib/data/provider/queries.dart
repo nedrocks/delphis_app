@@ -21,6 +21,30 @@ const ParticipantInfoFragment = """
   }
 """;
 
+const QuotedPostInfoFragment = """
+  fragment QuotedPostInfoFragment on Post {
+    id
+    content
+    participant {
+      id
+      participantID
+    }
+    isDeleted
+    createdAt
+    updatedAt
+    postType
+    conciergeContent{
+      appActionID
+      mutationID
+      options{
+        text
+        value
+        selected
+      }
+    }
+  }
+""";
+
 const PostInfoFragment = """
   fragment PostInfoFragment on Post {
     id
@@ -32,7 +56,21 @@ const PostInfoFragment = """
     isDeleted
     createdAt
     updatedAt
+    quotedPost{
+      ...QuotedPostInfoFragment
+    }
+    postType
+    conciergeContent{
+      appActionID
+      mutationID
+      options{
+        text
+        value
+        selected
+      }
+    }
   }
+  $QuotedPostInfoFragment
 """;
 
 const PostsConnectionFragment = """

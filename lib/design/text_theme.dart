@@ -221,4 +221,15 @@ class TextThemes {
     color: Color.fromRGBO(137, 137, 142, 1.0),
     letterSpacing: -0.22,
   );
+
+  static final conciergeOptionUnSelectedText = TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.w600,
+      color: Color.fromRGBO(255, 255, 255, 1.0),
+      letterSpacing: -0.22);
+
+  static final conciergeOptionSelectedText =
+      conciergeOptionUnSelectedText.copyWith(
+    color: Color.fromRGBO(22, 23, 27, 1.0),
+  );
 }

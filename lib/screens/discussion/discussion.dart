@@ -90,6 +90,10 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 notification: OverlayTopMessage(
               child: IncognitoModeTextOverlay(
                   hasGoneIncognito: false, textOverride: "Copied to clipboard"),
+              onDismiss: () {
+                BlocProvider.of<NotificationBloc>(context)
+                    .add(DismissNotification());
+              },
             )));
             break;
           case ConciergeOption.kAppActionRenameChat:
@@ -115,10 +119,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
       }
     }
-
-    setState(() {
-      //this._onboardingConciergeStep++;
-    });
   }
 
   @override

@@ -45,7 +45,6 @@ class DiscussionPost extends StatelessWidget {
             this.conciergeIndex > this.onboardingConciergeStep)) {
       return Container(width: 0, height: 0);
     }
-    print('onboarding step: $onboardingConciergeStep, idx: $conciergeIndex');
     return Opacity(
       opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(

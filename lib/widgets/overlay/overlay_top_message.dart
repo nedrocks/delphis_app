@@ -12,7 +12,7 @@ class OverlayTopMessage extends StatefulWidget {
     @required this.child,
     this.showForMs = 1000,
     this.fadeTimeMs = 500,
-    this.onDismiss,
+    @required this.onDismiss,
   }) : super();
 
   @override

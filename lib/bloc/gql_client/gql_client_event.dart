@@ -26,3 +26,11 @@ class GqlClientAuthChanged extends GqlClientEvent {
 
   List<Object> get props => [this.authString, this.isAuthed];
 }
+
+class GqlClientReconnectWebsocketEvent extends GqlClientEvent {
+  final DateTime nonce;
+
+  const GqlClientReconnectWebsocketEvent({@required this.nonce}) : super();
+
+  List<Object> get props => [this.nonce];
+}

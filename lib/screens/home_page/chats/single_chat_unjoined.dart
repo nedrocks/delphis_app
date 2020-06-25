@@ -77,9 +77,11 @@ class SingleChatUnjoined extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Text(this.discussion.title,
-                              style: TextThemes.discussionTitleChatTab,
-                              overflow: TextOverflow.ellipsis,),
+                          Text(
+                            this.discussion.title,
+                            style: TextThemes.discussionTitleChatTab,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
@@ -109,25 +111,26 @@ class SingleChatUnjoined extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: SpacingValues.small),
-                Container(
-                  width: 48.0,
-                  height: 24.0,
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(0.0),
-                    color: Color.fromRGBO(133, 134, 159, 1.0),
-                    onPressed: this.onDeletePressed,
-                    child: Center(
-                      child: Text(
-                        Intl.message('Delete'),
-                        style: TextThemes.deleteButtonTextChatTab,
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(16.0),
-                    ),
-                  ),
-                )
+                // TODO (#10): Reenable the delete key once we have delete on the backend.
+                // SizedBox(width: SpacingValues.small),
+                // Container(
+                //   width: 48.0,
+                //   height: 24.0,
+                //   child: RaisedButton(
+                //     padding: EdgeInsets.all(0.0),
+                //     color: Color.fromRGBO(133, 134, 159, 1.0),
+                //     onPressed: this.onDeletePressed,
+                //     child: Center(
+                //       child: Text(
+                //         Intl.message('Delete'),
+                //         style: TextThemes.deleteButtonTextChatTab,
+                //       ),
+                //     ),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: new BorderRadius.circular(16.0),
+                //     ),
+                //   ),
+                // )
               ],
             ),
           ),

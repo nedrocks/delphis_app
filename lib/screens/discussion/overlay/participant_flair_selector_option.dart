@@ -49,7 +49,7 @@ class ParticipantFlairSelectorOption extends StatelessWidget {
         SizedBox(width: SpacingValues.small),
         Text(
             this.flair == null
-                ? Intl.message('Roll Incognito (No Flair)')
+                ? Intl.message('No Flair')
                 : this.flair.displayName,
             style: TextThemes.goIncognitoOptionName),
         SizedBox(width: SpacingValues.medium),

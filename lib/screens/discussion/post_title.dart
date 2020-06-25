@@ -40,7 +40,6 @@ class PostTitle extends StatelessWidget {
     }
 
     return Container(
-      height: this.height,
       child: new Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
@@ -94,7 +93,7 @@ class PostTitleFlair extends StatelessWidget {
             key: this.key == null
                 ? null
                 : Key('${this.key.toString()}-display-name'),
-            style: kThemeData.textTheme.headline3,
+            style: kThemeData.textTheme.headline3.copyWith(height: 0.8),
           )
         ],
       );

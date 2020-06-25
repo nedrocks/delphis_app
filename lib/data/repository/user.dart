@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
+import 'discussion.dart';
 import 'flair.dart';
 import 'participant.dart';
 import 'user_profile.dart';
@@ -52,6 +53,7 @@ class User extends Equatable {
   final List<Viewer> viewers;
   final UserProfile profile;
   final List<Flair> flairs;
+  final List<Discussion> discussions;
 
   List<Object> get props => [id, participants, viewers, profile];
 
@@ -61,6 +63,7 @@ class User extends Equatable {
     this.viewers,
     this.profile,
     this.flairs,
+    this.discussions,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

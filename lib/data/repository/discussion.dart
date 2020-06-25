@@ -57,6 +57,34 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<List<Discussion>> getMyDiscussionList({int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getDiscussionList(attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to list discussions because connection is severed');
+    }
+
+    final query = ListDiscussionsGQLQuery();
+
+    final QueryResult result = await client.query(
+      QueryOptions(
+        documentNode: gql(query.query()),
+        variables: {},
+        fetchPolicy: FetchPolicy.noCache,
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return query.parseResult(result.data);
+  }
+
   Future<Post> selectConciergeMutation(
       String discussionID, String mutationID, List<String> selectedOptionIDs,
       {int attempt = 1}) async {

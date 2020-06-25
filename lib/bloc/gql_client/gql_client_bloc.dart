@@ -43,6 +43,35 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
   @override
   GqlClientState get initialState => GqlClientInitial();
 
+  SocketClient connectWebsocket(bool isAuthed, String authString) {
+    var wsEndpoint = '${Constants.wsEndpoint}';
+    if (isAuthed) {
+      wsEndpoint = '$wsEndpoint?access_token=$authString';
+    }
+
+    final socketClient = SocketClient(wsEndpoint);
+
+    if (this.websocketStateListener != null) {
+      this.websocketStateListener.cancel();
+      this.websocketStateListener = null;
+    }
+
+    this.websocketStateListener =
+        socketClient.connectionState.listen((cxState) async {
+      if (cxState == SocketConnectionState.CONNECTED) {
+        this.add(GqlClientSocketConnected());
+      } else if (cxState == SocketConnectionState.NOT_CONNECTED) {
+        this.websocketStateListener.cancel();
+        this.websocketStateListener = null;
+        await socketClient.dispose();
+
+        this.add(GqlClientReconnectWebsocketEvent(nonce: DateTime.now()));
+      }
+    });
+
+    return socketClient;
+  }
+
   @override
   Stream<GqlClientState> mapEventToState(
     GqlClientEvent event,
@@ -72,17 +101,11 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
       });
       Link link = authLink.concat(httpLink);
 
-      var wsEndpoint = '${Constants.wsEndpoint}';
-      if (event.isAuthed) {
-        wsEndpoint = '$wsEndpoint?access_token=${event.authString}';
-      }
-
       gqlClient = GraphQLClient(
         // TODO: Move this into a global scope that is reused?
         cache: InMemoryCache(),
         link: link,
       );
-      socketClient = SocketClient(wsEndpoint);
 
       Segment.track(
           eventName: ChathamTrackingEventNames.BACKEND_CONNECTION,
@@ -92,25 +115,34 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
             'isAuthed': event.isAuthed,
           });
 
-      this.websocketStateListener =
-          socketClient.connectionState.listen((cxState) {
-        if (cxState == SocketConnectionState.CONNECTED) {
-          this.add(GqlClientSocketConnected());
-          // TODO: Keep this going and listen for when we lose the connection
-          // so we can reestablish it!
-          this.websocketStateListener.cancel();
-        }
-      });
+      socketClient = this.connectWebsocket(event.isAuthed, event.authString);
+
       yield GqlClientConnectingState(
-          client: gqlClient,
-          websocketGQLClient: socketClient,
-          equatableID: DateTime.now().toString());
+        client: gqlClient,
+        websocketGQLClient: socketClient,
+        equatableID: DateTime.now().toString(),
+        authString: event.authString,
+        isAuthed: event.isAuthed,
+      );
     } else if (event is GqlClientSocketConnected &&
         currentState is GqlClientConnectingState) {
       yield GqlClientConnectedState(
           client: currentState.client,
           websocketGQLClient: currentState.websocketGQLClient,
-          equatableID: currentState.equatableID);
+          equatableID: currentState.equatableID,
+          isAuthed: currentState.isAuthed,
+          authString: currentState.authString);
+    } else if (event is GqlClientReconnectWebsocketEvent &&
+        currentState is GqlClientConnectedState) {
+      final socketClient =
+          this.connectWebsocket(currentState.isAuthed, currentState.authString);
+      yield GqlClientConnectingState(
+        client: currentState.client,
+        websocketGQLClient: socketClient,
+        equatableID: DateTime.now().toString(),
+        authString: currentState.authString,
+        isAuthed: currentState.isAuthed,
+      );
     }
   }
 }

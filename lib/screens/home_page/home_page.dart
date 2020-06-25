@@ -58,8 +58,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
     this._currentTab = HomePageTab.CHAT;
 
     this._topBarBackgroundColor = Color.fromRGBO(22, 23, 28, 1.0);
-    this._discussionListBloc =
-        DiscussionListBloc(repository: this.widget.discussionRepository);
+    this._discussionListBloc = DiscussionListBloc(
+        repository: this.widget.discussionRepository,
+        meBloc: BlocProvider.of<MeBloc>(context));
 
     this._createDiscussionNonce = DateTime.now().toString();
     this._isCreatingDiscussion = false;
@@ -95,6 +96,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   backgroundColor: this._topBarBackgroundColor),
               Expanded(
                 child: ChatsScreen(
+                  discussionListBloc: this._discussionListBloc,
                   discussionRepository: this.widget.discussionRepository,
                   routeObserver: this.widget.routeObserver,
                 ),
@@ -157,16 +159,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
         value: this._discussionListBloc,
         child: content,
       ),
-      // body: DiscussionNamingScreen(
-      //   title: 'Ned\'s discussion',
-      //   selectedEmoji: '🦆',
-      //   onSavePressed: (selectedEmoji, title) {
-      //     print('save');
-      //   },
-      //   onClosePressed: () {
-      //     print('close');
-      //   },
-      // ),
     );
   }
 }

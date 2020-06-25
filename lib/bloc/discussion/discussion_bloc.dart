@@ -185,7 +185,14 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             this.add(LocalPostCreateFailure(localPost: localPost));
             return;
           }
+
+          /* The post content may have changed during submission
+             (This appens with mentions, for instance). This adds resistence in case
+             the content mutation happens either in the frontend or the backend. */
+          localPost.post = localPost.post.copyWith(content: addedPost.content);
+
           // The current state may have changed since this is a future.
+          print("Localpost content: ${localPost.post.content}");
           this.add(LocalPostCreateSuccess(
               createdPost: addedPost, localPost: localPost));
         }, onError: (err) {
@@ -243,7 +250,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           // This post is new.
           var updatedPosts = discussion.postsCache;
           var participants = discussion.participants;
-          if (!found) {
+          if (!found && !isParticipantFound) {
             updatedPosts.insert(0, event.post);
           }
           if (!isParticipantFound) {

@@ -229,7 +229,7 @@ class DiscussionRepository {
           "Failed to addPost to discussion because backend connection is severed");
     }
 
-    var postInputContent = _createNewPostContentInput(discussion, participantID, postContent, PostType.STANDARD);
+    var postInputContent = createNewPostContentInput(discussion, postContent);
     final mutation = AddPostGQLMutation(
       discussionID: discussion.id,
       participantID: participantID,
@@ -255,8 +255,7 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
-  PostContentInput _createNewPostContentInput(Discussion discussion,
-      String participantID, String postContent, PostType postType) {
+  PostContentInput createNewPostContentInput(Discussion discussion, String postContent) {
     /* Save special characters used for mentionings */
     postContent = postContent.replaceAll("<", "&lt");
     postContent = postContent.replaceAll(">", "&gt");
@@ -275,7 +274,7 @@ class DiscussionRepository {
         
     return PostContentInput(
       postText: postContent,
-      postType: postType,
+      postType: PostType.STANDARD,
       mentionedEntities: mentionedEntities
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 class DelphisRichText extends StatelessWidget {
   final Map<RegExp, TextStyle Function(TextStyle)> regexPatternStyle = {};
+  final Map<RegExp, String Function(String)> regexPatternText = {};
   final String text;
   final TextStyle style;
 
@@ -10,24 +11,29 @@ class DelphisRichText extends StatelessWidget {
 
   List<TextSpan> generateTextSpans(String text, TextStyle style) {
     List<TextSpan> children = [];
-    RegExp allRegex = RegExp(regexPatternStyle.keys.map((e) => e.pattern.toString()).join('|'));
+    String allPatterns = '';
+    allPatterns += regexPatternStyle.keys.map((e) => e.pattern.toString()).join('|');
+    allPatterns += "|" + regexPatternText.keys.map((e) => e.pattern.toString()).join('|');
+    RegExp allRegex = RegExp(allPatterns);
 
     text.splitMapJoin(
       allRegex,
       onMatch: (Match m) {
-        var func = regexPatternStyle.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
-        var curStyle = func(style);
+        var styleFunc = regexPatternStyle.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
+        var textFunc = regexPatternText.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
+        var curStyle = styleFunc(style);
+        var curText = textFunc(m[0]);
         children.add(
           TextSpan(
-            text: m[0],
+            text: curText,
             style: curStyle,
           ),
         );
-        return m[0];
+        return curText;
       },
       onNonMatch: (String span) {
         children.add(TextSpan(text: span, style: style));
-        return span.toString();
+        return span;
       },
     );
     return children;

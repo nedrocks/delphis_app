@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
@@ -7,12 +8,11 @@ import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
-import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'post_title.dart';
 
@@ -43,14 +43,26 @@ class DiscussionPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<MentionBloc, MentionState> (
+      builder: (context, blocState) {
+        if(blocState.isReady())
+          return buildWithMentionContext(context, blocState);
+        return Container();
+      },
+    );
+  }
+
+  Widget buildWithMentionContext(BuildContext context, MentionState mentionContext) {
     final isModeratorAuthor = this.participant?.participantID == 0 ?? false;
     var textWidget = EmojiText(
-      text: '${formatPostContent(this.post, this.discussion)}',
+      text: this.post.content,
       style: Theme.of(context).textTheme.bodyText1,
     );
 
-    /* Color participants mentions */
-    textWidget.regexPatternStyle[RegExp(DisplayNames.participantMentionRegexPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    /* Color and format mentioned entities */
+    textWidget.regexPatternStyle[RegExp(MentionState.encodedMentionRegexPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    textWidget.regexPatternText[RegExp(MentionState.mentionSpecialCharsRegexPattern)] = (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities);
+    textWidget.regexPatternText[RegExp(MentionState.encodedMentionRegexPattern)] = (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities);
 
     if (this.post.postType == PostType.CONCIERGE &&
         (this.onboardingConciergeStep == null ||
@@ -136,35 +148,6 @@ class DiscussionPost extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String formatPostContent(Post post, Discussion discussion) {
-    var postContent = post.content;
-    var entitiesCount = post.mentionedEntities?.length ?? 0;
-
-    /* Solve mentions */
-    for(var i = 0; i < entitiesCount; i++) {
-      /* Handle participants mentions */
-      var id = post.mentionedEntities[i].id;
-      var p = discussion.participants.firstWhere((e) => e.id.compareTo(id) == 0, orElse: () => null);
-      if(p != null && postContent.contains("<${p.participantID}>")) {
-        postContent = postContent.replaceAll("<${p.participantID}>", DisplayNames.formatParticipantMentionWithSymbol(this.moderator, p));
-      }
-    }
-
-    /* Solve unmatched mentions */
-    RegExp mentionRegex = RegExp("<[A-Za-z0-9_-]*>");
-    if(mentionRegex.hasMatch(postContent)) {
-      for(var match in mentionRegex.allMatches(postContent)) {
-        postContent = postContent.replaceAll(match.group(0), Intl.message("${DisplayNames.participantMentionSymbol}unknown"));
-      }
-    }
-    
-    /* Restored altered user characters */
-    postContent = postContent.replaceAll("&lt", "<");
-    postContent = postContent.replaceAll("&gt", ">");
-
-    return postContent;
   }
 
 }

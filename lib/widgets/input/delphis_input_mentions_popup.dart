@@ -1,18 +1,25 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/tracking/constants.dart';
 import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/input/participant_mention_hint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_segment/flutter_segment.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 import 'delphis_input.dart';
 import 'delphis_text_controller.dart';
+import 'discussion_mention_hint.dart';
 
 class DelphisInputMentionsPopup extends StatefulWidget {
 
@@ -36,15 +43,16 @@ class DelphisInputMentionsPopup extends StatefulWidget {
 }
 
 class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
-  final popupEntryHeight = 55.0;
-  final popupMaxEntries = 4;
+  final popupEntryHeight = 60.0;
+  final popupMaxEntries = 3;
   final popupWidth = 320.0;
   double popupHeight;
   DelphisTextEditingController textController;
   FocusNode textFocusNode;
   OverlayEntry overlayEntry;
   LayerLink layerLink;
-  Future<List<Participant>> participantsHint;
+  Future<List<dynamic>> mentionsHints;
+  MentionState mentionContext;
 
   @override
   void initState() {
@@ -66,12 +74,28 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     this.textFocusNode.addListener(toggleOverlay);
     this.textController.addListener(() {
       var participantMention = getLastParticipantMentionAttempt();
+      var discussionMention = getLastDiscussionMentionAttempt();
       this.popupHeight = 0;
-      if(participantMention != null) {
+
+      /* Handle participant mentions */
+      if(participantMention != null && (mentionContext?.isReady() ?? false)) {
         setState(() {
-          participantsHint = getParticipantHints(this.textController.text, participantMention);
+          mentionsHints = getParticipantMentionHints(this.textController.text, participantMention);
           this.popupHeight = popupEntryHeight;
-          participantsHint.then((value) => setState(() {
+          mentionsHints.then((value) => setState(() {
+            popupHeight = min(popupMaxEntries.toDouble(), value.length.toDouble()) * popupEntryHeight;
+            SchedulerBinding.instance.addPostFrameCallback((_) => toggleOverlay());
+          }));
+          SchedulerBinding.instance.addPostFrameCallback((_) => toggleOverlay());
+        });
+      }
+
+      /* Handle discussion mentions */
+      if(discussionMention != null && (mentionContext?.isReady() ?? false)) {
+        setState(() {
+          mentionsHints = getDiscussionMentionHints(this.textController.text, discussionMention);
+          this.popupHeight = popupEntryHeight;
+          mentionsHints.then((value) => setState(() {
             popupHeight = min(popupMaxEntries.toDouble(), value.length.toDouble()) * popupEntryHeight;
             SchedulerBinding.instance.addPostFrameCallback((_) => toggleOverlay());
           }));
@@ -95,17 +119,55 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: this.layerLink,
-      child: DelphisInput(
-        discussion: widget.discussion,
-        participant: widget.participant,
-        isShowingParticipantSettings: widget.isShowingParticipantSettings,
-        onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
-        parentScrollController: widget.parentScrollController,
-        inputFocusNode: this.textFocusNode,
-        textController: this.textController,
-      )
+    return BlocBuilder<MentionBloc, MentionState> (
+      builder: (context, state) {
+        if (state is MentionState) {
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            setState(() {
+              this.mentionContext = state;
+            });
+          });       
+        }
+        return CompositedTransformTarget(
+          link: this.layerLink,
+          child: DelphisInput(
+            discussion: widget.discussion,
+            participant: widget.participant,
+            isShowingParticipantSettings: widget.isShowingParticipantSettings,
+            onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
+            parentScrollController: widget.parentScrollController,
+            inputFocusNode: this.textFocusNode,
+            textController: this.textController,
+            onSubmit: (text) {
+              final isButtonActive = text.isNotEmpty;
+              final pressID = Uuid().v4();
+              Segment.track(
+                  eventName: ChathamTrackingEventNames.POST_ADD_BUTTON_PRESS,
+                  properties: {
+                    'funnelID': pressID,
+                    'isActive': isButtonActive,
+                    'contentLength': text.length,
+                    'discussionID': this.widget.discussion.id,
+                    'participantID': this.widget.participant.id,
+                  });
+              if (isButtonActive) {
+                List<String> mentionedEntities = [];
+                if(mentionContext != null && mentionContext.isReady())
+                  text = mentionContext.encodePostContent(text, mentionedEntities);
+                BlocProvider.of<DiscussionBloc>(context).add(
+                  DiscussionPostAddEvent(
+                      postContent: text,
+                      uniqueID: pressID,
+                      mentionedEntities: mentionedEntities,
+                      localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList()
+                  ),
+                );
+                textController.text = '';
+              }
+            },
+          )
+        );
+      }
     );
   }
 
@@ -127,14 +189,16 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
   Widget buildFuturePopup(BuildContext context) {
     if(popupHeight == 0)
       return Container();
-    return FutureBuilder(
-      future: this.participantsHint,
+    return FutureBuilder<List<dynamic>> (
+      future: this.mentionsHints,
       builder: (context, snapshot) {
         Widget toDraw;
         if(snapshot.hasError) {
           toDraw = Text(Intl.message("An error has occurred!"));
-        } else if (snapshot.hasData) {
-          toDraw = buildParticipantsPopup(context, snapshot.data);
+        } else if (snapshot.hasData && snapshot.data.length > 0 && snapshot.data[0] is Participant) {
+          toDraw = buildParticipantsHintPopup(context, snapshot.data);
+        }else if (snapshot.hasData && snapshot.data.length > 0 && snapshot.data[0] is Discussion) {
+          toDraw = buildDiscussionsHintPopup(context, snapshot.data);
         } else {
           toDraw = CupertinoActivityIndicator();
         }
@@ -155,7 +219,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     );
   }
 
-  Widget buildParticipantsPopup(BuildContext context, List<Participant> participants) {
+  Widget buildParticipantsHintPopup(BuildContext context, List<Participant> participants) {
     return ListView.builder(
       padding: EdgeInsets.all(0),
       
@@ -173,6 +237,37 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     );
   }
 
+  Widget buildDiscussionsHintPopup(BuildContext context, List<Discussion> discussions) {
+    return ListView.builder(
+      padding: EdgeInsets.all(0),
+      
+      shrinkWrap: false,
+      itemCount: discussions.length,
+      itemBuilder: (context, index) {
+        return DiscussionMentionHintWidget(
+          discussion: discussions[index],
+          onTap: () {
+            discussionMentionAutoComplete(discussions[index]);
+          },
+        );
+      }
+    );
+  }
+
+  String getLastMentionAttempt(RegExp regex, String mentionSymbol) {
+    var text = textController.text;
+    var offset = textController.selection.baseOffset;
+    if(offset < 0 || offset > text.length)
+      return null;
+    text = text.substring(0, offset);
+    if(regex.hasMatch(text)) {
+      var matches = regex.allMatches(text);
+      var match = matches.last.group(0).substring(1);
+      if ((match.length == 0 && text.endsWith(mentionSymbol)) || (match.length > 0 && text.endsWith(match)))
+        return match;
+    }
+    return null;
+  }
 
   String getLastParticipantMentionAttempt() {
     var text = textController.text;
@@ -180,24 +275,25 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     if(offset < 0 || offset > text.length)
       return null;
     text = text.substring(0, offset);
-    RegExp regex = RegExp(DisplayNames.participantMentionRegexPattern);
-    if(regex.hasMatch(text)) {
-      var matches = regex.allMatches(text);
-      var match = matches.last.group(0).substring(1);
-      if ((match.length == 0 && text.endsWith(DisplayNames.participantMentionSymbol)) || (match.length > 0 && text.endsWith(match)))
-        return match;
-    }
-    return null;
+    return mentionContext.getLastParticipantMentionAttempt(text);
+  }
+
+  String getLastDiscussionMentionAttempt() {
+    var text = textController.text;
+    var offset = textController.selection.baseOffset;
+    if(offset < 0 || offset > text.length)
+      return null;
+    text = text.substring(0, offset);
+    return mentionContext.getLastDiscussionMentionAttempt(text);
   }
 
   void participantMentionAutoComplete(Participant participant) {
-    var hint = DisplayNames.formatParticipantMention(this.widget.discussion.moderator, participant);
-    var hintWithSymbol = DisplayNames.formatParticipantMentionWithSymbol(this.widget.discussion.moderator, participant);
+    var hint = mentionContext.formatParticipantMention(participant);
+    var hintWithSymbol = mentionContext.formatParticipantMentionWithSymbol(participant);
     var attempt = getLastParticipantMentionAttempt();
     var text = textController.text;
     var offset = textController.selection.baseOffset;
 
-    // TODO: Color the hint (might need to create a custom textcontroller class)
     var newText = text.substring(0, offset - attempt.length) + hint + " ";
     var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
     newText += text.substring(offset);
@@ -209,19 +305,53 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     this.textController.notifyListeners();
   }
 
-  Future<List<Participant>> getParticipantHints(String wholeText, String mention) {
-    var list = this.widget.discussion.participants
+  void discussionMentionAutoComplete(Discussion discussion) {
+    var hint = mentionContext.formatDiscussionMention(discussion);
+    var hintWithSymbol = mentionContext.formatDiscussionMentionWithSymbol(discussion);
+    var attempt = getLastDiscussionMentionAttempt();
+    var text = textController.text;
+    var offset = textController.selection.baseOffset;
+
+    var newText = text.substring(0, offset - attempt.length) + hint + " ";
+    var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
+    newText += text.substring(offset);
+
+    this.textController.regexPatternStyle[RegExp("$hintWithSymbol")] = 
+        (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    this.textController.text = newText;
+    this.textController.selection = newSelection;
+    this.textController.notifyListeners();
+  }
+
+  Future<List<Participant>> getParticipantMentionHints(String wholeText, String mention) {
+    var list = this.mentionContext.discussion.participants
         .where((e) => 
-          DisplayNames.formatParticipant(this.widget.discussion.moderator, e).toLowerCase()
+          DisplayNames.formatParticipant(this.mentionContext.discussion.moderator, e).toLowerCase()
             .startsWith(mention.toLowerCase()))
         /* Block the user from mentioning themselves */
         .where((e) => e.id != this.widget.discussion.meParticipant.id)
         /* Block the user from mentioning someone twice */
-        .where((e) => !wholeText.contains(DisplayNames.formatParticipantMentionWithSymbol(this.widget.discussion.moderator, e)))
+        .where((e) => !wholeText.contains(mentionContext.formatParticipantMentionWithSymbol(e)))
         .toList();
     list.sort((a, b) {
-      return DisplayNames.formatParticipantMention(this.widget.discussion.moderator, a).
-        compareTo(DisplayNames.formatParticipantMention(this.widget.discussion.moderator, b));
+      return DisplayNames.formatParticipant(this.mentionContext.discussion.moderator, a).
+        compareTo(DisplayNames.formatParticipant(this.mentionContext.discussion.moderator, b));
+    });
+    return Future.value(list);
+  }
+
+  Future<List<Discussion>> getDiscussionMentionHints(String wholeText, String mention) {
+    var list = this.mentionContext.visibleDiscussions
+        .where((e) =>  DisplayNames.formatDiscussion(e).toLowerCase()
+            .startsWith(mention.toLowerCase()))
+        /* Block the user from mentioning this discussion */
+        .where((e) => e.id != this.mentionContext.discussion.id)
+        /* Block the user from mentioning a discussion twice */
+        .where((e) => !wholeText.contains(mentionContext.formatDiscussionMentionWithSymbol(e)))
+        .toList();
+    list.sort((a, b) {
+      return DisplayNames.formatDiscussion(a).
+        compareTo(DisplayNames.formatDiscussion(b));
     });
     return Future.value(list);
   }

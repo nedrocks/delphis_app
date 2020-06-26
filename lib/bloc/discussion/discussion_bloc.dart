@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/entity.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
@@ -154,6 +155,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             discussion: currentState.getDiscussion(),
             participant: currentState.getDiscussion().meParticipant,
             content: event.postContent,
+            mentionedEntities: event.localMentionedEntities.map((e) => Entity(id: e)).toList(), // Hacky, but it wserves its purpose
             isLocalPost: true,
           ),
         );
@@ -167,7 +169,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             .addPost(
                 discussion: currentState.getDiscussion(),
                 participantID: currentState.getDiscussion().meParticipant.id,
-                postContent: event.postContent)
+                postContent: event.postContent,
+                mentionedEntities: event.mentionedEntities)
             .then((addedPost) {
           final success = addedPost != null;
           Segment.track(
@@ -189,10 +192,11 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           /* The post content may have changed during submission
              (This appens with mentions, for instance). This adds resistence in case
              the content mutation happens either in the frontend or the backend. */
-          localPost.post = localPost.post.copyWith(content: addedPost.content);
-
+          localPost.post = localPost.post.copyWith(
+            content: addedPost.content,
+            mentionedEntities: addedPost.mentionedEntities
+          );
           // The current state may have changed since this is a future.
-          print("Localpost content: ${localPost.post.content}");
           this.add(LocalPostCreateSuccess(
               createdPost: addedPost, localPost: localPost));
         }, onError: (err) {

@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:delphis_app/bloc/app/app_bloc.dart';
+import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
+import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
@@ -199,6 +201,12 @@ class ChathamAppState extends State<ChathamApp>
         BlocProvider<GqlClientBloc>.value(value: this.gqlClientBloc),
         BlocProvider<AuthBloc>.value(value: this.authBloc),
         BlocProvider<MeBloc>.value(value: this.meBloc),
+        BlocProvider<DiscussionListBloc>(
+          create: (context) => DiscussionListBloc(repository: discussionRepository, meBloc : this.meBloc),
+        ),
+        BlocProvider<MentionBloc>(
+          create: (context) => MentionBloc(),
+        )
       ],
       child: MultiBlocListener(
         listeners: [
@@ -224,6 +232,11 @@ class ChathamAppState extends State<ChathamApp>
           BlocListener<MeBloc, MeState>(listener: (context, MeState state) {
             if (state is LoadedMeState) {
               this.sendDeviceToServer(userDeviceRepository, state.me);
+            }
+          }),
+          BlocListener <DiscussionListBloc, DiscussionListState> (listener: (context, state) {
+            if (state is DiscussionListLoaded) {
+              BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussions: state.discussionList, visibleDiscussions: state.visibleDiscussionList));
             }
           }),
         ],
@@ -294,16 +307,23 @@ class ChathamAppState extends State<ChathamApp>
                             discussionBloc: discussionBloc),
                       ),
                     ],
-                    child: BlocListener<AuthBloc, AuthState>(
-                      listener: (context, state) {
-                        if (state is LoggedOutAuthState) {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/Auth',
-                            (Route<dynamic> route) => false,
-                          );
-                        }
-                      },
+                    child: MultiBlocListener (
+                      listeners: [
+                        BlocListener <AuthBloc, AuthState> (listener: (context, state) {
+                            if (state is LoggedOutAuthState) {
+                              Navigator.pushNamedAndRemoveUntil(
+                                context,
+                                '/Auth',
+                                (Route<dynamic> route) => false,
+                              );
+                            }
+                        }),
+                        BlocListener <DiscussionBloc, DiscussionState> (listener: (context, state) {
+                            if (state is DiscussionLoadedState) {
+                              BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussion: state.getDiscussion()));
+                            }
+                        }),
+                      ],
                       child: DelphisDiscussion(
                         key: Key('discussion-screen-${arguments.discussionID}'),
                         discussionID: arguments.discussionID,

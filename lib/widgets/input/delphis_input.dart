@@ -1,12 +1,10 @@
 import 'dart:math';
 
-import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
-import 'package:delphis_app/tracking/constants.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:delphis_app/widgets/input/discussion_submit_button.dart';
 import 'package:delphis_app/widgets/input/moderator_input_button.dart';
@@ -14,9 +12,7 @@ import 'package:delphis_app/widgets/settings/participant_settings_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_segment/flutter_segment.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 const MAX_VISIBLE_ROWS = 5;
 
@@ -28,12 +24,14 @@ class DelphisInput extends StatefulWidget {
   final ScrollController parentScrollController;
   final TextEditingController textController;
   final FocusNode inputFocusNode;
+  final Function(String) onSubmit;
 
   DelphisInput({
     @required this.discussion,
     @required this.participant,
     @required this.isShowingParticipantSettings,
     @required this.onParticipantSettingsPressed,
+    @required this.onSubmit,
     this.inputFocusNode,
     this.textController,
     this.parentScrollController,
@@ -151,24 +149,9 @@ class DelphisInputState extends State<DelphisInput> {
       ),
       DiscussionSubmitButton(
         onPressed: () {
-          final isButtonActive = this._controller.text.isNotEmpty;
-          final pressID = Uuid().v4();
-          Segment.track(
-              eventName: ChathamTrackingEventNames.POST_ADD_BUTTON_PRESS,
-              properties: {
-                'funnelID': pressID,
-                'isActive': isButtonActive,
-                'contentLength': this._controller.text.length,
-                'discussionID': this.widget.discussion.id,
-                'participantID': this.widget.participant.id,
-              });
-          if (isButtonActive) {
-            BlocProvider.of<DiscussionBloc>(context).add(
-              DiscussionPostAddEvent(
-                  postContent: this._controller.text, uniqueID: pressID),
-            );
-            this._controller.text = '';
-          }
+          if(this.widget.onSubmit != null)
+            this.widget.onSubmit(_controller.text);
+          return true;
         },
         width: 40.0,
         height: 40.0,

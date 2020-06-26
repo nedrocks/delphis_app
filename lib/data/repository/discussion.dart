@@ -62,14 +62,14 @@ class DiscussionRepository {
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionList(attempt: attempt + 1);
+        return getMyDiscussionList(attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           'Failed to list discussions because connection is severed');
     }
 
-    final query = ListDiscussionsGQLQuery();
+    final query = ListMyDiscussionsGQLQuery();
 
     final QueryResult result = await client.query(
       QueryOptions(
@@ -236,6 +236,7 @@ class DiscussionRepository {
       {@required Discussion discussion,
       @required String participantID,
       @required String postContent,
+      @required List<String> mentionedEntities,
       int attempt = 1}) async {
     if (postContent == null || postContent.length == 0) {
       // Don't allow for empty posts.
@@ -250,6 +251,7 @@ class DiscussionRepository {
             discussion: discussion,
             participantID: participantID,
             postContent: postContent,
+            mentionedEntities: mentionedEntities,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -257,7 +259,11 @@ class DiscussionRepository {
           "Failed to addPost to discussion because backend connection is severed");
     }
 
-    var postInputContent = createNewPostContentInput(discussion, postContent);
+    var postInputContent = PostContentInput(
+      postText: postContent,
+      postType: PostType.STANDARD,
+      mentionedEntities: mentionedEntities
+    );
     final mutation = AddPostGQLMutation(
       discussionID: discussion.id,
       participantID: participantID,
@@ -281,30 +287,6 @@ class DiscussionRepository {
       throw result.exception;
     }
     return mutation.parseResult(result.data);
-  }
-
-  PostContentInput createNewPostContentInput(Discussion discussion, String postContent) {
-    /* Save special characters used for mentionings */
-    postContent = postContent.replaceAll("<", "&lt");
-    postContent = postContent.replaceAll(">", "&gt");
-
-    /* Encode participants mentions (Naive algorithm, but yet sufficient for now) */
-    List<String> mentionedEntities = [];
-    for(var participant in discussion.participants) {
-      var tag = DisplayNames.formatParticipantMentionWithSymbol(discussion.moderator, participant);
-      if(postContent.contains(tag)) {
-        var replace = "<${participant.participantID}>";
-        var entity = "participant:${participant.id}";
-        postContent = postContent.replaceAll(tag, replace);
-        mentionedEntities.add(entity);
-      }
-    }
-        
-    return PostContentInput(
-      postText: postContent,
-      postType: PostType.STANDARD,
-      mentionedEntities: mentionedEntities
-    );
   }
   
   Future<Discussion> updateDiscussion(

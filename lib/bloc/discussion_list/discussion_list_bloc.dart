@@ -34,25 +34,23 @@ class DiscussionListBloc
         currentList = currentState.discussionList;
       }
 
-      yield DiscussionListLoaded(discussionList: currentList, isLoading: true);
+      yield DiscussionListLoaded(discussionList: currentList, isLoading: true, visibleDiscussionList: currentList);
       try {
+        var visibleList = await this.repository.getMyDiscussionList();
+        var currentList = await this.repository.getDiscussionList();
         if (meBloc.state is LoadedMeState) {
           try {
-            currentList = await this.repository.getMyDiscussionList();
-          } catch (err) {
-            currentList = await this.repository.getDiscussionList();
-          }
-        } else {
-          currentList = await this.repository.getDiscussionList();
+            currentList = visibleList;
+          } catch (err) { }
         }
         yield DiscussionListLoaded(
-            discussionList: currentList, isLoading: false);
+            discussionList: currentList, isLoading: false, visibleDiscussionList: visibleList);
       } catch (err) {
         if (currentList == null) {
           yield DiscussionListInitial();
         } else {
           yield DiscussionListLoaded(
-              discussionList: currentList, isLoading: false);
+              discussionList: currentList, isLoading: false, visibleDiscussionList: currentList);
         }
       }
     }

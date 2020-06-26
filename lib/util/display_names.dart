@@ -1,13 +1,9 @@
 
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 
 class DisplayNames {
-
-  static final String participantMentionSymbol = "@";
-  static final String discussiomMentionSymbol = "#";
-  static final String participantMentionRegexPattern = "@[A-Za-z0-9_-]*";
-  static final String discussionMentionRegexPattern = "#[A-Za-z0-9_-]*";
 
   static String formatParticipant(Moderator moderator, Participant participant) {
     var name = '${participant.gradientColor} #${participant.participantID}';
@@ -20,7 +16,7 @@ class DisplayNames {
     return name;
   }
 
-  static String formatParticipantMention(Moderator moderator, Participant participant) {
+  static String formatParticipantUnique(Moderator moderator, Participant participant) {
     var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
     if (participant.participantID == 0) {
       name = moderator.userProfile.twitterURL.displayText.substring(1);
@@ -33,8 +29,16 @@ class DisplayNames {
     return name;
   }
 
-  static String formatParticipantMentionWithSymbol(Moderator moderator, Participant participant) {
-    return '$participantMentionSymbol${formatParticipantMention(moderator, participant)}';
+  static String formatDiscussion(Discussion discussion) {
+    return discussion.title;
+  }
+
+  static String formatDiscussionUnique(Discussion discussion) {
+    var name = discussion.title;
+
+    name = name.replaceAll(" ", "-").toLowerCase();
+    name = name.replaceAll("#", "").toLowerCase();
+    return name;
   }
   
 }

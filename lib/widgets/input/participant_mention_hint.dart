@@ -45,6 +45,7 @@ class ParticipantMentionHintWidget extends StatelessWidget {
           return true;
         },
         child: Container(
+          height: 48,
           padding: EdgeInsets.all(SpacingValues.small),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,

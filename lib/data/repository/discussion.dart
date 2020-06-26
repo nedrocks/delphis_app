@@ -237,6 +237,7 @@ class DiscussionRepository {
       @required String participantID,
       @required String postContent,
       @required List<String> mentionedEntities,
+      String preview,
       int attempt = 1}) async {
     if (postContent == null || postContent.length == 0) {
       // Don't allow for empty posts.
@@ -252,6 +253,7 @@ class DiscussionRepository {
             participantID: participantID,
             postContent: postContent,
             mentionedEntities: mentionedEntities,
+            preview: preview,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -262,7 +264,8 @@ class DiscussionRepository {
     var postInputContent = PostContentInput(
       postText: postContent,
       postType: PostType.STANDARD,
-      mentionedEntities: mentionedEntities
+      mentionedEntities: mentionedEntities,
+      preview: preview
     );
     final mutation = AddPostGQLMutation(
       discussionID: discussion.id,

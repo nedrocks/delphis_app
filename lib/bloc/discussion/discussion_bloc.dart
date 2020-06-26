@@ -170,7 +170,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                 discussion: currentState.getDiscussion(),
                 participantID: currentState.getDiscussion().meParticipant.id,
                 postContent: event.postContent,
-                mentionedEntities: event.mentionedEntities)
+                mentionedEntities: event.mentionedEntities,
+                preview: event.preview)
             .then((addedPost) {
           final success = addedPost != null;
           Segment.track(

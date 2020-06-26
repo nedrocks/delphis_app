@@ -151,15 +151,21 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                     'participantID': this.widget.participant.id,
                   });
               if (isButtonActive) {
+                var encodedText = text;
+                
+                /* Apply mentions transformations */
                 List<String> mentionedEntities = [];
-                if(mentionContext != null && mentionContext.isReady())
-                  text = mentionContext.encodePostContent(text, mentionedEntities);
+                if(mentionContext?.isReady() ?? false)
+                  encodedText = mentionContext.encodePostContent(text, mentionedEntities);
+
+                print(text);
                 BlocProvider.of<DiscussionBloc>(context).add(
                   DiscussionPostAddEvent(
-                      postContent: text,
+                      postContent: encodedText,
                       uniqueID: pressID,
                       mentionedEntities: mentionedEntities,
-                      localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList()
+                      localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList(),
+                      preview: encodedText != text ? text : null
                   ),
                 );
                 textController.text = '';

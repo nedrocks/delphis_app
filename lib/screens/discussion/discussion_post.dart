@@ -65,7 +65,6 @@ class DiscussionPost extends StatelessWidget {
     textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s, before, after) {
       var color = Colors.lightBlue;
       if(RegExp(MentionState.unknownMentionRegexPattern).hasMatch(after)) {
-        print(after);
         color = Colors.grey;
       }
       return s.copyWith(color: color, fontWeight : FontWeight.bold);

@@ -60,9 +60,16 @@ class DiscussionPost extends StatelessWidget {
     );
 
     /* Color and format mentioned entities */
-    textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold));
     textWidget.setTextOperator(MentionState.mentionSpecialCharsRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
     textWidget.setTextOperator(MentionState.encodedMentionRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s, before, after) {
+      var color = Colors.lightBlue;
+      if(RegExp(MentionState.unknownMentionRegexPattern).hasMatch(after)) {
+        print(after);
+        color = Colors.grey;
+      }
+      return s.copyWith(color: color, fontWeight : FontWeight.bold);
+    });
     //textWidget.addOnMatchTapHandler(MentionState.encodedMentionRegexPattern, (s) => print(s)); // POC
 
     if (this.post.postType == PostType.CONCIERGE &&

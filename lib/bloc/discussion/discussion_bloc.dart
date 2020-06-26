@@ -255,7 +255,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           // This post is new.
           var updatedPosts = discussion.postsCache;
           var participants = discussion.participants;
-          if (!found && !isParticipantFound) {
+          if (!found) {
             updatedPosts.insert(0, event.post);
           }
           if (!isParticipantFound) {

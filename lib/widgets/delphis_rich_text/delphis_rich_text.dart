@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class _MatchOp {
-  TextStyle Function(TextStyle) style;
+  TextStyle Function(TextStyle, String, String) style;
   String Function(String) text;
   void Function(String) onTap;
 }
@@ -15,7 +15,7 @@ class DelphisRichText extends StatelessWidget {
 
   DelphisRichText({Key key, this.text, this.style}) : super(key: key);
 
-  void setStyleOperator(Pattern pattern, TextStyle Function(TextStyle) op) {
+  void setStyleOperator(Pattern pattern, TextStyle Function(TextStyle style, String beforeOperation, String afterOperation) op) {
     if(!_regexPattern.containsKey(pattern)) {
      _regexPattern[pattern] = _MatchOp();
     }
@@ -44,8 +44,8 @@ class DelphisRichText extends StatelessWidget {
       allRegex,
       onMatch: (Match m) {
         var matchOp = _regexPattern.entries.firstWhere((e) => RegExp(e.key).hasMatch(m[0]), orElse: () => null)?.value ?? null;
-        var curStyle = (matchOp?.style ?? (t) => t)(style);
-        var curText = (matchOp?.text ?? (t) => t)(m[0]);
+        var curText = (matchOp?.text ?? (t, b, a) => t)(m[0]);
+        var curStyle = (matchOp?.style ?? (t, b, a) => t)(style, m[0], curText);
         var onTap = matchOp?.onTap ?? (t) {};
         children.add(
           TextSpan(

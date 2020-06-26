@@ -11,13 +11,11 @@ class DiscussionListInitial extends DiscussionListState {
 
 class DiscussionListLoaded extends DiscussionListState {
   final List<Discussion> discussionList;
-  final List<Discussion> visibleDiscussionList;
   final bool isLoading;
 
   const DiscussionListLoaded({
     @required this.discussionList,
     @required this.isLoading,
-    @required this.visibleDiscussionList, 
   }) : super();
 
   @override

@@ -45,7 +45,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
 class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
   final popupEntryHeight = 60.0;
   final popupMaxEntries = 3;
-  final popupWidth = 320.0;
+  final popupWidthProportion = 0.8;
   double popupHeight;
   DelphisTextEditingController textController;
   FocusNode textFocusNode;
@@ -185,7 +185,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         child: CompositedTransformFollower(
           link: this.layerLink,
           showWhenUnlinked: false,
-          offset: Offset(0, -popupHeight),
+        offset: Offset(0, -popupHeight),
           child: buildFuturePopup(context),
         ),
       )
@@ -210,7 +210,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         }
         return Center(
           child: Container(
-            width: popupWidth,
+            width: popupWidthProportion * MediaQuery.of(context).size.width,
             height: popupHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topLeft : Radius.circular(20), topRight : Radius.circular(20)),
@@ -258,21 +258,6 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         );
       }
     );
-  }
-
-  String getLastMentionAttempt(RegExp regex, String mentionSymbol) {
-    var text = textController.text;
-    var offset = textController.selection.baseOffset;
-    if(offset < 0 || offset > text.length)
-      return null;
-    text = text.substring(0, offset);
-    if(regex.hasMatch(text)) {
-      var matches = regex.allMatches(text);
-      var match = matches.last.group(0).substring(1);
-      if ((match.length == 0 && text.endsWith(mentionSymbol)) || (match.length > 0 && text.endsWith(match)))
-        return match;
-    }
-    return null;
   }
 
   String getLastParticipantMentionAttempt() {
@@ -345,7 +330,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
   }
 
   Future<List<Discussion>> getDiscussionMentionHints(String wholeText, String mention) {
-    var list = this.mentionContext.visibleDiscussions
+    var list = this.mentionContext.discussions
         .where((e) =>  DisplayNames.formatDiscussion(e).toLowerCase()
             .startsWith(mention.toLowerCase()))
         /* Block the user from mentioning this discussion */

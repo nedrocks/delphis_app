@@ -36,6 +36,17 @@ const QuotedPostInfoFragment = """
     isDeleted
     createdAt
     updatedAt
+    mentionedEntities {
+      id
+      ... on Discussion {
+        title
+        anonymityType
+      }
+      ... on Participant {
+        isAnonymous
+        participantID
+      }
+    }
     postType
     conciergeContent{
       appActionID

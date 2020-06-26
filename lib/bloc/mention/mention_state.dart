@@ -3,36 +3,33 @@ part of 'mention_bloc.dart';
 class MentionState extends Equatable {
 
   static final String encodedMentionRegexPattern = "(<)([0-9]+)(>)";
-  static final String mentionSpecialCharsRegexPattern = "&lt|&gt";
+  static final String mentionSpecialCharsRegexPattern = "&lt|&gt|&amp";
   static final String participantMentionSymbol = "@";
   static final String discussionMentionSymbol = "#";
   static final String participantMentionRegexPattern = "@[A-Za-z0-9_-]*";
   static final String discussionMentionRegexPattern = "#[A-Za-z0-9_-]*";
+  static final String unknownMentionRegexPattern = "[@#]{1}[\.]{3}";
   final Discussion discussion;
   final List<Discussion> discussions;
-  final List<Discussion> visibleDiscussions;
 
-  MentionState({this.discussion, this.discussions, this.visibleDiscussions});
+  MentionState({this.discussion, this.discussions});
 
   MentionState copyWith({
     discussion,
     discussions,
-    visibleDiscussions
   }) {
     return MentionState(
       discussion: discussion ?? this.discussion,
       discussions: discussions ?? this.discussions,
-      visibleDiscussions: visibleDiscussions ?? this.visibleDiscussions
     );
   }
   
   bool isReady() {
-    return this.discussion != null && this.discussion.participants != null
-        && this.discussions != null && this.visibleDiscussions != null;
+    return this.discussion != null && this.discussion.participants != null && this.discussions != null;
   }
 
   @override
-  List<Object> get props => [discussion, discussions, visibleDiscussions];
+  List<Object> get props => [discussion, discussions];
 
   String metionedToLocalEntityID(String id) {
     if(!id.contains(":"))
@@ -58,7 +55,7 @@ class MentionState extends Equatable {
 
   /* Encodes the content of a post and adds the mentioned entities to the provided list */
   String encodePostContent(String postContent, List<String> mentionedEntities) {
-    postContent = postContent.replaceAll("<", "&lt").replaceAll(">", "&gt");
+    postContent = postContent.replaceAll("&", "&amp").replaceAll("<", "&lt").replaceAll(">", "&gt");
     for(var participant in discussion.participants) {
       var tag = formatParticipantMentionWithSymbol(participant);
       if(postContent.contains(tag)) {
@@ -81,7 +78,7 @@ class MentionState extends Equatable {
   }
 
   String decodePostContent(String postContent, List<Entity> mentionedEntities) {
-    postContent = postContent.replaceAll("&lt", "<").replaceAll("&gt", ">");
+    postContent = postContent.replaceAll("&lt", "<").replaceAll("&gt", ">").replaceAll("&amp", "&");
     var entitiesCount = mentionedEntities?.length ?? 0;
     
     /* Solve mentions */
@@ -94,11 +91,18 @@ class MentionState extends Equatable {
         postContent = postContent.replaceAll("<$i>", formatParticipantMentionWithSymbol(p));
         continue;
       }
+      else {
+        postContent = postContent.replaceAll("<$i>", Intl.message("$participantMentionSymbol..."));
+      }
 
       /* Handle discussions mentions */
       var d = discussions.firstWhere((e) => e.id.compareTo(id) == 0, orElse: () => null);
       if(d != null && postContent.contains("<$i>")) {
         postContent = postContent.replaceAll("<$i>", formatDiscussionMentionWithSymbol(d));
+        continue;
+      }
+      else {
+        postContent = postContent.replaceAll("<$i>", Intl.message("$discussionMentionSymbol..."));
       }
     }
 
@@ -106,7 +110,7 @@ class MentionState extends Equatable {
     RegExp mentionRegex = RegExp(encodedMentionRegexPattern);
     if(mentionRegex.hasMatch(postContent)) {
       for(var match in mentionRegex.allMatches(postContent)) {
-        postContent = postContent.replaceAll(match.group(0), Intl.message("${participantMentionSymbol}missing"));
+        postContent = postContent.replaceAll(match.group(0), Intl.message("$participantMentionSymbol..."));
       }
     }
 

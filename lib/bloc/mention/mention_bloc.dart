@@ -22,7 +22,6 @@ class MentionBloc extends Bloc<MentionEvent, MentionState> {
       yield this.state.copyWith(
         discussion: event.discussion ?? this.state.discussion,
         discussions: event.discussions ?? this.state.discussions,
-        visibleDiscussions: event.visibleDiscussions ?? this.state.visibleDiscussions
       );
     }
     else {

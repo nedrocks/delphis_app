@@ -235,8 +235,8 @@ class ChathamAppState extends State<ChathamApp>
             }
           }),
           BlocListener <DiscussionListBloc, DiscussionListState> (listener: (context, state) {
-            if (state is DiscussionListLoaded) {
-              BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussions: state.discussionList, visibleDiscussions: state.visibleDiscussionList));
+            if (state is DiscussionListLoaded && !state.isLoading) {
+              BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussions: state.discussionList));
             }
           }),
         ],

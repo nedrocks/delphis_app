@@ -199,6 +199,7 @@ class ChathamAppState extends State<ChathamApp>
         BlocProvider<GqlClientBloc>.value(value: this.gqlClientBloc),
         BlocProvider<AuthBloc>.value(value: this.authBloc),
         BlocProvider<MeBloc>.value(value: this.meBloc),
+        BlocProvider<AppBloc>.value(value: this.appBloc),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -304,10 +305,23 @@ class ChathamAppState extends State<ChathamApp>
                           );
                         }
                       },
-                      child: DelphisDiscussion(
-                        key: Key('discussion-screen-${arguments.discussionID}'),
-                        discussionID: arguments.discussionID,
-                        isStartJoinFlow: arguments.isStartJoinFlow,
+                      child: BlocListener<AppBloc, AppState>(
+                        listener: (context, state) {
+                          if (state is AppLoadedState &&
+                              state.lifecycleState ==
+                                  AppLifecycleState.resumed) {
+                            // Reload the discussion which should cause it to subscribe to the websocket.
+                            discussionBloc.add(DiscussionQueryEvent(
+                                discussionID: arguments.discussionID,
+                                nonce: DateTime.now()));
+                          }
+                        },
+                        child: DelphisDiscussion(
+                          key: Key(
+                              'discussion-screen-${arguments.discussionID}'),
+                          discussionID: arguments.discussionID,
+                          isStartJoinFlow: arguments.isStartJoinFlow,
+                        ),
                       ),
                     ),
                   ),

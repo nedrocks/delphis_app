@@ -53,7 +53,8 @@ class DiscussionPost extends StatelessWidget {
   }
 
   Widget buildWithMentionContext(BuildContext context, MentionState mentionContext) {
-    final isModeratorAuthor = this.participant?.participantID == 0 ?? false;
+    final isModeratorAuthor =
+        this.participant.userProfile?.id == this.moderator.userProfile.id;
     var textWidget = EmojiText(
       text: this.post.content,
       style: Theme.of(context).textTheme.bodyText1,
@@ -130,6 +131,7 @@ class DiscussionPost extends StatelessWidget {
                     moderator: this.moderator,
                     participant: this.participant,
                     height: 20.0,
+                    isModeratorAuthor: isModeratorAuthor,
                   ),
                   Container(
                     child: Column(

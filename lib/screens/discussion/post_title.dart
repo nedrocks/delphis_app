@@ -10,12 +10,14 @@ class PostTitle extends StatelessWidget {
   final Moderator moderator;
   final Participant participant;
   final double height;
+  final bool isModeratorAuthor;
 
   const PostTitle({
     Key key,
     @required this.moderator,
     @required this.participant,
     @required this.height,
+    @required this.isModeratorAuthor,
   }) : super(key: key);
 
   @override

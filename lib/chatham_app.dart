@@ -206,7 +206,8 @@ class ChathamAppState extends State<ChathamApp>
         ),
         BlocProvider<MentionBloc>(
           create: (context) => MentionBloc(),
-        )
+        ),
+        BlocProvider<AppBloc>.value(value: this.appBloc),
       ],
       child: MultiBlocListener(
         listeners: [
@@ -323,6 +324,16 @@ class ChathamAppState extends State<ChathamApp>
                               BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussion: state.getDiscussion()));
                             }
                         }),
+                        BlocListener<AppBloc, AppState>(listener: (context, state) {
+                            if (state is AppLoadedState &&
+                                state.lifecycleState ==
+                                    AppLifecycleState.resumed) {
+                              // Reload the discussion which should cause it to subscribe to the websocket.
+                              discussionBloc.add(DiscussionQueryEvent(
+                                  discussionID: arguments.discussionID,
+                                  nonce: DateTime.now()));
+                            }
+                        })
                       ],
                       child: DelphisDiscussion(
                         key: Key('discussion-screen-${arguments.discussionID}'),

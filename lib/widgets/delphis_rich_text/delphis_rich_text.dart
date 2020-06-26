@@ -1,32 +1,60 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+class _MatchOp {
+  TextStyle Function(TextStyle) style;
+  String Function(String) text;
+  void Function(String) onTap;
+}
+
 class DelphisRichText extends StatelessWidget {
-  final Map<RegExp, TextStyle Function(TextStyle)> regexPatternStyle = {};
-  final Map<RegExp, String Function(String)> regexPatternText = {};
+  final Map<Pattern, _MatchOp> _regexPattern = {};
   final String text;
   final TextStyle style;
 
   DelphisRichText({Key key, this.text, this.style}) : super(key: key);
 
+  void setStyleOperator(Pattern pattern, TextStyle Function(TextStyle) op) {
+    if(!_regexPattern.containsKey(pattern)) {
+     _regexPattern[pattern] = _MatchOp();
+    }
+    _regexPattern[pattern].style = op;
+  }
+
+  void setTextOperator(Pattern pattern, String Function(String) op) {
+    if(!_regexPattern.containsKey(pattern)) {
+     _regexPattern[pattern] = _MatchOp();
+    }
+    _regexPattern[pattern].text = op;
+  }
+
+  void setOnTap(Pattern pattern, void Function(String) op) {
+    if(!_regexPattern.containsKey(pattern)) {
+     _regexPattern[pattern] = _MatchOp();
+    }
+    _regexPattern[pattern].onTap = op;
+  }
+
   List<TextSpan> generateTextSpans(String text, TextStyle style) {
     List<TextSpan> children = [];
-    String allPatterns = '';
-    allPatterns += regexPatternStyle.keys.map((e) => e.pattern.toString()).join('|');
-    allPatterns += "|" + regexPatternText.keys.map((e) => e.pattern.toString()).join('|');
-    RegExp allRegex = RegExp(allPatterns);
+    RegExp allRegex = RegExp(_regexPattern.keys.map((e) => e.toString()).join('|'));
 
     text.splitMapJoin(
       allRegex,
       onMatch: (Match m) {
-        var styleFunc = regexPatternStyle.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
-        var textFunc = regexPatternText.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
-        var curStyle = styleFunc(style);
-        var curText = textFunc(m[0]);
+        var matchOp = _regexPattern.entries.firstWhere((e) => RegExp(e.key).hasMatch(m[0]), orElse: () => null)?.value ?? null;
+        var curStyle = (matchOp?.style ?? (t) => t)(style);
+        var curText = (matchOp?.text ?? (t) => t)(m[0]);
+        var onTap = matchOp?.onTap ?? (t) {};
         children.add(
           TextSpan(
             text: curText,
             style: curStyle,
+            recognizer : TapGestureRecognizer()..onTap = () {
+              onTap(curText);
+              return true;
+            }
           ),
         );
         return curText;

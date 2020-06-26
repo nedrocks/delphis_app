@@ -298,8 +298,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
     newText += text.substring(offset);
 
-    this.textController.regexPatternStyle[RegExp("$hintWithSymbol")] = 
-        (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    this.textController.setStyleOperator("$hintWithSymbol", (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold));
     this.textController.text = newText;
     this.textController.selection = newSelection;
     this.textController.notifyListeners();
@@ -316,8 +315,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
     newText += text.substring(offset);
 
-    this.textController.regexPatternStyle[RegExp("$hintWithSymbol")] = 
-        (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
+    this.textController.setStyleOperator("$hintWithSymbol", (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold));
     this.textController.text = newText;
     this.textController.selection = newSelection;
     this.textController.notifyListeners();

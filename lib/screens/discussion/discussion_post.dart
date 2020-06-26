@@ -60,9 +60,10 @@ class DiscussionPost extends StatelessWidget {
     );
 
     /* Color and format mentioned entities */
-    textWidget.regexPatternStyle[RegExp(MentionState.encodedMentionRegexPattern)] = (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold);
-    textWidget.regexPatternText[RegExp(MentionState.mentionSpecialCharsRegexPattern)] = (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities);
-    textWidget.regexPatternText[RegExp(MentionState.encodedMentionRegexPattern)] = (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities);
+    textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s) => s.copyWith(color : Colors.lightBlue, fontWeight: FontWeight.bold));
+    textWidget.setTextOperator(MentionState.mentionSpecialCharsRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    textWidget.setTextOperator(MentionState.encodedMentionRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    //textWidget.addOnMatchTapHandler(MentionState.encodedMentionRegexPattern, (s) => print(s)); // POC
 
     if (this.post.postType == PostType.CONCIERGE &&
         (this.onboardingConciergeStep == null ||

@@ -1,30 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+class _MatchOp {
+  TextStyle Function(TextStyle) style;
+  String Function(String) text;
+}
+
 class DelphisTextEditingController extends TextEditingController {
-  final Map<RegExp, TextStyle Function(TextStyle)> regexPatternStyle = {};
+   final Map<Pattern, _MatchOp> _regexPattern = {};
+
+  void setStyleOperator(Pattern pattern, TextStyle Function(TextStyle) op) {
+    if(!_regexPattern.containsKey(pattern)) {
+     _regexPattern[pattern] = _MatchOp();
+    }
+    _regexPattern[pattern].style = op;
+  }
+
+  void setTextOperator(Pattern pattern, String Function(String) op) {
+    if(!_regexPattern.containsKey(pattern)) {
+     _regexPattern[pattern] = _MatchOp();
+    }
+    _regexPattern[pattern].text = op;
+  }
 
   @override
   TextSpan buildTextSpan({TextStyle style, bool withComposing}) {
     List<TextSpan> children = [];
-    RegExp allRegex = RegExp(regexPatternStyle.keys.map((e) => e.pattern.toString()).join('|'));
+    RegExp allRegex = RegExp(_regexPattern.keys.map((e) => e.toString()).join('|'));
 
     text.splitMapJoin(
       allRegex,
       onMatch: (Match m) {
-        var func = regexPatternStyle.entries.firstWhere((e) => e.key.hasMatch(m[0]), orElse: () => null)?.value ?? (t) => t;
-        var curStyle = func(style);
+        var matchOp = _regexPattern.entries.firstWhere((e) => RegExp(e.key).hasMatch(m[0]), orElse: () => null)?.value ?? null;
+        var curStyle = (matchOp?.style ?? (t) => t)(style);
+        var curText = (matchOp?.text ?? (t) => t)(m[0]);
         children.add(
           TextSpan(
-            text: m[0],
+            text: curText,
             style: curStyle,
           ),
         );
-        return m[0];
+        return curText;
       },
       onNonMatch: (String span) {
         children.add(TextSpan(text: span, style: style));
-        return span.toString();
+        return span;
       },
     );
     return TextSpan(style: style, children: children);

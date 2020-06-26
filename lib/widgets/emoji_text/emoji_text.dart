@@ -10,11 +10,11 @@ class EmojiText extends DelphisRichText {
     style,
     this.emojiFontMultiplier = 1.3
   }) : super(text: text, style: style) {
-    this.regexPatternStyle[regex] = (s) => s.copyWith(
+    this.setStyleOperator(regex.pattern, (s) => s.copyWith(
       fontSize: (s.fontSize * emojiFontMultiplier),
       letterSpacing: 2,
       height: 1.3333,
-    );
+    ));
   }
 
 }

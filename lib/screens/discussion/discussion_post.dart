@@ -6,7 +6,6 @@ import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
-import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
@@ -39,7 +38,8 @@ class DiscussionPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isModeratorAuthor = this.participant.participantID == 0;
+    final isModeratorAuthor =
+        this.participant.userProfile?.id == this.moderator.userProfile.id;
 
     if (this.post.postType == PostType.CONCIERGE &&
         (this.onboardingConciergeStep == null ||
@@ -100,6 +100,7 @@ class DiscussionPost extends StatelessWidget {
                     moderator: this.moderator,
                     participant: this.participant,
                     height: 20.0,
+                    isModeratorAuthor: isModeratorAuthor,
                   ),
                   Container(
                     child: Column(

@@ -17,6 +17,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_content.dart';
 import 'discussion_header.dart';
+import 'screen_args/discussion.dart';
 import 'screen_args/discussion_naming.dart';
 
 class DelphisDiscussion extends StatefulWidget {
@@ -166,7 +167,12 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             isShowJoinFlow: this._isShowJoinFlow,
             onJoinFlowClose: (bool isJoined) {
               if (isJoined) {
-                // Not sure we need to do anything here?
+                // This is kinda gross but we need to reload the discussion here because
+                // of state management concerns. This is simpler than untangling the mess
+                // of dependencies involved.
+                BlocProvider.of<DiscussionBloc>(context).add(
+                    DiscussionQueryEvent(
+                        discussionID: discussionObj.id, nonce: DateTime.now()));
               }
               setState(() {
                 this._isShowJoinFlow = false;

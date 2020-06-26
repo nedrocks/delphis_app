@@ -9,12 +9,14 @@ class PostTitle extends StatelessWidget {
   final Moderator moderator;
   final Participant participant;
   final double height;
+  final bool isModeratorAuthor;
 
   const PostTitle({
     Key key,
     @required this.moderator,
     @required this.participant,
     @required this.height,
+    @required this.isModeratorAuthor,
   }) : super(key: key);
 
   @override
@@ -29,8 +31,7 @@ class PostTitle extends StatelessWidget {
         '${participant.gradientColor} #${participant.participantID}',
         style: TextThemes.discussionPostAuthorAnon,
         key: textKey);
-    if (participant.participantID == 0) {
-      // This is the moderator
+    if (this.isModeratorAuthor) {
       name = Text(moderator.userProfile.displayName,
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
     } else if (!(participant.isAnonymous ?? true) &&

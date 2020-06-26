@@ -22,7 +22,8 @@ class DiscussionHeader extends StatefulWidget {
   _DiscussionHeaderState createState() => _DiscussionHeaderState();
 }
 
-class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerProviderStateMixin {
+class _DiscussionHeaderState extends State<DiscussionHeader>
+    with SingleTickerProviderStateMixin {
   bool isMultilineTile;
   bool isFirstBuild;
 
@@ -34,7 +35,7 @@ class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    if(isFirstBuild) {
+    if (isFirstBuild) {
       setState(() {
         isFirstBuild = false;
         Future.delayed(Duration(milliseconds: 2000), () {
@@ -86,11 +87,13 @@ class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerPr
                   return true;
                 },
                 child: Container(
-                  margin: this.isMultilineTile ? EdgeInsets.symmetric(vertical : 6.5, horizontal: 0) : null,
+                  margin: this.isMultilineTile
+                      ? EdgeInsets.symmetric(vertical: 6.5, horizontal: 0)
+                      : null,
                   child: Text(this.widget.discussion.title,
-                    style: Theme.of(context).textTheme.headline1,
-                    overflow: this.isMultilineTile ? null : TextOverflow.ellipsis
-                  ),
+                      style: Theme.of(context).textTheme.headline1,
+                      overflow:
+                          this.isMultilineTile ? null : TextOverflow.ellipsis),
                 ),
               ),
             ),
@@ -103,8 +106,12 @@ class _DiscussionHeaderState extends State<DiscussionHeader> with SingleTickerPr
                 SizedBox(width: SpacingValues.small),
                 ModeratorProfileImage(
                   diameter: HeightValues.appBarItemsHeight,
-                  profileImageURL:
-                      this.widget.discussion.moderator.userProfile.profileImageURL,
+                  profileImageURL: this
+                      .widget
+                      .discussion
+                      .moderator
+                      .userProfile
+                      .profileImageURL,
                 ),
                 SizedBox(width: SpacingValues.medium),
                 HeaderOptionsButton(

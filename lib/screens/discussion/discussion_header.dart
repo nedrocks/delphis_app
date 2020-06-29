@@ -31,6 +31,7 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
   void initState() {
     this.isMultilineTile = true;
     this.isFirstBuild = true;
+    super.initState();
   }
 
   @override
@@ -39,9 +40,11 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
       setState(() {
         isFirstBuild = false;
         Future.delayed(Duration(milliseconds: 2000), () {
-          setState(() {
-            isMultilineTile = false;
-          });
+          if(this.mounted) {
+             setState(() {
+              isMultilineTile = false;
+            });
+          }   
         });
       });
     }

@@ -5,6 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'concierge_content.dart';
 import 'discussion.dart';
+import 'entity.dart';
 import 'page_info.dart';
 import 'participant.dart';
 
@@ -22,6 +23,7 @@ class Post extends Equatable {
   final Participant participant;
   final String createdAt;
   final String updatedAt;
+  final List<Entity> mentionedEntities;
   final Post quotedPost;
   final PostType postType;
   final ConciergeContent conciergeContent;
@@ -36,7 +38,8 @@ class Post extends Equatable {
         discussion?.id,
         participant?.id,
         createdAt,
-        updatedAt
+        updatedAt,
+        mentionedEntities
       ];
 
   const Post({
@@ -48,6 +51,7 @@ class Post extends Equatable {
     this.participant,
     this.createdAt,
     this.updatedAt,
+    this.mentionedEntities,
     this.isLocalPost = false,
     this.quotedPost,
     this.postType,
@@ -56,6 +60,38 @@ class Post extends Equatable {
 
   factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
 
+  Post copyWith({
+    id,
+    isDeleted,
+    deletedReasonCode,
+    content,
+    discussion,
+    participant,
+    createdAt,
+    updatedAt,
+    mentionedEntities,
+    isLocalPost,
+    quotedPost,
+    postType,
+    conciergeContent,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      isDeleted: isDeleted ?? this.isDeleted,
+      deletedReasonCode: deletedReasonCode ?? this.deletedReasonCode,
+      content: content ?? this.content,
+      discussion: discussion ?? this.discussion,
+      participant: participant ?? this.participant,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      mentionedEntities: mentionedEntities ?? this.mentionedEntities,
+      isLocalPost: isLocalPost ?? this.isLocalPost,
+      quotedPost: quotedPost ?? this.quotedPost,
+      postType: postType ?? this.postType,
+      conciergeContent: conciergeContent ?? this.conciergeContent,
+    );
+  }
+  
   DateTime createdAtAsDateTime() {
     if (this.isLocalPost ?? false) {
       return DateTime.now();
@@ -68,7 +104,7 @@ class LocalPost {
   bool isProcessing;
   bool isFailed;
   int failCount;
-  final Post post;
+  Post post;
 
   final GlobalKey key;
 

@@ -13,6 +13,7 @@ class PostContentInput extends Equatable {
   final List<String> mentionedEntities;
   final String quotedPostID;
   final String mediaID;
+  final String preview;
 
   List<Object> get props => [
         this.postText,
@@ -20,6 +21,7 @@ class PostContentInput extends Equatable {
         this.mentionedEntities,
         this.quotedPostID,
         this.mediaID,
+        this.preview
       ];
 
   const PostContentInput({
@@ -28,6 +30,7 @@ class PostContentInput extends Equatable {
     this.mentionedEntities,
     this.quotedPostID,
     this.mediaID,
+    this.preview
   });
 
   Map<String, dynamic> toJSON() {

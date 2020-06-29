@@ -1,5 +1,4 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
-import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
@@ -37,7 +36,6 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-  DiscussionListBloc _discussionListBloc;
   Color _topBarBackgroundColor;
 
   String _createDiscussionNonce;
@@ -47,7 +45,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   void dispose() {
-    this._discussionListBloc.close();
     super.dispose();
   }
 
@@ -58,10 +55,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     this._currentTab = HomePageTab.CHAT;
 
     this._topBarBackgroundColor = Color.fromRGBO(22, 23, 28, 1.0);
-    this._discussionListBloc = DiscussionListBloc(
-        repository: this.widget.discussionRepository,
-        meBloc: BlocProvider.of<MeBloc>(context));
-
     this._createDiscussionNonce = DateTime.now().toString();
     this._isCreatingDiscussion = false;
   }
@@ -77,9 +70,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   Widget build(BuildContext context) {
     final windowPadding = MediaQuery.of(context).padding;
     final backgroundColor = Color.fromRGBO(11, 12, 16, 1.0);
-    final meBloc = BlocProvider.of<MeBloc>(context);
     Widget content = BlocBuilder<MeBloc, MeState>(
-      bloc: meBloc,
       builder: (context, meState) {
         final currentUser = MeBloc.extractMe(meState);
         MeBloc.extractMe(BlocProvider.of<MeBloc>(context)?.state);
@@ -96,7 +87,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   backgroundColor: this._topBarBackgroundColor),
               Expanded(
                 child: ChatsScreen(
-                  discussionListBloc: this._discussionListBloc,
                   discussionRepository: this.widget.discussionRepository,
                   routeObserver: this.widget.routeObserver,
                 ),
@@ -155,10 +145,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: backgroundColor,
-      body: BlocProvider<DiscussionListBloc>.value(
-        value: this._discussionListBloc,
-        child: content,
-      ),
+      body: content,
     );
   }
 }

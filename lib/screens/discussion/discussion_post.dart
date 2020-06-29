@@ -1,3 +1,5 @@
+import 'package:delphis_app/bloc/mention/mention_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -10,6 +12,7 @@ import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'post_title.dart';
 
@@ -20,6 +23,7 @@ class DiscussionPost extends StatelessWidget {
   final Post post;
   final Participant participant;
   final Moderator moderator;
+  final Discussion discussion;
 
   final int conciergeIndex;
   final int onboardingConciergeStep;
@@ -31,6 +35,7 @@ class DiscussionPost extends StatelessWidget {
     @required this.participant,
     @required this.post,
     @required this.moderator,
+    @required this.discussion,
     @required this.conciergeIndex,
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
@@ -38,8 +43,34 @@ class DiscussionPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocBuilder<MentionBloc, MentionState> (
+      builder: (context, blocState) {
+        if(blocState.isReady())
+          return buildWithMentionContext(context, blocState);
+        return Container();
+      },
+    );
+  }
+
+  Widget buildWithMentionContext(BuildContext context, MentionState mentionContext) {
     final isModeratorAuthor =
         this.participant.userProfile?.id == this.moderator.userProfile.id;
+    var textWidget = EmojiText(
+      text: this.post.content,
+      style: Theme.of(context).textTheme.bodyText1,
+    );
+
+    /* Color and format mentioned entities */
+    textWidget.setTextOperator(MentionState.mentionSpecialCharsRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    textWidget.setTextOperator(MentionState.encodedMentionRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s, before, after) {
+      var color = Colors.lightBlue;
+      if(RegExp(MentionState.unknownMentionRegexPattern).hasMatch(after)) {
+        color = Colors.grey;
+      }
+      return s.copyWith(color: color, fontWeight : FontWeight.bold);
+    });
+    //textWidget.addOnMatchTapHandler(MentionState.encodedMentionRegexPattern, (s) => print(s)); // POC
 
     if (this.post.postType == PostType.CONCIERGE &&
         (this.onboardingConciergeStep == null ||
@@ -108,10 +139,7 @@ class DiscussionPost extends StatelessWidget {
                       children: <Widget>[
                         Container(
                           padding: EdgeInsets.only(top: SpacingValues.xxSmall),
-                          child: EmojiText(
-                            text: '${this.post.content}',
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
+                          child: textWidget,
                         ),
                         ConciergeDiscussionPostOptions(
                           participant: this.participant,
@@ -130,4 +158,5 @@ class DiscussionPost extends StatelessWidget {
       ),
     );
   }
+
 }

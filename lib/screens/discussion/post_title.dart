@@ -3,6 +3,7 @@ import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:flutter/material.dart';
 
 class PostTitle extends StatelessWidget {
@@ -27,16 +28,16 @@ class PostTitle extends StatelessWidget {
     final textKey =
         this.key == null ? null : Key('${this.key.toString}-displayName');
 
-    var name = Text(
-        '${participant.gradientColor} #${participant.participantID}',
+    var name = Text(DisplayNames.formatParticipant(moderator, participant),
         style: TextThemes.discussionPostAuthorAnon,
         key: textKey);
-    if (this.isModeratorAuthor) {
-      name = Text(moderator.userProfile.displayName,
+    if (participant.participantID == 0) {
+      // This is the moderator
+      name = Text(DisplayNames.formatParticipant(moderator, participant),
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
-      name = Text(participant.userProfile.displayName,
+      name = Text(DisplayNames.formatParticipant(moderator, participant),
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
     }
 

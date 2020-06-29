@@ -12,6 +12,7 @@ import 'discussion.dart';
 import 'flair.dart';
 import 'post.dart';
 import 'viewer.dart';
+import 'entity.dart';
 
 part 'participant.g.dart';
 
@@ -200,7 +201,7 @@ class ParticipantRepository {
 }
 
 @JsonAnnotation.JsonSerializable()
-class Participant extends Equatable {
+class Participant extends Equatable implements Entity {
   final String id;
   final int participantID;
   final Discussion discussion;
@@ -230,4 +231,9 @@ class Participant extends Equatable {
 
   factory Participant.fromJson(Map<String, dynamic> json) =>
       _$ParticipantFromJson(json);
+  
+  Map<String, dynamic> toJSON() {
+    return _$ParticipantToJson(this);
+  }
+
 }

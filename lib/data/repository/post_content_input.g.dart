@@ -14,6 +14,7 @@ PostContentInput _$PostContentInputFromJson(Map<String, dynamic> json) {
         (json['mentionedEntities'] as List)?.map((e) => e as String)?.toList(),
     quotedPostID: json['quotedPostID'] as String,
     mediaID: json['mediaID'] as String,
+    preview: json['preview'] as String,
   );
 }
 
@@ -24,6 +25,7 @@ Map<String, dynamic> _$PostContentInputToJson(PostContentInput instance) =>
       'mentionedEntities': instance.mentionedEntities,
       'quotedPostID': instance.quotedPostID,
       'mediaID': instance.mediaID,
+      'preview': instance.preview,
     };
 
 T _$enumDecode<T>(

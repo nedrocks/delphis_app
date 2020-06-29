@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +13,7 @@ import 'moderator.dart';
 import 'participant.dart';
 import 'post.dart';
 import 'post_content_input.dart';
+import 'entity.dart';
 
 part 'discussion.g.dart';
 
@@ -60,14 +62,14 @@ class DiscussionRepository {
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionList(attempt: attempt + 1);
+        return getMyDiscussionList(attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           'Failed to list discussions because connection is severed');
     }
 
-    final query = ListDiscussionsGQLQuery();
+    final query = ListMyDiscussionsGQLQuery();
 
     final QueryResult result = await client.query(
       QueryOptions(
@@ -231,9 +233,11 @@ class DiscussionRepository {
   }
 
   Future<Post> addPost(
-      {@required String discussionID,
+      {@required Discussion discussion,
       @required String participantID,
       @required String postContent,
+      @required List<String> mentionedEntities,
+      String preview,
       int attempt = 1}) async {
     if (postContent == null || postContent.length == 0) {
       // Don't allow for empty posts.
@@ -245,9 +249,11 @@ class DiscussionRepository {
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
         return addPost(
-            discussionID: discussionID,
+            discussion: discussion,
             participantID: participantID,
             postContent: postContent,
+            mentionedEntities: mentionedEntities,
+            preview: preview,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -255,21 +261,24 @@ class DiscussionRepository {
           "Failed to addPost to discussion because backend connection is severed");
     }
 
+    var postInputContent = PostContentInput(
+      postText: postContent,
+      postType: PostType.STANDARD,
+      mentionedEntities: mentionedEntities,
+      preview: preview
+    );
     final mutation = AddPostGQLMutation(
-      discussionID: discussionID,
+      discussionID: discussion.id,
       participantID: participantID,
-      postContent: PostContentInput(
-        postText: postContent,
-        postType: PostType.STANDARD,
-      ),
+      postContent: postInputContent,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
         variables: {
-          'discussionID': discussionID,
+          'discussionID': discussion.id,
           'participantID': participantID,
-          'postContent': mutation.postContent.toJSON(),
+          'postContent': postInputContent.toJSON(),
         },
         update: (Cache cache, QueryResult result) {
           return cache;
@@ -282,7 +291,7 @@ class DiscussionRepository {
     }
     return mutation.parseResult(result.data);
   }
-
+  
   Future<Discussion> updateDiscussion(
       String discussionID, String title, String iconURL,
       {int attempt = 1}) async {
@@ -357,7 +366,7 @@ class DiscussionRepository {
 }
 
 @JsonAnnotation.JsonSerializable()
-class Discussion extends Equatable {
+class Discussion extends Equatable implements Entity {
   final String id;
   final Moderator moderator;
   final AnonymityType anonymityType;
@@ -404,6 +413,10 @@ class Discussion extends Equatable {
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
       _$DiscussionFromJson(json);
+
+  Map<String, dynamic> toJSON() {
+    return _$DiscussionToJson(this);
+  }
 
   Discussion copyWith(
           {PostsConnection postsConnection,

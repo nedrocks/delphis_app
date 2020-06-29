@@ -2,9 +2,10 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/widgets/input/delphis_input.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
+import 'delphis_input_mentions_popup.dart';
 
 class DelphisInputContainer extends StatelessWidget {
   final bool hasJoined;
@@ -65,7 +66,7 @@ class DelphisInputContainer extends StatelessWidget {
             height: 40.0, width: double.infinity, child: buttonWidget),
       );
     } else {
-      return DelphisInput(
+      return DelphisInputMentionsPopup(
         discussion: discussion,
         participant: participant,
         isShowingParticipantSettings: this.isShowingParticipantSettings,

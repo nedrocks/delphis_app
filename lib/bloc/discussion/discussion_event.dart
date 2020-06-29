@@ -60,15 +60,21 @@ class MeParticipantUpdatedEvent extends DiscussionEvent {
 }
 
 class DiscussionPostAddEvent extends DiscussionEvent {
+  final String preview;
   final String postContent;
   final String uniqueID;
+  final List<String> mentionedEntities;
+  final List<String> localMentionedEntities;
 
   @override
-  List<Object> get props => [this.postContent];
+  List<Object> get props => [this.postContent, this.uniqueID, this.preview, this.mentionedEntities, this.localMentionedEntities];
 
   DiscussionPostAddEvent({
     @required this.postContent,
     @required this.uniqueID,
+    @required this.mentionedEntities,
+    @required this.localMentionedEntities,
+    this.preview
   }) : super();
 }
 

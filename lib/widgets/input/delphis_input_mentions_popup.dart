@@ -159,7 +159,6 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                 if(mentionContext?.isReady() ?? false)
                   encodedText = mentionContext.encodePostContent(text, mentionedEntities);
 
-                print(text);
                 BlocProvider.of<DiscussionBloc>(context).add(
                   DiscussionPostAddEvent(
                       postContent: encodedText,

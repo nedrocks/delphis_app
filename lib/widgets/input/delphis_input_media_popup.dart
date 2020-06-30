@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/design/sizes.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,19 +47,40 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
 
   @override
   Widget build(BuildContext context) {
-    var render = DelphisInput(
-      discussion: widget.discussion,
-      participant: widget.participant,
-      isShowingParticipantSettings: widget.isShowingParticipantSettings,
-      onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
-      parentScrollController: widget.parentScrollController,
-      inputFocusNode: this.widget.inputFocusNode,
-      textController: this.widget.textController,
-      onParticipantMentionPressed: this.widget.onParticipantMentionPressed,
-      onGalleryPressed: this.selectGalleryMedia,
-      onImageCameraPressed: this.selectCameraImage,
-      onVideoCameraPressed: this.selectCameraVideo,
-      onSubmit: (text) => this.widget.onSubmit(text, this.mediaFile, this.mediaType),
+    var bar = Container();
+    if(mediaFile != null && mediaType != null) {
+      bar = Container(
+        padding: EdgeInsets.symmetric(horizontal : SpacingValues.small, vertical: SpacingValues.extraSmall),
+        child: Text(mediaType.toString()),
+      );
+    }
+    
+    var render = Column(
+      children: [
+        bar,
+        DelphisInput(
+          discussion: widget.discussion,
+          participant: widget.participant,
+          isShowingParticipantSettings: widget.isShowingParticipantSettings,
+          onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
+          parentScrollController: widget.parentScrollController,
+          inputFocusNode: this.widget.inputFocusNode,
+          textController: this.widget.textController,
+          onParticipantMentionPressed: this.widget.onParticipantMentionPressed,
+          onGalleryPressed: this.selectGalleryMedia,
+          onImageCameraPressed: this.selectCameraImage,
+          onVideoCameraPressed: this.selectCameraVideo,
+          onSubmit: (text) {
+            this.widget.onSubmit(text, this.mediaFile, this.mediaType);
+
+            // Maybe we can interact with DiscussionBloc to catch errors and not discard the image
+            setState(() {
+              this.mediaFile = null;
+              this.mediaType = null;
+            });
+          },
+        )
+      ],
     );
     return Platform.isAndroid
       ? FutureBuilder(

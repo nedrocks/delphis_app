@@ -326,10 +326,7 @@ class ChathamAppState extends State<ChathamApp>
                                 state.lifecycleState ==
                                     AppLifecycleState.resumed) {
                               // Reload the discussion which should cause it to subscribe to the websocket.
-                              // THIS BREAKS 
-                              /* BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
-                                  discussionID: arguments.discussionID,
-                                  nonce: DateTime.now())); */
+                              BlocProvider.of<DiscussionBloc>(context).add(RefreshPostsEvent(discussionID: arguments.discussionID));
                             }
                         })
                       ],

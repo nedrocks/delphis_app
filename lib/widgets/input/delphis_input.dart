@@ -90,6 +90,14 @@ class DelphisInputState extends State<DelphisInput> {
         this.widget.parentScrollController.removeListener(this.scrollListener);
       }
     });
+
+    /* Forces a rebuild everytime the focus changes.
+       This is needed as the UI changes depending on
+       the text input focus */
+    this._inputFocusNode.addListener((){
+      setState(() {});
+    });
+
     super.initState();
   }
 

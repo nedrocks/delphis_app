@@ -121,7 +121,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
   Widget build(BuildContext context) {
     return BlocBuilder<MentionBloc, MentionState> (
       builder: (context, state) {
-        if (state is MentionState) {
+        if (state is MentionState && state != this.mentionContext) {
           SchedulerBinding.instance.addPostFrameCallback((_) {
             setState(() {
               this.mentionContext = state;

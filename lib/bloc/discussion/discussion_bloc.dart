@@ -173,7 +173,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         String mediaId;
         if(event.media != null && event.mediaType != null) {
           try {
-            Media uploadedMedia = await mediaRepository.uploadImage(event.media);
+            MediaUpload uploadedMedia = await mediaRepository.uploadImage(event.media);
             if(uploadedMedia.mediaId != null)
               mediaId = uploadedMedia.mediaId;
           }

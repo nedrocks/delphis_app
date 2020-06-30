@@ -21,7 +21,7 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
   final FocusNode inputFocusNode;
   final Function(String,
     File,
-    MediaType) onSubmit;
+    MediaContentType) onSubmit;
   final VoidCallback onParticipantMentionPressed;
 
   const DelphisInputMediaPopupWidget({Key key,
@@ -43,7 +43,7 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
 class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWidget> {
   final ImagePicker imagePicker = ImagePicker();
   File mediaFile;
-  MediaType mediaType;
+  MediaContentType mediaType;
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
     File mediaFile = await FilePicker.getFile(type: FileType.media);
     if(mediaFile != null) {
       String mimeStr = lookupMimeType(mediaFile.path);
-      var fileType = mimeStr.split('/')[0].toLowerCase() == "image" ? MediaType.IMAGE : MediaType.VIDEO;
+      var fileType = mimeStr.split('/')[0].toLowerCase() == "image" ? MediaContentType.IMAGE : MediaContentType.VIDEO;
       setState(() {
         this.mediaFile = mediaFile;
         this.mediaType = fileType;
@@ -107,7 +107,7 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
     if(pickedFile != null) {
       setState(() {
         this.mediaFile = File(pickedFile.path);
-        this.mediaType = MediaType.IMAGE;
+        this.mediaType = MediaContentType.IMAGE;
       });
     }
   }
@@ -117,7 +117,7 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
     if(pickedFile != null) {
       setState(() {
         this.mediaFile = File(pickedFile.path);
-        this.mediaType = MediaType.VIDEO;
+        this.mediaType = MediaContentType.VIDEO;
       });
     }
   }
@@ -128,9 +128,9 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
       return;
     }
     if (response.file != null) {
-      var mediaType = MediaType.IMAGE;
+      var mediaType = MediaContentType.IMAGE;
       if (response.type == RetrieveType.video) {
-        mediaType = MediaType.VIDEO;
+        mediaType = MediaContentType.VIDEO;
       }
       setState(() {
         this.mediaFile = File(response.file.path);

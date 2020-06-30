@@ -66,7 +66,7 @@ class DelphisInputState extends State<DelphisInput> {
 
   String _fullText;
   File mediaFile;
-  MediaType mediaType;
+  MediaContentType mediaType;
 
   @override
   void initState() {

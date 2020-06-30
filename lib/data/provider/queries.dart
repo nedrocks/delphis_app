@@ -95,6 +95,18 @@ const PostInfoFragment = """
         selected
       }
     }
+    media {
+      id
+      createdAt
+      isDeleted
+      mediaType
+      mediaSize {
+        height
+        width
+        sizeKb
+      }
+      assetLocation
+    }
   }
   $QuotedPostInfoFragment
 """;

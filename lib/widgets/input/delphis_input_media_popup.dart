@@ -4,6 +4,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/widgets/input/media_input_snippet.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,9 +23,11 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
   final Function(String,
     File,
     MediaContentType) onSubmit;
+  final Function(File, MediaContentType) onMediaTap;
   final VoidCallback onParticipantMentionPressed;
 
-  const DelphisInputMediaPopupWidget({Key key,
+  const DelphisInputMediaPopupWidget({
+    Key key,
     @required this.discussion,
     @required this.participant,
     @required this.isShowingParticipantSettings,
@@ -33,14 +36,15 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
     @required this.textController,
     @required this.inputFocusNode,
     @required this.onSubmit,
-    @required this.onParticipantMentionPressed
+    @required this.onParticipantMentionPressed, 
+    @required this.onMediaTap
   }) : super(key: key);
   
   @override
   _DelphisInputMediaPopupWidgetState createState() => _DelphisInputMediaPopupWidgetState();
 }
 
-class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWidget> {
+class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWidget> with SingleTickerProviderStateMixin {
   final ImagePicker imagePicker = ImagePicker();
   File mediaFile;
   MediaContentType mediaType;
@@ -50,37 +54,59 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
     var bar = Container();
     if(mediaFile != null && mediaType != null) {
       bar = Container(
-        padding: EdgeInsets.symmetric(horizontal : SpacingValues.small, vertical: SpacingValues.extraSmall),
-        child: Text(mediaType.toString()),
+        padding: EdgeInsets.only(top : SpacingValues.medium, left: SpacingValues.small, right: SpacingValues.small),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            MediaInputSnippetWidget(
+              mediaFile: mediaFile,
+              mediaType: mediaType,
+              onCancelTap: (file, type) {
+                setState(() {
+                  this.mediaFile = null;
+                  this.mediaType = null;
+                });
+              },
+              onTap: this.widget.onMediaTap
+            )
+          ]
+        ),
       );
     }
     
-    var render = Column(
-      children: [
-        bar,
-        DelphisInput(
-          discussion: widget.discussion,
-          participant: widget.participant,
-          isShowingParticipantSettings: widget.isShowingParticipantSettings,
-          onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
-          parentScrollController: widget.parentScrollController,
-          inputFocusNode: this.widget.inputFocusNode,
-          textController: this.widget.textController,
-          onParticipantMentionPressed: this.widget.onParticipantMentionPressed,
-          onGalleryPressed: this.selectGalleryMedia,
-          onImageCameraPressed: this.selectCameraImage,
-          onVideoCameraPressed: this.selectCameraVideo,
-          onSubmit: (text) {
-            this.widget.onSubmit(text, this.mediaFile, this.mediaType);
+    var render = AnimatedSize(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+      reverseDuration: Duration(milliseconds: 50),
+      curve: Curves.decelerate,
+      child : Column(
+        children: [
+          bar,
+          DelphisInput(
+            discussion: widget.discussion,
+            participant: widget.participant,
+            isShowingParticipantSettings: widget.isShowingParticipantSettings,
+            onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
+            parentScrollController: widget.parentScrollController,
+            inputFocusNode: this.widget.inputFocusNode,
+            textController: this.widget.textController,
+            onParticipantMentionPressed: this.widget.onParticipantMentionPressed,
+            onGalleryPressed: this.selectGalleryMedia,
+            onImageCameraPressed: this.selectCameraImage,
+            onVideoCameraPressed: this.selectCameraVideo,
+            onSubmit: (text) {
+              this.widget.onSubmit(text, this.mediaFile, this.mediaType);
 
-            // Maybe we can interact with DiscussionBloc to catch errors and not discard the image
-            setState(() {
-              this.mediaFile = null;
-              this.mediaType = null;
-            });
-          },
-        )
-      ],
+              // Maybe we can interact with DiscussionBloc to catch errors and not discard the image
+              setState(() {
+                this.mediaFile = null;
+                this.mediaType = null;
+              });
+            },
+          )
+        ],
+      )
     );
     return Platform.isAndroid
       ? FutureBuilder(

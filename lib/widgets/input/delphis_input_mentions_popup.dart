@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/tracking/constants.dart';
@@ -28,6 +30,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
   final bool isShowingParticipantSettings;
   final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
+  final Function(File, MediaContentType) onMediaTap;
 
   DelphisInputMentionsPopup({
     @required this.discussion,
@@ -35,6 +38,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
     @required this.isShowingParticipantSettings,
     @required this.onParticipantSettingsPressed,
     this.parentScrollController,
+    @required this.onMediaTap,
   });
 
   @override
@@ -139,6 +143,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
             inputFocusNode: this.textFocusNode,
             textController: this.textController,
             onParticipantMentionPressed: this.startParticipantMention,
+            onMediaTap: this.widget.onMediaTap,
             onSubmit: (text, mediaFile, mediaType) {
               final isButtonActive = text.isNotEmpty;
               final pressID = Uuid().v4();

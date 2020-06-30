@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -10,14 +13,13 @@ import 'delphis_input_mentions_popup.dart';
 class DelphisInputContainer extends StatelessWidget {
   final bool hasJoined;
   final bool isJoinable;
-
   final Discussion discussion;
   final Participant participant;
   final bool isShowingParticipantSettings;
   final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
-
   final VoidCallback onJoinPressed;
+  final Function(File, MediaContentType) onMediaTap;
 
   const DelphisInputContainer({
     Key key,
@@ -29,6 +31,7 @@ class DelphisInputContainer extends StatelessWidget {
     @required this.onParticipantSettingsPressed,
     @required this.parentScrollController,
     @required this.onJoinPressed,
+    @required this.onMediaTap,
   }) : super(key: key);
 
   @override
@@ -72,6 +75,7 @@ class DelphisInputContainer extends StatelessWidget {
         isShowingParticipantSettings: this.isShowingParticipantSettings,
         onParticipantSettingsPressed: this.onParticipantSettingsPressed,
         parentScrollController: this.parentScrollController,
+        onMediaTap: this.onMediaTap,
       );
     }
   }

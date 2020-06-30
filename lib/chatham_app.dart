@@ -6,6 +6,7 @@ import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
@@ -192,9 +193,9 @@ class ChathamAppState extends State<ChathamApp>
         ParticipantRepository(clientBloc: this.gqlClientBloc);
     final userDeviceRepository =
         UserDeviceRepository(clientBloc: this.gqlClientBloc);
+    final mediaRepository = MediaRepository();
     // I am not sure what will happen if we leak this Bloc between discussions.
     // We may need to reset the state of the discussion bloc whenever the route changes.
-    final discussionBloc = DiscussionBloc(repository: discussionRepository);
 
     return MultiBlocProvider(
       providers: <BlocProvider>[
@@ -208,6 +209,9 @@ class ChathamAppState extends State<ChathamApp>
           create: (context) => MentionBloc(),
         ),
         BlocProvider<AppBloc>.value(value: this.appBloc),
+        BlocProvider<DiscussionBloc>(
+          create: (context) => DiscussionBloc(discussionRepository: discussionRepository, mediaRepository: mediaRepository),
+        )
       ],
       child: MultiBlocListener(
         listeners: [
@@ -257,14 +261,11 @@ class ChathamAppState extends State<ChathamApp>
                       BlocProvider<NotificationBloc>.value(
                         value: this.notifBloc,
                       ),
-                      BlocProvider<DiscussionBloc>.value(
-                        value: discussionBloc,
-                      ),
                       BlocProvider<ParticipantBloc>(
                         lazy: true,
                         create: (context) => ParticipantBloc(
                             repository: participantRepository,
-                            discussionBloc: discussionBloc),
+                            discussionBloc: BlocProvider.of<DiscussionBloc>(context)),
                       ),
                     ],
                     child: BlocListener<AuthBloc, AuthState>(
@@ -279,7 +280,6 @@ class ChathamAppState extends State<ChathamApp>
                       },
                       child: HomePageScreen(
                         key: this._homePageKey,
-                        discussionBloc: discussionBloc,
                         discussionRepository: discussionRepository,
                         routeObserver: this._routeObserver,
                       ),
@@ -298,14 +298,11 @@ class ChathamAppState extends State<ChathamApp>
                       BlocProvider<NotificationBloc>.value(
                         value: this.notifBloc,
                       ),
-                      BlocProvider<DiscussionBloc>.value(
-                        value: discussionBloc,
-                      ),
                       BlocProvider<ParticipantBloc>(
                         lazy: true,
                         create: (context) => ParticipantBloc(
                             repository: participantRepository,
-                            discussionBloc: discussionBloc),
+                            discussionBloc: BlocProvider.of<DiscussionBloc>(context)),
                       ),
                     ],
                     child: MultiBlocListener (
@@ -329,9 +326,10 @@ class ChathamAppState extends State<ChathamApp>
                                 state.lifecycleState ==
                                     AppLifecycleState.resumed) {
                               // Reload the discussion which should cause it to subscribe to the websocket.
-                              discussionBloc.add(DiscussionQueryEvent(
+                              // THIS BREAKS 
+                              /* BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
                                   discussionID: arguments.discussionID,
-                                  nonce: DateTime.now()));
+                                  nonce: DateTime.now())); */
                             }
                         })
                       ],
@@ -354,7 +352,7 @@ class ChathamAppState extends State<ChathamApp>
                         title: arguments.title,
                         selectedEmoji: arguments.selectedEmoji,
                         onSavePressed: (context, selectedEmoji, title) {
-                          discussionBloc.add(
+                          BlocProvider.of<DiscussionBloc>(context).add(
                             DiscussionUpdateEvent(
                                 discussionID: arguments.discussionID,
                                 title: title,

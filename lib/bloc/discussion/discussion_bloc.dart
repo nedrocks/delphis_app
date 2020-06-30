@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/entity.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
@@ -16,10 +18,12 @@ part 'discussion_event.dart';
 part 'discussion_state.dart';
 
 class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
-  final DiscussionRepository repository;
+  final DiscussionRepository discussionRepository;
+  final MediaRepository mediaRepository;
 
   DiscussionBloc({
-    @required this.repository,
+    @required this.discussionRepository,
+    @required this.mediaRepository,
   }) : super();
 
   @override
@@ -81,7 +85,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();
-        final discussion = await repository.getDiscussion(event.discussionID);
+        final discussion = await discussionRepository.getDiscussion(event.discussionID);
         int conciergeStep = getConciergeStep(discussion);
         yield DiscussionLoadedState(
           discussion: discussion,
@@ -98,7 +102,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
         final updatedDiscussion =
-            await repository.getDiscussion(currentState.discussion.id);
+            await discussionRepository.getDiscussion(currentState.discussion.id);
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -112,7 +116,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final newPostsConnection = await repository
+        final newPostsConnection = await discussionRepository
             .getDiscussionPostsConnection(currentState.discussion.id,
                 postsConnection: currentState.discussion.postsConnection);
         final updatedDiscussion = currentState.discussion.copyWith(
@@ -164,44 +168,17 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         yield currentState.update(
             discussion: currentState.getDiscussion(),
             localPosts: currentState.localPosts);
-        this
-            .repository
-            .addPost(
-                discussion: currentState.getDiscussion(),
-                participantID: currentState.getDiscussion().meParticipant.id,
-                postContent: event.postContent,
-                mentionedEntities: event.mentionedEntities,
-                preview: event.preview)
-            .then((addedPost) {
-          final success = addedPost != null;
-          Segment.track(
-              eventName: ChathamTrackingEventNames.POST_ADD,
-              properties: {
-                'funnelID': event.uniqueID,
-                'error': false,
-                'success': success,
-                'discussionID': currentState.getDiscussion().id,
-                'participantID': currentState.getDiscussion().meParticipant.id,
-                'contentLength': event.postContent.length,
-              });
-          if (addedPost == null) {
-            // The response may not be a post if it's malformed or something.
-            this.add(LocalPostCreateFailure(localPost: localPost));
-            return;
-          }
 
-          /* The post content may have changed during submission
-             (This appens with mentions, for instance). This adds resistence in case
-             the content mutation happens either in the frontend or the backend. */
-          localPost.post = localPost.post.copyWith(
-            content: addedPost.content,
-            mentionedEntities: addedPost.mentionedEntities
-          );
-          // The current state may have changed since this is a future.
-          this.add(LocalPostCreateSuccess(
-              createdPost: addedPost, localPost: localPost));
-        }, onError: (err) {
-          Segment.track(
+        /* Try to upload the media file */
+        String mediaId;
+        if(event.media != null && event.mediaType != null) {
+          try {
+            Media uploadedMedia = await mediaRepository.uploadImage(event.media);
+            if(uploadedMedia.mediaId != null)
+              mediaId = uploadedMedia.mediaId;
+          }
+          catch (error) {
+            Segment.track(
               eventName: ChathamTrackingEventNames.POST_ADD,
               properties: {
                 'funnelID': event.uniqueID,
@@ -211,11 +188,66 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                 'participantID': currentState.getDiscussion().meParticipant.id,
                 'contentLength': event.postContent.length,
               });
-          localPost.isProcessing = false;
-          localPost.failCount += 1;
-          localPost.isFailed = true;
-          this.add(LocalPostCreateFailure(localPost: localPost));
-        });
+            this.add(LocalPostCreateFailure(localPost: localPost));
+          }
+        }
+
+        /* Proceed in sending post */
+        if(mediaId != null || (event.media == null && event.mediaType == null)) {
+          this
+              .discussionRepository
+              .addPost(
+                  discussion: currentState.getDiscussion(),
+                  participantID: currentState.getDiscussion().meParticipant.id,
+                  postContent: event.postContent,
+                  mentionedEntities: event.mentionedEntities,
+                  preview: event.preview,
+                  mediaId: mediaId)
+              .then((addedPost) {
+            final success = addedPost != null;
+            Segment.track(
+                eventName: ChathamTrackingEventNames.POST_ADD,
+                properties: {
+                  'funnelID': event.uniqueID,
+                  'error': false,
+                  'success': success,
+                  'discussionID': currentState.getDiscussion().id,
+                  'participantID': currentState.getDiscussion().meParticipant.id,
+                  'contentLength': event.postContent.length,
+                });
+            if (addedPost == null) {
+              // The response may not be a post if it's malformed or something.
+              this.add(LocalPostCreateFailure(localPost: localPost));
+              return;
+            }
+
+            /* The post content may have changed during submission
+              (This appens with mentions, for instance). This adds resistence in case
+              the content mutation happens either in the frontend or the backend. */
+            localPost.post = localPost.post.copyWith(
+              content: addedPost.content,
+              mentionedEntities: addedPost.mentionedEntities
+            );
+            // The current state may have changed since this is a future.
+            this.add(LocalPostCreateSuccess(
+                createdPost: addedPost, localPost: localPost));
+          }, onError: (err) {
+            Segment.track(
+                eventName: ChathamTrackingEventNames.POST_ADD,
+                properties: {
+                  'funnelID': event.uniqueID,
+                  'error': true,
+                  'success': false,
+                  'discussionID': currentState.getDiscussion().id,
+                  'participantID': currentState.getDiscussion().meParticipant.id,
+                  'contentLength': event.postContent.length,
+                });
+            localPost.isProcessing = false;
+            localPost.failCount += 1;
+            localPost.isFailed = true;
+            this.add(LocalPostCreateFailure(localPost: localPost));
+          });
+        }     
       }
     } else if (event is DiscussionPostAddedEvent &&
         currentState is DiscussionLoadedState) {
@@ -273,7 +305,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       if (currentState.getDiscussion() != null &&
           currentState.discussionPostStream == null) {
         final discussionStream =
-            await this.repository.subscribe(currentState.getDiscussion().id);
+            await this.discussionRepository.subscribe(currentState.getDiscussion().id);
         discussionStream.listen((Post post) {
           this.add(DiscussionPostAddedEvent(post: post));
         });
@@ -306,7 +338,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       yield AddingDiscussionState(
           anonymityType: event.anonymityType, title: event.title);
       try {
-        final discussion = await this.repository.createDiscussion(
+        final discussion = await this.discussionRepository.createDiscussion(
             title: event.title, anonymityType: event.anonymityType);
         yield DiscussionLoadedState(
             discussion: discussion, lastUpdate: DateTime.now());
@@ -320,7 +352,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedPost = await this.repository.selectConciergeMutation(
+        final updatedPost = await this.discussionRepository.selectConciergeMutation(
             event.discussionID, event.mutationID, event.selectedOptionIDs);
         final postsCache = loadingState.discussion.postsCache;
         for (int i = 0; i < postsCache.length; i++) {
@@ -354,7 +386,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedDiscussion = await this.repository.updateDiscussion(
+        final updatedDiscussion = await this.discussionRepository.updateDiscussion(
             event.discussionID,
             event.title,
             event.selectedEmoji == null

@@ -238,6 +238,7 @@ class DiscussionRepository {
       @required String postContent,
       @required List<String> mentionedEntities,
       String preview,
+      String mediaId,
       int attempt = 1}) async {
     if (postContent == null || postContent.length == 0) {
       // Don't allow for empty posts.
@@ -254,6 +255,7 @@ class DiscussionRepository {
             postContent: postContent,
             mentionedEntities: mentionedEntities,
             preview: preview,
+            mediaId: mediaId,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -265,7 +267,8 @@ class DiscussionRepository {
       postText: postContent,
       postType: PostType.STANDARD,
       mentionedEntities: mentionedEntities,
-      preview: preview
+      preview: preview,
+      mediaID: mediaId
     );
     final mutation = AddPostGQLMutation(
       discussionID: discussion.id,

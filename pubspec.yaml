@@ -29,6 +29,9 @@ dependencies:
   flutter_svg: 0.17.4
   url_launcher: 5.4.5
   random_words: 1.0.2
+  image_picker: 0.6.7+2
+  file_picker: 1.12.0
+  mime: 0.9.6+3
 
   flutter_webview_plugin: 0.3.10+1
   provider: 4.0.5

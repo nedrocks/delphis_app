@@ -18,7 +18,7 @@ class DiscussionBlocWithSettableState extends DiscussionBloc {
   DiscussionBlocWithSettableState({
     @required repository,
     @required this.initState,
-  }) : super(repository: repository);
+  }) : super(discussionRepository: repository);
 
   @override
   DiscussionState get initialState => this.initState;
@@ -87,7 +87,7 @@ void main() {
     final discussion = TestObjects.getDiscussion1(asAnonymous: false);
 
     setUp(() {
-      discussionBloc = DiscussionBloc(repository: discussionRepository);
+      discussionBloc = DiscussionBloc(discussionRepository: discussionRepository);
     });
 
     tearDown(() {

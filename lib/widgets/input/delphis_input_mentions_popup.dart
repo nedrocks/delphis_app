@@ -8,6 +8,7 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/tracking/constants.dart';
 import 'package:delphis_app/util/display_names.dart';
+import 'package:delphis_app/widgets/input/delphis_input_media_popup.dart';
 import 'package:delphis_app/widgets/input/participant_mention_hint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,6 @@ import 'package:flutter_segment/flutter_segment.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import 'delphis_input.dart';
 import 'delphis_text_controller.dart';
 import 'discussion_mention_hint.dart';
 
@@ -130,7 +130,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         }
         return CompositedTransformTarget(
           link: this.layerLink,
-          child: DelphisInput(
+          child: DelphisInputMediaPopupWidget(
             discussion: widget.discussion,
             participant: widget.participant,
             isShowingParticipantSettings: widget.isShowingParticipantSettings,
@@ -138,7 +138,8 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
             parentScrollController: widget.parentScrollController,
             inputFocusNode: this.textFocusNode,
             textController: this.textController,
-            onSubmit: (text) {
+            onParticipantMentionPressed: this.startParticipantMention,
+            onSubmit: (text, mediaFile, mediaType) {
               final isButtonActive = text.isNotEmpty;
               final pressID = Uuid().v4();
               Segment.track(
@@ -165,7 +166,9 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                       uniqueID: pressID,
                       mentionedEntities: mentionedEntities,
                       localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList(),
-                      preview: encodedText != text ? text : null
+                      preview: encodedText != text ? text : null,
+                      media: mediaFile,
+                      mediaType: mediaType
                   ),
                 );
                 textController.text = '';
@@ -343,6 +346,23 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         compareTo(DisplayNames.formatDiscussion(b));
     });
     return Future.value(list);
+  }
+
+
+  void startParticipantMention() {
+    if(!this.textFocusNode.hasFocus)
+      return;
+    var symbol = MentionState.participantMentionSymbol;
+    var text = textController.text;
+    var offset = textController.selection.baseOffset;
+
+    var newText = text.substring(0, max(0, offset)) + symbol;
+    var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
+    newText += text.substring(offset);
+    
+    this.textController.text = newText;
+    this.textController.selection = newSelection;
+    this.textController.notifyListeners();
   }
 
 }

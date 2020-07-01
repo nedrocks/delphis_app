@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:equatable/equatable.dart';
@@ -30,6 +32,8 @@ class Post extends Equatable {
   final ConciergeContent conciergeContent;
   final Media media;
   final bool isLocalPost;
+  final File localMediaFile;
+  final MediaContentType localMediaContentType;
 
   List<Object> get props => [
         id,
@@ -41,7 +45,9 @@ class Post extends Equatable {
         createdAt,
         updatedAt,
         mentionedEntities,
-        media
+        media,
+        localMediaFile,
+        localMediaContentType
       ];
 
   const Post({
@@ -59,6 +65,8 @@ class Post extends Equatable {
     this.postType,
     this.conciergeContent,
     this.media,
+    this.localMediaFile,
+    this.localMediaContentType
   });
 
   factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
@@ -78,6 +86,8 @@ class Post extends Equatable {
     postType,
     conciergeContent,
     media,
+    localMediaFile,
+    localMediaContentType
   }) {
     return Post(
       id: id ?? this.id,
@@ -93,7 +103,9 @@ class Post extends Equatable {
       quotedPost: quotedPost ?? this.quotedPost,
       postType: postType ?? this.postType,
       conciergeContent: conciergeContent ?? this.conciergeContent,
-      media: media ?? this.media
+      media: media ?? this.media,
+      localMediaFile: localMediaFile ?? this.localMediaFile,
+      localMediaContentType: localMediaContentType ?? this.localMediaContentType
     );
   }
   

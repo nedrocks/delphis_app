@@ -66,7 +66,7 @@ class DiscussionPostAddEvent extends DiscussionEvent {
   final List<String> mentionedEntities;
   final List<String> localMentionedEntities;
   final File media;
-  final MediaContentType mediaType;
+  final MediaContentType mediaContentType;
 
   @override
   List<Object> get props => [this.postContent, this.uniqueID, this.preview, this.mentionedEntities, this.localMentionedEntities];
@@ -77,7 +77,7 @@ class DiscussionPostAddEvent extends DiscussionEvent {
     @required this.mentionedEntities,
     @required this.localMentionedEntities,
     this.media,
-    this.mediaType,
+    this.mediaContentType,
     this.preview
   }) : super();
 }

@@ -172,7 +172,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                       localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList(),
                       preview: encodedText != text ? text : null,
                       media: mediaFile,
-                      mediaType: mediaType
+                      mediaContentType: mediaType
                   ),
                 );
                 textController.text = '';

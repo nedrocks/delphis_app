@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:delphis_app/data/repository/media.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +11,13 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:http/http.dart' as http;
 
 class MediaSnippetWidget extends StatelessWidget {
-  final Media media;
+  final Post post;
   final Function(File, MediaContentType) onTap;
 
   const MediaSnippetWidget({
     Key key,
     @required this.onTap, 
-    @required this.media,
+    @required this.post,
   }) : super(key: key);
 
   @override
@@ -30,7 +31,7 @@ class MediaSnippetWidget extends StatelessWidget {
         color: Colors.grey
       ),
       child: FutureBuilder(
-        future: downloadFile(this.media.assetLocation, this.media.id),
+        future: downloadFile(this.post.media.assetLocation, this.post.id),
         builder: (context, snapshot) {
           if(snapshot.hasError) {
             return Center(
@@ -40,7 +41,7 @@ class MediaSnippetWidget extends StatelessWidget {
 
           if(snapshot.hasData) {
             return FutureBuilder(
-              future: getImage(snapshot.data, this.media.mediaContentType),
+              future: getImage(snapshot.data, this.post.media.mediaContentType),
               builder: (context, imageSnapshot) {
                 if(imageSnapshot.hasError) {
                   return Center(
@@ -53,7 +54,7 @@ class MediaSnippetWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
-                      onTap: () => this.onTap(snapshot.data, this.media.mediaContentType),
+                      onTap: () => this.onTap(snapshot.data, this.post.media.mediaContentType),
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
@@ -61,7 +62,7 @@ class MediaSnippetWidget extends StatelessWidget {
                             fit: BoxFit.fitWidth
                           )
                         ),
-                        child: this.media.mediaContentType != MediaContentType.VIDEO
+                        child: this.post.media.mediaContentType != MediaContentType.VIDEO
                           ? Container()
                           : Center(
                             child: Container(

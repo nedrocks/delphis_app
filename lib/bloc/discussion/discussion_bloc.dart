@@ -161,6 +161,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             content: event.postContent,
             mentionedEntities: event.localMentionedEntities.map((e) => Entity(id: e)).toList(), // Hacky, but it wserves its purpose
             isLocalPost: true,
+            localMediaFile: event.media,
+            localMediaContentType: event.mediaContentType
           ),
         );
         currentState.getDiscussion().addLocalPost(localPost);
@@ -171,7 +173,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
         /* Try to upload the media file */
         String mediaId;
-        if(event.media != null && event.mediaType != null) {
+        if(event.media != null && event.mediaContentType != null) {
           try {
             MediaUpload uploadedMedia = await mediaRepository.uploadImage(event.media);
             if(uploadedMedia.mediaId != null)
@@ -193,7 +195,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         }
 
         /* Proceed in sending post */
-        if(mediaId != null || (event.media == null && event.mediaType == null)) {
+        if(mediaId != null || (event.media == null && event.mediaContentType == null)) {
           this
               .discussionRepository
               .addPost(
@@ -226,7 +228,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
               the content mutation happens either in the frontend or the backend. */
             localPost.post = localPost.post.copyWith(
               content: addedPost.content,
-              mentionedEntities: addedPost.mentionedEntities
+              mentionedEntities: addedPost.mentionedEntities,
+              media: addedPost.media
             );
             // The current state may have changed since this is a future.
             this.add(LocalPostCreateSuccess(

@@ -294,7 +294,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               child: AnimatedSwitcher(
                 duration: Duration(milliseconds: 200),
                 switchInCurve: Curves.easeIn,
-                switchOutCurve: Curves.elasticOut,
+                switchOutCurve: Curves.easeIn,
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return ScaleTransition(child: child, scale: animation);
                 },

@@ -11,7 +11,7 @@ class ImagePreviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Image.file(
       imageFile,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       height: double.infinity,
       width: double.infinity,
       alignment: Alignment.center,

@@ -79,6 +79,10 @@ class Media extends Equatable {
     return DateTime.parse(this.createdAt);
   }
 
+  MediaContentType get mediaContentType {
+    return mediaType.split('/')[0].toLowerCase() == "image" ? MediaContentType.IMAGE : MediaContentType.VIDEO;
+  }
+
 }
 
 @JsonAnnotation.JsonSerializable()

@@ -1,11 +1,13 @@
+import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
-import 'package:delphis_app/screens/discussion/media_preview/media_preview.dart';
+import 'package:delphis_app/screens/discussion/media/media_preview.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -205,6 +207,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               this.handleConciergePostOptionPressed(
                   discussionObj, post, content, option);
             },
+            onMediaTap: (media, type) => this.onMediaTap(context, media, type),
           ),
         );
         var listViewWithInput = Column(
@@ -248,13 +251,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 });
               },
               onMediaTap: (media, type) {              
-                setState(() {
-                  FocusScope.of(context).unfocus();
-                  this.mediaToShow = MediaPreviewWidget(
-                    mediaFile: media,
-                    mediaType: type,
-                  );
-                });              
+                onMediaTap(context, media, type);              
               },
             ),
           ],
@@ -305,6 +302,16 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
       },
     );
+  }
+
+  void onMediaTap(BuildContext context, File media, MediaContentType type) {
+    setState(() {
+      FocusScope.of(context).unfocus();
+      this.mediaToShow = MediaPreviewWidget(
+        mediaFile: media,
+        mediaType: type,
+      );
+    });    
   }
 
   void _onOverlayEntry(BuildContext context, OverlayEntry entry) {

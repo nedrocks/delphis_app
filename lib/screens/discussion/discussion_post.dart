@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
@@ -8,6 +11,7 @@ import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
+import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
@@ -30,6 +34,8 @@ class DiscussionPost extends StatelessWidget {
 
   final ConciergePostOptionPressed onConciergeOptionPressed;
 
+  final Function(File, MediaContentType) onMediaTap;
+
   const DiscussionPost({
     Key key,
     @required this.participant,
@@ -39,6 +45,7 @@ class DiscussionPost extends StatelessWidget {
     @required this.conciergeIndex,
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
+    @required this.onMediaTap
   }) : super(key: key);
 
   @override
@@ -119,7 +126,7 @@ class DiscussionPost extends StatelessWidget {
               ),
             ),
             Expanded(
-                child: Container(
+              child: Container(
               child: Column(
                 key: this.key == null
                     ? null
@@ -141,6 +148,7 @@ class DiscussionPost extends StatelessWidget {
                           padding: EdgeInsets.only(top: SpacingValues.xxSmall),
                           child: textWidget,
                         ),
+                        buildMediaSnippet(context),
                         ConciergeDiscussionPostOptions(
                           participant: this.participant,
                           post: this.post,
@@ -156,6 +164,18 @@ class DiscussionPost extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildMediaSnippet(BuildContext context) {
+    var media = this.post.media;
+    if(media == null || media.assetLocation == null) {
+      return Container();
+    }
+    
+    return MediaSnippetWidget(
+      media: media,
+      onTap: this.onMediaTap
     );
   }
 

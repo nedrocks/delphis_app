@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:delphis_app/data/repository/media.dart';
-import 'package:delphis_app/screens/discussion/media_preview/image_preview.dart';
-import 'package:delphis_app/screens/discussion/media_preview/video_preview.dart';
+import 'package:delphis_app/screens/discussion/media/image_preview.dart';
+import 'package:delphis_app/screens/discussion/media/video_preview.dart';
 import 'package:flutter/material.dart';
 
 class MediaPreviewWidget extends StatelessWidget {

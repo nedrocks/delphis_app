@@ -169,9 +169,8 @@ class DiscussionPost extends StatelessWidget {
 
   Widget buildMediaSnippet(BuildContext context) {
     var media = this.post.media;
-    if((media == null || media.assetLocation == null)
-        //&& !(this.post.isLocalPost && this.post.localMediaFile != null  && this.post.localMediaContentType != null)
-      ) {
+    if(!(media != null && media.assetLocation != null)
+        && !((this.post.isLocalPost ?? false) && this.post.localMediaFile != null  && this.post.localMediaContentType != null)) {
       return Container();
     }
     

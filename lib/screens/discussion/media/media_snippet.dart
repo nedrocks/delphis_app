@@ -6,11 +6,12 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
-import 'package:http/http.dart' as http;
 
-class MediaSnippetWidget extends StatelessWidget {
+
+class MediaSnippetWidget extends StatefulWidget {
   final Post post;
   final Function(File, MediaContentType) onTap;
 
@@ -21,17 +22,34 @@ class MediaSnippetWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _MediaSnippetWidgetState createState() => _MediaSnippetWidgetState();
+}
+
+class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
+  ImageProvider imageProvider;
+  File imageFile;
+
+  @override
+  void initState() {
+    if(this.widget.post.isLocalPost ?? false) {
+      this.imageFile = this.widget.post.localMediaFile;
+      this.imageProvider = FileImage(this.widget.post.localMediaFile);
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
-      width: 200,
-      height: 100,
+      width: MediaQuery.of(context).size.width * 0.75,
+      height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.grey
       ),
       child: FutureBuilder(
-        future: downloadFile(this.post.media.assetLocation, this.post.id),
+        future: downloadFile(this.widget.post.media?.assetLocation ?? "", this.widget.post.id),
         builder: (context, snapshot) {
           if(snapshot.hasError) {
             return Center(
@@ -41,7 +59,7 @@ class MediaSnippetWidget extends StatelessWidget {
 
           if(snapshot.hasData) {
             return FutureBuilder(
-              future: getImage(snapshot.data, this.post.media.mediaContentType),
+              future: getImage(snapshot.data, this.widget.post.media?.mediaContentType ?? null),
               builder: (context, imageSnapshot) {
                 if(imageSnapshot.hasError) {
                   return Center(
@@ -50,11 +68,19 @@ class MediaSnippetWidget extends StatelessWidget {
                 }
 
                 if(imageSnapshot.hasData) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    if(!mounted)
+                      return;
+                    setState(() {
+                      this.imageProvider = imageSnapshot.data;
+                      this.imageFile = snapshot.data;
+                    });
+                  });
                   return Material(
                     borderRadius: BorderRadius.circular(12),
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
-                      onTap: () => this.onTap(snapshot.data, this.post.media.mediaContentType),
+                      onTap: () => this.widget.onTap(snapshot.data, this.widget.post.media?.mediaContentType ?? null),
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
@@ -62,7 +88,7 @@ class MediaSnippetWidget extends StatelessWidget {
                             fit: BoxFit.fitWidth
                           )
                         ),
-                        child: this.post.media.mediaContentType != MediaContentType.VIDEO
+                        child: (this.widget.post.media?.mediaContentType ?? this.widget.post.localMediaContentType) != MediaContentType.VIDEO
                           ? Container()
                           : Center(
                             child: Container(
@@ -95,6 +121,10 @@ class MediaSnippetWidget extends StatelessWidget {
   }
 
   Future<ImageProvider> getImage(File mediaFile, MediaContentType mediaType) async {
+    if(this.imageProvider != null) {
+      return Future.value(this.imageProvider);
+    }
+
     /* Read file contents */
     Uint8List bytesContent;
     try {
@@ -128,12 +158,9 @@ class MediaSnippetWidget extends StatelessWidget {
   }
 
   Future<File> downloadFile(String url, String filename) async {
-    var req = await http.get(Uri.parse(url));
-    var bytes = req.bodyBytes;
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    File file = new File('$dir/media-$filename');
-    await file.writeAsBytes(bytes);
-    return file;
+    if(this.imageFile != null)
+      return Future.value(imageFile);
+    return await DefaultCacheManager().getSingleFile(url);
   }
 
 }

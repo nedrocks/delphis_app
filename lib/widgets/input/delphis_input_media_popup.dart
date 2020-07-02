@@ -117,7 +117,7 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
   }
 
   void selectGalleryMedia() async {
-    File mediaFile = await FilePicker.getFile(type: FileType.media);
+    File mediaFile = await FilePicker.getFile(type: FileType.image);
     if(mediaFile != null) {
       String mimeStr = lookupMimeType(mediaFile.path);
       var fileType = mimeStr.split('/')[0].toLowerCase() == "image" ? MediaContentType.IMAGE : MediaContentType.VIDEO;

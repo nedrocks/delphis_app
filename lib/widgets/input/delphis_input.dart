@@ -91,10 +91,13 @@ class DelphisInputState extends State<DelphisInput> {
       }
     });
 
-    /* Forces a rebuild everytime the focus changes.
+    /* Forces a rebuild everytime the focus/text changes.
        This is needed as the UI changes depending on
        the text input focus */
     this._inputFocusNode.addListener((){
+      setState(() {});
+    });
+    this._controller.addListener((){
       setState(() {});
     });
 
@@ -197,13 +200,6 @@ class DelphisInputState extends State<DelphisInput> {
                   ),
                    SizedBox(
                     width: SpacingValues.medium,
-                  ),
-                  CameraPickerButton(
-                    onPressed: this.widget.onVideoCameraPressed,
-                    width: actionIconSize,
-                    height: actionIconSize,
-                    isActive: true,
-                    isVideo: true,
                   ),
                 ],
               ),

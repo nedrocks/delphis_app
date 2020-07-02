@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/post.dart';
 
 abstract class GQLSubscription<T> {
@@ -12,25 +13,10 @@ class PostAddedSubscription extends GQLSubscription<Post> {
   final String _subscription = """
     subscription postAdded(\$discussionID: String!) {
       postAdded(discussionID: \$discussionID) {
-        id
-        content
-        participant {
-          id
-          isAnonymous
-          participantID
-          gradientColor
-          flair {
-            id
-            displayName
-            imageURL
-            source
-          }
-        }
-        isDeleted
-        createdAt
-        updatedAt
+        ...PostInfoFragment
       }
     }
+    $PostInfoFragment
   """;
 
   const PostAddedSubscription(this.discussionID) : super();

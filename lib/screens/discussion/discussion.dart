@@ -265,22 +265,37 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             body: listViewWithInput,
         ));
 
+        var cancelPreview = () {
+          setState(() {
+            this.mediaToShow = null;
+          }); 
+          return true;
+        };
         Widget mediaPreview = Container();
         if(this.mediaToShow != null) {
-          mediaPreview = Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
-              backgroundColor: Colors.black,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white, size: 25,),
-                onPressed: () {
-                  setState(() {
-                    this.mediaToShow = null;
-                  });  
-                },
+          mediaPreview = GestureDetector(
+            onVerticalDragEnd: (e) => cancelPreview(),
+            child: Container(
+              color: Colors.black,
+              child: Stack(
+                children: [
+                  Center(child: mediaToShow),
+                  Positioned(
+                    top: 32,
+                    left: 15,
+                    child: Material(
+                      color: Colors.transparent,
+                      type: MaterialType.circle,
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(      
+                        onTap: cancelPreview,
+                        child: Icon(Icons.cancel, color: Colors.white, size: 28),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
-            body: mediaToShow,
           );
         }
 

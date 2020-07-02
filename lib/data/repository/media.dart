@@ -1,10 +1,12 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:delphis_app/constants.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:equatable/equatable.dart';
+import 'package:image/image.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
 part 'media.g.dart';
@@ -13,11 +15,21 @@ enum MediaContentType {
   IMAGE, VIDEO
 }
 
+class _CompressImageParam {
+  final File file;
+  final SendPort sendPort;
+  _CompressImageParam(this.file, this.sendPort);
+}
+
 class MediaRepository {
 
   Future<MediaUpload> uploadImage(File file) async {
+    ReceivePort receivePort = ReceivePort();
+    Isolate.spawn(_compressImage, _CompressImageParam(file, receivePort.sendPort));
+    List<int> bytes = await receivePort.first;
+
     var request = http.MultipartRequest("POST", Uri.parse(Constants.uploadImageUrl));
-    var pic = await http.MultipartFile.fromPath("image", file.path);
+    var pic = http.MultipartFile.fromBytes("image", bytes, filename: file.path);
     request.files.add(pic);
 
     var response = await request.send();
@@ -29,6 +41,12 @@ class MediaRepository {
     return MediaUpload.fromJson(json.decode(responseString));
   }
 
+  static void _compressImage(_CompressImageParam param) {
+    Image image = decodeImage(param.file.readAsBytesSync());
+    Image thumbnail = copyResize(image, width: 800);
+    param.sendPort.send(encodeJpg(thumbnail, quality: 80));
+  }
+  
 }
 
 @JsonAnnotation.JsonSerializable()

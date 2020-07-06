@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ImagePreviewWidget extends StatelessWidget {
   final File imageFile;
@@ -9,12 +10,13 @@ class ImagePreviewWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return Image.file(
-      imageFile,
-      fit: BoxFit.contain,
-      height: double.infinity,
-      width: double.infinity,
-      alignment: Alignment.center,
+    return PhotoView(
+      imageProvider: FileImage(
+        imageFile,
+      ),
+      minScale: 0.5,
+      maxScale: 2.0,
+      initialScale: 1.0,
     ); 
   }
 }

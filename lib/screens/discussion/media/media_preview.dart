@@ -5,6 +5,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/media/image_preview.dart';
 import 'package:delphis_app/screens/discussion/media/video_preview.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MediaPreviewWidget extends StatefulWidget {
   final File mediaFile;
@@ -28,7 +29,14 @@ class _MediaPreviewWidgetState extends State<MediaPreviewWidget> {
   @override
   void initState() {
     this.rotationQuarter = 0;
+    SystemChrome.setEnabledSystemUIOverlays([]);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    super.dispose();
   }
 
   @override
@@ -50,10 +58,6 @@ class _MediaPreviewWidgetState extends State<MediaPreviewWidget> {
     );
 
     return GestureDetector(
-      onVerticalDragEnd: (e) {
-        this.widget.onCancel();
-        return true;
-      },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: SpacingValues.xxxxLarge),
         color: Colors.black,
@@ -66,7 +70,7 @@ class _MediaPreviewWidgetState extends State<MediaPreviewWidget> {
               top:0,
               left: 15,
               child: Material(
-                color: Colors.grey.withAlpha(60),
+                color: Colors.grey.withAlpha(80),
                 type: MaterialType.circle,
                 clipBehavior: Clip.antiAlias,
                 child: Container(
@@ -87,7 +91,7 @@ class _MediaPreviewWidgetState extends State<MediaPreviewWidget> {
               top: 0,
               right: 15,
               child: Material(
-                color: Colors.grey.withAlpha(60),
+                color: Colors.grey.withAlpha(80),
                 type: MaterialType.circle,
                 clipBehavior: Clip.antiAlias,
                 child: Container(
@@ -95,7 +99,7 @@ class _MediaPreviewWidgetState extends State<MediaPreviewWidget> {
                   child: InkWell(      
                     onTap: () {
                       setState(() {
-                        this.rotationQuarter = (this.rotationQuarter + 1) % 4;
+                        this.rotationQuarter = (this.rotationQuarter + 1) % 2;
                       });
                       return true;
                     },

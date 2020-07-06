@@ -5,6 +5,7 @@ import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
+import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -267,6 +268,12 @@ class ChathamAppState extends State<ChathamApp>
                             create: (context) => ParticipantBloc(
                                 repository: RepositoryProvider.of<ParticipantRepository>(context),
                                 discussionBloc: BlocProvider.of<DiscussionBloc>(context)),
+                          ),
+                          BlocProvider<ModeratorBloc>(
+                            create: (context) => ModeratorBloc(
+                              discussionRepository: RepositoryProvider.of<DiscussionRepository>(context),
+                              participantRepository: RepositoryProvider.of<ParticipantRepository>(context)
+                            ),
                           ),
                         ],
                         child: MultiBlocListener (

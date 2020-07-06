@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -9,6 +10,8 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
+import 'package:delphis_app/screens/discussion/overlay/moderator_popup.dart';
+import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -38,6 +41,11 @@ class DiscussionContent extends StatelessWidget {
   final ConciergePostOptionPressed onConciergeOptionPressed;
 
   final Function(File, MediaContentType) onMediaTap;
+  final Function(Post, Discussion) onModeratorPostButtonPressed;
+
+  final ModeratorPopupArguments moderatorPopupArguments;
+
+  final VoidCallback onModeratorOverlayClose;
 
   DiscussionContent({
     @required key,
@@ -53,7 +61,10 @@ class DiscussionContent extends StatelessWidget {
     @required this.refreshController,
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
-    @required this.onMediaTap
+    @required this.onMediaTap,
+    @required this.onModeratorPostButtonPressed,
+    @required this.onModeratorOverlayClose,
+    @required this.moderatorPopupArguments
   }) : super(key: key);
 
   @override
@@ -68,6 +79,7 @@ class DiscussionContent extends StatelessWidget {
       onboardingConciergeStep: this.onboardingConciergeStep,
       onConciergeOptionPressed: this.onConciergeOptionPressed,
       onMediaTap: this.onMediaTap,
+      onModeratorButtonPressed: this.onModeratorPostButtonPressed,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);
@@ -134,6 +146,24 @@ class DiscussionContent extends StatelessWidget {
             ),
           ),
           animationMillis: this.isAnimationEnabled ? 500 : 0,
+        ),
+      );
+
+      this.onOverlayOpen(overlayEntry);
+    } else if (this.moderatorPopupArguments != null) {
+      final overlayEntry = OverlayEntry(
+        builder: (overlayContext) => BlocProvider<ModeratorBloc>.value(
+          value: BlocProvider.of<ModeratorBloc>(context),
+          child: AnimatedDiscussionPopup(
+            child: Container(width: 0, height: 0),
+            popup: DiscussionPopup(
+              contents: ModeratorPopup(
+                arguments: this.moderatorPopupArguments,
+                onCancel: this.onModeratorOverlayClose,
+              ),
+            ),
+            animationMillis: this.isAnimationEnabled ? 500 : 0,
+          ),
         ),
       );
 

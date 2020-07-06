@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
@@ -8,6 +9,7 @@ import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
@@ -36,6 +38,8 @@ class DiscussionPost extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
 
+  final Function(Post, Discussion) onModeratorButtonPressed;
+
   const DiscussionPost({
     Key key,
     @required this.participant,
@@ -45,21 +49,29 @@ class DiscussionPost extends StatelessWidget {
     @required this.conciergeIndex,
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
+    @required this.onModeratorButtonPressed,
     @required this.onMediaTap
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MentionBloc, MentionState> (
-      builder: (context, blocState) {
-        if(blocState.isReady())
-          return buildWithMentionContext(context, blocState);
+      builder: (context, mentionBlocState) {
+        if(mentionBlocState.isReady())
+          return BlocBuilder<MeBloc, MeState> (
+            builder: (context, meBlocState) {
+              var me = MeBloc.extractMe(meBlocState);
+              if(me != null)
+                return buildWithInfo(context, mentionBlocState, me);
+              return Container();
+            },
+          );
         return Container();
       },
     );
   }
 
-  Widget buildWithMentionContext(BuildContext context, MentionState mentionContext) {
+  Widget buildWithInfo(BuildContext context, MentionState mentionContext, User me) {
     final isModeratorAuthor =
         this.participant.userProfile?.id == this.moderator.userProfile.id;
     var textWidget = EmojiText(
@@ -161,6 +173,24 @@ class DiscussionPost extends StatelessWidget {
                 ],
               ),
             )),
+
+            _isModerator(me)
+              ? Material(
+                  type: MaterialType.circle,
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => this.onModeratorButtonPressed(this.post, this.discussion),
+                    child: Container(
+                      padding: EdgeInsets.all(SpacingValues.small),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Icon(Icons.more_vert, color: Colors.white, size: 24),
+                    ),
+                  ),
+                )
+              : Container()  
           ],
         ),
       ),
@@ -180,5 +210,8 @@ class DiscussionPost extends StatelessWidget {
       onTap: this.onMediaTap
     );
   }
+
+  bool _isModerator(User me) =>
+      this.discussion.moderator.userProfile.id == me.profile.id;
 
 }

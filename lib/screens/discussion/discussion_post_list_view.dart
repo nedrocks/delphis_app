@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +30,8 @@ class DiscussionPostListView extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
 
+  final Function(Post, Discussion) onModeratorButtonPressed;
+
   DiscussionPostListView({
     @required key,
     @required this.scrollController,
@@ -38,7 +41,8 @@ class DiscussionPostListView extends StatelessWidget {
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
-    this.isVisible = true,
+    @required this.onModeratorButtonPressed,
+    this.isVisible = true, 
   }) : super(key: key);
 
   @override
@@ -177,6 +181,7 @@ class DiscussionPostListView extends StatelessWidget {
               participant: this.discussion.getParticipantForPostIdx(index),
               discussion: this.discussion,
               onMediaTap: this.onMediaTap,
+              onModeratorButtonPressed: this.onModeratorButtonPressed,
             );
             if (true) {
               return post;

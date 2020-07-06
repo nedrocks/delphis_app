@@ -12,21 +12,17 @@ part 'mention_event.dart';
 part 'mention_state.dart';
 
 class MentionBloc extends Bloc<MentionEvent, MentionState> {
-
-  @override
-  MentionState get initialState => MentionState();
+  MentionBloc() : super(MentionState());
 
   @override
   Stream<MentionState> mapEventToState(MentionEvent event) async* {
-    if(event is AddMentionDataEvent) {
+    if (event is AddMentionDataEvent) {
       yield this.state.copyWith(
-        discussion: event.discussion ?? this.state.discussion,
-        discussions: event.discussions ?? this.state.discussions,
-      );
-    }
-    else {
+            discussion: event.discussion ?? this.state.discussion,
+            discussions: event.discussions ?? this.state.discussions,
+          );
+    } else {
       yield this.state;
-    }      
+    }
   }
-
 }

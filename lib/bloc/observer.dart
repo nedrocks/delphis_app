@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 
-class ChathamBlocDelegate extends BlocDelegate {
+class ChathamBlocObserver extends BlocObserver {
   @override
   void onTransition(Bloc bloc, Transition transition) {
     super.onTransition(bloc, transition);

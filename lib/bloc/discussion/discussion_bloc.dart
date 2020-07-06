@@ -24,10 +24,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   DiscussionBloc({
     @required this.discussionRepository,
     @required this.mediaRepository,
-  }) : super();
-
-  @override
-  DiscussionState get initialState => DiscussionUninitializedState();
+  }) : super(DiscussionUninitializedState());
 
   bool isLikelyPendingPost(
       DiscussionLoadedState state, Discussion discussion, Post post) {
@@ -85,7 +82,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();
-        final discussion = await discussionRepository.getDiscussion(event.discussionID);
+        final discussion =
+            await discussionRepository.getDiscussion(event.discussionID);
         int conciergeStep = getConciergeStep(discussion);
         yield DiscussionLoadedState(
           discussion: discussion,
@@ -101,8 +99,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final updatedDiscussion =
-            await discussionRepository.getDiscussion(currentState.discussion.id);
+        final updatedDiscussion = await discussionRepository
+            .getDiscussion(currentState.discussion.id);
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -155,15 +153,16 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           failCount: 0,
           isFailed: false,
           post: Post(
-            id: localPostKey.toString(),
-            discussion: currentState.getDiscussion(),
-            participant: currentState.getDiscussion().meParticipant,
-            content: event.postContent,
-            mentionedEntities: event.localMentionedEntities.map((e) => Entity(id: e)).toList(), // Hacky, but it wserves its purpose
-            isLocalPost: true,
-            localMediaFile: event.media,
-            localMediaContentType: event.mediaContentType
-          ),
+              id: localPostKey.toString(),
+              discussion: currentState.getDiscussion(),
+              participant: currentState.getDiscussion().meParticipant,
+              content: event.postContent,
+              mentionedEntities: event.localMentionedEntities
+                  .map((e) => Entity(id: e))
+                  .toList(), // Hacky, but it wserves its purpose
+              isLocalPost: true,
+              localMediaFile: event.media,
+              localMediaContentType: event.mediaContentType),
         );
         currentState.getDiscussion().addLocalPost(localPost);
         currentState.localPosts[localPost.key] = localPost;
@@ -173,29 +172,30 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
         /* Try to upload the media file */
         String mediaId;
-        if(event.media != null && event.mediaContentType != null) {
+        if (event.media != null && event.mediaContentType != null) {
           try {
-            MediaUpload uploadedMedia = await mediaRepository.uploadImage(event.media);
-            if(uploadedMedia.mediaId != null)
-              mediaId = uploadedMedia.mediaId;
-          }
-          catch (error) {
+            MediaUpload uploadedMedia =
+                await mediaRepository.uploadImage(event.media);
+            if (uploadedMedia.mediaId != null) mediaId = uploadedMedia.mediaId;
+          } catch (error) {
             Segment.track(
-              eventName: ChathamTrackingEventNames.POST_ADD,
-              properties: {
-                'funnelID': event.uniqueID,
-                'error': true,
-                'success': false,
-                'discussionID': currentState.getDiscussion().id,
-                'participantID': currentState.getDiscussion().meParticipant.id,
-                'contentLength': event.postContent.length,
-              });
+                eventName: ChathamTrackingEventNames.POST_ADD,
+                properties: {
+                  'funnelID': event.uniqueID,
+                  'error': true,
+                  'success': false,
+                  'discussionID': currentState.getDiscussion().id,
+                  'participantID':
+                      currentState.getDiscussion().meParticipant.id,
+                  'contentLength': event.postContent.length,
+                });
             this.add(LocalPostCreateFailure(localPost: localPost));
           }
         }
 
         /* Proceed in sending post */
-        if(mediaId != null || (event.media == null && event.mediaContentType == null)) {
+        if (mediaId != null ||
+            (event.media == null && event.mediaContentType == null)) {
           this
               .discussionRepository
               .addPost(
@@ -214,7 +214,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                   'error': false,
                   'success': success,
                   'discussionID': currentState.getDiscussion().id,
-                  'participantID': currentState.getDiscussion().meParticipant.id,
+                  'participantID':
+                      currentState.getDiscussion().meParticipant.id,
                   'contentLength': event.postContent.length,
                 });
             if (addedPost == null) {
@@ -227,10 +228,9 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
               (This appens with mentions, for instance). This adds resistence in case
               the content mutation happens either in the frontend or the backend. */
             localPost.post = localPost.post.copyWith(
-              content: addedPost.content,
-              mentionedEntities: addedPost.mentionedEntities,
-              media: addedPost.media
-            );
+                content: addedPost.content,
+                mentionedEntities: addedPost.mentionedEntities,
+                media: addedPost.media);
             // The current state may have changed since this is a future.
             this.add(LocalPostCreateSuccess(
                 createdPost: addedPost, localPost: localPost));
@@ -242,7 +242,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
                   'error': true,
                   'success': false,
                   'discussionID': currentState.getDiscussion().id,
-                  'participantID': currentState.getDiscussion().meParticipant.id,
+                  'participantID':
+                      currentState.getDiscussion().meParticipant.id,
                   'contentLength': event.postContent.length,
                 });
             localPost.isProcessing = false;
@@ -250,7 +251,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             localPost.isFailed = true;
             this.add(LocalPostCreateFailure(localPost: localPost));
           });
-        }     
+        }
       }
     } else if (event is DiscussionPostAddedEvent &&
         currentState is DiscussionLoadedState) {
@@ -307,8 +308,9 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         currentState is DiscussionLoadedState) {
       if (currentState.getDiscussion() != null &&
           currentState.discussionPostStream == null) {
-        final discussionStream =
-            await this.discussionRepository.subscribe(currentState.getDiscussion().id);
+        final discussionStream = await this
+            .discussionRepository
+            .subscribe(currentState.getDiscussion().id);
         discussionStream.listen((Post post) {
           this.add(DiscussionPostAddedEvent(post: post));
         });
@@ -355,8 +357,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedPost = await this.discussionRepository.selectConciergeMutation(
-            event.discussionID, event.mutationID, event.selectedOptionIDs);
+        final updatedPost = await this
+            .discussionRepository
+            .selectConciergeMutation(
+                event.discussionID, event.mutationID, event.selectedOptionIDs);
         final postsCache = loadingState.discussion.postsCache;
         for (int i = 0; i < postsCache.length; i++) {
           if (postsCache[i].id == updatedPost.id) {
@@ -389,12 +393,14 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedDiscussion = await this.discussionRepository.updateDiscussion(
-            event.discussionID,
-            event.title,
-            event.selectedEmoji == null
-                ? null
-                : "emoji://${event.selectedEmoji}");
+        final updatedDiscussion = await this
+            .discussionRepository
+            .updateDiscussion(
+                event.discussionID,
+                event.title,
+                event.selectedEmoji == null
+                    ? null
+                    : "emoji://${event.selectedEmoji}");
         yield loadingState.update(
           isLoading: false,
           discussion: updatedDiscussion,

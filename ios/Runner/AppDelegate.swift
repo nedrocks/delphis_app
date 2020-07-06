@@ -40,6 +40,7 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
                 print("[LOCALLOG] Request to show notifications successful")
             }
         }
+        UIApplication.shared.registerForRemoteNotifications()
     } else {
         // Fallback on earlier versions
     }

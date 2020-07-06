@@ -10,10 +10,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final DelphisAuthRepository repository;
 
-  AuthBloc(this.repository);
-
-  @override
-  AuthState get initialState => InitialAuthState();
+  AuthBloc(this.repository) : super(InitialAuthState());
 
   @override
   Stream<AuthState> mapEventToState(

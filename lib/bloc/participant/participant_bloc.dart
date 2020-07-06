@@ -22,7 +22,7 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
   ParticipantBloc({
     @required this.repository,
     @required this.discussionBloc,
-  }) : super() {
+  }) : super(ParticipantInitial()) {
     if (!(this.discussionBloc.state is DiscussionLoadedState) ||
         this.discussionBloc.state.getDiscussion() == null) {
       discussionBlocSubscription =
@@ -47,9 +47,6 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
   void dispose() {
     this.discussionBlocSubscription.cancel();
   }
-
-  @override
-  ParticipantState get initialState => ParticipantInitial();
 
   @override
   Stream<ParticipantState> mapEventToState(

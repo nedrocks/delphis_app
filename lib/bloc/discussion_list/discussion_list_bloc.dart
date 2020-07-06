@@ -17,10 +17,7 @@ class DiscussionListBloc
   DiscussionListBloc({
     @required this.repository,
     @required this.meBloc,
-  }) : super();
-
-  @override
-  DiscussionListState get initialState => DiscussionListInitial();
+  }) : super(DiscussionListInitial());
 
   @override
   Stream<DiscussionListState> mapEventToState(

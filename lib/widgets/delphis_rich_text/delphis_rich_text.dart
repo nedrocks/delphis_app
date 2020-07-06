@@ -44,8 +44,8 @@ class DelphisRichText extends StatelessWidget {
       allRegex,
       onMatch: (Match m) {
         var matchOp = _regexPattern.entries.firstWhere((e) => RegExp(e.key).hasMatch(m[0]), orElse: () => null)?.value ?? null;
-        var curText = (matchOp?.text ?? (t, b, a) => t)(m[0]);
-        var curStyle = (matchOp?.style ?? (t, b, a) => t)(style, m[0], curText);
+        var curText = (matchOp?.text ?? (String a) => a)(m[0]);
+        var curStyle = (matchOp?.style ?? (TextStyle t, String b, String a) => t)(style, m[0], curText);
         var onTap = matchOp?.onTap ?? (t) {};
         children.add(
           TextSpan(

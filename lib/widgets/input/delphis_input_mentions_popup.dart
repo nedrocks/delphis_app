@@ -1,13 +1,18 @@
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/tracking/constants.dart';
 import 'package:delphis_app/util/display_names.dart';
+import 'package:delphis_app/widgets/input/delphis_input_media_popup.dart';
 import 'package:delphis_app/widgets/input/participant_mention_hint.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +22,6 @@ import 'package:flutter_segment/flutter_segment.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
-import 'delphis_input.dart';
 import 'delphis_text_controller.dart';
 import 'discussion_mention_hint.dart';
 
@@ -28,6 +32,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
   final bool isShowingParticipantSettings;
   final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
+  final Function(File, MediaContentType) onMediaTap;
 
   DelphisInputMentionsPopup({
     @required this.discussion,
@@ -35,6 +40,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
     @required this.isShowingParticipantSettings,
     @required this.onParticipantSettingsPressed,
     this.parentScrollController,
+    @required this.onMediaTap,
   });
 
   @override
@@ -53,6 +59,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
   LayerLink layerLink;
   Future<List<dynamic>> mentionsHints;
   MentionState mentionContext;
+  User me;
 
   @override
   void initState() {
@@ -119,61 +126,77 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MentionBloc, MentionState> (
+    return BlocBuilder<MeBloc, MeState>(
       builder: (context, state) {
-        if (state is MentionState) {
+        if (state is LoadedMeState && state.me != null && state.me != this.me) {
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            setState(() {
-              this.mentionContext = state;
-            });
+            if(mounted)
+              setState(() {
+                this.me = state.me;
+              });
           });       
         }
-        return CompositedTransformTarget(
-          link: this.layerLink,
-          child: DelphisInput(
-            discussion: widget.discussion,
-            participant: widget.participant,
-            isShowingParticipantSettings: widget.isShowingParticipantSettings,
-            onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
-            parentScrollController: widget.parentScrollController,
-            inputFocusNode: this.textFocusNode,
-            textController: this.textController,
-            onSubmit: (text) {
-              final isButtonActive = text.isNotEmpty;
-              final pressID = Uuid().v4();
-              Segment.track(
-                  eventName: ChathamTrackingEventNames.POST_ADD_BUTTON_PRESS,
-                  properties: {
-                    'funnelID': pressID,
-                    'isActive': isButtonActive,
-                    'contentLength': text.length,
-                    'discussionID': this.widget.discussion.id,
-                    'participantID': this.widget.participant.id,
+        return BlocBuilder<MentionBloc, MentionState> (
+          builder: (context, state) {
+            if (state is MentionState && state != this.mentionContext) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                if(mounted)
+                  setState(() {
+                    this.mentionContext = state;
                   });
-              if (isButtonActive) {
-                var encodedText = text;
-                
-                /* Apply mentions transformations */
-                List<String> mentionedEntities = [];
-                if(mentionContext?.isReady() ?? false)
-                  encodedText = mentionContext.encodePostContent(text, mentionedEntities);
+              });       
+            }
+            return CompositedTransformTarget(
+              link: this.layerLink,
+              child: DelphisInputMediaPopupWidget(
+                discussion: widget.discussion,
+                participant: widget.participant,
+                isShowingParticipantSettings: widget.isShowingParticipantSettings,
+                onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
+                parentScrollController: widget.parentScrollController,
+                inputFocusNode: this.textFocusNode,
+                textController: this.textController,
+                onParticipantMentionPressed: this.startParticipantMention,
+                onMediaTap: this.widget.onMediaTap,
+                onSubmit: (text, mediaFile, mediaType) {
+                  final isButtonActive = text.isNotEmpty;
+                  final pressID = Uuid().v4();
+                  Segment.track(
+                      eventName: ChathamTrackingEventNames.POST_ADD_BUTTON_PRESS,
+                      properties: {
+                        'funnelID': pressID,
+                        'isActive': isButtonActive,
+                        'contentLength': text.length,
+                        'discussionID': this.widget.discussion.id,
+                        'participantID': this.widget.participant.id,
+                      });
+                  if (isButtonActive) {
+                    var encodedText = text;
+                    
+                    /* Apply mentions transformations */
+                    List<String> mentionedEntities = [];
+                    if(mentionContext?.isReady() ?? false)
+                      encodedText = mentionContext.encodePostContent(text, mentionedEntities);
 
-                print(text);
-                BlocProvider.of<DiscussionBloc>(context).add(
-                  DiscussionPostAddEvent(
-                      postContent: encodedText,
-                      uniqueID: pressID,
-                      mentionedEntities: mentionedEntities,
-                      localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList(),
-                      preview: encodedText != text ? text : null
-                  ),
-                );
-                textController.text = '';
-              }
-            },
-          )
+                    BlocProvider.of<DiscussionBloc>(context).add(
+                      DiscussionPostAddEvent(
+                          postContent: encodedText,
+                          uniqueID: pressID,
+                          mentionedEntities: mentionedEntities,
+                          localMentionedEntities: mentionedEntities.map((e) => mentionContext.metionedToLocalEntityID(e)).toList(),
+                          preview: encodedText != text ? text : null,
+                          media: mediaFile,
+                          mediaContentType: mediaType
+                      ),
+                    );
+                    textController.text = '';
+                  }
+                },
+              )
+            );
+          }
         );
-      }
+      },
     );
   }
 
@@ -319,6 +342,8 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
             .startsWith(mention.toLowerCase()))
         /* Block the user from mentioning themselves */
         .where((e) => e.id != this.widget.discussion.meParticipant.id)
+        /* Block moderator from mentioning themselves */
+        .where((e) => !(e.participantID == 0 && _isModerator()))
         /* Block the user from mentioning someone twice */
         .where((e) => !wholeText.contains(mentionContext.formatParticipantMentionWithSymbol(e)))
         .toList();
@@ -345,4 +370,25 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     return Future.value(list);
   }
 
+  void startParticipantMention() {
+    if(!this.textFocusNode.hasFocus)
+      return;
+    var symbol = MentionState.participantMentionSymbol;
+    var text = textController.text;
+    var offset = textController.selection.baseOffset;
+
+    var newText = text.substring(0, max(0, offset)) + symbol;
+    var newSelection = this.textController.selection.copyWith(baseOffset : newText.length, extentOffset : newText.length);
+    newText += text.substring(offset);
+    
+    this.textController.text = newText;
+    this.textController.selection = newSelection;
+    this.textController.notifyListeners();
+  }
+
+  bool _isModerator() {
+    return me == null || this.widget.discussion.moderator.userProfile.id == me.profile.id;
+  }
+      
+      
 }

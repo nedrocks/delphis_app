@@ -13,7 +13,7 @@ class MeBloc extends Bloc<MeEvent, MeState> {
   final UserRepository repository;
   final AuthBloc authBloc;
 
-  MeBloc(this.repository, this.authBloc) : super() {
+  MeBloc(this.repository, this.authBloc) : super(MeInitial()) {
     this.authBloc.listen((AuthState state) {
       if (state is LoggedOutAuthState) {
         this.add(LogoutMeEvent());
@@ -29,9 +29,6 @@ class MeBloc extends Bloc<MeEvent, MeState> {
       return null;
     }
   }
-
-  @override
-  MeState get initialState => MeInitial();
 
   @override
   Stream<MeState> mapEventToState(

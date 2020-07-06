@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:delphis_app/widgets/delphis_rich_text/delphis_rich_text.dart';
 
 class EmojiText extends DelphisRichText {
@@ -10,11 +12,15 @@ class EmojiText extends DelphisRichText {
     style,
     this.emojiFontMultiplier = 1.3
   }) : super(text: text, style: style) {
-    this.setStyleOperator(regex.pattern, (s, a, b) => s.copyWith(
+    this.setStyleOperator(regex.pattern, this.styleFunction);
+  }
+
+  TextStyle styleFunction(TextStyle s, String a, String b) {
+    return s.copyWith(
       fontSize: (s.fontSize * emojiFontMultiplier),
       letterSpacing: 2,
       height: 1.3333,
-    ));
+    );
   }
 
 }

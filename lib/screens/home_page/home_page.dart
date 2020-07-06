@@ -22,11 +22,9 @@ enum HomePageTab {
 class HomePageScreen extends StatefulWidget {
   final DiscussionRepository discussionRepository;
   final RouteObserver routeObserver;
-  final DiscussionBloc discussionBloc;
 
   HomePageScreen({
     key: Key,
-    @required this.discussionBloc,
     @required this.discussionRepository,
     @required this.routeObserver,
   }) : super(key: key);
@@ -113,7 +111,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                         onNewChatPressed: () {
                           setState(() {
                             this._isCreatingDiscussion = true;
-                            this.widget.discussionBloc.add(
+                            BlocProvider.of<DiscussionBloc>(context).add(
                                   NewDiscussionEvent(
                                     title:
                                         "${currentUser.profile.displayName}'s discussion",

@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -34,6 +37,8 @@ class DiscussionContent extends StatelessWidget {
   final int onboardingConciergeStep;
   final ConciergePostOptionPressed onConciergeOptionPressed;
 
+  final Function(File, MediaContentType) onMediaTap;
+
   DiscussionContent({
     @required key,
     @required this.scrollController,
@@ -48,6 +53,7 @@ class DiscussionContent extends StatelessWidget {
     @required this.refreshController,
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
+    @required this.onMediaTap
   }) : super(key: key);
 
   @override
@@ -61,6 +67,7 @@ class DiscussionContent extends StatelessWidget {
       refreshController: this.refreshController,
       onboardingConciergeStep: this.onboardingConciergeStep,
       onConciergeOptionPressed: this.onConciergeOptionPressed,
+      onMediaTap: this.onMediaTap,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);

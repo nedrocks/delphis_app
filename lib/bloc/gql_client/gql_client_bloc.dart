@@ -14,7 +14,7 @@ part 'gql_client_state.dart';
 class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
   StreamSubscription websocketStateListener;
 
-  GqlClientBloc() : super();
+  GqlClientBloc() : super(GqlClientInitial());
 
   @override
   Future<void> close() async {
@@ -39,9 +39,6 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
       return null;
     }
   }
-
-  @override
-  GqlClientState get initialState => GqlClientInitial();
 
   SocketClient connectWebsocket(bool isAuthed, String authString) {
     var wsEndpoint = '${Constants.wsEndpoint}';

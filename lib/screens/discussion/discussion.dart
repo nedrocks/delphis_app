@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
+import 'package:delphis_app/screens/discussion/media/media_preview.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -17,7 +20,6 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_content.dart';
 import 'discussion_header.dart';
-import 'screen_args/discussion.dart';
 import 'screen_args/discussion_naming.dart';
 
 class DelphisDiscussion extends StatefulWidget {
@@ -47,6 +49,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   OverlayEntry _contentOverlayEntry;
 
   Key _key;
+
+  Widget mediaToShow;
 
   @override
   void initState() {
@@ -203,6 +207,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               this.handleConciergePostOptionPressed(
                   discussionObj, post, content, option);
             },
+            onMediaTap: (media, type) => this.onMediaTap(context, media, type),
           ),
         );
         var listViewWithInput = Column(
@@ -245,37 +250,61 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                   this._isShowJoinFlow = true;
                 });
               },
+              onMediaTap: (media, type) {              
+                onMediaTap(context, media, type);              
+              },
             ),
           ],
         );
-        Widget toRender = listViewWithInput;
-        // if (discussionObj.meParticipant != null &&
-        //     !this.hasAcceptedIncognitoWarning &&
-        //     !(discussionObj.meParticipant.hasJoined ?? false)) {
-        //   toRender = AnimatedDiscussionPopup(
-        //     child: listViewWithInput,
-        //     popup: DiscussionPopup(
-        //       contents: GoneIncognitoDiscussionPopupContents(
-        //         moderator: discussionObj.moderator.userProfile,
-        //         onAccept: () {
-        //           BlocProvider.of<ParticipantBloc>(context).add(
-        //               ParticipantJoinedDiscussion(
-        //                   participant: discussionObj.meParticipant));
-        //           this.setState(() => this.hasAcceptedIncognitoWarning = true);
-        //         },
-        //       ),
-        //     ),
-        //     animationMillis: 0,
-        //   );
-        // }
-        return SafeArea(
-            child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Colors.black,
-          body: toRender,
+
+
+        Widget toRender = SafeArea(
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: Colors.black,
+            body: listViewWithInput,
         ));
+
+        Widget mediaPreview = Container();
+        if(this.mediaToShow != null) {
+          mediaPreview = mediaToShow;
+        }
+
+        return Stack(
+          children: [
+            toRender,
+            Center(
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 200),
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(child: child, scale: animation);
+                },
+                child: mediaPreview
+              ),
+            )
+          ],
+        );
       },
     );
+  }
+
+  void onMediaTap(BuildContext context, File media, MediaContentType type) {
+    setState(() {
+      FocusScope.of(context).unfocus();
+      this.mediaToShow = MediaPreviewWidget(
+        mediaFile: media,
+        mediaType: type,
+        onCancel: this.cancelPreview,
+      );
+    });    
+  }
+
+  void cancelPreview() {
+    setState(() {
+      this.mediaToShow = null;
+    }); 
   }
 
   void _onOverlayEntry(BuildContext context, OverlayEntry entry) {

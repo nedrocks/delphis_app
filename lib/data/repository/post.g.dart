@@ -34,6 +34,9 @@ Post _$PostFromJson(Map<String, dynamic> json) {
         ? null
         : ConciergeContent.fromJson(
             json['conciergeContent'] as Map<String, dynamic>),
+    media: json['media'] == null
+        ? null
+        : Media.fromJson(json['media'] as Map<String, dynamic>),
   );
 }
 
@@ -51,6 +54,7 @@ Map<String, dynamic> _$PostToJson(Post instance) => <String, dynamic>{
       'quotedPost': instance.quotedPost,
       'postType': _$PostTypeEnumMap[instance.postType],
       'conciergeContent': instance.conciergeContent,
+      'media': instance.media,
       'isLocalPost': instance.isLocalPost,
     };
 

@@ -12,11 +12,8 @@ part 'notification_state.dart';
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final GlobalKey<NavigatorState> navKey;
 
-  NotificationBloc({@required this.navKey});
-
-  @override
-  NotificationState get initialState =>
-      NotificationInitialized(notifications: []);
+  NotificationBloc({@required this.navKey})
+      : super(NotificationInitialized(notifications: []));
 
   @override
   Stream<NotificationState> mapEventToState(

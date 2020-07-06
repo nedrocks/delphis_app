@@ -175,6 +175,7 @@ class DiscussionPost extends StatelessWidget {
     }
     
     return MediaSnippetWidget(
+      key: UniqueKey(),
       post: this.post,
       onTap: this.onMediaTap
     );

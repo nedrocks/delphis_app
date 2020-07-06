@@ -85,7 +85,7 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: imageSnapshot.data,
-                            fit: BoxFit.fitWidth
+                            fit: BoxFit.cover
                           )
                         ),
                         child: (this.widget.post.media?.mediaContentType ?? this.widget.post.localMediaContentType) != MediaContentType.VIDEO

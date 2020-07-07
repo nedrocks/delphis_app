@@ -84,10 +84,19 @@ class DiscussionPost extends StatelessWidget {
             this.conciergeIndex > this.onboardingConciergeStep)) {
       return Container(width: 0, height: 0);
     }
+    
+    Color postBackgroundColor = Colors.transparent;
+    if(this.post.postType == PostType.ALERT) {
+      postBackgroundColor = Colors.grey.withAlpha(60);
+    }
+    
     return Opacity(
       opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
         padding: EdgeInsets.all(SpacingValues.medium),
+        decoration: BoxDecoration(
+          color: postBackgroundColor
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

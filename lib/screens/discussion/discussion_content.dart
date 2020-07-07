@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
-import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -10,7 +10,7 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
-import 'package:delphis_app/screens/discussion/overlay/moderator_popup.dart';
+import 'package:delphis_app/screens/discussion/overlay/superpowers_popup.dart';
 import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
@@ -152,12 +152,12 @@ class DiscussionContent extends StatelessWidget {
       this.onOverlayOpen(overlayEntry);
     } else if (this.moderatorPopupArguments != null) {
       final overlayEntry = OverlayEntry(
-        builder: (overlayContext) => BlocProvider<ModeratorBloc>.value(
-          value: BlocProvider.of<ModeratorBloc>(context),
+        builder: (overlayContext) => BlocProvider<SuperpowersBloc>.value(
+          value: BlocProvider.of<SuperpowersBloc>(context),
           child: AnimatedDiscussionPopup(
             child: Container(width: 0, height: 0),
             popup: DiscussionPopup(
-              contents: ModeratorPopup(
+              contents: SuperpowersPopup(
                 arguments: this.moderatorPopupArguments,
                 onCancel: this.onModeratorOverlayClose,
               ),

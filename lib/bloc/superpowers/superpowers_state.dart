@@ -1,11 +1,11 @@
-part of 'moderator_bloc.dart';
+part of 'superpowers_bloc.dart';
 
-abstract class ModeratorState extends Equatable {
-  const ModeratorState();
+abstract class SuperpowersState extends Equatable {
+  const SuperpowersState();
 }
 
 
-class ReadyState extends ModeratorState {
+class ReadyState extends SuperpowersState {
   const ReadyState();
   @override
   List<Object> get props => [];
@@ -22,7 +22,7 @@ abstract class SuccessState extends ReadyState {
   List<Object> get props => [this.message];
 }
 
-class LoadingState extends ModeratorState {
+class LoadingState extends SuperpowersState {
   @override
   List<Object> get props => [];
 }

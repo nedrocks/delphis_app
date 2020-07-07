@@ -1,10 +1,10 @@
 
 import 'dart:ui';
 
-import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/overlay/moderator_popup_option.dart';
+import 'package:delphis_app/screens/discussion/overlay/superpowers_popup_option.dart';
 import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
 import 'package:delphis_app/util/display_names.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,11 +13,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-class ModeratorPopup extends StatelessWidget {
+class SuperpowersPopup extends StatelessWidget {
   final ModeratorPopupArguments arguments;
   final VoidCallback onCancel;
   
-  const ModeratorPopup({
+  const SuperpowersPopup({
     Key key, 
     @required this.arguments,
     @required this.onCancel
@@ -25,7 +25,7 @@ class ModeratorPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ModeratorBloc, ModeratorState>(
+    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
       builder: (context, state) {
 
         /* Format error messages */
@@ -139,7 +139,7 @@ class ModeratorPopup extends StatelessWidget {
         title: Intl.message("Delete post"),
         description: Intl.message("Remove this post by $authorName from the discussion."),
         onTap: () {
-          BlocProvider.of<ModeratorBloc>(context).add(DeletePostEvent(
+          BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
             discussion: this.arguments.selectedDiscussion,
             post: this.arguments.selectedPost
           ));
@@ -151,7 +151,7 @@ class ModeratorPopup extends StatelessWidget {
         title: Intl.message("Kick participant"),
         description: Intl.message("Ban $authorName from this discussion."),
         onTap: () {
-          BlocProvider.of<ModeratorBloc>(context).add(BanParticipantEvent(
+          BlocProvider.of<SuperpowersBloc>(context).add(BanParticipantEvent(
             discussion: this.arguments.selectedDiscussion,
             participant: this.arguments.selectedPost.participant
           ));

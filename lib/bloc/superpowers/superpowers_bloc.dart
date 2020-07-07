@@ -6,21 +6,21 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-part 'moderator_event.dart';
-part 'moderator_state.dart';
+part 'superpowers_event.dart';
+part 'superpowers_state.dart';
 
-class ModeratorBloc extends Bloc<ModeratorEvent, ModeratorState> {
+class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
 
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
 
-  ModeratorBloc({
+  SuperpowersBloc({
     @required this.discussionRepository,
     @required this.participantRepository
   }) : super(ReadyState());
 
   @override
-  Stream<ModeratorState> mapEventToState(ModeratorEvent event) async* {
+  Stream<SuperpowersState> mapEventToState(SuperpowersEvent event) async* {
     if(event is CloseEvent) {
       yield ReadyState();
     }

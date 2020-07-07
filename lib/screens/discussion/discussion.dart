@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
-import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -353,7 +353,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   }
 
   void _dismissOverlay() {
-    BlocProvider.of<ModeratorBloc>(context).add(CloseEvent());
+    BlocProvider.of<SuperpowersBloc>(context).add(CloseEvent());
     this._moderatorPopupArguments = null;
     this._isShowParticipantSettings = false;
     if(this._contentOverlayEntry != null) {

@@ -1,15 +1,15 @@
-part of 'moderator_bloc.dart';
+part of 'superpowers_bloc.dart';
 
-abstract class ModeratorEvent extends Equatable {
-  const ModeratorEvent();
+abstract class SuperpowersEvent extends Equatable {
+  const SuperpowersEvent();
 }
 
-class CloseEvent extends ModeratorEvent {
+class CloseEvent extends SuperpowersEvent {
   @override
   List<Object> get props => [];
 }
 
-class DeletePostEvent extends ModeratorEvent {
+class DeletePostEvent extends SuperpowersEvent {
   final Discussion discussion;
   final Post post;
 
@@ -22,7 +22,7 @@ class DeletePostEvent extends ModeratorEvent {
   List<Object> get props => [discussion, post];
 }
 
-class BanParticipantEvent extends ModeratorEvent {
+class BanParticipantEvent extends SuperpowersEvent {
   final Discussion discussion;
   final Participant participant;
 

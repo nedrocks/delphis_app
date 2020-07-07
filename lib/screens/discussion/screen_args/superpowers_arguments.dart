@@ -9,9 +9,9 @@ class SuperpowersArguments {
   final Participant participant;
 
   SuperpowersArguments({
-    @required this.post,
-    @required this.discussion,
-    @required this.participant,
+    this.post,
+    this.discussion,
+    this.participant,
   });
   
 }

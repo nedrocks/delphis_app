@@ -205,14 +205,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             },
             onMediaTap: (media, type) => this.onMediaTap(context, media, type),
             onSuperpowersButtonPressed: (arguments) {
-              setState(() {
-                var focusScope = FocusScope.of(context);
-                if(focusScope.hasFocus) {
-                  this._lastFocusedNode = focusScope.focusedChild;
-                  focusScope.unfocus();
-                }
-                this._superpowersPopupArguments = arguments;
-              });
+              showSuperpowersPopup(context, arguments);
             },
             onModeratorOverlayClose: () {
               this.setState(() {
@@ -266,6 +259,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               onMediaTap: (media, type) {              
                 onMediaTap(context, media, type);              
               },
+              onModeratorButtonPressed: () {
+                showSuperpowersPopup(context, SuperpowersArguments(discussion: state.getDiscussion()));
+              },
             ),
           ],
         );
@@ -301,6 +297,17 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
       },
     );
+  }
+
+  void showSuperpowersPopup(BuildContext context, SuperpowersArguments arguments) {
+    setState(() {
+      var focusScope = FocusScope.of(context);
+      if(focusScope.hasFocus) {
+        this._lastFocusedNode = focusScope.focusedChild;
+        focusScope.unfocus();
+      }
+      this._superpowersPopupArguments = arguments;
+    });
   }
 
   void onMediaTap(BuildContext context, File media, MediaContentType type) {

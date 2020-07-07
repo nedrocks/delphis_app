@@ -6,7 +6,6 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers_popup_option.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
-import 'package:delphis_app/util/display_names.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -45,17 +44,6 @@ class SuperpowersPopup extends StatelessWidget {
 
         /* Format operation success messages */
         if(state is SuccessState) {
-          bottomWidget = Column(
-            children: [
-              Text(
-                state.message,
-                style: TextThemes.goIncognitoButton.copyWith(color: Colors.green),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: SpacingValues.medium),
-            ],
-          );
-
           /* Dismiss the popup if the result is successful */
           SchedulerBinding.instance.addPostFrameCallback((_) {
             this.onCancel();

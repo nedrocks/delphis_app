@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/media.dart';
@@ -15,6 +16,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
+import 'package:delphis_app/widgets/animated_background_color/animated_background_color.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -28,7 +30,7 @@ import 'post_title.dart';
 typedef ConciergePostOptionPressed(
     Post post, ConciergeContent content, ConciergeOption option);
 
-class DiscussionPost extends StatelessWidget {
+class DiscussionPost extends StatefulWidget {
   final Post post;
   final Participant participant;
   final Moderator moderator;
@@ -57,6 +59,12 @@ class DiscussionPost extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  _DiscussionPostState createState() => _DiscussionPostState();
+}
+
+class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStateMixin{
+ 
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<MentionBloc, MentionState> (
       builder: (context, mentionBlocState) {
@@ -65,7 +73,13 @@ class DiscussionPost extends StatelessWidget {
             builder: (context, meBlocState) {
               var me = MeBloc.extractMe(meBlocState);
               if(me != null)
-                return buildWithInfo(context, mentionBlocState, me);
+                return AnimatedSize(
+                  vsync: this,
+                  duration: Duration(milliseconds: 200),
+                  reverseDuration: Duration(milliseconds: 50),
+                  curve: Curves.decelerate,
+                  child: buildWithDeletionAnimation(context, buildWithInfo(context, mentionBlocState, me))
+                );
               return Container();
             },
           );
@@ -74,18 +88,39 @@ class DiscussionPost extends StatelessWidget {
     );
   }
 
+  Widget buildWithDeletionAnimation(BuildContext context, Widget child) {
+    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
+      buildWhen: (prev, current) {
+        return current != prev && 
+          ((current is DeletePostSuccessState) || (current is BanParticipantSuccessState));
+      },
+      builder: (context, state) {
+        if(state is DeletePostSuccessState && state.post.id == this.widget.post.id) {
+          child = AnimatedBackgroundColor(
+            child: child,
+            startColor: Colors.red,
+            endColor: Colors.transparent,
+            duration: Duration(milliseconds: 2000),
+            repeat: false,
+          );
+        }
+        return child;
+      },
+    );
+  }
+
   Widget buildWithInfo(BuildContext context, MentionState mentionContext, User me) {
     final isModeratorAuthor =
-        this.participant?.userProfile?.id == this.moderator.userProfile.id;
+        this.widget.participant?.userProfile?.id == this.widget.moderator.userProfile.id;
 
     var textWidget = EmojiText(
-      text: this.post.isDeleted ? formatDeleteReason(this.post.deletedReasonCode) : this.post.content,
+      text: this.widget.post.isDeleted ? formatDeleteReason(this.widget.post.deletedReasonCode) : this.widget.post.content,
       style: Theme.of(context).textTheme.bodyText1,
     );
 
     /* Color and format mentioned entities */
-    textWidget.setTextOperator(MentionState.mentionSpecialCharsRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
-    textWidget.setTextOperator(MentionState.encodedMentionRegexPattern, (s) => mentionContext.decodePostContent(s, this.post.mentionedEntities));
+    textWidget.setTextOperator(MentionState.mentionSpecialCharsRegexPattern, (s) => mentionContext.decodePostContent(s, this.widget.post.mentionedEntities));
+    textWidget.setTextOperator(MentionState.encodedMentionRegexPattern, (s) => mentionContext.decodePostContent(s, this.widget.post.mentionedEntities));
     textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern, (s, before, after) {
       var color = Colors.lightBlue;
       if(RegExp(MentionState.unknownMentionRegexPattern).hasMatch(after)) {
@@ -95,19 +130,19 @@ class DiscussionPost extends StatelessWidget {
     });
     //textWidget.addOnMatchTapHandler(MentionState.encodedMentionRegexPattern, (s) => print(s)); // POC
 
-    if (this.post.postType == PostType.CONCIERGE &&
-        (this.onboardingConciergeStep == null ||
-            this.conciergeIndex > this.onboardingConciergeStep)) {
+    if (this.widget.post.postType == PostType.CONCIERGE &&
+        (this.widget.onboardingConciergeStep == null ||
+            this.widget.conciergeIndex > this.widget.onboardingConciergeStep)) {
       return Container(width: 0, height: 0);
     }
     
     Color postBackgroundColor = Colors.transparent;
-    if(this.post.postType == PostType.ALERT) {
+    if(this.widget.post.postType == PostType.ALERT) {
       postBackgroundColor = Colors.grey.withAlpha(60);
     }
     
     return Opacity(
-      opacity: (this.post.isLocalPost ?? false) ? 0.4 : 1.0,
+      opacity: (this.widget.post.isLocalPost ?? false) ? 0.4 : 1.0,
       child: Container(
         padding: EdgeInsets.all(SpacingValues.medium),
         decoration: BoxDecoration(
@@ -118,28 +153,28 @@ class DiscussionPost extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
-              key: this.key == null
+              key: this.widget.key == null
                   ? null
                   : Key(
-                      '${this.key.toString()}-profile-image-padding-container'),
+                      '${this.widget.key.toString()}-profile-image-padding-container'),
               padding: EdgeInsets.only(right: SpacingValues.medium),
-              child: buildProfileImage(context, isModeratorAuthor, post.isDeleted)
+              child: buildProfileImage(context, isModeratorAuthor, this.widget.post.isDeleted)
             ),
             Expanded(
               child: Container(
               child: Column(
-                key: this.key == null
+                key: this.widget.key == null
                     ? null
-                    : Key('${this.key.toString()}-content-column'),
+                    : Key('${this.widget.key.toString()}-content-column'),
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Opacity(
-                    opacity: this.post.isDeleted ? 0.5 : 1.0,
-                    child: participant != null
+                    opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
+                    child: this.widget.participant != null
                       ? PostTitle(
-                          moderator: this.moderator,
-                          participant: this.participant,
+                          moderator: this.widget.moderator,
+                          participant: this.widget.participant,
                           height: 20.0,
                           isModeratorAuthor: isModeratorAuthor,
                         )
@@ -155,10 +190,10 @@ class DiscussionPost extends StatelessWidget {
                         ),
                         buildMediaSnippet(context),
                         ConciergeDiscussionPostOptions(
-                          participant: this.participant,
-                          post: this.post,
+                          participant: this.widget.participant,
+                          post: this.widget.post,
                           onConciergeOptionPressed:
-                              this.onConciergeOptionPressed,
+                              this.widget.onConciergeOptionPressed,
                         ),
                       ],
                     ),
@@ -172,11 +207,11 @@ class DiscussionPost extends StatelessWidget {
                   type: MaterialType.circle,
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => this.onModeratorButtonPressed(
+                    onTap: () => this.widget.onModeratorButtonPressed(
                       SuperpowersArguments(
-                        discussion: this.discussion,
-                        post: this.post,
-                        participant: this.participant
+                        discussion: this.widget.discussion,
+                        post: this.widget.post,
+                        participant: this.widget.participant
                       )
                     ),
                     child: Container(
@@ -192,39 +227,39 @@ class DiscussionPost extends StatelessWidget {
               : Container()  
           ],
         ),
-      ),
+      )
     );
   }
 
   Widget buildMediaSnippet(BuildContext context) {
-    var media = this.post.media;
+    var media = this.widget.post.media;
     if(!(media != null && media.assetLocation != null)
-        && !((this.post.isLocalPost ?? false) && this.post.localMediaFile != null  && this.post.localMediaContentType != null)) {
+        && !((this.widget.post.isLocalPost ?? false) && this.widget.post.localMediaFile != null  && this.widget.post.localMediaContentType != null)) {
       return Container();
     }
     
     return MediaSnippetWidget(
       key: UniqueKey(),
-      post: this.post,
-      onTap: this.onMediaTap
+      post: this.widget.post,
+      onTap: this.widget.onMediaTap
     );
   }
 
   bool isModerator(User me) {
-    return this.discussion.moderator.userProfile.id == me.profile.id;
+    return this.widget.discussion.moderator.userProfile.id == me.profile.id;
   }
 
   bool isSuperpowersAvailable(User me) {
     return isModerator(me)
-      || this.participant?.id == this.discussion.meParticipant.id;    
+      || this.widget.participant?.id == this.widget.discussion.meParticipant.id;    
   }
 
   Widget buildProfileImage(BuildContext context, bool isModeratorAuthor, bool isDeleted) {
     if(isDeleted) {
       return Container(
-        key: this.key == null
+        key: this.widget.key == null
           ? null
-          : Key('${this.key.toString()}-profile-image-container'),
+          : Key('${this.widget.key.toString()}-profile-image-container'),
         width: 36.0,
         height: 36.0,
         decoration: BoxDecoration(
@@ -240,26 +275,26 @@ class DiscussionPost extends StatelessWidget {
       );
     }
     return Container(
-      key: this.key == null
+      key: this.widget.key == null
         ? null
-        : Key('${this.key.toString()}-profile-image-container'),
+        : Key('${this.widget.key.toString()}-profile-image-container'),
       width: 36.0,
       height: 36.0,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: isModeratorAuthor
           ? ChathamColors.gradients[moderatorGradientName]
-          : ChathamColors.gradients[gradientNameFromString(this.participant.gradientColor)],
+          : ChathamColors.gradients[gradientNameFromString(this.widget.participant.gradientColor)],
         border: Border.all(color: Colors.transparent, width: 1.0),
       ),
       child: isModeratorAuthor
         ? ModeratorProfileImage(
             diameter: 36.0,
             outerBorderWidth: 0.0,
-            profileImageURL: this.moderator.userProfile.profileImageURL)
+            profileImageURL: this.widget.moderator.userProfile.profileImageURL)
         : ProfileImage(
-            profileImageURL: this.participant.userProfile?.profileImageURL,
-            isAnonymous: this.participant.isAnonymous,
+            profileImageURL: this.widget.participant.userProfile?.profileImageURL,
+            isAnonymous: this.widget.participant.isAnonymous,
           ),
     );
   }

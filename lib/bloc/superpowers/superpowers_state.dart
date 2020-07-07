@@ -1,62 +1,69 @@
 part of 'superpowers_bloc.dart';
 
 abstract class SuperpowersState extends Equatable {
-  const SuperpowersState();
+  final DateTime timestamp;
+  
+  SuperpowersState(this.timestamp);
+  
+  List<Object> get props => [this.timestamp];
 }
 
 class ReadyState extends SuperpowersState {
-  const ReadyState();
+  ReadyState() : super(DateTime.now());
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [this.timestamp];
 }
 
 abstract class SuccessState extends ReadyState {
   final String message;
 
-  const SuccessState({
+  SuccessState({
     @required this.message
   });
 
   @override
-  List<Object> get props => [this.message];
+  List<Object> get props => [this.timestamp, this.message];
 }
 
 class LoadingState extends SuperpowersState {
+  LoadingState() : super(DateTime.now());
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [this.timestamp];
 }
 
 class ErrorState extends ReadyState {
   final String message;
 
-  const ErrorState({
+  ErrorState({
     @required this.message
   });
 
   @override
-  List<Object> get props => [this.message];
+  List<Object> get props => [this.timestamp, this.message];
 }
 
 class DeletePostSuccessState extends SuccessState {
   final Post post;
 
-  const DeletePostSuccessState({
+  DeletePostSuccessState({
     @required message,
     @required this.post
   }) : super(message: message);
 
   @override
-  List<Object> get props => [this.message, this.post];
+  List<Object> get props => [this.timestamp, this.message, this.post];
 }
 
 class BanParticipantSuccessState extends SuccessState {
   final Participant participant;
 
-  const BanParticipantSuccessState({
+  BanParticipantSuccessState({
     @required message,
     @required this.participant
   }) : super(message: message);
 
   @override
-  List<Object> get props => [this.message, this.participant];
+  List<Object> get props => [this.timestamp, this.message, this.participant];
 }

@@ -14,11 +14,13 @@ import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
+import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import 'post_title.dart';
 
@@ -72,16 +74,11 @@ class DiscussionPost extends StatelessWidget {
   }
 
   Widget buildWithInfo(BuildContext context, MentionState mentionContext, User me) {
-
-    // TODO: Format deleted posts (by who, and reason)
-    if(this.post.isDeleted) {
-      return Container(color: Colors.red, width: 100, height: 50,);
-    }
-
     final isModeratorAuthor =
-        this.participant.userProfile?.id == this.moderator.userProfile.id;
+        this.participant?.userProfile?.id == this.moderator.userProfile.id;
+
     var textWidget = EmojiText(
-      text: this.post.content,
+      text: this.post.isDeleted ? formatDeleteReason(this.post.deletedReasonCode) : this.post.content,
       style: Theme.of(context).textTheme.bodyText1,
     );
 
@@ -116,32 +113,7 @@ class DiscussionPost extends StatelessWidget {
                   : Key(
                       '${this.key.toString()}-profile-image-padding-container'),
               padding: EdgeInsets.only(right: SpacingValues.medium),
-              child: Container(
-                key: this.key == null
-                    ? null
-                    : Key('${this.key.toString()}-profile-image-container'),
-                width: 36.0,
-                height: 36.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: isModeratorAuthor
-                      ? ChathamColors.gradients[moderatorGradientName]
-                      : ChathamColors.gradients[gradientNameFromString(
-                          this.participant.gradientColor)],
-                  border: Border.all(color: Colors.transparent, width: 1.0),
-                ),
-                child: isModeratorAuthor
-                    ? ModeratorProfileImage(
-                        diameter: 36.0,
-                        outerBorderWidth: 0.0,
-                        profileImageURL:
-                            this.moderator.userProfile.profileImageURL)
-                    : ProfileImage(
-                        profileImageURL:
-                            this.participant.userProfile?.profileImageURL,
-                        isAnonymous: this.participant.isAnonymous,
-                      ),
-              ),
+              child: buildProfileImage(context, isModeratorAuthor, post.isDeleted)
             ),
             Expanded(
               child: Container(
@@ -152,11 +124,16 @@ class DiscussionPost extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  PostTitle(
-                    moderator: this.moderator,
-                    participant: this.participant,
-                    height: 20.0,
-                    isModeratorAuthor: isModeratorAuthor,
+                  Opacity(
+                    opacity: this.post.isDeleted ? 0.5 : 1.0,
+                    child: participant != null
+                      ? PostTitle(
+                          moderator: this.moderator,
+                          participant: this.participant,
+                          height: 20.0,
+                          isModeratorAuthor: isModeratorAuthor,
+                        )
+                      : Container()
                   ),
                   Container(
                     child: Column(
@@ -180,7 +157,7 @@ class DiscussionPost extends StatelessWidget {
               ),
             )),
 
-            _isModerator(me)
+            isModerator(me)
               ? Material(
                   type: MaterialType.circle,
                   color: Colors.transparent,
@@ -217,7 +194,64 @@ class DiscussionPost extends StatelessWidget {
     );
   }
 
-  bool _isModerator(User me) =>
+  bool isModerator(User me) =>
       this.discussion.moderator.userProfile.id == me.profile.id;
+
+  Widget buildProfileImage(BuildContext context, bool isModeratorAuthor, bool isDeleted) {
+    if(isDeleted) {
+      return Container(
+        key: this.key == null
+          ? null
+          : Key('${this.key.toString()}-profile-image-container'),
+        width: 36.0,
+        height: 36.0,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.transparent, width: 1.0),
+        ),
+        child: AnonProfileImage(
+          height: 36,
+          width: 36,
+          borderShape: BoxShape.circle,
+          border: Border.all(color: Colors.transparent, width: 1.0),
+        )
+      );
+    }
+    return Container(
+      key: this.key == null
+        ? null
+        : Key('${this.key.toString()}-profile-image-container'),
+      width: 36.0,
+      height: 36.0,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: isModeratorAuthor
+          ? ChathamColors.gradients[moderatorGradientName]
+          : ChathamColors.gradients[gradientNameFromString(this.participant.gradientColor)],
+        border: Border.all(color: Colors.transparent, width: 1.0),
+      ),
+      child: isModeratorAuthor
+        ? ModeratorProfileImage(
+            diameter: 36.0,
+            outerBorderWidth: 0.0,
+            profileImageURL: this.moderator.userProfile.profileImageURL)
+        : ProfileImage(
+            profileImageURL: this.participant.userProfile?.profileImageURL,
+            isAnonymous: this.participant.isAnonymous,
+          ),
+    );
+  }
+
+  String formatDeleteReason(PostDeletedReason code) {
+    switch(code) {
+      case PostDeletedReason.UNKNOWN:
+        return Intl.message("This post has been deleted.");
+      case PostDeletedReason.MODERATOR_REMOVED:
+        return Intl.message("This post has been deleted by the moderator.");
+      case PostDeletedReason.PARTICIPANT_REMOVED:
+        return Intl.message("This post has been deleted by its author.");
+    }
+    return "";
+  }
 
 }

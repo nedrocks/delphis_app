@@ -71,6 +71,7 @@ const PostInfoFragment = """
     isDeleted
     createdAt
     updatedAt
+    deletedReasonCode
     mentionedEntities {
       id
       ... on Discussion {
@@ -122,6 +123,7 @@ const DeletedPostInfoFragment = """
     createdAt
     updatedAt
     postType
+    deletedReasonCode
   }
 """;
 

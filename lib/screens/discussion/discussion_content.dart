@@ -11,7 +11,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers_popup.dart';
-import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
+import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -41,9 +41,9 @@ class DiscussionContent extends StatelessWidget {
   final ConciergePostOptionPressed onConciergeOptionPressed;
 
   final Function(File, MediaContentType) onMediaTap;
-  final Function(Post, Discussion) onModeratorPostButtonPressed;
+  final Function(SuperpowersArguments) onSuperpowersButtonPressed;
 
-  final ModeratorPopupArguments moderatorPopupArguments;
+  final SuperpowersArguments superpowersArguments;
 
   final VoidCallback onModeratorOverlayClose;
 
@@ -62,9 +62,9 @@ class DiscussionContent extends StatelessWidget {
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
-    @required this.onModeratorPostButtonPressed,
+    @required this.onSuperpowersButtonPressed,
     @required this.onModeratorOverlayClose,
-    @required this.moderatorPopupArguments
+    @required this.superpowersArguments
   }) : super(key: key);
 
   @override
@@ -79,7 +79,7 @@ class DiscussionContent extends StatelessWidget {
       onboardingConciergeStep: this.onboardingConciergeStep,
       onConciergeOptionPressed: this.onConciergeOptionPressed,
       onMediaTap: this.onMediaTap,
-      onModeratorButtonPressed: this.onModeratorPostButtonPressed,
+      onSuperpowersButtonPressed: this.onSuperpowersButtonPressed,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);
@@ -150,7 +150,7 @@ class DiscussionContent extends StatelessWidget {
       );
 
       this.onOverlayOpen(overlayEntry);
-    } else if (this.moderatorPopupArguments != null) {
+    } else if (this.superpowersArguments != null) {
       final overlayEntry = OverlayEntry(
         builder: (overlayContext) => BlocProvider<SuperpowersBloc>.value(
           value: BlocProvider.of<SuperpowersBloc>(context),
@@ -158,7 +158,7 @@ class DiscussionContent extends StatelessWidget {
             child: Container(width: 0, height: 0),
             popup: DiscussionPopup(
               contents: SuperpowersPopup(
-                arguments: this.moderatorPopupArguments,
+                arguments: this.superpowersArguments,
                 onCancel: this.onModeratorOverlayClose,
               ),
             ),

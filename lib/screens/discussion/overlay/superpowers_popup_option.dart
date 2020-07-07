@@ -20,7 +20,7 @@ class ModeratorPopupOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = 120.0;
     return Container(
-      height: width * 1.6,
+      height: width * 1.8,
       width: width,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
@@ -39,7 +39,7 @@ class ModeratorPopupOption extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: width * 0.75,
+                  height: width * 0.8,
                   child: Center(
                     child: child,
                   ),
@@ -57,7 +57,7 @@ class ModeratorPopupOption extends StatelessWidget {
                   description,
                   style: TextThemes.goIncognitoOptionAction.copyWith(),
                   textAlign: TextAlign.left,
-                  maxLines: 3,
+                  maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

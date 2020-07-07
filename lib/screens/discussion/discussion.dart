@@ -9,7 +9,7 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/media/media_preview.dart';
-import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
+import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -54,7 +54,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
 
   Widget mediaToShow;
 
-  ModeratorPopupArguments _moderatorPopupArguments;
+  SuperpowersArguments _superpowersPopupArguments;
 
   @override
   void initState() {
@@ -204,26 +204,23 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                   discussionObj, post, content, option);
             },
             onMediaTap: (media, type) => this.onMediaTap(context, media, type),
-            onModeratorPostButtonPressed: (post, discussion) {
+            onSuperpowersButtonPressed: (arguments) {
               setState(() {
                 var focusScope = FocusScope.of(context);
                 if(focusScope.hasFocus) {
                   this._lastFocusedNode = focusScope.focusedChild;
                   focusScope.unfocus();
                 }
-                this._moderatorPopupArguments = ModeratorPopupArguments(
-                  selectedPost: post,
-                  selectedDiscussion: discussion
-                );
+                this._superpowersPopupArguments = arguments;
               });
             },
             onModeratorOverlayClose: () {
               this.setState(() {
-                this._moderatorPopupArguments = null;
+                this._superpowersPopupArguments = null;
                 _restoreFocusAndDismissOverlay();
               });
             },
-            moderatorPopupArguments: this._moderatorPopupArguments,
+            superpowersArguments: this._superpowersPopupArguments,
           ),
         );
         var listViewWithInput = Column(
@@ -353,8 +350,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   }
 
   void _dismissOverlay() {
-    BlocProvider.of<SuperpowersBloc>(context).add(CloseEvent());
-    this._moderatorPopupArguments = null;
+    BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+    this._superpowersPopupArguments = null;
     this._isShowParticipantSettings = false;
     if(this._contentOverlayEntry != null) {
       this._contentOverlayEntry.remove();

@@ -6,6 +6,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
+import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,7 @@ class DiscussionPostListView extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
 
-  final Function(Post, Discussion) onModeratorButtonPressed;
+  final Function(SuperpowersArguments) onSuperpowersButtonPressed;
 
   DiscussionPostListView({
     @required key,
@@ -41,7 +42,7 @@ class DiscussionPostListView extends StatelessWidget {
     @required this.onboardingConciergeStep,
     @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
-    @required this.onModeratorButtonPressed,
+    @required this.onSuperpowersButtonPressed,
     this.isVisible = true, 
   }) : super(key: key);
 
@@ -181,7 +182,7 @@ class DiscussionPostListView extends StatelessWidget {
               participant: this.discussion.getParticipantForPostIdx(index),
               discussion: this.discussion,
               onMediaTap: this.onMediaTap,
-              onModeratorButtonPressed: this.onModeratorButtonPressed,
+              onModeratorButtonPressed: this.onSuperpowersButtonPressed,
             );
             if (true) {
               return post;

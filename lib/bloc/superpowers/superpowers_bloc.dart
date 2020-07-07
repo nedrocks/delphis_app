@@ -21,7 +21,7 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
 
   @override
   Stream<SuperpowersState> mapEventToState(SuperpowersEvent event) async* {
-    if(event is CloseEvent) {
+    if(event is ResetEvent) {
       yield ReadyState();
     }
     else if(event is DeletePostEvent) {

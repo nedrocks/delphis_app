@@ -14,6 +14,7 @@ import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
+import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
@@ -40,7 +41,7 @@ class DiscussionPost extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
 
-  final Function(Post, Discussion) onModeratorButtonPressed;
+  final Function(SuperpowersArguments) onModeratorButtonPressed;
 
   const DiscussionPost({
     Key key,
@@ -166,12 +167,18 @@ class DiscussionPost extends StatelessWidget {
               ),
             )),
 
-            isModerator(me)
+            isSuperpowersAvailable(me)
               ? Material(
                   type: MaterialType.circle,
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => this.onModeratorButtonPressed(this.post, this.discussion),
+                    onTap: () => this.onModeratorButtonPressed(
+                      SuperpowersArguments(
+                        discussion: this.discussion,
+                        post: this.post,
+                        participant: this.participant
+                      )
+                    ),
                     child: Container(
                       padding: EdgeInsets.all(SpacingValues.small),
                       decoration: BoxDecoration(
@@ -203,8 +210,14 @@ class DiscussionPost extends StatelessWidget {
     );
   }
 
-  bool isModerator(User me) =>
-      this.discussion.moderator.userProfile.id == me.profile.id;
+  bool isModerator(User me) {
+    return this.discussion.moderator.userProfile.id == me.profile.id;
+  }
+
+  bool isSuperpowersAvailable(User me) {
+    return isModerator(me)
+      || this.participant?.id == this.discussion.meParticipant.id;    
+  }
 
   Widget buildProfileImage(BuildContext context, bool isModeratorAuthor, bool isDeleted) {
     if(isDeleted) {

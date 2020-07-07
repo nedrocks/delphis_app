@@ -4,7 +4,6 @@ abstract class SuperpowersState extends Equatable {
   const SuperpowersState();
 }
 
-
 class ReadyState extends SuperpowersState {
   const ReadyState();
   @override

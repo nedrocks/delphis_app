@@ -4,7 +4,7 @@ abstract class SuperpowersEvent extends Equatable {
   const SuperpowersEvent();
 }
 
-class CloseEvent extends SuperpowersEvent {
+class ResetEvent extends SuperpowersEvent {
   @override
   List<Object> get props => [];
 }

@@ -5,7 +5,7 @@ import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers_popup_option.dart';
-import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
+import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/util/display_names.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class SuperpowersPopup extends StatelessWidget {
-  final ModeratorPopupArguments arguments;
+  final SuperpowersArguments arguments;
   final VoidCallback onCancel;
   
   const SuperpowersPopup({
@@ -94,7 +94,9 @@ class SuperpowersPopup extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    Intl.message("Mod Superpowers"),
+                    isModerator()
+                      ? Intl.message("Mod Superpowers")
+                      : Intl.message("User Superpowers"),
                     style: TextThemes.goIncognitoHeader,
                     textAlign: TextAlign.center,
                   ),
@@ -132,33 +134,115 @@ class SuperpowersPopup extends StatelessWidget {
 
   List<Widget> buildOptionList(BuildContext context) {
     List<Widget> list = [];
-    if(arguments.selectedPost != null) {
-      var authorName = DisplayNames.formatParticipant(arguments.selectedDiscussion.moderator, arguments.selectedPost.participant);
+
+    /* Delete post feature */
+    if(arguments.post != null && arguments.discussion != null
+          && !arguments.post.isDeleted && isAuthor()) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Delete post"),
-        description: Intl.message("Remove this post by $authorName from the discussion."),
-        onTap: () {
+        description: Intl.message("Remove this post from the discussion."),
+        onTap: () => showConfirmationDialog(context, () {
           BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
-            discussion: this.arguments.selectedDiscussion,
-            post: this.arguments.selectedPost
+            discussion: this.arguments.discussion,
+            post: this.arguments.post
           ));
           return true;
-        },
+        }),
       ));
+    }
+
+    /* Ban participant feature */
+    if(arguments.participant != null && arguments.discussion != null
+          && isModerator()) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Kick participant"),
-        description: Intl.message("Ban $authorName from this discussion."),
-        onTap: () {
-          BlocProvider.of<SuperpowersBloc>(context).add(BanParticipantEvent(
-            discussion: this.arguments.selectedDiscussion,
-            participant: this.arguments.selectedPost.participant
-          ));
+        description: Intl.message("Ban the author of this post from the discussion."),
+        onTap: () => showConfirmationDialog(context, () {
+          BlocProvider.of<SuperpowersBloc>(context).add(
+            BanParticipantEvent(
+              discussion: this.arguments.discussion,
+              participant: this.arguments.post.participant
+            )
+          );
           return true;
-        },
+        })
       ));
     }
+
+    /* A user could have no actions avaliable */
+    if(list.length == 0) {
+      list.add(Container(
+        height: 80,
+        child: Center(
+          child: Text(
+            Intl.message("There are no superpower available."),
+            style: TextThemes.goIncognitoOptionName
+          ),
+        ),
+      ));
+    }
+
     return list;
   }
+
+  void showConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
+    OverlayEntry overlayEntry;
+    overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned.fill(
+          child: GestureDetector(
+            onTap: () => overlayEntry?.remove(),
+            child: Container(
+              color: Colors.black.withOpacity(0.45),
+              child: Center(
+                child: AlertDialog(
+                  elevation: 0,
+                  title: Text(Intl.message("Are you sure?")),
+                  content: Text("This action will have irreversible effects, do you still desire to proceed?"),
+                  useMaterialBorderRadius: true,
+                  actions: [
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            FlatButton(
+                              child: Text(Intl.message("Cancel")),
+                              onPressed: () => overlayEntry?.remove()
+                            ),
+                            FlatButton(
+                              child: Text(Intl.message("Continue")),
+                              onPressed: () {
+                                overlayEntry?.remove();
+                                onConfirm();
+                              },
+                            )
+                          ],
+                        )
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        );
+      }
+    );
+    Overlay.of(context).insert(
+      overlayEntry
+    );
+  }
+
+  bool isModerator() {
+    return this.arguments.discussion.moderator?.userProfile?.id == this.arguments.discussion.meParticipant?.userProfile?.id;
+  }
+
+  bool isAuthor() {
+    return this.arguments?.participant?.id == this.arguments.discussion?.meParticipant?.id; 
+  }
+
 }

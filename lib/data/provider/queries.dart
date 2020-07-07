@@ -111,6 +111,20 @@ const PostInfoFragment = """
   $QuotedPostInfoFragment
 """;
 
+const DeletedPostInfoFragment = """
+  fragment DeletedPostInfoFragment on Post {
+    id
+    participant {
+      id
+      participantID
+    }
+    isDeleted
+    createdAt
+    updatedAt
+    postType
+  }
+""";
+
 const PostsConnectionFragment = """
   fragment PostsConnectionFragment on PostsConnection {
     pageInfo {

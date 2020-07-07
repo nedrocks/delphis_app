@@ -72,6 +72,12 @@ class DiscussionPost extends StatelessWidget {
   }
 
   Widget buildWithInfo(BuildContext context, MentionState mentionContext, User me) {
+
+    // TODO: Format deleted posts (by who, and reason)
+    if(this.post.isDeleted) {
+      return Container(color: Colors.red, width: 100, height: 50,);
+    }
+
     final isModeratorAuthor =
         this.participant.userProfile?.id == this.moderator.userProfile.id;
     var textWidget = EmojiText(

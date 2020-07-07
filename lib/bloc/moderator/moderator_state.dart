@@ -11,6 +11,17 @@ class ReadyState extends ModeratorState {
   List<Object> get props => [];
 }
 
+abstract class SuccessState extends ReadyState {
+  final String message;
+
+  const SuccessState({
+    @required this.message
+  });
+
+  @override
+  List<Object> get props => [this.message];
+}
+
 class LoadingState extends ModeratorState {
   @override
   List<Object> get props => [];
@@ -19,7 +30,7 @@ class LoadingState extends ModeratorState {
 class ErrorState extends ReadyState {
   final String message;
 
-  ErrorState({
+  const ErrorState({
     @required this.message
   });
 
@@ -27,13 +38,26 @@ class ErrorState extends ReadyState {
   List<Object> get props => [this.message];
 }
 
-class SuccessState extends ReadyState {
-  final String message;
+class DeletePostSuccessState extends SuccessState {
+  final Post post;
 
-  SuccessState({
-    @required this.message
-  });
+  const DeletePostSuccessState({
+    @required message,
+    @required this.post
+  }) : super(message: message);
 
   @override
-  List<Object> get props => [this.message];
+  List<Object> get props => [this.message, this.post];
+}
+
+class BanParticipantSuccessState extends SuccessState {
+  final Participant participant;
+
+  const BanParticipantSuccessState({
+    @required message,
+    @required this.participant
+  }) : super(message: message);
+
+  @override
+  List<Object> get props => [this.message, this.participant];
 }

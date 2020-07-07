@@ -10,23 +10,27 @@ class CloseEvent extends ModeratorEvent {
 }
 
 class DeletePostEvent extends ModeratorEvent {
+  final Discussion discussion;
   final Post post;
 
   const DeletePostEvent({
+    @required this.discussion,
     @required this.post
   });
 
   @override
-  List<Object> get props => [post];
+  List<Object> get props => [discussion, post];
 }
 
-class KickParticipantEvent extends ModeratorEvent {
+class BanParticipantEvent extends ModeratorEvent {
+  final Discussion discussion;
   final Participant participant;
 
-  const KickParticipantEvent({
+  const BanParticipantEvent({
+    @required this.discussion,
     @required this.participant
   });
 
   @override
-  List<Object> get props => [participant];
+  List<Object> get props => [discussion, participant];
 }

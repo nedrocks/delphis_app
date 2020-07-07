@@ -289,3 +289,57 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
     return Participant.fromJson(data["updateParticipant"]);
   }
 }
+
+class DeletePostMutation extends GQLMutation<Post> {
+  final String discussionID;
+  final String postID;
+
+  final String _mutation = """
+    mutation DeletePost(\$discussionID: ID!, \$postID: ID!) {
+      deletePost(discussionID: \$discussionID, postID: \$postID) {
+        ...DeletedPostInfoFragment
+      }
+    }
+    $DeletedPostInfoFragment
+  """;
+
+  const DeletePostMutation({
+    @required this.discussionID,
+    @required this.postID,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Post parseResult(dynamic data) {
+    return Post.fromJson(data["deletePost"]);
+  }
+}
+
+class BanParticipantMutation extends GQLMutation<Participant> {
+  final String discussionID;
+  final String participantID;
+
+  final String _mutation = """
+    mutation BanParticipant(\$discussionID: ID!, \$participantID: ID!) {
+      banParticipant(discussionID: \$discussionID, participantID: \$participantID) {
+        ...ParticipantInfoFragment
+      }
+    }
+    $ParticipantInfoFragment
+  """;
+
+  const BanParticipantMutation({
+    @required this.discussionID,
+    @required this.participantID,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Participant parseResult(dynamic data) {
+    return Participant.fromJson(data["banParticipant"]);
+  }
+}

@@ -4,6 +4,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 part 'moderator_event.dart';
 part 'moderator_state.dart';
@@ -25,12 +26,34 @@ class ModeratorBloc extends Bloc<ModeratorEvent, ModeratorState> {
     }
     else if(event is DeletePostEvent) {
       if(this.state is ReadyState) {
-        
+        yield LoadingState();
+        try {
+          var deletedPost = await discussionRepository.deletePost(event.discussion, event.post);
+          var deletedPostIndex = event.discussion.postsCache.indexWhere((element) => element.id == event.post.id);
+          event.discussion.postsCache.replaceRange(deletedPostIndex, deletedPostIndex + 1, [deletedPost]);
+          yield DeletePostSuccessState(
+            message: Intl.message("The post has been successfully deleted!"),
+            post: deletedPost
+          );
+        }
+        catch (error) {
+          yield ErrorState(message: error.toString());
+        }
       }
     }
-    else if(event is KickParticipantEvent) {
+    else if(event is BanParticipantEvent) {
       if(this.state is ReadyState) {
-        
+        yield LoadingState();
+        try {
+          var bannedParticipant = await participantRepository.banParticipant(event.discussion, event.participant);
+          yield BanParticipantSuccessState(
+            message: Intl.message("The participant has been successfully banned!"),
+            participant: bannedParticipant
+          );
+        }
+        catch (error) {
+          yield ErrorState(message: error.toString());
+        }
       }
     }
   }

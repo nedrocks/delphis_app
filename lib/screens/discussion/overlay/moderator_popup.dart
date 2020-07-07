@@ -1,11 +1,15 @@
 
+import 'dart:ui';
+
 import 'package:delphis_app/bloc/moderator/moderator_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/moderator_popup_option.dart';
 import 'package:delphis_app/screens/discussion/screen_args/moderator_popup_arguments.dart';
 import 'package:delphis_app/util/display_names.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -23,9 +27,11 @@ class ModeratorPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ModeratorBloc, ModeratorState>(
       builder: (context, state) {
-        Widget errorWidget = Container();
+
+        /* Format error messages */
+        Widget bottomWidget = Container();
         if(state is ErrorState) {
-          errorWidget = Column(
+          bottomWidget = Column(
             children: [
               Text(
                 state.message,
@@ -37,6 +43,36 @@ class ModeratorPopup extends StatelessWidget {
           );
         }
 
+        /* Format operation success messages */
+        if(state is SuccessState) {
+          bottomWidget = Column(
+            children: [
+              Text(
+                state.message,
+                style: TextThemes.goIncognitoButton.copyWith(color: Colors.green),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: SpacingValues.medium),
+            ],
+          );
+
+          /* Dismiss the popup if the result is successful */
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            this.onCancel();
+          });
+        }
+
+        /* Format loading status */
+        if(state is LoadingState) {
+          bottomWidget = Column(
+            children: [
+              CupertinoActivityIndicator(),
+              SizedBox(height: SpacingValues.medium),
+            ],
+          );
+        }
+
+        /* Render popup */
         return Card(
           elevation: 50.0,
           color: Colors.transparent,
@@ -67,17 +103,16 @@ class ModeratorPopup extends StatelessWidget {
                   SizedBox(height: SpacingValues.small),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: buildOptionList(context),
+                      child: Row(
+                        children: buildOptionList(context),
+                      ),
                     ),
-                  ),
                   SizedBox(height: SpacingValues.small),
-                  errorWidget,
+                  bottomWidget,
                   Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                   SizedBox(height: SpacingValues.mediumLarge),
                   GestureDetector(
                     onTap: () {
-                      BlocProvider.of<ModeratorBloc>(context).add(CloseEvent());
                       this.onCancel();
                     },
                     child: Text(
@@ -104,7 +139,10 @@ class ModeratorPopup extends StatelessWidget {
         title: Intl.message("Delete post"),
         description: Intl.message("Remove this post by $authorName from the discussion."),
         onTap: () {
-          BlocProvider.of<ModeratorBloc>(context).add(DeletePostEvent(post: this.arguments.selectedPost));
+          BlocProvider.of<ModeratorBloc>(context).add(DeletePostEvent(
+            discussion: this.arguments.selectedDiscussion,
+            post: this.arguments.selectedPost
+          ));
           return true;
         },
       ));
@@ -113,7 +151,10 @@ class ModeratorPopup extends StatelessWidget {
         title: Intl.message("Kick participant"),
         description: Intl.message("Ban $authorName from this discussion."),
         onTap: () {
-          BlocProvider.of<ModeratorBloc>(context).add(KickParticipantEvent(participant: this.arguments.selectedPost.participant));
+          BlocProvider.of<ModeratorBloc>(context).add(BanParticipantEvent(
+            discussion: this.arguments.selectedDiscussion,
+            participant: this.arguments.selectedPost.participant
+          ));
           return true;
         },
       ));

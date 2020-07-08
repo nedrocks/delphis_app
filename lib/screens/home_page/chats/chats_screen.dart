@@ -38,21 +38,6 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
 
     this._refreshController = RefreshController(initialRefresh: false);
     this._chatListKey = GlobalKey();
-    _loadLastRoute();
-  }
-
-  void _loadLastRoute() async {
-    var routeName = await chathamRouteObserverSingleton.retrieveLastRouteName();
-    var routeArgs =
-        await chathamRouteObserverSingleton.retriveLastRouteArguments();
-    if (routeName != null &&
-        routeName.startsWith('/Discussion') &&
-        routeArgs != null) {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
-        chathamRouteObserverSingleton.hasLoadedApp = true;
-      });
-    }
   }
 
   @override

@@ -120,61 +120,7 @@ class SuperpowersPopup extends StatelessWidget {
     );
   }
 
-  List<Widget> buildOptionList(BuildContext context) {
-    List<Widget> list = [];
-
-    /* Delete post feature */
-    if(arguments.post != null && arguments.discussion != null
-          && !arguments.post.isDeleted && isAuthor()) { 
-      list.add(ModeratorPopupOption(
-        child: Image.asset("assets/images/app_icon/image.png"),
-        title: Intl.message("Delete post"),
-        description: Intl.message("Remove this post from the discussion."),
-        onTap: () => showConfirmationDialog(context, () {
-          BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
-            discussion: this.arguments.discussion,
-            post: this.arguments.post
-          ));
-          return true;
-        }),
-      ));
-    }
-
-    /* Ban participant feature */
-    if(arguments.participant != null && arguments.discussion != null
-          && isModerator()) { 
-      list.add(ModeratorPopupOption(
-        child: Image.asset("assets/images/app_icon/image.png"),
-        title: Intl.message("Kick participant"),
-        description: Intl.message("Ban the author of this post from the discussion."),
-        onTap: () => showConfirmationDialog(context, () {
-          BlocProvider.of<SuperpowersBloc>(context).add(
-            BanParticipantEvent(
-              discussion: this.arguments.discussion,
-              participant: this.arguments.post.participant
-            )
-          );
-          return true;
-        })
-      ));
-    }
-
-    /* A user could have no actions avaliable */
-    if(list.length == 0) {
-      list.add(Container(
-        height: 80,
-        child: Center(
-          child: Text(
-            Intl.message("There are no superpower available."),
-            style: TextThemes.goIncognitoOptionName
-          ),
-        ),
-      ));
-    }
-
-    return list;
-  }
-
+  /* This is overlay-safe */
   void showConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     OverlayEntry overlayEntry;
     overlayEntry = OverlayEntry(
@@ -225,12 +171,65 @@ class SuperpowersPopup extends StatelessWidget {
     );
   }
 
+  List<Widget> buildOptionList(BuildContext context) {
+    List<Widget> list = [];
+
+    /* Delete post feature */
+    if(this.arguments.post != null && !(arguments.post?.isDeleted ?? false) && (isModerator() || isAuthor())) { 
+      list.add(ModeratorPopupOption(
+        child: Image.asset("assets/images/app_icon/image.png"),
+        title: Intl.message("Delete post"),
+        description: Intl.message("Remove this post from the discussion."),
+        onTap: () => showConfirmationDialog(context, () {
+          BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
+            discussion: this.arguments.discussion,
+            post: this.arguments.post
+          ));
+          return true;
+        }),
+      ));
+    }
+
+    /* Ban participant feature */
+    if(this.arguments.participant != null && isModerator() && !isAuthor()) { 
+      list.add(ModeratorPopupOption(
+        child: Image.asset("assets/images/app_icon/image.png"),
+        title: Intl.message("Kick participant"),
+        description: Intl.message("Ban the author of this post from the discussion."),
+        onTap: () => showConfirmationDialog(context, () {
+          BlocProvider.of<SuperpowersBloc>(context).add(
+            BanParticipantEvent(
+              discussion: this.arguments.discussion,
+              participant: this.arguments.post.participant
+            )
+          );
+          return true;
+        })
+      ));
+    }
+
+    /* A user could have no actions avaliable */
+    if(list.length == 0) {
+      list.add(Container(
+        height: 80,
+        child: Center(
+          child: Text(
+            Intl.message("There are no superpower available."),
+            style: TextThemes.goIncognitoOptionName
+          ),
+        ),
+      ));
+    }
+
+    return list;
+  }
+
   bool isModerator() {
     return this.arguments.discussion.moderator?.userProfile?.id == this.arguments.discussion.meParticipant?.userProfile?.id;
   }
 
   bool isAuthor() {
-    return this.arguments?.participant?.id == this.arguments.discussion?.meParticipant?.id; 
+    return this.arguments?.participant?.participantID == this.arguments.discussion?.meParticipant?.participantID;
   }
 
 }

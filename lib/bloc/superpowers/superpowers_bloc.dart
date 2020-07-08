@@ -4,6 +4,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
 part 'superpowers_event.dart';
@@ -29,15 +30,25 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         yield LoadingState();
         try {
           var deletedPost = await discussionRepository.deletePost(event.discussion, event.post);
-          var deletedPostIndex = event.discussion.postsCache.indexWhere((element) => element.id == event.post.id);
-          event.discussion.postsCache.replaceRange(deletedPostIndex, deletedPostIndex + 1, [deletedPost]);
+          event.discussion.postsCache = event.discussion.postsCache
+            .map((p) {
+              if(p.id == event.post.id)
+                return deletedPost;
+              return p;
+            })
+            .toList();
           yield DeletePostSuccessState(
             message: Intl.message("The post has been successfully deleted!"),
             post: deletedPost
           );
         }
         catch (error) {
-          yield ErrorState(message: error.toString());
+          if(error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          }
+          else {
+            yield ErrorState(message: error.toString());
+          }
         }
       }
     }
@@ -46,13 +57,25 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         yield LoadingState();
         try {
           var bannedParticipant = await participantRepository.banParticipant(event.discussion, event.participant);
+          event.discussion.postsCache = event.discussion.postsCache
+            .map((p) {
+              if(p.participant.id == event.participant.id)
+                return p.copyWith(isDeleted: true, deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
+              return p;
+            })
+            .toList();
           yield BanParticipantSuccessState(
             message: Intl.message("The participant has been successfully banned!"),
             participant: bannedParticipant
           );
         }
         catch (error) {
-          yield ErrorState(message: error.toString());
+          if(error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          }
+          else {
+            yield ErrorState(message: error.toString());
+          }
         }
       }
     }

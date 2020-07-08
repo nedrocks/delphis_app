@@ -95,7 +95,8 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
           ((current is DeletePostSuccessState) || (current is BanParticipantSuccessState));
       },
       builder: (context, state) {
-        if(state is DeletePostSuccessState && state.post.id == this.widget.post.id) {
+        if((state is DeletePostSuccessState && state.post.id == this.widget.post.id
+            || (state is BanParticipantSuccessState && state.participant.id == this.widget.post.participant.id))) {
           child = AnimatedBackgroundColor(
             child: child,
             startColor: Colors.red,
@@ -284,7 +285,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         shape: BoxShape.circle,
         gradient: isModeratorAuthor
           ? ChathamColors.gradients[moderatorGradientName]
-          : ChathamColors.gradients[gradientNameFromString(this.widget.participant.gradientColor)],
+          : ChathamColors.gradients[gradientNameFromString(this.widget.participant?.gradientColor ?? null)],
         border: Border.all(color: Colors.transparent, width: 1.0),
       ),
       child: isModeratorAuthor
@@ -293,8 +294,8 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
             outerBorderWidth: 0.0,
             profileImageURL: this.widget.moderator.userProfile.profileImageURL)
         : ProfileImage(
-            profileImageURL: this.widget.participant.userProfile?.profileImageURL,
-            isAnonymous: this.widget.participant.isAnonymous,
+            profileImageURL: this.widget.participant?.userProfile?.profileImageURL,
+            isAnonymous: this.widget.participant?.isAnonymous ?? false,
           ),
     );
   }

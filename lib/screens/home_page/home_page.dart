@@ -34,11 +34,7 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-  Color _topBarBackgroundColor;
-
-  String _createDiscussionNonce;
-  bool _isCreatingDiscussion;
-
+  final Color _topBarBackgroundColor = Color.fromRGBO(22, 23, 28, 1.0);
   HomePageTab _currentTab;
 
   @override
@@ -49,18 +45,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void initState() {
     super.initState();
-
     this._currentTab = HomePageTab.CHAT;
-
-    this._topBarBackgroundColor = Color.fromRGBO(22, 23, 28, 1.0);
-    this._createDiscussionNonce = DateTime.now().toString();
-    this._isCreatingDiscussion = false;
   }
 
   @override
   void deactivate() {
-    this._createDiscussionNonce = DateTime.now().toString();
-    this._isCreatingDiscussion = true;
     super.deactivate();
   }
 
@@ -91,37 +80,18 @@ class _HomePageScreenState extends State<HomePageScreen> {
               ),
               currentUser == null
                   ? Container(width: 0, height: 0)
-                  : BlocListener<DiscussionBloc, DiscussionState>(
-                      listener: (context, state) {
-                        if (state is DiscussionLoadedState &&
-                            this._isCreatingDiscussion) {
-                          this._isCreatingDiscussion = false;
-                          Navigator.of(context).pushNamed(
-                            '/Discussion',
-                            arguments: DiscussionArguments(
-                              discussionID: state.getDiscussion().id,
-                              isStartJoinFlow: false,
-                            ),
-                          );
-                        }
+                  : HomePageActionBar(
+                      currentTab: this._currentTab,
+                      backgroundColor: this._topBarBackgroundColor,
+                      onNewChatPressed: () {
+                        BlocProvider.of<DiscussionBloc>(context).add(
+                          NewDiscussionEvent(
+                            title: "${currentUser.profile.displayName}'s discussion",
+                            anonymityType: AnonymityType.UNKNOWN,
+                            nonce: DateTime.now().toString(),
+                          ),
+                        );
                       },
-                      child: HomePageActionBar(
-                        currentTab: this._currentTab,
-                        backgroundColor: this._topBarBackgroundColor,
-                        onNewChatPressed: () {
-                          setState(() {
-                            this._isCreatingDiscussion = true;
-                            BlocProvider.of<DiscussionBloc>(context).add(
-                                  NewDiscussionEvent(
-                                    title:
-                                        "${currentUser.profile.displayName}'s discussion",
-                                    anonymityType: AnonymityType.UNKNOWN,
-                                    nonce: this._createDiscussionNonce,
-                                  ),
-                                );
-                          });
-                        },
-                      ),
                     ),
             ],
           ),
@@ -129,21 +99,41 @@ class _HomePageScreenState extends State<HomePageScreen> {
       },
     );
 
-    if (this._isCreatingDiscussion) {
-      content = AbsorbPointer(
-        absorbing: true,
-        child: Stack(
-          children: [
-            Opacity(opacity: 0.4, child: content),
-            Center(child: CircularProgressIndicator()),
-          ],
-        ),
-      );
-    }
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: backgroundColor,
-      body: content,
+    return BlocListener<DiscussionBloc, DiscussionState>(
+      listenWhen: (prev, next) {
+        return prev is AddingDiscussionState && next is DiscussionLoadedState && !next.isLoading;
+      },
+      listener: (context, state) {
+        if (state is DiscussionLoadedState && !state.isLoading) {
+            Navigator.of(context).pushNamed(
+              '/Discussion',
+              arguments: DiscussionArguments(
+                discussionID: state.getDiscussion().id,
+                isStartJoinFlow: false,
+              ),
+            );
+          }
+      },
+      child: BlocBuilder<DiscussionBloc, DiscussionState>(
+        builder: (context, state) {
+          if(state is AddingDiscussionState) {
+            return AbsorbPointer(
+              absorbing: true,
+              child: Stack(
+                children: [
+                  Opacity(opacity: 0.4, child: content),
+                  Center(child: CircularProgressIndicator()),
+                ],
+              ),
+            );
+          }
+          return Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: backgroundColor,
+            body: content,
+          );
+        },
+      )
     );
   }
 }

@@ -117,8 +117,14 @@ class DiscussionPost extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: isModeratorAuthor
                       ? ChathamColors.gradients[moderatorGradientName]
-                      : ChathamColors.gradients[gradientNameFromString(
-                          this.participant.gradientColor)],
+                      : (!participant.isAnonymous
+                          ? LinearGradient(colors: [
+                              Colors.white,
+                              Colors.white
+                            ])
+                          : ChathamColors.gradients[gradientNameFromString(
+                              this.participant.gradientColor)]
+                        ),
                   border: Border.all(color: Colors.transparent, width: 1.0),
                 ),
                 child: isModeratorAuthor

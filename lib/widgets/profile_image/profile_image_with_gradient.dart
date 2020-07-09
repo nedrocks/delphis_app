@@ -50,6 +50,15 @@ class ProfileImageWithGradient extends StatelessWidget {
       gradient = ChathamColors
           .gradients[gradientNameFromString(this.participant.gradientColor)];
     }
+
+    if(!this.showAnonymous) {
+      gradient = LinearGradient(
+        colors: [
+          Colors.white,
+          Colors.white
+        ]
+      );
+    }
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(borderRadius);
     // This stinks but currently argument explosion doesn't exist.
@@ -105,7 +114,7 @@ class ProfileImageWithGradient extends StatelessWidget {
       return AnonProfileImage(
         width: this.width,
         height: this.height,
-        borderShape: BoxShape.rectangle,
+        borderShape: BoxShape.circle,
         borderRadius: borderRadius,
       );
     } else {

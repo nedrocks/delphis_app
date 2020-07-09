@@ -346,7 +346,9 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final discussion = await this.discussionRepository.createDiscussion(
             title: event.title, anonymityType: event.anonymityType);
         yield DiscussionLoadedState(
-            discussion: discussion, lastUpdate: DateTime.now());
+            discussion: discussion,
+            lastUpdate: DateTime.now(),
+            onboardingConciergeStep: getConciergeStep(discussion));
       } catch (err) {
         // TODO: We should probably say that we failed somewhere.
         yield originalState;

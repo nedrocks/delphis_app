@@ -285,7 +285,14 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         shape: BoxShape.circle,
         gradient: isModeratorAuthor
           ? ChathamColors.gradients[moderatorGradientName]
-          : ChathamColors.gradients[gradientNameFromString(this.widget.participant?.gradientColor ?? null)],
+          : (!(this.widget.participant?.isAnonymous ?? false)
+            ? LinearGradient(colors: [
+                Colors.white,
+                Colors.white
+              ])
+            : ChathamColors.gradients[gradientNameFromString(
+                this.widget.participant?.gradientColor)]
+              ),
         border: Border.all(color: Colors.transparent, width: 1.0),
       ),
       child: isModeratorAuthor

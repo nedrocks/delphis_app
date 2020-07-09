@@ -1,4 +1,5 @@
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
+import 'package:delphis_app/screens/discussion/screen_args/discussion_naming.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -34,6 +35,11 @@ class _ChathamRouteObserver extends RouteObserver {
               .toJsonString();
           argsType = 'DiscussionArguments';
           break;
+        case DiscussionNamingArguments:
+          encodedArgs = (lastRoute.settings.arguments as DiscussionNamingArguments)
+              .toJsonString();
+          argsType = 'DiscussionNamingArguments';
+          break;
         default:
           break;
       }
@@ -56,7 +62,8 @@ class _ChathamRouteObserver extends RouteObserver {
     switch (type) {
       case 'DiscussionArguments':
         return DiscussionArguments.fromJsonString(args);
-        break;
+      case 'DiscussionNamingArguments':
+        return DiscussionNamingArguments.fromJsonString(args);
       default:
         break;
     }

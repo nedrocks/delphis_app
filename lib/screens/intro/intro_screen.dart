@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/tracking/constants.dart';
+import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
@@ -14,8 +15,34 @@ class IntroScreen extends StatelessWidget {
       GqlClientState clientState, AuthState authState) async {
     if (clientState is GqlClientConnectedState) {
       if (authState is InitializedAuthState && authState.isAuthed) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/Home', (Route<dynamic> route) => false);
+        var loadedHome = false;
+        try {
+          var lastRoute = await chathamRouteObserverSingleton.retrieveLastRouteName();
+          var lastArgs = await chathamRouteObserverSingleton.retriveLastRouteArguments();
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/Home',
+            (Route<dynamic> route) => false
+          );
+          loadedHome = true;
+          Navigator.pushNamed(
+            context,
+            lastRoute,
+            arguments: lastArgs
+          );
+        }
+        catch (error) {
+          /* Probably something is broken in the local storage,
+             or simply there is no screen history saved.
+             In this case we just load the default home page. */
+          if(!loadedHome) {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/Home',
+              (Route<dynamic> route) => false
+            );
+          }
+        }
         return true;
       } else if (authState is InitializedAuthState) {
         Navigator.pushNamedAndRemoveUntil(

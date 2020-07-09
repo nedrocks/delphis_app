@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../repository/discussion.dart';
 import '../repository/user.dart';
 
-const ParticipantInfoFragment = """
-  fragment ParticipantInfoFragment on Participant {
+const InviterParticipantInfoFragment = """
+  fragment InviterParticipantInfoFragment on Participant {
     id
     participantID
     isAnonymous
@@ -23,6 +23,29 @@ const ParticipantInfoFragment = """
     }
   }
   $ParticipantUserProfileFragment
+""";
+
+const ParticipantInfoFragment = """
+  fragment ParticipantInfoFragment on Participant {
+    id
+    participantID
+    isAnonymous
+    gradientColor
+    flair {
+      id
+      displayName
+      imageURL
+      source
+    }
+    hasJoined
+    userProfile{
+      ...ParticipantUserProfileFragment
+    }
+    inviter{
+      ...InviterParticipantInfoFragment
+    }
+  }
+  $InviterParticipantInfoFragment
 """;
 
 const QuotedPostInfoFragment = """

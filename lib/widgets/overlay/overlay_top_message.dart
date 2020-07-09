@@ -41,6 +41,8 @@ class _OverlayTopMessageState extends State<OverlayTopMessage> {
     this._opacity = 0.0;
     //this.insertOverlay();
     Future.delayed(Duration(milliseconds: 500)).then((_) {
+      if(!mounted)
+        return;
       this.setState(() {
         this._opacity = 1.0;
         this._isShowing = true;
@@ -75,6 +77,8 @@ class _OverlayTopMessageState extends State<OverlayTopMessage> {
                 this._showState = OverlayMessageState.IS_SHOWING;
                 Future.delayed(Duration(milliseconds: this.widget.showForMs))
                     .then((_) {
+                  if(!mounted)
+                    return;
                   this.setState(() {
                     this._showState = OverlayMessageState.FADE_OUT;
                     this._opacity = 0.0;

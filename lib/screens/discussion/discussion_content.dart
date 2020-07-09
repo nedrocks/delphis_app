@@ -152,8 +152,12 @@ class DiscussionContent extends StatelessWidget {
       this.onOverlayOpen(overlayEntry);
     } else if (this.superpowersArguments != null) {
       final overlayEntry = OverlayEntry(
-        builder: (overlayContext) => BlocProvider<SuperpowersBloc>.value(
-          value: BlocProvider.of<SuperpowersBloc>(context),
+        builder: (overlayContext) => MultiBlocProvider(
+          providers: [
+            // This is needed because the overlay will have a different BuildContext
+            BlocProvider<SuperpowersBloc>.value(value: BlocProvider.of<SuperpowersBloc>(context)),
+            BlocProvider<MeBloc>.value(value: BlocProvider.of<MeBloc>(context)),
+          ],
           child: AnimatedDiscussionPopup(
             child: Container(width: 0, height: 0),
             popup: DiscussionPopup(
@@ -164,7 +168,7 @@ class DiscussionContent extends StatelessWidget {
             ),
             animationMillis: this.isAnimationEnabled ? 500 : 0,
           ),
-        ),
+        )
       );
 
       this.onOverlayOpen(overlayEntry);

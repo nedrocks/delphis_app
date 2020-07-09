@@ -1,7 +1,9 @@
 
 import 'dart:ui';
 
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers_popup_option.dart';
@@ -24,97 +26,105 @@ class SuperpowersPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
-      builder: (context, state) {
+    return BlocBuilder<MeBloc, MeState>(
+      builder: (context, meState) {
+        return BlocBuilder<SuperpowersBloc, SuperpowersState> (
+          builder: (context, state) {
+            var me = MeBloc.extractMe(meState);
+            if(me == null) {
+              return Container();
+            }
 
-        /* Format error messages */
-        Widget bottomWidget = Container();
-        if(state is ErrorState) {
-          bottomWidget = Column(
-            children: [
-              Text(
-                state.message,
-                style: TextThemes.goIncognitoButton.copyWith(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: SpacingValues.medium),
-            ],
-          );
-        }
-
-        /* Format operation success messages */
-        if(state is SuccessState) {
-          /* Dismiss the popup if the result is successful */
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            this.onCancel();
-          });
-        }
-
-        /* Format loading status */
-        if(state is LoadingState) {
-          bottomWidget = Column(
-            children: [
-              CupertinoActivityIndicator(),
-              SizedBox(height: SpacingValues.medium),
-            ],
-          );
-        }
-
-        /* Render popup */
-        return Card(
-          elevation: 50.0,
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.only(
-              left: SpacingValues.extraLarge,
-              right: SpacingValues.extraLarge,
-              top: SpacingValues.mediumLarge),
-            decoration: BoxDecoration(
-              border: Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(36.0),
-                topRight: Radius.circular(36.0)),
-                color: Color.fromRGBO(22, 23, 28, 1.0)
-            ),
-            child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
+            /* Format error messages */
+            Widget bottomWidget = Container();
+            if(state is ErrorState) {
+              bottomWidget = Column(
+                children: [
                   Text(
-                    isModerator()
-                      ? Intl.message("Mod Superpowers")
-                      : Intl.message("User Superpowers"),
-                    style: TextThemes.goIncognitoHeader,
+                    state.message,
+                    style: TextThemes.goIncognitoButton.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: SpacingValues.medium),
-                  Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                  SizedBox(height: SpacingValues.small),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: buildOptionList(context),
+                ],
+              );
+            }
+
+            /* Format operation success messages */
+            if(state is SuccessState) {
+              /* Dismiss the popup if the result is successful */
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                this.onCancel();
+              });
+            }
+
+            /* Format loading status */
+            if(state is LoadingState) {
+              bottomWidget = Column(
+                children: [
+                  CupertinoActivityIndicator(),
+                  SizedBox(height: SpacingValues.medium),
+                ],
+              );
+            }
+
+            /* Render popup */
+            return Card(
+              elevation: 50.0,
+              color: Colors.transparent,
+              child: Container(
+                padding: EdgeInsets.only(
+                  left: SpacingValues.extraLarge,
+                  right: SpacingValues.extraLarge,
+                  top: SpacingValues.mediumLarge),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(36.0),
+                    topRight: Radius.circular(36.0)),
+                    color: Color.fromRGBO(22, 23, 28, 1.0)
+                ),
+                child: Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        isMeDiscussionModerator(me)
+                          ? Intl.message("Mod Superpowers")
+                          : Intl.message("User Superpowers"),
+                        style: TextThemes.goIncognitoHeader,
+                        textAlign: TextAlign.center,
                       ),
-                    ),
-                  SizedBox(height: SpacingValues.small),
-                  bottomWidget,
-                  Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                  SizedBox(height: SpacingValues.mediumLarge),
-                  GestureDetector(
-                    onTap: () {
-                      this.onCancel();
-                    },
-                    child: Text(
-                      Intl.message('Cancel'),
-                      style: TextThemes.cancelText,
-                    )
-                  ),
-                  SizedBox(height: SpacingValues.mediumLarge),
-                ]
+                      SizedBox(height: SpacingValues.medium),
+                      Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                      SizedBox(height: SpacingValues.small),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: buildOptionList(context, me),
+                          ),
+                        ),
+                      SizedBox(height: SpacingValues.small),
+                      bottomWidget,
+                      Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                      SizedBox(height: SpacingValues.mediumLarge),
+                      GestureDetector(
+                        onTap: () {
+                          this.onCancel();
+                        },
+                        child: Text(
+                          Intl.message('Cancel'),
+                          style: TextThemes.cancelText,
+                        )
+                      ),
+                      SizedBox(height: SpacingValues.mediumLarge),
+                    ]
+                  )
+                ),
               )
-            ),
-          )
+            );
+          },
         );
       },
     );
@@ -171,11 +181,11 @@ class SuperpowersPopup extends StatelessWidget {
     );
   }
 
-  List<Widget> buildOptionList(BuildContext context) {
+  List<Widget> buildOptionList(BuildContext context, User me) {
     List<Widget> list = [];
 
     /* Delete post feature */
-    if(this.arguments.post != null && !(arguments.post?.isDeleted ?? false) && (isModerator() || isAuthor())) { 
+    if(!(arguments.post?.isDeleted ?? false) && (isMeDiscussionModerator(me) || isMePostAuthor(me))) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Delete post"),
@@ -191,7 +201,7 @@ class SuperpowersPopup extends StatelessWidget {
     }
 
     /* Ban participant feature */
-    if(this.arguments.participant != null && isModerator() && !isAuthor()) { 
+    if(isMeDiscussionModerator(me) && !isMePostAuthor(me)) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Kick participant"),
@@ -214,7 +224,7 @@ class SuperpowersPopup extends StatelessWidget {
         height: 80,
         child: Center(
           child: Text(
-            Intl.message("There are no superpower available."),
+            Intl.message("There are no actions available."),
             style: TextThemes.goIncognitoOptionName
           ),
         ),
@@ -224,12 +234,21 @@ class SuperpowersPopup extends StatelessWidget {
     return list;
   }
 
-  bool isModerator() {
-    return this.arguments.discussion.moderator?.userProfile?.id == this.arguments.discussion.meParticipant?.userProfile?.id;
+  bool isMeDiscussionModerator(User me) {
+    return this.arguments.discussion?.moderator?.userProfile?.id == me.profile.id;
   }
 
-  bool isAuthor() {
-    return this.arguments?.participant?.participantID == this.arguments.discussion?.meParticipant?.participantID;
+  bool isMePostAuthor(User me) {
+    print(this.arguments.post.participant?.participantID);
+    me.participants
+        .where((e) => e.discussion.id == this.arguments.discussion.id)
+        .map((e) => e.participantID)
+        .forEach((element) => print(element));
+    return this.arguments.post.participant?.participantID != null
+      && me.participants
+        .where((e) => e.discussion.id == this.arguments.discussion.id)
+        .map((e) => e.participantID)
+        .contains(this.arguments.post.participant?.participantID);
   }
 
 }

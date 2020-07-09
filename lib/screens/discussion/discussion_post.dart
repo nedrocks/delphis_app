@@ -246,13 +246,20 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
     );
   }
 
-  bool isModerator(User me) {
-    return this.widget.discussion.moderator.userProfile.id == me.profile.id;
+  bool isMeDiscussionModerator(User me) {
+    return this.widget.discussion?.moderator?.userProfile?.id == me.profile.id;
+  }
+
+  bool isMePostAuthor(User me) {
+    return this.widget.post.participant?.participantID != null
+      && me.participants
+        .where((e) => e.discussion.id == this.widget.discussion.id)
+        .map((e) => e.participantID)
+        .contains(this.widget.post.participant?.participantID);
   }
 
   bool isSuperpowersAvailable(User me) {
-    return isModerator(me)
-      || this.widget.participant?.id == this.widget.discussion.meParticipant.id;    
+    return isMeDiscussionModerator(me) || isMePostAuthor(me);
   }
 
   Widget buildProfileImage(BuildContext context, bool isModeratorAuthor, bool isDeleted) {

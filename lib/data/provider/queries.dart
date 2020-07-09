@@ -235,6 +235,17 @@ class MeGQLQuery extends GQLQuery<User> {
           imageURL
           source
         }
+        participants {
+          id
+          participantID
+          discussion {
+            id
+          }
+          userProfile {
+            id
+            displayName
+          }
+        }
       }
     }
   """;

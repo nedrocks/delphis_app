@@ -21,6 +21,9 @@ const ParticipantInfoFragment = """
     userProfile{
       ...ParticipantUserProfileFragment
     }
+    discussion {
+      id
+    }
   }
   $ParticipantUserProfileFragment
 """;
@@ -234,17 +237,6 @@ class MeGQLQuery extends GQLQuery<User> {
           displayName
           imageURL
           source
-        }
-        participants {
-          id
-          participantID
-          discussion {
-            id
-          }
-          userProfile {
-            id
-            displayName
-          }
         }
       }
     }

@@ -68,21 +68,15 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
   Widget build(BuildContext context) {
     return BlocBuilder<MentionBloc, MentionState> (
       builder: (context, mentionBlocState) {
-        if(mentionBlocState.isReady())
-          return BlocBuilder<MeBloc, MeState> (
-            builder: (context, meBlocState) {
-              var me = MeBloc.extractMe(meBlocState);
-              if(me != null)
-                return AnimatedSize(
-                  vsync: this,
-                  duration: Duration(milliseconds: 200),
-                  reverseDuration: Duration(milliseconds: 50),
-                  curve: Curves.decelerate,
-                  child: buildWithDeletionAnimation(context, buildWithInfo(context, mentionBlocState, me))
-                );
-              return Container();
-            },
+        if(mentionBlocState.isReady()) {
+          return AnimatedSize(
+            vsync: this,
+            duration: Duration(milliseconds: 200),
+            reverseDuration: Duration(milliseconds: 50),
+            curve: Curves.decelerate,
+            child: buildWithDeletionAnimation(context, buildWithInfo(context, mentionBlocState))
           );
+        }
         return Container();
       },
     );
@@ -110,7 +104,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
     );
   }
 
-  Widget buildWithInfo(BuildContext context, MentionState mentionContext, User me) {
+  Widget buildWithInfo(BuildContext context, MentionState mentionContext) {
     final isModeratorAuthor =
         this.widget.participant?.userProfile?.id == this.widget.moderator.userProfile.id;
 
@@ -203,7 +197,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
               ),
             )),
 
-            isSuperpowersAvailable(me)
+            isSuperpowersAvailable()
               ? Material(
                   type: MaterialType.circle,
                   color: Colors.transparent,
@@ -246,20 +240,19 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
     );
   }
 
-  bool isMeDiscussionModerator(User me) {
-    return this.widget.discussion?.moderator?.userProfile?.id == me.profile.id;
+  bool isMeDiscussionModerator() {
+    return this.widget.discussion?.moderator?.userProfile?.id == this.widget.discussion?.meParticipant?.userProfile?.id;
   }
 
-  bool isMePostAuthor(User me) {
-    return this.widget.post.participant?.participantID != null
-      && me.participants
-        .where((e) => e.discussion.id == this.widget.discussion.id)
-        .map((e) => e.participantID)
-        .contains(this.widget.post.participant?.participantID);
+  bool isMePostAuthor() {
+    return this.widget.discussion?.meAvailableParticipants
+        ?.where((e) => e.discussion.id == this.widget.discussion.id)
+        ?.map((e) => e.participantID)
+        ?.contains(this.widget.post.participant?.participantID);
   }
 
-  bool isSuperpowersAvailable(User me) {
-    return isMeDiscussionModerator(me) || isMePostAuthor(me);
+  bool isSuperpowersAvailable() {
+    return isMeDiscussionModerator() || isMePostAuthor();
   }
 
   Widget buildProfileImage(BuildContext context, bool isModeratorAuthor, bool isDeleted) {

@@ -1,7 +1,12 @@
 part of 'discussion_list_bloc.dart';
 
 abstract class DiscussionListState extends Equatable {
-  const DiscussionListState();
+  final List<Discussion> discussionList = [];
+  DiscussionListState();
+}
+
+abstract class DiscussionListHasTimestamp extends DiscussionListState {
+  DateTime get timestamp;
 }
 
 class DiscussionListInitial extends DiscussionListState {
@@ -9,15 +14,43 @@ class DiscussionListInitial extends DiscussionListState {
   List<Object> get props => [];
 }
 
-class DiscussionListLoaded extends DiscussionListState {
+class DiscussionListError extends DiscussionListHasTimestamp {
   final List<Discussion> discussionList;
-  final bool isLoading;
+  final error;
+  final DateTime timestamp;
 
-  const DiscussionListLoaded({
+  DiscussionListError({
     @required this.discussionList,
-    @required this.isLoading,
+    @required this.error,
+    @required this.timestamp,
   }) : super();
 
   @override
-  List<Object> get props => [this.discussionList, this.isLoading];
+  List<Object> get props => [this.discussionList, this.error, this.timestamp];
+}
+
+class DiscussionListLoading extends DiscussionListHasTimestamp {
+  final List<Discussion> discussionList;
+  final DateTime timestamp;
+
+  DiscussionListLoading({
+     @required this.discussionList,
+    @required this.timestamp,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.discussionList, this.timestamp];
+}
+
+class DiscussionListLoaded extends DiscussionListHasTimestamp {
+  final List<Discussion> discussionList;
+  final DateTime timestamp;
+
+  DiscussionListLoaded({
+    @required this.discussionList,
+    @required this.timestamp,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.discussionList, this.timestamp];
 }

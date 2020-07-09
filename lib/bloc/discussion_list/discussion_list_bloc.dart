@@ -23,34 +23,25 @@ class DiscussionListBloc
   Stream<DiscussionListState> mapEventToState(
     DiscussionListEvent event,
   ) async* {
-    final currentState = this.state;
-    if (event is DiscussionListFetchEvent &&
-        (!(currentState is DiscussionListLoaded && currentState.isLoading))) {
-      List<Discussion> currentList;
-      if (currentState is DiscussionListLoaded) {
-        currentList = currentState.discussionList;
-      }
-
-      yield DiscussionListLoaded(discussionList: currentList, isLoading: true);
+    var prevList = this.state.discussionList;
+    if(event is DiscussionListFetchEvent && !(this.state is DiscussionListLoading)) {
       try {
+        yield DiscussionListLoading(discussionList: prevList, timestamp: DateTime.now());
+        var newList;
         if (meBloc.state is LoadedMeState) {
           try {
-            currentList = await this.repository.getMyDiscussionList();
+            newList = await this.repository.getMyDiscussionList();
           } catch (err) {
-            currentList = await this.repository.getDiscussionList();
+            newList = await this.repository.getDiscussionList();
           }
         } else {
-          currentList = await this.repository.getDiscussionList();
+          newList = await this.repository.getDiscussionList();
         }
-        yield DiscussionListLoaded(
-            discussionList: currentList, isLoading: false);
-      } catch (err) {
-        if (currentList == null) {
-          yield DiscussionListInitial();
-        } else {
-          yield DiscussionListLoaded(
-              discussionList: currentList, isLoading: false);
-        }
+        yield DiscussionListLoaded(discussionList: newList, timestamp: DateTime.now());
+      }
+      catch (error) {
+        // TODO: Format user-friendly error
+        yield DiscussionListError(discussionList: prevList, error: error,timestamp: DateTime.now());
       }
     }
   }

@@ -37,9 +37,9 @@ class ParticipantImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final anonParticipants =
-        this.participants.where((p) => p.isAnonymous).toList();
+        this.participants.where((p) => p?.isAnonymous ?? true).toList();
     final nonAnonParticipants =
-        this.participants.where((p) => !p.isAnonymous).toList();
+        this.participants.where((p) => !(p?.isAnonymous ?? true)).toList();
     final notShownParticipants = anonParticipants.length +
         max(nonAnonParticipants.length - this.maxNonAnonToShow, 0);
 

@@ -25,6 +25,7 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
     MediaContentType) onSubmit;
   final Function(File, MediaContentType) onMediaTap;
   final VoidCallback onParticipantMentionPressed;
+  final VoidCallback onModeratorButtonPressed;
 
   const DelphisInputMediaPopupWidget({
     Key key,
@@ -37,7 +38,8 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
     @required this.inputFocusNode,
     @required this.onSubmit,
     @required this.onParticipantMentionPressed, 
-    @required this.onMediaTap
+    @required this.onMediaTap,
+    @required this.onModeratorButtonPressed
   }) : super(key: key);
   
   @override
@@ -95,6 +97,7 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
             onGalleryPressed: this.selectGalleryMedia,
             onImageCameraPressed: this.selectCameraImage,
             onVideoCameraPressed: this.selectCameraVideo,
+            onModeratorButtonPressed: this.widget.onModeratorButtonPressed,
             onSubmit: (text) {
               this.widget.onSubmit(text, this.mediaFile, this.mediaType);
 

@@ -20,6 +20,7 @@ class DelphisInputContainer extends StatelessWidget {
   final ScrollController parentScrollController;
   final VoidCallback onJoinPressed;
   final Function(File, MediaContentType) onMediaTap;
+  final VoidCallback onModeratorButtonPressed;
 
   const DelphisInputContainer({
     Key key,
@@ -32,6 +33,7 @@ class DelphisInputContainer extends StatelessWidget {
     @required this.parentScrollController,
     @required this.onJoinPressed,
     @required this.onMediaTap,
+    @required this.onModeratorButtonPressed
   }) : super(key: key);
 
   @override
@@ -76,6 +78,7 @@ class DelphisInputContainer extends StatelessWidget {
         onParticipantSettingsPressed: this.onParticipantSettingsPressed,
         parentScrollController: this.parentScrollController,
         onMediaTap: this.onMediaTap,
+        onModeratorButtonPressed: this.onModeratorButtonPressed
       );
     }
   }

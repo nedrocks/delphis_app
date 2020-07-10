@@ -33,6 +33,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
   final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
   final Function(File, MediaContentType) onMediaTap;
+  final VoidCallback onModeratorButtonPressed;
 
   DelphisInputMentionsPopup({
     @required this.discussion,
@@ -41,6 +42,7 @@ class DelphisInputMentionsPopup extends StatefulWidget {
     @required this.onParticipantSettingsPressed,
     this.parentScrollController,
     @required this.onMediaTap,
+    @required this.onModeratorButtonPressed,
   });
 
   @override
@@ -157,6 +159,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                 inputFocusNode: this.textFocusNode,
                 textController: this.textController,
                 onParticipantMentionPressed: this.startParticipantMention,
+                onModeratorButtonPressed: this.widget.onModeratorButtonPressed,
                 onMediaTap: this.widget.onMediaTap,
                 onSubmit: (text, mediaFile, mediaType) {
                   final isButtonActive = text.isNotEmpty;

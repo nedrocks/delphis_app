@@ -61,7 +61,7 @@ class _MediaInputSnippetWidgetState extends State<MediaInputSnippetWidget> {
                 ),
                 image: DecorationImage(
                   image: imageProvider,
-                  fit: BoxFit.fitWidth
+                  fit: BoxFit.cover
                 )
               ),
               child: Material(

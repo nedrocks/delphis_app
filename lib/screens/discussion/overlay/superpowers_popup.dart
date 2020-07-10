@@ -175,7 +175,7 @@ class SuperpowersPopup extends StatelessWidget {
     List<Widget> list = [];
 
     /* Delete post feature */
-    if(!(arguments.post?.isDeleted ?? false) && (isMeDiscussionModerator() || isMePostAuthor())) { 
+    if(arguments.post != null && !arguments.post.isDeleted && (isMeDiscussionModerator() || isMePostAuthor())) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Delete post"),
@@ -191,7 +191,7 @@ class SuperpowersPopup extends StatelessWidget {
     }
 
     /* Ban participant feature */
-    if(isMeDiscussionModerator() && !isMePostAuthor()) { 
+    if(arguments.participant != null && arguments.post != null && isMeDiscussionModerator() && !isMePostAuthor()) { 
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Kick participant"),
@@ -229,10 +229,10 @@ class SuperpowersPopup extends StatelessWidget {
   }
 
   bool isMePostAuthor() {
-    return this.arguments.discussion?.meAvailableParticipants
+    return this.arguments.post != null && (this.arguments.discussion?.meAvailableParticipants
         ?.where((e) => e.discussion.id == this.arguments.discussion.id)
         ?.map((e) => e.participantID)
-        ?.contains(this.arguments.post.participant?.participantID);
+        ?.contains(this.arguments.post.participant?.participantID) ?? false);
   }
 
 }

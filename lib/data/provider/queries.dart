@@ -41,8 +41,11 @@ const ParticipantInfoFragment = """
     userProfile{
       ...ParticipantUserProfileFragment
     }
-    inviter{
+    inviter {
       ...InviterParticipantInfoFragment
+    }
+    discussion {
+      id
     }
   }
   $InviterParticipantInfoFragment
@@ -94,6 +97,7 @@ const PostInfoFragment = """
     isDeleted
     createdAt
     updatedAt
+    deletedReasonCode
     mentionedEntities {
       id
       ... on Discussion {
@@ -132,6 +136,21 @@ const PostInfoFragment = """
     }
   }
   $QuotedPostInfoFragment
+""";
+
+const DeletedPostInfoFragment = """
+  fragment DeletedPostInfoFragment on Post {
+    id
+    participant {
+      id
+      participantID
+    }
+    isDeleted
+    createdAt
+    updatedAt
+    postType
+    deletedReasonCode
+  }
 """;
 
 const PostsConnectionFragment = """

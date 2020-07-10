@@ -198,6 +198,39 @@ class ParticipantRepository {
 
     return mutation.parseResult(result.data);
   }
+
+  Future<Participant> banParticipant(Discussion discussion, Participant participant,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return banParticipant(discussion, participant, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to benParticipant to discussion because backend connection is severed");
+    }
+
+    final mutation = BanParticipantMutation(
+      discussionID: discussion.id,
+      participantID: participant.id
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussion.id,
+          'participantID': participant.id,
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
 }
 
 @JsonAnnotation.JsonSerializable()

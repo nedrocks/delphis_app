@@ -60,7 +60,15 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
       } else if (cxState == SocketConnectionState.NOT_CONNECTED) {
         this.websocketStateListener.cancel();
         this.websocketStateListener = null;
-        await socketClient.dispose();
+        try {
+          await socketClient.dispose();
+        }
+        catch (error) {
+          /* The socket is in some kind of broken state and an internal field is null.
+             This may be hacky, but the safest solution is to just discard it, wait,
+             and try to reconnect. */
+          await Future.delayed(Duration(seconds: 5));
+        } 
 
         this.add(GqlClientReconnectWebsocketEvent(nonce: DateTime.now()));
       }
@@ -131,6 +139,18 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
           authString: currentState.authString);
     } else if (event is GqlClientReconnectWebsocketEvent &&
         currentState is GqlClientConnectedState) {
+      final socketClient =
+          this.connectWebsocket(currentState.isAuthed, currentState.authString);
+      yield GqlClientConnectingState(
+        client: currentState.client,
+        websocketGQLClient: socketClient,
+        equatableID: DateTime.now().toString(),
+        authString: currentState.authString,
+        isAuthed: currentState.isAuthed,
+      );
+    }
+    else if (event is GqlClientReconnectWebsocketEvent &&
+        currentState is GqlClientConnectingState) {
       final socketClient =
           this.connectWebsocket(currentState.isAuthed, currentState.authString);
       yield GqlClientConnectingState(

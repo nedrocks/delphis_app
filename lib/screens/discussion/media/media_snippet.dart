@@ -40,15 +40,12 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
-      width: MediaQuery.of(context).size.width * 0.75,
-      height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey
-      ),
-      child: FutureBuilder(
+    Widget render;
+    if(imageFile != null && imageProvider != null) {     
+      render = buildSnippet(this.imageFile, this.imageProvider);
+    }
+    else {
+      render = FutureBuilder(
         future: downloadFile(this.widget.post.media?.assetLocation ?? "", this.widget.post.id),
         builder: (context, snapshot) {
           if(snapshot.hasError) {
@@ -76,33 +73,7 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
                       this.imageFile = snapshot.data;
                     });
                   });
-                  return Material(
-                    borderRadius: BorderRadius.circular(12),
-                    clipBehavior: Clip.antiAlias,
-                    child: InkWell(
-                      onTap: () => this.widget.onTap(snapshot.data, this.widget.post.media?.mediaContentType ?? null),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageSnapshot.data,
-                            fit: BoxFit.cover
-                          )
-                        ),
-                        child: (this.widget.post.media?.mediaContentType ?? this.widget.post.localMediaContentType) != MediaContentType.VIDEO
-                          ? Container()
-                          : Center(
-                            child: Container(
-                              padding: EdgeInsets.all(SpacingValues.xxSmall),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withAlpha(200),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.play_arrow, color: Colors.white, size: 25),
-                            ),
-                          ),
-                      )
-                    )
-                  );
+                  return buildSnippet(snapshot.data, imageSnapshot.data);
                 }
 
                 return Center(
@@ -116,7 +87,47 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
             child: CupertinoActivityIndicator(),
           );
         },
+      );
+    }
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
+      width: MediaQuery.of(context).size.width * 0.75,
+      height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.grey
       ),
+      child: render,
+    );
+  }
+
+  Material buildSnippet(File file, ImageProvider image) {
+    return Material(
+      borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => this.widget.onTap(file, this.widget.post.media?.mediaContentType ?? null),
+        child: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: image,
+              fit: BoxFit.cover
+            )
+          ),
+          child: (this.widget.post.media?.mediaContentType ?? this.widget.post.localMediaContentType) != MediaContentType.VIDEO
+            ? Container()
+            : Center(
+              child: Container(
+                padding: EdgeInsets.all(SpacingValues.xxSmall),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withAlpha(200),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.play_arrow, color: Colors.white, size: 25),
+              ),
+            ),
+        )
+      )
     );
   }
 

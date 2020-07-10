@@ -36,6 +36,7 @@ class DelphisInput extends StatefulWidget {
   final VoidCallback onImageCameraPressed;
   final VoidCallback onGalleryPressed;
   final VoidCallback onParticipantMentionPressed;
+  final VoidCallback onModeratorButtonPressed;
 
   DelphisInput({
     @required this.discussion,
@@ -50,6 +51,7 @@ class DelphisInput extends StatefulWidget {
     this.onImageCameraPressed,
     this.onGalleryPressed,
     this.onParticipantMentionPressed,
+    this.onModeratorButtonPressed
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -141,9 +143,7 @@ class DelphisInputState extends State<DelphisInput> {
         width: SpacingValues.small,
       ));
       rowElems.add(ModeratorInputButton(
-        onPressed: () {
-          print('inputButtonPressed');
-        },
+        onPressed: this.widget.onModeratorButtonPressed,
         height: 39.0,
         width: 39.0,
       ));

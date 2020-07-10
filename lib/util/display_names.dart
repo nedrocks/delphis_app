@@ -6,7 +6,9 @@ import 'package:delphis_app/data/repository/participant.dart';
 class DisplayNames {
 
   static String formatParticipant(Moderator moderator, Participant participant) {
-    var name = '${participant.gradientColor} #${participant.participantID}';
+    if(participant == null)
+      return "Unavailable";
+;    var name = '${participant.gradientColor} #${participant.participantID}';
     if (participant.participantID == 0) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
@@ -17,6 +19,8 @@ class DisplayNames {
   }
 
   static String formatParticipantUnique(Moderator moderator, Participant participant) {
+    if(participant == null)
+      return "Unavailable";
     var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
     if (participant.participantID == 0) {
       name = moderator.userProfile.twitterURL.displayText.substring(1);

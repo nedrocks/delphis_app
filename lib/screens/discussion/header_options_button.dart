@@ -1,4 +1,3 @@
-import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/material.dart';
 
 enum HeaderOption { logout }
@@ -22,10 +21,7 @@ class HeaderOptionsButton extends StatelessWidget {
         height: this.diameter,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white,
-            width: 2.0,
-          ),
+          color: Color.fromRGBO(34, 35, 40, 1.0)
         ),
         alignment: Alignment.center,
         child: Icon(

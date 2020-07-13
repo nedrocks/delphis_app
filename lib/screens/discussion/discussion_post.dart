@@ -307,7 +307,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
     );
 
     var inviterParticipant = this.widget.discussion.participants.firstWhere((p) => p.id == this.widget.participant?.inviter?.id, orElse: () => null);
-    if(this.widget.participant.isAnonymous && inviterParticipant != null) {
+    if((this.widget.participant?.isAnonymous ?? false) && inviterParticipant != null) {
       var imageUrl = inviterParticipant?.userProfile?.profileImageURL;
 
       if(inviterParticipant?.id == this.widget.participant?.id || imageUrl == null) {

@@ -129,43 +129,44 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
                 shrinkWrap: true,
                 children: [
-                  ParticipantAnonymitySettingOption(
-                    height: 40.0,
-                    user: this.widget.me,
-                    anonymousGradient: this._selectedGradient,
-                    showAnonymous: false,
-                    participant: this.widget.meParticipant,
-                    isSelected: this._selectedIdx == 0,
-                    onSelected: () {
-                      setState(() {
-                        this._selectedIdx = 0;
-                      });
-                    },
-                    onEdit: () {
-                      this.setState(() {
-                        this._settingsState = _SettingsState.FLAIR_SELECT;
-                      });
-                    },
-                    showEditButton: this.widget.me.flairs != null &&
-                        this.widget.me.flairs.length > 0,
-                  ),
-                  ParticipantAnonymitySettingOption(
-                      height: 40.0,
-                      user: this.widget.me,
-                      anonymousGradient: this._selectedGradient,
-                      showAnonymous: true,
-                      participant: this.widget.meParticipant,
-                      isSelected: this._selectedIdx == 1,
-                      onSelected: () {
-                        setState(() {
-                          this._selectedIdx = 1;
-                        });
-                      },
-                      onEdit: () {
-                        this.setState(() {
-                          this._settingsState = _SettingsState.GRADIENT_SELECT;
-                        });
-                      }),
+                  this.widget.meParticipant.isAnonymous
+                    ? ParticipantAnonymitySettingOption(
+                        height: 40.0,
+                        user: this.widget.me,
+                        anonymousGradient: this._selectedGradient,
+                        showAnonymous: false,
+                        participant: this.widget.meParticipant,
+                        isSelected: this._selectedIdx == 0,
+                        onSelected: () {
+                          setState(() {
+                            this._selectedIdx = 0;
+                          });
+                        },
+                        onEdit: () {
+                          this.setState(() {
+                            this._settingsState = _SettingsState.FLAIR_SELECT;
+                          });
+                        },
+                        showEditButton: this.widget.me.flairs != null &&
+                            this.widget.me.flairs.length > 0,
+                      )
+                    : ParticipantAnonymitySettingOption(
+                        height: 40.0,
+                        user: this.widget.me,
+                        anonymousGradient: this._selectedGradient,
+                        showAnonymous: true,
+                        participant: this.widget.meParticipant,
+                        isSelected: this._selectedIdx == 1,
+                        onSelected: () {
+                          setState(() {
+                            this._selectedIdx = 1;
+                          });
+                        },
+                        onEdit: () {
+                          this.setState(() {
+                            this._settingsState = _SettingsState.GRADIENT_SELECT;
+                          });
+                        }),
                 ]),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             Padding(

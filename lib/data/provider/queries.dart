@@ -8,21 +8,7 @@ import '../repository/user.dart';
 const InviterParticipantInfoFragment = """
   fragment InviterParticipantInfoFragment on Participant {
     id
-    participantID
-    isAnonymous
-    gradientColor
-    flair {
-      id
-      displayName
-      imageURL
-      source
-    }
-    hasJoined
-    userProfile{
-      ...ParticipantUserProfileFragment
-    }
   }
-  $ParticipantUserProfileFragment
 """;
 
 const ParticipantInfoFragment = """
@@ -48,6 +34,7 @@ const ParticipantInfoFragment = """
       id
     }
   }
+  $ParticipantUserProfileFragment
   $InviterParticipantInfoFragment
 """;
 

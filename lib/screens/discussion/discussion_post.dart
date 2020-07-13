@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -10,7 +9,6 @@ import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
-import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
@@ -21,6 +19,7 @@ import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image_and_inviter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -275,7 +274,8 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         )
       );
     }
-    return Container(
+
+    var profileImage = Container(
       key: this.widget.key == null
         ? null
         : Key('${this.widget.key.toString()}-profile-image-container'),
@@ -305,6 +305,24 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
             isAnonymous: this.widget.participant?.isAnonymous ?? false,
           ),
     );
+
+    var inviterParticipant = this.widget.discussion.participants.firstWhere((p) => p.id == this.widget.participant?.inviter?.id, orElse: () => null);
+    if(this.widget.participant.isAnonymous && inviterParticipant != null) {
+      var imageUrl = inviterParticipant?.userProfile?.profileImageURL;
+
+      if(inviterParticipant?.id == this.widget.participant?.id || imageUrl == null) {
+        imageUrl = this.widget.discussion?.moderator?.userProfile?.profileImageURL;
+      }
+
+      return ProfileImageAndInviter(
+        size: 20,
+        child: profileImage,
+        inviterImageURL: imageUrl,
+        gradient: ChathamColors.gradients[gradientNameFromString(inviterParticipant?.gradientColor)]
+      );
+    }
+
+    return profileImage;
   }
 
   String formatDeleteReason(PostDeletedReason code) {

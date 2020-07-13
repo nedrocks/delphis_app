@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -5,11 +6,13 @@ import 'package:delphis_app/widgets/anon_profile_image/anon_profile_image.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image_and_inviter.dart';
 import 'package:flutter/material.dart';
 
 class ProfileImageWithGradient extends StatelessWidget {
   final User me;
   final Participant participant;
+  final Discussion discussion;
   final bool isModerator;
   final bool anonymousOverride;
   final double width;
@@ -20,6 +23,7 @@ class ProfileImageWithGradient extends StatelessWidget {
 
   const ProfileImageWithGradient({
     @required this.participant,
+    @required this.discussion,
     @required this.width,
     @required this.height,
     this.anonymousOverride,
@@ -62,8 +66,9 @@ class ProfileImageWithGradient extends StatelessWidget {
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(borderRadius);
     // This stinks but currently argument explosion doesn't exist.
+    var toRender;
     if (this.isPressable) {
-      return Pressable(
+      toRender =  Pressable(
         onPressed: this.onPressed,
         width: this.width,
         height: this.height,
@@ -80,24 +85,44 @@ class ProfileImageWithGradient extends StatelessWidget {
         child: profileImage,
       );
     }
-    return Container(
-      width: this.width,
-      height: this.height,
-      decoration: BoxDecoration(
-        gradient: gradient,
-        shape: this.isModerator ? BoxShape.circle : BoxShape.rectangle,
-        border: this.isModerator
-            ? null
-            : Border.all(
-                color: Colors.transparent,
-                width: 1.5,
-              ),
-        borderRadius: this.isModerator
-            ? null
-            : BorderRadius.all(Radius.circular(borderRadius)),
-      ),
-      child: profileImage,
-    );
+    else {
+      toRender =  Container(
+        width: this.width,
+        height: this.height,
+        decoration: BoxDecoration(
+          gradient: gradient,
+          shape: this.isModerator ? BoxShape.circle : BoxShape.rectangle,
+          border: this.isModerator
+              ? null
+              : Border.all(
+                  color: Colors.transparent,
+                  width: 1.5,
+                ),
+          borderRadius: this.isModerator
+              ? null
+              : BorderRadius.all(Radius.circular(borderRadius)),
+        ),
+        child: profileImage,
+      );
+    }
+
+    var inviterParticipant = this.discussion.participants.firstWhere((p) => p.id == this.participant?.inviter?.id, orElse: () => null);
+    if(!this.isModerator && this.showAnonymous && inviterParticipant != null) {
+      var imageUrl = inviterParticipant?.userProfile?.profileImageURL;
+
+      if(inviterParticipant?.id == this.participant?.id || imageUrl == null) {
+        imageUrl = this.discussion?.moderator?.userProfile?.profileImageURL;
+      }
+
+      return ProfileImageAndInviter(
+        size: 24,
+        child: toRender,
+        inviterImageURL: imageUrl,
+        gradient: ChathamColors.gradients[gradientNameFromString(inviterParticipant?.gradientColor)]
+      );
+    }
+
+    return toRender;
   }
 
   Widget _getProfileImage(double borderRadius) {

@@ -279,12 +279,12 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
       key: this.widget.key == null
         ? null
         : Key('${this.widget.key.toString()}-profile-image-container'),
-      width: 36.0,
-      height: 36.0,
+      width: isModeratorAuthor ? 38 : 36,
+      height: isModeratorAuthor ? 38 : 36,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: isModeratorAuthor
-          ? ChathamColors.gradients[moderatorGradientName]
+          ? null
           : (!(this.widget.participant?.isAnonymous ?? false)
             ? LinearGradient(colors: [
                 Colors.white,
@@ -297,8 +297,9 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
       ),
       child: isModeratorAuthor
         ? ModeratorProfileImage(
-            diameter: 36.0,
-            outerBorderWidth: 0.0,
+            starTopLeftMargin: 24.5,
+            starSize: 12,
+            diameter: 36,
             profileImageURL: this.widget.moderator.userProfile.profileImageURL)
         : ProfileImage(
             profileImageURL: this.widget.participant?.userProfile?.profileImageURL,

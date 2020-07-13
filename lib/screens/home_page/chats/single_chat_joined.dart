@@ -77,6 +77,8 @@ class SingleChatJoined extends StatelessWidget {
               ),
               SizedBox(width: SpacingValues.small),
               ModeratorProfileImage(
+                starTopLeftMargin: 21.5,
+                starSize: 12,
                 diameter: 32.0,
                 profileImageURL:
                     this.discussion.moderator.userProfile.profileImageURL,

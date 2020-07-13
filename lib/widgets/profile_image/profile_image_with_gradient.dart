@@ -61,14 +61,15 @@ class ProfileImageWithGradient extends StatelessWidget {
     }
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(borderRadius);
+    final moderatorMargin = 3.0;
     // This stinks but currently argument explosion doesn't exist.
     if (this.isPressable) {
       return Pressable(
         onPressed: this.onPressed,
-        width: this.width,
-        height: this.height,
+        width: isModerator ? this.width + moderatorMargin : this.width,
+        height: isModerator ? this.height + moderatorMargin : this.height,
         decoration: BoxDecoration(
-          gradient: gradient,
+          gradient: isModerator ? null : gradient,
           shape: BoxShape.circle,
           border: this.isModerator
               ? null
@@ -81,10 +82,10 @@ class ProfileImageWithGradient extends StatelessWidget {
       );
     }
     return Container(
-      width: this.width,
-      height: this.height,
+      width: isModerator ? this.width + moderatorMargin : this.width,
+      height: isModerator ? this.height + moderatorMargin : this.height,
       decoration: BoxDecoration(
-        gradient: gradient,
+        gradient: isModerator ? null : gradient,
         shape: this.isModerator ? BoxShape.circle : BoxShape.rectangle,
         border: this.isModerator
             ? null
@@ -104,9 +105,11 @@ class ProfileImageWithGradient extends StatelessWidget {
     if (this.isModerator) {
       // Me is the moderator
       return ModeratorProfileImage(
+        starTopLeftMargin: this.width * 0.67,
+        starSize: this.width * 0.35,
         diameter: this.width,
         profileImageURL: this.me.profile.profileImageURL,
-        outerBorderWidth: 1.0,
+        showAnonymous: this.showAnonymous,
       );
     }
     // Is anonymous

@@ -125,6 +125,58 @@ const PostInfoFragment = """
   $QuotedPostInfoFragment
 """;
 
+const PostWithParticipantInfoFragment = """
+  fragment PostWithParticipantInfoFragment on Post {
+    id
+    content
+    participant {
+      ...ParticipantInfoFragment
+    }
+    isDeleted
+    createdAt
+    updatedAt
+    deletedReasonCode
+    mentionedEntities {
+      id
+      ... on Discussion {
+        title
+        anonymityType
+      }
+      ... on Participant {
+        isAnonymous
+        participantID
+      }
+    }
+    quotedPost{
+      ...QuotedPostInfoFragment
+    }
+    postType
+    conciergeContent{
+      appActionID
+      mutationID
+      options{
+        text
+        value
+        selected
+      }
+    }
+    media {
+      id
+      createdAt
+      isDeleted
+      mediaType
+      mediaSize {
+        height
+        width
+        sizeKb
+      }
+      assetLocation
+    }
+  }
+  $ParticipantInfoFragment
+  $QuotedPostInfoFragment
+""";
+
 const DeletedPostInfoFragment = """
   fragment DeletedPostInfoFragment on Post {
     id

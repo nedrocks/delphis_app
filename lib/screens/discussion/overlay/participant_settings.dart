@@ -206,7 +206,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
               ),
             ],
             border:
-                Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
+                Border.all(color: Color.fromRGBO(22, 25, 28, 1.0), width: 1.5),
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(36.0),
                 topRight: Radius.circular(36.0)),

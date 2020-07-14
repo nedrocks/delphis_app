@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/media/media_preview.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
@@ -163,6 +165,20 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               .add(SubscribeToDiscussionEvent(this.widget.discussionID, true));
         }
         final discussionObj = state.getDiscussion();
+        
+        /* In some old discussions the moderator was able to go in incognito mode.
+           if this happens, then we re-force to non-incognito mode. By using BLoCs,
+           the UI is rebuilt automatically. */
+        if((discussionObj?.meParticipant?.isAnonymous ?? false) && (discussionObj?.isMeDiscussionModerator() ?? false)) {
+          BlocProvider.of<ParticipantBloc>(context).add(ParticipantEventUpdateParticipant(
+            participantID: discussionObj.meParticipant.id,
+            isAnonymous: false,
+            gradientName: gradientNameFromString(discussionObj.meParticipant.gradientColor),
+            flair: discussionObj.meParticipant.flair,
+            isUnsetFlairID:  discussionObj.meParticipant.flair == null,
+          ));
+        }
+
         final expandedConversationView = Expanded(
           child: DiscussionContent(
             key: Key('${this._key}-content'),

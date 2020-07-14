@@ -240,7 +240,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
   }
 
   bool isMeDiscussionModerator() {
-    return this.widget.discussion?.moderator?.userProfile?.id == this.widget.discussion?.meParticipant?.userProfile?.id;
+    return this.widget.discussion?.isMeDiscussionModerator() ?? false;
   }
 
   bool isMePostAuthor() {

@@ -515,4 +515,11 @@ class Discussion extends Equatable implements Entity {
     }
     return participant;
   }
+
+  bool isMeDiscussionModerator() {
+    return this.meAvailableParticipants
+        ?.map((e) => e?.userProfile?.id)
+        ?.contains(this.moderator?.userProfile?.id) ?? false;
+  }
+
 }

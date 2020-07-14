@@ -91,7 +91,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           );
         }
 
-        final actionButton = RaisedButton(
+        Widget actionButton = RaisedButton(
           padding: EdgeInsets.symmetric(
               horizontal: SpacingValues.xxLarge,
               vertical: SpacingValues.medium),
@@ -107,73 +107,21 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             }
           },
         );
+
         child = Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text(
-              this.widget.settingsFlow ==
-                      SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
-                  ? Intl.message('Go Incognito?')
-                  : Intl.message('How would you like to join?'),
-              style: TextThemes.goIncognitoHeader,
-              textAlign: TextAlign.center,
-            ),
+            buildTitle(),
             SizedBox(height: SpacingValues.extraSmall),
-            Text(Intl.message('Pick how you want your avatar to display.'),
-                style: TextThemes.goIncognitoSubheader,
-                textAlign: TextAlign.center),
+            buildSubTitle(),
             SizedBox(height: SpacingValues.mediumLarge),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             ListView(
-                padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
-                shrinkWrap: true,
-                children: [
-                  this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
-                    ? ParticipantAnonymitySettingOption(
-                        height: 40.0,
-                        user: this.widget.me,
-                        anonymousGradient: this._selectedGradient,
-                        showAnonymous: false,
-                        participant: this.widget.meParticipant,
-                        discussion: this.widget.discussion,
-                        isSelected: this._selectedIdx == 0,
-                        onSelected: () {
-                          setState(() {
-                            this._selectedIdx = 0;
-                          });
-                        },
-                        onEdit: () {
-                          this.setState(() {
-                            this._settingsState = _SettingsState.FLAIR_SELECT;
-                          });
-                        },
-                        showEditButton: this.widget.me.flairs != null &&
-                            this.widget.me.flairs.length > 0,
-                      ) : Container(),
-                    !this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
-                    ? ParticipantAnonymitySettingOption(
-                        height: 40.0,
-                        user: this.widget.me,
-                        anonymousGradient: this._selectedGradient,
-                        showAnonymous: true,
-                        participant: this.widget.meParticipant,
-                        discussion: this.widget.discussion,
-                        isSelected: this._selectedIdx == 1,
-                        onSelected: () {
-                          setState(() {
-                            this._selectedIdx = 1;
-                          });
-                        },
-                        onEdit: () {
-                          this.setState(() {
-                            this._settingsState = _SettingsState.FLAIR_SELECT;
-                          });
-                        },
-                        showEditButton: this.widget.me.flairs != null &&
-                            this.widget.me.flairs.length > 0
-                      ) : Container(),
-                ]),
+              padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
+              shrinkWrap: true,
+              children: buildSettingsList()
+            ),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
@@ -278,7 +226,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           orElse: () => null),
       isUnsetFlairID: this._selectedFlairID == null,
     ));
-    this.widget.onClose(true);
+    this.widget.onClose((this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous);
   }
 
   void joinDiscussion() async {
@@ -307,4 +255,92 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     }
     this.widget.onClose(true);
   }
+
+  List<Widget> buildSettingsList() {
+    List<Widget> list = [];
+    if(this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT || this.widget.discussion.isMeDiscussionModerator()) {
+      list.add(ParticipantAnonymitySettingOption(
+        height: 40.0,
+        user: this.widget.me,
+        anonymousGradient: this._selectedGradient,
+        showAnonymous: false,
+        participant: this.widget.meParticipant,
+        discussion: this.widget.discussion,
+        isSelected: this._selectedIdx == 0,
+        onSelected: () {
+          setState(() {
+            this._selectedIdx = 0;
+          });
+        },
+        onEdit: () {
+          this.setState(() {
+            this._settingsState = _SettingsState.FLAIR_SELECT;
+          });
+        },
+        showEditButton: this.widget.me.flairs != null && this.widget.me.flairs.length > 0,
+      ));
+    }
+    
+    if((!this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) && !this.widget.discussion.isMeDiscussionModerator()) {
+      var onEdit = () {
+        this.setState(() {
+          this._settingsState = _SettingsState.FLAIR_SELECT;
+        });
+      };
+      if(this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+        onEdit = () {
+            this.setState(() {
+            this._settingsState = _SettingsState.GRADIENT_SELECT;
+          });
+        };
+      }
+      list.add(ParticipantAnonymitySettingOption(
+        height: 40.0,
+        user: this.widget.me,
+        anonymousGradient: this._selectedGradient,
+        showAnonymous: true,
+        participant: this.widget.meParticipant,
+        discussion: this.widget.discussion,
+        isSelected: this._selectedIdx == 1,
+        onSelected: () {
+          setState(() {
+            this._selectedIdx = 1;
+          });
+        },
+        onEdit: onEdit,
+        showEditButton: this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
+            || (this.widget.me.flairs != null && this.widget.me.flairs.length > 0),
+      ));
+    }
+
+    return list;
+  }
+
+  Widget buildTitle() {
+    if(this.widget.discussion.isMeDiscussionModerator()) {
+      return Text(
+        this.widget.settingsFlow == SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
+          ? Intl.message('Settings')
+          : Intl.message('How would you like to join?'),
+        style: TextThemes.goIncognitoHeader,
+        textAlign: TextAlign.center,
+      );
+    }
+    return Text(
+      this.widget.settingsFlow == SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
+        ? Intl.message('Go Incognito?')
+        : Intl.message('How would you like to join?'),
+      style: TextThemes.goIncognitoHeader,
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget buildSubTitle() {
+    return Text(
+      Intl.message('Pick how you want your avatar to display.'),
+      style: TextThemes.goIncognitoSubheader,
+      textAlign: TextAlign.center
+    );
+  }
+
 }

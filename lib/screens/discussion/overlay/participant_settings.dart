@@ -166,9 +166,12 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                         },
                         onEdit: () {
                           this.setState(() {
-                            this._settingsState = _SettingsState.GRADIENT_SELECT;
+                            this._settingsState = _SettingsState.FLAIR_SELECT;
                           });
-                        }),
+                        },
+                        showEditButton: this.widget.me.flairs != null &&
+                            this.widget.me.flairs.length > 0
+                      ),
                 ]),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             Padding(

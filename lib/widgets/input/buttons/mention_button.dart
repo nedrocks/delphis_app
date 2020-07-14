@@ -3,6 +3,7 @@
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class MentionButton extends StatelessWidget {
   final bool isActive;
@@ -21,6 +22,10 @@ class MentionButton extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    Widget icon = Icon(Icons.alternate_email, size: this.width / 1.5, color: Color.fromRGBO(11, 12, 16, 1.0));
+    if(isDiscussion) {
+      icon = SvgPicture.asset('assets/svg/discussion_tag.svg', color: Color.fromRGBO(11, 12, 16, 1.0));
+    }
     Widget render = Pressable(
       onPressed: () {
         if(this.isActive && onPressed != null)
@@ -35,7 +40,7 @@ class MentionButton extends StatelessWidget {
           color: this.isActive
               ? Color.fromRGBO(246, 246, 246, 1.0)
               : Color.fromRGBO(246, 246, 246, 0.4)),
-          child: Icon(this.isDiscussion ? Icons.email : Icons.alternate_email, size: this.width / 1.5, color: Color.fromRGBO(11, 12, 16, 1.0)),
+          child: icon,
     );
 
     return render;

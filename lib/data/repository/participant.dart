@@ -245,6 +245,7 @@ class Participant extends Equatable implements Entity {
   final Flair flair;
   final bool hasJoined;
   final UserProfile userProfile;
+  final Participant inviter;
 
   List<Object> get props =>
       [participantID, discussion, viewer, posts, flair, hasJoined];
@@ -260,6 +261,7 @@ class Participant extends Equatable implements Entity {
     this.flair,
     this.hasJoined,
     this.userProfile,
+    this.inviter,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) =>

@@ -29,6 +29,9 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
     userProfile: json['userProfile'] == null
         ? null
         : UserProfile.fromJson(json['userProfile'] as Map<String, dynamic>),
+    inviter: json['inviter'] == null
+        ? null
+        : Participant.fromJson(json['inviter'] as Map<String, dynamic>),
   );
 }
 
@@ -44,4 +47,5 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
       'flair': instance.flair,
       'hasJoined': instance.hasJoined,
       'userProfile': instance.userProfile,
+      'inviter': instance.inviter,
     };

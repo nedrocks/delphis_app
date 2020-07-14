@@ -135,6 +135,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                     anonymousGradient: this._selectedGradient,
                     showAnonymous: false,
                     participant: this.widget.meParticipant,
+                    discussion: this.widget.discussion,
                     isSelected: this._selectedIdx == 0,
                     onSelected: () {
                       setState(() {
@@ -155,6 +156,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                       anonymousGradient: this._selectedGradient,
                       showAnonymous: true,
                       participant: this.widget.meParticipant,
+                      discussion: this.widget.discussion,
                       isSelected: this._selectedIdx == 1,
                       onSelected: () {
                         setState(() {

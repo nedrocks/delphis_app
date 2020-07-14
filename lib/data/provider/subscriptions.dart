@@ -13,10 +13,10 @@ class PostAddedSubscription extends GQLSubscription<Post> {
   final String _subscription = """
     subscription postAdded(\$discussionID: String!) {
       postAdded(discussionID: \$discussionID) {
-        ...PostInfoFragment
+        ...PostWithParticipantInfoFragment
       }
     }
-    $PostInfoFragment
+    $PostWithParticipantInfoFragment
   """;
 
   const PostAddedSubscription(this.discussionID) : super();

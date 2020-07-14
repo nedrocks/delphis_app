@@ -130,6 +130,7 @@ class DelphisInputState extends State<DelphisInput> {
         me: me,
         isModerator: isModerator,
         participant: this.widget.participant,
+        discussion: this.widget.discussion,
         width: 39.0,
         height: 39.0,
       ),

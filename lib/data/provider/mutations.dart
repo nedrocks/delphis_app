@@ -16,7 +16,6 @@ abstract class GQLMutation<T> {
   const GQLMutation();
 }
 
-// TODO: Use fragments.
 class AddPostGQLMutation extends GQLMutation<Post> {
   final String discussionID;
   final String participantID;
@@ -93,19 +92,10 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
   final String _mutation = """
     mutation AddDiscussionParticipant(\$discussionID: String!, \$userID: String!, \$discussionParticipantInput: AddDiscussionParticipantInput!) {
       addDiscussionParticipant(discussionID: \$discussionID, userID: \$userID, discussionParticipantInput: \$discussionParticipantInput) {
-        id
-        participantID
-        isAnonymous
-        gradientColor
-        flair {
-          id
-          displayName
-          imageURL
-          source
-        }
-        hasJoined
+        ...ParticipantInfoFragment
       }
     }
+    $ParticipantInfoFragment
   """;
 
   Map<String, dynamic> createInputObject() {
@@ -234,19 +224,10 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
   final String _mutation = """
     mutation UpdateParticipant(\$discussionID: ID!, \$participantID: ID!, \$updateInput: UpdateParticipantInput!) {
       updateParticipant(discussionID: \$discussionID, participantID: \$participantID, updateInput: \$updateInput) {
-        id
-        participantID
-        isAnonymous
-        gradientColor
-        flair {
-          id
-          displayName
-          imageURL
-          source
-        }
-        hasJoined
+        ...ParticipantInfoFragment
       }
     }
+    $ParticipantInfoFragment
   """;
 
   const UpdateParticipantGQLMutation({

@@ -64,7 +64,7 @@ class DiscussionContent extends StatelessWidget {
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
     @required this.onModeratorOverlayClose,
-    @required this.superpowersArguments
+    @required this.superpowersArguments,
   }) : super(key: key);
 
   @override

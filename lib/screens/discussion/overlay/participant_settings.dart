@@ -328,7 +328,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     }
     return Text(
       this.widget.settingsFlow == SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
-        ? Intl.message('Go Incognito?')
+        ? (this.widget.meParticipant.isAnonymous ? Intl.message("Go Public?") : Intl.message('Go Incognito?'))
         : Intl.message('How would you like to join?'),
       style: TextThemes.goIncognitoHeader,
       textAlign: TextAlign.center,

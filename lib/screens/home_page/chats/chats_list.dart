@@ -100,12 +100,13 @@ class ChatsList extends StatelessWidget {
                 if(index == 0)
                   return errorWidget;
                 index--;
-                final discussionElem = state.discussionList[index];
+                var discussionElem = state.discussionList[index];
                 return BlocBuilder<DiscussionBloc, DiscussionState>(
                   builder: (context, discussionState) {
                     if(discussionState is DiscussionLoadedState && discussionState.getDiscussion() != null) {
                       if(discussionState.getDiscussion().id == discussionElem.id) {
-                        state.discussionList.replaceRange(index, index + 1, [discussionState.getDiscussion()]);
+                        state.discussionList[index] = discussionState.getDiscussion();
+                        discussionElem = state.discussionList[index];
                       }
                     }
                     return SingleChat(

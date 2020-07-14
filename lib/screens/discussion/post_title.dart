@@ -1,6 +1,7 @@
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/util/display_names.dart';
@@ -29,7 +30,8 @@ class PostTitle extends StatelessWidget {
         this.key == null ? null : Key('${this.key.toString}-displayName');
 
     var name = Text(DisplayNames.formatParticipant(moderator, participant),
-        style: TextThemes.discussionPostAuthorAnon,
+        style: TextThemes.discussionPostAuthorAnon.copyWith(color: ChathamColors.gradients[gradientNameFromString(
+                this.participant?.gradientColor)].colors[1]),
         key: textKey);
     if (participant.participantID == 0) {
       // This is the moderator

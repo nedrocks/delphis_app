@@ -225,7 +225,7 @@ class SuperpowersPopup extends StatelessWidget {
   }
 
   bool isMeDiscussionModerator() {
-    return this.arguments.discussion?.moderator?.userProfile?.id == this.arguments.discussion?.meParticipant?.userProfile?.id;
+    return this.arguments?.discussion?.isMeDiscussionModerator() ?? false;
   }
 
   bool isMePostAuthor() {

@@ -51,7 +51,7 @@ class SingleChatUnjoined extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               ModeratorProfileImage(
-                                  starTopLeftMargin: 14.9,
+                                  starTopLeftMargin: 12.5,
                                   starSize: 12,
                                   diameter: 22.0,
                                   profileImageURL: this

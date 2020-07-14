@@ -2,7 +2,6 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
-import 'package:delphis_app/util/display_names.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -414,6 +413,8 @@ class Discussion extends Equatable implements Entity {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
+
+  @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
 
   @override

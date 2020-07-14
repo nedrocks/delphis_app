@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -10,6 +11,7 @@ import 'package:intl/intl.dart';
 
 class ParticipantAnonymitySettingOption extends StatelessWidget {
   final Participant participant;
+  final Discussion discussion;
   final User user;
   final bool showAnonymous;
   final GradientName anonymousGradient;
@@ -21,6 +23,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
 
   const ParticipantAnonymitySettingOption({
     @required this.participant,
+    @required this.discussion,
     @required this.user,
     @required this.showAnonymous,
     @required this.anonymousGradient,
@@ -52,6 +55,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
         SizedBox(width: SpacingValues.small),
         ProfileImageWithGradient(
           participant: this.participant,
+          discussion: this.discussion,
           width: this.height,
           height: this.height,
           anonymousOverride: this.showAnonymous,

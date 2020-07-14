@@ -32,7 +32,10 @@ class Post extends Equatable {
   final ConciergeContent conciergeContent;
   final Media media;
   final bool isLocalPost;
+
+  @JsonKey(ignore: true)
   final File localMediaFile;
+  @JsonKey(ignore: true)
   final MediaContentType localMediaContentType;
 
   List<Object> get props => [

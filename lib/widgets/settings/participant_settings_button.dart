@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image_with_gradient.dart';
@@ -10,6 +11,7 @@ class ParticipantSettingsButton extends StatelessWidget {
   final User me;
   final bool isModerator;
   final Participant participant;
+  final Discussion discussion;
 
   const ParticipantSettingsButton({
     @required this.onPressed,
@@ -18,12 +20,14 @@ class ParticipantSettingsButton extends StatelessWidget {
     @required this.me,
     @required this.isModerator,
     @required this.participant,
+    @required this.discussion,
   }) : super();
 
   @override
   Widget build(BuildContext context) {
     return ProfileImageWithGradient(
       participant: this.participant,
+      discussion: this.discussion,
       isModerator: this.isModerator,
       width: this.width,
       height: this.height,

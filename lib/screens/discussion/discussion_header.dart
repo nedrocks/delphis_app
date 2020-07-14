@@ -108,6 +108,9 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
                 ),
                 SizedBox(width: SpacingValues.small),
                 ModeratorProfileImage(
+                  starTopLeftMargin: 16.5,
+                  starSize: 10,
+                  outerBorderWidth: 1.0,
                   diameter: HeightValues.appBarItemsHeight,
                   profileImageURL: this
                       .widget

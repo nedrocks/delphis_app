@@ -57,7 +57,7 @@ class AnimatedDiscussionPopupState extends State<AnimatedDiscussionPopup>
         }
       });
 
-    this.offset = Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset.zero)
+    this.offset = Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset.zero).chain(CurveTween(curve: Curves.ease))
         .animate(controller);
     this.controller.forward();
   }

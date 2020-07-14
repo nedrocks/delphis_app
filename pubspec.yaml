@@ -125,6 +125,7 @@ flutter:
     - assets/svg/twitter_logo_blue.svg
     - assets/svg/twitter_logo_white.svg
     - assets/svg/twitter_logo.svg
+    - assets/svg/discussion_tag.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

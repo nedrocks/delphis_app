@@ -18,7 +18,7 @@ class ModeratorStar extends StatelessWidget {
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.contain,
-          image: AssetImage('assets/images/star_white_border/image.png'),
+          image: AssetImage('assets/images/star_black_border/image.png'),
         ),
       ),
     );

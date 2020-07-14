@@ -24,8 +24,9 @@ class ParticipantMentionHintWidget extends StatelessWidget {
     
     if(isModeratorAuthor ) {
       profileImage = ModeratorProfileImage(
+        starTopLeftMargin: 21,
+        starSize: 12,
         diameter: 32.0,
-        outerBorderWidth: 0.0,
         profileImageURL: this.moderator.userProfile.profileImageURL);
     }
     else {

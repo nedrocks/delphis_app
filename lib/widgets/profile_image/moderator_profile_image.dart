@@ -1,4 +1,3 @@
-import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/widgets/moderator_star/moderator_star.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
@@ -12,74 +11,77 @@ final Color innerGradientEnd = Color.fromRGBO(123, 80, 194, 1.0);
 // The outer border has a variable width, followed by a 1.5px black
 // spacer and then the profile image with a 1.5px gradient border.
 class ModeratorProfileImage extends StatelessWidget {
-  static const SCALE_FACTOR = 1.0;
-  static const SPACER_SIZE = 1.5;
-
   final String profileImageURL;
   // Note that the diameter is for the whole widget but
   // the image itself will be (diameter - 2px - borderWidth);
   final double diameter;
   final double outerBorderWidth;
+  final double starSize;
+  final double starTopLeftMargin;
+  final bool showAnonymous;
 
   const ModeratorProfileImage({
     @required this.profileImageURL,
     @required this.diameter,
     this.outerBorderWidth = 1.5,
+    @required this.starSize,
+    @required this.starTopLeftMargin,
+    this.showAnonymous = false
   });
 
   @override
   Widget build(BuildContext context) {
-    final starDimension = this.diameter * SCALE_FACTOR / 2.5;
+    final starDimension = this.starSize;
     return Container(
-      height: this.diameter * SCALE_FACTOR,
-      width: this.diameter,
+      width: starTopLeftMargin + starDimension,
+      height: starTopLeftMargin + starDimension,
       child: Stack(
-        alignment: Alignment.bottomRight,
         children: <Widget>[
-          Container(
-            alignment: Alignment.topLeft,
-            width: this.diameter,
-            height: this.diameter,
-            // Outer border child
+          Positioned(
+            top: 0,
+            left: 0,
             child: Container(
-              width: this.diameter * SCALE_FACTOR,
-              height: this.diameter * SCALE_FACTOR,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(this.diameter / 2.0),
-                gradient: ChathamColors.gradients[GradientName.MOD_PURPLE],
-              ),
-              padding: EdgeInsets.all(this.outerBorderWidth),
-              // Spacer child
-              child: Container(
-                padding: EdgeInsets.all(SPACER_SIZE),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(this.diameter / 2.0),
-                  color: Colors.black,
+                width: this.diameter,
+                height: this.diameter,
+                // Outer border
+                child: Container(
+                  width: this.diameter,
+                  height: this.diameter,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        outerGradientStart,
+                        outerGradientEnd
+                      ]
+                    ),
+                  ),
+                  padding: EdgeInsets.all(this.outerBorderWidth),
+                  // Profile image with inner gradient
+                  child: ProfileImage(
+                    width: this.diameter - this.outerBorderWidth,
+                    height: this.diameter - this.outerBorderWidth,
+                    profileImageURL: this.profileImageURL,
+                    isAnonymous: showAnonymous,
+                    gradient: LinearGradient(
+                      colors: [
+                        innerGradientStart,
+                        innerGradientEnd
+                      ]
+                    ),
+                    gradientWidth: 0.5,
+                  ),
                 ),
-                child: ProfileImage(
-                  width: this.diameter * SCALE_FACTOR -
-                      this.outerBorderWidth -
-                      SPACER_SIZE,
-                  height: this.diameter * SCALE_FACTOR -
-                      this.outerBorderWidth -
-                      SPACER_SIZE,
-                  profileImageURL: this.profileImageURL,
-                  gradient: ChathamColors.gradients[GradientName.MOD_PURPLE],
-                  gradientWidth: 1.5,
-                ),
               ),
-            ),
           ),
-          Container(
-            height: starDimension + 10,
-            width: starDimension + 10,
-            alignment: Alignment(0.75, 0.75),
-            color: Colors.transparent,
+          Positioned(
+            top: starTopLeftMargin ?? 0,
+            left: starTopLeftMargin ?? 0,
             child: ModeratorStar(
               height: starDimension,
               width: starDimension,
             ),
-          ),
+          )
         ],
       ),
     );

@@ -158,7 +158,8 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
                 parentScrollController: widget.parentScrollController,
                 inputFocusNode: this.textFocusNode,
                 textController: this.textController,
-                onParticipantMentionPressed: this.startParticipantMention,
+                onParticipantMentionPressed: () => this.startParticipantMention(MentionState.participantMentionSymbol),
+                onDiscussionMentionPressed: () => this.startParticipantMention(MentionState.discussionMentionSymbol),
                 onModeratorButtonPressed: this.widget.onModeratorButtonPressed,
                 onMediaTap: this.widget.onMediaTap,
                 onSubmit: (text, mediaFile, mediaType) {
@@ -373,10 +374,9 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     return Future.value(list);
   }
 
-  void startParticipantMention() {
+  void startParticipantMention(String symbol) {
     if(!this.textFocusNode.hasFocus)
       return;
-    var symbol = MentionState.participantMentionSymbol;
     var text = textController.text;
     var offset = textController.selection.baseOffset;
 

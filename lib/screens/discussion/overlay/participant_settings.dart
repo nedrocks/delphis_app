@@ -129,7 +129,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
                 shrinkWrap: true,
                 children: [
-                  this.widget.meParticipant.isAnonymous
+                  this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
                     ? ParticipantAnonymitySettingOption(
                         height: 40.0,
                         user: this.widget.me,
@@ -150,8 +150,9 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                         },
                         showEditButton: this.widget.me.flairs != null &&
                             this.widget.me.flairs.length > 0,
-                      )
-                    : ParticipantAnonymitySettingOption(
+                      ) : Container(),
+                    !this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
+                    ? ParticipantAnonymitySettingOption(
                         height: 40.0,
                         user: this.widget.me,
                         anonymousGradient: this._selectedGradient,
@@ -171,7 +172,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                         },
                         showEditButton: this.widget.me.flairs != null &&
                             this.widget.me.flairs.length > 0
-                      ),
+                      ) : Container(),
                 ]),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             Padding(

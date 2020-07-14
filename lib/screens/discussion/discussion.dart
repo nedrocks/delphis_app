@@ -180,7 +180,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 // of dependencies involved.
                 BlocProvider.of<DiscussionBloc>(context).add(
                     DiscussionQueryEvent(
-                        discussionID: discussionObj.id, nonce: DateTime.now()));
+                        discussionID: this.widget.discussionID, nonce: DateTime.now()));
               }
               setState(() {
                 this._isShowJoinFlow = false;
@@ -238,7 +238,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             ),
             expandedConversationView,
             DelphisInputContainer(
-              hasJoined: discussionObj.meParticipant != null,
+              hasJoined: discussionObj?.meParticipant?.hasJoined ?? false,
               isJoinable: true,
               discussion: discussionObj,
               participant: discussionObj.meParticipant,

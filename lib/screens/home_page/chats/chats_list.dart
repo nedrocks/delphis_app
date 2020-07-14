@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
@@ -100,16 +101,25 @@ class ChatsList extends StatelessWidget {
                   return errorWidget;
                 index--;
                 final discussionElem = state.discussionList[index];
-                return SingleChat(
-                  discussion: discussionElem,
-                  onJoinPressed: () {
-                    this.onJoinDiscussionPressed(discussionElem);
-                  },
-                  onDeletePressed: () {
-                    this.onDeleteDiscussionInvitePressed(discussionElem);
-                  },
-                  onPressed: () {
-                    this.onDiscussionPressed(discussionElem);
+                return BlocBuilder<DiscussionBloc, DiscussionState>(
+                  builder: (context, discussionState) {
+                    if(discussionState is DiscussionLoadedState && discussionState.getDiscussion() != null) {
+                      if(discussionState.getDiscussion().id == discussionElem.id) {
+                        state.discussionList.replaceRange(index, index + 1, [discussionState.getDiscussion()]);
+                      }
+                    }
+                    return SingleChat(
+                      discussion: discussionElem,
+                      onJoinPressed: () {
+                        this.onJoinDiscussionPressed(discussionElem);
+                      },
+                      onDeletePressed: () {
+                        this.onDeleteDiscussionInvitePressed(discussionElem);
+                      },
+                      onPressed: () {
+                        this.onDiscussionPressed(discussionElem);
+                      },
+                    );
                   },
                 );
               },

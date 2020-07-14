@@ -27,6 +27,7 @@ class ParticipantGradientSelector extends StatefulWidget {
 class _ParticipantGradientSelectorState
     extends State<ParticipantGradientSelector> {
   GradientName _pickedGradient;
+  bool firstSelection;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _ParticipantGradientSelectorState
 
     // TODO: set this from the participant field.
     this._pickedGradient = this.widget.selectedGradient;
+    this.firstSelection = true;
   }
 
   @override
@@ -117,6 +119,7 @@ class _ParticipantGradientSelectorState
                 child: InkWell(
                   onTap: () {
                     this.setState(() {
+                      this.firstSelection = false;
                       this._pickedGradient = gradientName;
                     });
                   },
@@ -153,12 +156,13 @@ class _ParticipantGradientSelectorState
                         vertical: SpacingValues.medium),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25.0)),
-                    color: Color.fromRGBO(247, 247, 255, 0.2),
+                    color: this.firstSelection ? Color.fromRGBO(247, 247, 255, 0.2) : Color.fromRGBO(247, 247, 255, 1.0),
                     child: Text(Intl.message('Save color'),
-                        style: TextThemes.goIncognitoButton),
-                    onPressed: () {
+                        style: this.firstSelection ? TextThemes.goIncognitoButton : TextThemes.joinButtonTextChatTab),
+                    onPressed: this.firstSelection ? null : () {
                       this.widget.onSave(this._pickedGradient);
                     },
+                    
                   ),
                 ],
               ),

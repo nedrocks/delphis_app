@@ -286,10 +286,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         gradient: isModeratorAuthor
           ? null
           : (!(this.widget.participant?.isAnonymous ?? false)
-            ? LinearGradient(colors: [
-                Colors.white,
-                Colors.white
-              ])
+            ? ChathamColors.whiteGradient
             : ChathamColors.gradients[gradientNameFromString(
                 this.widget.participant?.gradientColor)]
               ),
@@ -319,7 +316,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         size: 20,
         child: profileImage,
         inviterImageURL: imageUrl,
-        gradient: ChathamColors.gradients[gradientNameFromString(inviterParticipant?.gradientColor)]
+        gradient: ChathamColors.whiteGradient
       );
     }
 

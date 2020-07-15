@@ -106,7 +106,7 @@ class DiscussionContent extends StatelessWidget {
                 participantBloc: participantBloc,
               ),
             ),
-            animationMillis: 500,
+            animationMillis: 200,
           );
         },
       );
@@ -145,7 +145,7 @@ class DiscussionContent extends StatelessWidget {
               },
             ),
           ),
-          animationMillis: this.isAnimationEnabled ? 500 : 0,
+          animationMillis: this.isAnimationEnabled ? 200 : 0,
         ),
       );
 
@@ -166,7 +166,7 @@ class DiscussionContent extends StatelessWidget {
                 onCancel: this.onModeratorOverlayClose,
               ),
             ),
-            animationMillis: this.isAnimationEnabled ? 500 : 0,
+            animationMillis: this.isAnimationEnabled ? 200 : 0,
           ),
         )
       );

@@ -27,7 +27,7 @@ class DelphisInput extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
   final bool isShowingParticipantSettings;
-  final void Function(FocusNode) onParticipantSettingsPressed;
+  final bool isModeratorButtonEnabled;
   final ScrollController parentScrollController;
   final TextEditingController textController;
   final FocusNode inputFocusNode;
@@ -38,6 +38,7 @@ class DelphisInput extends StatefulWidget {
   final VoidCallback onParticipantMentionPressed;
   final VoidCallback onDiscussionMentionPressed;
   final VoidCallback onModeratorButtonPressed;
+  final void Function(FocusNode) onParticipantSettingsPressed;
 
   DelphisInput({
     @required this.discussion,
@@ -53,7 +54,8 @@ class DelphisInput extends StatefulWidget {
     this.onGalleryPressed,
     this.onParticipantMentionPressed,
     this.onDiscussionMentionPressed,
-    this.onModeratorButtonPressed
+    this.onModeratorButtonPressed,
+    this.isModeratorButtonEnabled = false,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -141,7 +143,7 @@ class DelphisInputState extends State<DelphisInput> {
       ),
       textInput,
     ];
-    if (isModerator) {
+    if (isModerator && this.widget.isModeratorButtonEnabled) {
       rowElems.add(SizedBox(
         width: SpacingValues.small,
       ));

@@ -39,6 +39,7 @@ dependencies:
   flutter_cache_manager: 1.4.1
   image: 2.1.13
   photo_view: 0.9.2
+  recase: 3.0.0
 
   flutter_webview_plugin: 0.3.10+1
   provider: ^4.1.3

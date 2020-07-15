@@ -21,7 +21,7 @@ packages:
       name: apple_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"23901e3509b04bfb2cfea0ef
+    version: "0.1.0"
   archive:
     dependency: transitive
     description:

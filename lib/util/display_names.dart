@@ -8,7 +8,7 @@ class DisplayNames {
   static String formatParticipant(Moderator moderator, Participant participant) {
     if(participant == null)
       return "Unavailable";
-;    var name = '${participant.gradientColor} #${participant.participantID}';
+    var name = '${participant.gradientColor} #${participant.participantID}';
     if (participant.participantID == 0) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
@@ -23,10 +23,10 @@ class DisplayNames {
       return "Unavailable";
     var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
     if (participant.participantID == 0) {
-      name = moderator.userProfile.twitterURL.displayText.substring(1);
+      name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
-      name = participant.userProfile.twitterURL.displayText.substring(1);
+      name = participant.userProfile.displayName;
     }
 
     name = name.replaceAll(" ", "");

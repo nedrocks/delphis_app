@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -369,7 +370,7 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
-  Future<Stream<Post>> subscribe(String discussionID, {int attempt = 1}) async {
+  Future<Stream<DiscussionSubscriptionEvent>> subscribe(String discussionID, {int attempt = 1}) async {
     final websocketClient = this.clientBloc.getWebsocketClient();
 
     if (websocketClient == null && attempt <= MAX_ATTEMPTS) {
@@ -380,10 +381,10 @@ class DiscussionRepository {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
-    final subscription = PostAddedSubscription(discussionID);
+    final subscription = DiscussionEventSubscription(discussionID);
     Stream<SubscriptionData> resStream = websocketClient.subscribe(
       SubscriptionRequest(Operation(
-          operationName: "postAdded",
+          operationName: "onDiscussionEvent",
           documentNode: gql(subscription.subscription()),
           variables: {
             'discussionID': discussionID,
@@ -391,7 +392,7 @@ class DiscussionRepository {
       true,
     );
 
-    return resStream.map<Post>((SubscriptionData res) {
+    return resStream.map<DiscussionSubscriptionEvent>((SubscriptionData res) {
       if (res.errors != null) {
         throw Exception("Caught errors from GQL subcription: ${res.errors}");
       }

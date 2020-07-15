@@ -241,6 +241,7 @@ class Participant extends Equatable implements Entity {
   final Viewer viewer;
   final List<Post> posts;
   final bool isAnonymous;
+  final bool isBanned;
   final String gradientColor;
   final Flair flair;
   final bool hasJoined;
@@ -262,6 +263,7 @@ class Participant extends Equatable implements Entity {
     this.hasJoined,
     this.userProfile,
     this.inviter,
+    this.isBanned
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) =>

@@ -93,6 +93,28 @@ class DiscussionPostAddedEvent extends DiscussionEvent {
   }) : super();
 }
 
+class DiscussionPostDeletedEvent extends DiscussionEvent {
+  final Post post;
+
+  @override
+  List<Object> get props => [this.post];
+
+  DiscussionPostDeletedEvent({
+    @required this.post,
+  }) : super();
+}
+
+class DiscussionParticipantBannedEvent extends DiscussionEvent {
+  final Participant participant;
+
+  @override
+  List<Object> get props => [this.participant];
+
+  DiscussionParticipantBannedEvent({
+    @required this.participant,
+  }) : super();
+}
+
 class SubscribeToDiscussionEvent extends DiscussionEvent {
   final String discussionID;
   final bool isSubscribed;

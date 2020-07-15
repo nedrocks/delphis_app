@@ -16,6 +16,7 @@ const ParticipantInfoFragment = """
     id
     participantID
     isAnonymous
+    isBanned
     gradientColor
     flair {
       id

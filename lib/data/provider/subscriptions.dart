@@ -1,5 +1,5 @@
 import 'package:delphis_app/data/provider/queries.dart';
-import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/discussion_subscription.dart';
 
 abstract class GQLSubscription<T> {
   T parseResult(dynamic data);
@@ -8,24 +8,33 @@ abstract class GQLSubscription<T> {
   const GQLSubscription();
 }
 
-class PostAddedSubscription extends GQLSubscription<Post> {
+class DiscussionEventSubscription extends GQLSubscription<DiscussionSubscriptionEvent> {
   final String discussionID;
   final String _subscription = """
-    subscription postAdded(\$discussionID: String!) {
-      postAdded(discussionID: \$discussionID) {
-        ...PostWithParticipantInfoFragment
+    subscription onDiscussionEvent(\$discussionID: String!) {
+      onDiscussionEvent(discussionID: \$discussionID) {
+        eventType
+        entity {
+          id
+          ... on Post {
+            ...PostWithParticipantInfoFragment
+          }
+          ... on Participant {
+            ...ParticipantInfoFragment
+          }
+        }
       }
     }
     $PostWithParticipantInfoFragment
   """;
 
-  const PostAddedSubscription(this.discussionID) : super();
+  const DiscussionEventSubscription(this.discussionID) : super();
 
   String subscription() {
     return this._subscription;
   }
 
-  Post parseResult(dynamic data) {
-    return Post.fromJson(data["postAdded"]);
+  DiscussionSubscriptionEvent parseResult(dynamic data) {
+    return DiscussionSubscriptionEvent.fromJson(data["onDiscussionEvent"]);
   }
 }

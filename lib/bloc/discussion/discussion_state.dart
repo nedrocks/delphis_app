@@ -36,7 +36,7 @@ class DiscussionErrorState extends DiscussionState {
 class DiscussionLoadedState extends DiscussionState {
   final Discussion discussion;
   final DateTime lastUpdate;
-  final Stream<Post> discussionPostStream;
+  final Stream<DiscussionSubscriptionEvent> discussionPostStream;
   final Map<GlobalKey, LocalPost> localPosts;
 
   final bool isLoading;
@@ -58,7 +58,7 @@ class DiscussionLoadedState extends DiscussionState {
   }
 
   DiscussionLoadedState update({
-    Stream<Post> stream,
+    Stream<DiscussionSubscriptionEvent> stream,
     Discussion discussion,
     Map<GlobalKey, LocalPost> localPosts,
     bool isLoading,

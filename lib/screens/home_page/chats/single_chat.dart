@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 class SingleChat extends StatelessWidget {
   final Discussion discussion;
+  final bool canJoinDiscussions;
   final VoidCallback onDeletePressed;
   final VoidCallback onJoinPressed;
   final VoidCallback onPressed;
@@ -14,6 +15,7 @@ class SingleChat extends StatelessWidget {
     @required this.onDeletePressed,
     @required this.onJoinPressed,
     @required this.onPressed,
+    @required this.canJoinDiscussions,
   }) : super();
 
   @override
@@ -29,6 +31,7 @@ class SingleChat extends StatelessWidget {
         !this.discussion.meParticipant.hasJoined) {
       // I have not joined this chat.
       contents = SingleChatUnjoined(
+        canJoinDiscussion: this.canJoinDiscussions,
         discussion: this.discussion,
         onDeletePressed: this.onDeletePressed,
         onJoinPressed: this.onJoinPressed,

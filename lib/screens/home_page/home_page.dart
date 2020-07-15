@@ -60,7 +60,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
     Widget content = BlocBuilder<MeBloc, MeState>(
       builder: (context, meState) {
         final currentUser = MeBloc.extractMe(meState);
-        MeBloc.extractMe(BlocProvider.of<MeBloc>(context)?.state);
         return Padding(
           padding: EdgeInsets.only(bottom: windowPadding.bottom),
           child: Column(
@@ -76,9 +75,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 child: ChatsScreen(
                   discussionRepository: this.widget.discussionRepository,
                   routeObserver: this.widget.routeObserver,
+                  currentUser: currentUser,
                 ),
               ),
-              currentUser == null
+              currentUser == null || !currentUser.isTwitterAuth
                   ? Container(width: 0, height: 0)
                   : HomePageActionBar(
                       currentTab: this._currentTab,
@@ -86,7 +86,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       onNewChatPressed: () {
                         BlocProvider.of<DiscussionBloc>(context).add(
                           NewDiscussionEvent(
-                            title: "${currentUser.profile.displayName}'s discussion",
+                            title:
+                                "${currentUser.profile.displayName}'s discussion",
                             anonymityType: AnonymityType.UNKNOWN,
                             nonce: DateTime.now().toString(),
                           ),
@@ -100,40 +101,39 @@ class _HomePageScreenState extends State<HomePageScreen> {
     );
 
     return BlocListener<DiscussionBloc, DiscussionState>(
-      listenWhen: (prev, next) {
-        return prev is AddingDiscussionState && next is DiscussionLoadedState && !next.isLoading;
-      },
-      listener: (context, state) {
-        if (state is DiscussionLoadedState && !state.isLoading) {
-            Navigator.of(context).pushNamed(
-              '/Discussion',
-              arguments: DiscussionArguments(
-                discussionID: state.getDiscussion().id,
-                isStartJoinFlow: false,
-              ),
-            );
-          }
-      },
-      child: BlocBuilder<DiscussionBloc, DiscussionState>(
-        builder: (context, state) {
-          if(state is AddingDiscussionState) {
-            return AbsorbPointer(
-              absorbing: true,
-              child: Stack(
-                children: [
-                  Opacity(opacity: 0.4, child: content),
-                  Center(child: CircularProgressIndicator()),
-                ],
-              ),
-            );
-          }
-          return Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: backgroundColor,
-            body: content,
+        listenWhen: (prev, next) {
+      return prev is AddingDiscussionState &&
+          next is DiscussionLoadedState &&
+          !next.isLoading;
+    }, listener: (context, state) {
+      if (state is DiscussionLoadedState && !state.isLoading) {
+        Navigator.of(context).pushNamed(
+          '/Discussion',
+          arguments: DiscussionArguments(
+            discussionID: state.getDiscussion().id,
+            isStartJoinFlow: false,
+          ),
+        );
+      }
+    }, child: BlocBuilder<DiscussionBloc, DiscussionState>(
+      builder: (context, state) {
+        if (state is AddingDiscussionState) {
+          return AbsorbPointer(
+            absorbing: true,
+            child: Stack(
+              children: [
+                Opacity(opacity: 0.4, child: content),
+                Center(child: CircularProgressIndicator()),
+              ],
+            ),
           );
-        },
-      )
-    );
+        }
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: backgroundColor,
+          body: content,
+        );
+      },
+    ));
   }
 }

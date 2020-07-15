@@ -57,6 +57,9 @@ class User extends Equatable {
 
   List<Object> get props => [id, participants, viewers, profile];
 
+  bool get isTwitterAuth =>
+      this.profile != null && this.profile.id.startsWith("twitter:");
+
   const User({
     this.id,
     this.participants,

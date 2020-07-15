@@ -20,7 +20,7 @@ class PostTitle extends StatelessWidget {
     @required this.participant,
     @required this.height,
     @required this.isModeratorAuthor,
-    this.isParticipantNameColored = true
+    this.isParticipantNameColored = false
   }) : super(key: key);
 
   @override

@@ -58,9 +58,7 @@ class TextThemes {
     letterSpacing: -0.22,
   );
   static final discussionPostAuthorAnon =
-      TextThemes.discussionPostAuthorNonAnon.copyWith(
-    color: Color.fromRGBO(218, 219, 236, 0.8),
-  );
+      TextThemes.discussionPostAuthorNonAnon;
 
   static final onboardHeading = TextStyle(
     fontSize: 24.0,

@@ -2,6 +2,7 @@
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:recase/recase.dart';
 
 class DisplayNames {
 
@@ -15,7 +16,7 @@ class DisplayNames {
         participant.userProfile != null) {
       name = participant.userProfile.displayName;
     }
-    return name;
+    return name.titleCase;
   }
 
   static String formatParticipantUnique(Moderator moderator, Participant participant) {

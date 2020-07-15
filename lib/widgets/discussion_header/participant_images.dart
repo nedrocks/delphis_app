@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,13 @@ class ParticipantImages extends StatelessWidget {
 
   final double height;
   final List<Participant> participants;
+  final Moderator moderator;
   final int maxNonAnonToShow;
 
   const ParticipantImages({
     @required this.height,
     @required participants,
+    @required this.moderator,
     this.maxNonAnonToShow = 5,
   })  : this.participants =
             participants == null ? emptyParticipantList : participants,
@@ -23,6 +26,12 @@ class ParticipantImages extends StatelessWidget {
   List<Widget> generateProfileImages(
       List<Participant> anon, List<Participant> nonAnon) {
     final List<Widget> response = List<Widget>();
+    
+    nonAnon = nonAnon
+      .where((p) => !p.isBanned && p.userProfile != null)
+      .where((p) => (p.userProfile.id != this.moderator?.userProfile?.id) ?? false)
+      .toList();
+
     final numWidgetsToCreate = min(nonAnon.length, this.maxNonAnonToShow);
     for (int i = 0; i < numWidgetsToCreate; i++) {
       response.add(ProfileImage(

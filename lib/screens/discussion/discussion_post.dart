@@ -316,7 +316,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
         size: 20,
         child: profileImage,
         inviterImageURL: imageUrl,
-        gradient: ChathamColors.whiteGradient
+        gradient: inviterParticipant.isAnonymous ? ChathamColors.gradients[inviterParticipant.gradientColor] : ChathamColors.whiteGradient
       );
     }
 

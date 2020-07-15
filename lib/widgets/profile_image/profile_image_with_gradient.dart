@@ -114,7 +114,7 @@ class ProfileImageWithGradient extends StatelessWidget {
         size: 24,
         child: toRender,
         inviterImageURL: imageUrl,
-        gradient: ChathamColors.whiteGradient
+        gradient: inviterParticipant.isAnonymous ? ChathamColors.gradients[inviterParticipant.gradientColor] : ChathamColors.whiteGradient
       );
     }
 

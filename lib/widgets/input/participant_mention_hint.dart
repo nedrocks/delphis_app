@@ -59,6 +59,7 @@ class ParticipantMentionHintWidget extends StatelessWidget {
                 participant: this.participant,
                 height: 20.0,
                 isModeratorAuthor: isModeratorAuthor,
+                isParticipantNameColored: false,
               ),
             ],
           ),

@@ -56,12 +56,7 @@ class ProfileImageWithGradient extends StatelessWidget {
     }
 
     if(!this.showAnonymous) {
-      gradient = LinearGradient(
-        colors: [
-          Colors.white,
-          Colors.white
-        ]
-      );
+      gradient = ChathamColors.whiteGradient;
     }
     final borderRadius = this.width / 3.0;
     final profileImage = this._getProfileImage(borderRadius);
@@ -119,7 +114,7 @@ class ProfileImageWithGradient extends StatelessWidget {
         size: 24,
         child: toRender,
         inviterImageURL: imageUrl,
-        gradient: ChathamColors.gradients[gradientNameFromString(inviterParticipant?.gradientColor)]
+        gradient: inviterParticipant.isAnonymous ? ChathamColors.gradients[inviterParticipant.gradientColor] : ChathamColors.whiteGradient
       );
     }
 

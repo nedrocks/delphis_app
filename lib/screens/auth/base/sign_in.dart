@@ -105,7 +105,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       children: [
                         Text(
                           Intl.message(
-                              "The app literally doesn't work without Twitter rn."),
+                              "The app works best with Twitter, but if you're an Apple user you can sign in with Apple to explore discussions."),
                           style: TextThemes.onboardHeading,
                           textAlign: TextAlign.center,
                         ),

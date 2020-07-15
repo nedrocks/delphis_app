@@ -1,4 +1,3 @@
-import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -6,6 +5,7 @@ import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:recase/recase.dart';
 
 import 'participant_settings.dart';
 
@@ -66,7 +66,7 @@ class _ParticipantGradientSelectorState
               final isSelected = gradientName == this._pickedGradient;
               final gradient = ChathamColors.gradients[gradientName];
               var textStyle = TextThemes.gradientSelectorName;
-              final str = gradientName.toString().split('.')[1].toLowerCase();
+              final str = gradientName.toString().split('.')[1].titleCase;
               Widget textWidget = Text(str, style: textStyle);
               if (isSelected) {
                 textWidget = ShaderMask(

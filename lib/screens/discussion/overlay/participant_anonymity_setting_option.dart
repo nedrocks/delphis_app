@@ -8,6 +8,7 @@ import 'package:delphis_app/widgets/profile_image/profile_image_with_gradient.da
 import 'package:delphis_app/widgets/settings/setting_option.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:recase/recase.dart';
 
 class ParticipantAnonymitySettingOption extends StatelessWidget {
   final Participant participant;
@@ -65,7 +66,7 @@ class ParticipantAnonymitySettingOption extends StatelessWidget {
         SizedBox(width: SpacingValues.small),
         Text(
             this.showAnonymous
-                ? '${gradientColorFromGradientName(this.anonymousGradient).toLowerCase()} #${this.participant.participantID}'
+                ? '${gradientColorFromGradientName(this.anonymousGradient).titleCase} #${this.participant.participantID}'
                 : this.user.profile.displayName,
             style: TextThemes.goIncognitoOptionName),
         SizedBox(width: SpacingValues.small),

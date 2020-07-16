@@ -93,16 +93,34 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
           link = event.discussion.discussionLinksAccess.vipInviteLinkURL;
         } 
         Clipboard.setData(ClipboardData(text: link));
-          notificationBloc.add(NewNotificationEvent(
-            notification: OverlayTopMessage(
-              child: IncognitoModeTextOverlay(
-                  hasGoneIncognito: false, textOverride: Intl.message("An invitation link to this discussion was copied to clipboard!")),
-              onDismiss: () {
-                notificationBloc.add(DismissNotification());
-              },
-            )
+        notificationBloc.add(NewNotificationEvent(
+          notification: OverlayTopMessage(
+            child: IncognitoModeTextOverlay(
+                hasGoneIncognito: false, textOverride: Intl.message("An invitation link to this discussion was copied to clipboard!")),
+            onDismiss: () {
+              notificationBloc.add(DismissNotification());
+            },
           )
-        );
+        ));
+        yield ReadyState();
+      }
+    }
+    else if(event is InviteTwitterUserEvent) {
+      if(this.state is ReadyState) {
+        yield LoadingState();
+        
+        // TODO: call backend here
+        await Future.delayed(Duration(seconds: 3));
+
+        notificationBloc.add(NewNotificationEvent(
+          notification: OverlayTopMessage(
+            child: IncognitoModeTextOverlay(
+                hasGoneIncognito: false, textOverride: Intl.message("@${event.twitterHandle} has been sent an invitation!")),
+            onDismiss: () {
+              notificationBloc.add(DismissNotification());
+            },
+          )
+        ));
         yield ReadyState();
       }
     }

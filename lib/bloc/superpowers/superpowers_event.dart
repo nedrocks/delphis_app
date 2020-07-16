@@ -47,3 +47,14 @@ class CopyDiscussionLinkEvent extends SuperpowersEvent {
   @override
   List<Object> get props => [discussion, isVip];
 }
+
+class InviteTwitterUserEvent extends SuperpowersEvent {
+  final String twitterHandle;
+
+  const InviteTwitterUserEvent({
+    @required this.twitterHandle
+  });
+
+  @override
+  List<Object> get props => [twitterHandle];
+}

@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/constants.dart';
 import 'package:delphis_app/util/callbacks.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +32,7 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
     super.initState();
     checkLoggedInState();
 
-    AppleSignIn.onCredentialRevoked.listen((_) {
-      print("Revoked");
-    });
+    AppleSignIn.onCredentialRevoked.listen((_) {});
   }
 
   @override
@@ -42,14 +44,36 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
             return Container();
           }
 
-          return AppleSignInButton(onPressed: logIn, cornerRadius: 9999.0);
+          return AppleSignInButton(
+              onPressed: () {
+                logIn(context);
+              },
+              cornerRadius: 9999.0);
         });
   }
 
-  void logIn() async {
+  void createUserNotification(NotificationBloc bloc, String contents) {
+    bloc.add(
+      NewNotificationEvent(
+        notification: OverlayTopMessage(
+          child: IncognitoModeTextOverlay(
+            hasGoneIncognito: false,
+            textOverride: contents,
+          ),
+          onDismiss: () {
+            bloc.add(DismissNotification());
+          },
+        ),
+      ),
+    );
+  }
+
+  void logIn(BuildContext context) async {
     final AuthorizationResult result = await AppleSignIn.performRequests([
       AppleIdRequest(requestedScopes: [Scope.email, Scope.fullName])
     ]);
+
+    final notifBloc = BlocProvider.of<NotificationBloc>(context);
 
     switch (result.status) {
       case AuthorizationStatus.authorized:
@@ -57,8 +81,6 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
         // Store user ID
         await FlutterSecureStorage()
             .write(key: "userId", value: result.credential.user);
-
-        print(result.credential);
 
         final authCode =
             Utf8Codec().decode(result.credential.authorizationCode);
@@ -80,7 +102,8 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
 
         if (response.statusCode != 200) {
           // There was an error logging in!
-          print("error logging in");
+          this.createUserNotification(
+              notifBloc, "Failed authenticating with Apple. Please try again");
         } else {
           final respBody = json.decode(response.body);
           if (respBody is Map<String, dynamic>) {
@@ -91,21 +114,19 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
               this.widget.onLoginSuccessful(accessToken);
             }
           } else {
-            print("failure occurred");
+            this.createUserNotification(notifBloc,
+                "Failed authenticating with Apple. Please try again");
           }
         }
 
         break;
 
       case AuthorizationStatus.error:
-        print("Sign in failed: ${result.error.localizedDescription}");
-        setState(() {
-          errorMessage = "Sign in failed 😿";
-        });
+        this.createUserNotification(notifBloc,
+            "Failed authentication: ${result.error.localizedDescription}");
         break;
 
       case AuthorizationStatus.cancelled:
-        print('User cancelled');
         break;
     }
   }
@@ -113,31 +134,24 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
   void checkLoggedInState() async {
     final userId = await FlutterSecureStorage().read(key: "apple_userId");
     if (userId == null) {
-      print("No stored user ID");
       return;
     }
 
     final credentialState = await AppleSignIn.getCredentialState(userId);
     switch (credentialState.status) {
       case CredentialStatus.authorized:
-        print("getCredentialState returned authorized");
         break;
 
       case CredentialStatus.error:
-        print(
-            "getCredentialState returned an error: ${credentialState.error.localizedDescription}");
         break;
 
       case CredentialStatus.revoked:
-        print("getCredentialState returned revoked");
         break;
 
       case CredentialStatus.notFound:
-        print("getCredentialState returned not found");
         break;
 
       case CredentialStatus.transferred:
-        print("getCredentialState returned not transferred");
         break;
     }
   }

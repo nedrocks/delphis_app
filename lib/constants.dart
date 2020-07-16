@@ -64,6 +64,6 @@ class _Config {
     UPLOAD_IMAGE_URL: "https://staging.delphishq.com/upload_image",
     GQL_ENDPOINT: "https://staging.delphishq.com/query",
     WS_ENDPOINT: "wss://staging.delphishq.com/query",
-    APPLE_AUTH_LOGIN_ENDPOINT: "https://stating.delphishq.com/apple/authLogin",
+    APPLE_AUTH_LOGIN_ENDPOINT: "https://staging.delphishq.com/apple/authLogin",
   };
 }

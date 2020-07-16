@@ -15,7 +15,7 @@ class ReadyState extends SuperpowersState {
   List<Object> get props => [this.timestamp];
 }
 
-abstract class SuccessState extends ReadyState {
+class SuccessState extends ReadyState {
   final String message;
 
   SuccessState({

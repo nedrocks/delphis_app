@@ -10,7 +10,7 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers_popup.dart';
+import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';

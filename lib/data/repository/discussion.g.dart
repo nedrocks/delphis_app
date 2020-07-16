@@ -33,6 +33,10 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
             e == null ? null : Participant.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     iconURL: json['iconURL'] as String,
+    discussionLinksAccess: json['discussionLinksAccess'] == null
+        ? null
+        : DiscussionLinkAccess.fromJson(
+            json['discussionLinksAccess'] as Map<String, dynamic>),
   );
 }
 
@@ -49,6 +53,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meParticipant': instance.meParticipant,
       'meAvailableParticipants': instance.meAvailableParticipants,
       'iconURL': instance.iconURL,
+      'discussionLinksAccess': instance.discussionLinksAccess,
     };
 
 T _$enumDecode<T>(
@@ -88,3 +93,25 @@ const _$AnonymityTypeEnumMap = {
   AnonymityType.WEAK: 'WEAK',
   AnonymityType.STRONG: 'STRONG',
 };
+
+DiscussionLinkAccess _$DiscussionLinkAccessFromJson(Map<String, dynamic> json) {
+  return DiscussionLinkAccess(
+    discussionID: json['discussionID'] as String,
+    inviteLinkURL: json['inviteLinkURL'] as String,
+    vipInviteLinkURL: json['vipInviteLinkURL'] as String,
+    createdAt: json['createdAt'] as String,
+    updatedAt: json['updatedAt'] as String,
+    isDeleted: json['isDeleted'] as bool,
+  );
+}
+
+Map<String, dynamic> _$DiscussionLinkAccessToJson(
+        DiscussionLinkAccess instance) =>
+    <String, dynamic>{
+      'discussionID': instance.discussionID,
+      'inviteLinkURL': instance.inviteLinkURL,
+      'vipInviteLinkURL': instance.vipInviteLinkURL,
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
+      'isDeleted': instance.isDeleted,
+    };

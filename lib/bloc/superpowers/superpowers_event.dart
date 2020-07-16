@@ -34,3 +34,16 @@ class BanParticipantEvent extends SuperpowersEvent {
   @override
   List<Object> get props => [discussion, participant];
 }
+
+class CopyDiscussionLinkEvent extends SuperpowersEvent {
+  final Discussion discussion;
+  final bool isVip;
+
+  const CopyDiscussionLinkEvent({
+    @required this.discussion,
+    @required this.isVip
+  });
+
+  @override
+  List<Object> get props => [discussion, isVip];
+}

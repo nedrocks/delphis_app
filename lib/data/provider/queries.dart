@@ -273,6 +273,14 @@ const DiscussionFragmentFull = """
     postsConnection {
       ...PostsConnectionFragment
     }
+    discussionLinksAccess {
+      discussionID
+      inviteLinkURL
+      vipInviteLinkURL
+      createdAt
+      updatedAt
+      isDeleted
+    }
   }
   $DiscussionListFragment
   $PostsConnectionFragment

@@ -2,14 +2,16 @@
 import 'dart:ui';
 
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers_popup_option.dart';
+import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup_option.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class SuperpowersPopup extends StatelessWidget {
@@ -127,37 +129,33 @@ class SuperpowersPopup extends StatelessWidget {
       builder: (context) {
         return Positioned.fill(
           child: GestureDetector(
-            onTap: () => overlayEntry?.remove(),
+            onTap: () => false,
             child: Container(
               color: Colors.black.withOpacity(0.45),
               child: Center(
-                child: AlertDialog(
-                  elevation: 0,
-                  title: Text(Intl.message("Are you sure?")),
-                  content: Text("This action will have irreversible effects, do you still desire to proceed?"),
-                  useMaterialBorderRadius: true,
+                child: CupertinoAlertDialog(
+                  title: Container(
+                    margin: EdgeInsets.only(bottom: SpacingValues.smallMedium),
+                    child: Text(
+                      Intl.message("Are you sure?"),
+                      style: TextThemes.goIncognitoHeader),
+                  ),
+                  content: Text(
+                    "This action will have irreversible effects, do you still desire to proceed?",
+                    style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25),
+                  ),
                   actions: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FlatButton(
-                              child: Text(Intl.message("Cancel")),
-                              onPressed: () => overlayEntry?.remove()
-                            ),
-                            FlatButton(
-                              child: Text(Intl.message("Continue")),
-                              onPressed: () {
-                                overlayEntry?.remove();
-                                onConfirm();
-                              },
-                            )
-                          ],
-                        )
-                      ),
+                    CupertinoDialogAction(
+                      child: Text(Intl.message("Cancel")),
+                      onPressed: () => overlayEntry?.remove()
                     ),
+                    CupertinoDialogAction(
+                      child: Text(Intl.message("Continue")),
+                      onPressed: () {
+                        overlayEntry?.remove();
+                        onConfirm();
+                      },
+                    )
                   ],
                 ),
               ),
@@ -177,7 +175,16 @@ class SuperpowersPopup extends StatelessWidget {
     /* Delete post feature */
     if(arguments.post != null && !arguments.post.isDeleted && (isMeDiscussionModerator() || isMePostAuthor())) { 
       list.add(ModeratorPopupOption(
-        child: Image.asset("assets/images/app_icon/image.png"),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingValues.medium),
+            color: Colors.black
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Icon(Icons.delete_forever, size: 50),
+        ),
         title: Intl.message("Delete post"),
         description: Intl.message("Remove this post from the discussion."),
         onTap: () => showConfirmationDialog(context, () {
@@ -193,9 +200,102 @@ class SuperpowersPopup extends StatelessWidget {
     /* Ban participant feature */
     if(arguments.participant != null && arguments.post != null && isMeDiscussionModerator() && !isMePostAuthor()) { 
       list.add(ModeratorPopupOption(
-        child: Image.asset("assets/images/app_icon/image.png"),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingValues.medium),
+            color: Colors.black
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Icon(Icons.block, size: 50),
+        ),
         title: Intl.message("Kick participant"),
         description: Intl.message("Ban the author of this post from the discussion."),
+        onTap: () => showConfirmationDialog(context, () {
+          BlocProvider.of<SuperpowersBloc>(context).add(
+            BanParticipantEvent(
+              discussion: this.arguments.discussion,
+              participant: this.arguments.post.participant
+            )
+          );
+          return true;
+        })
+      ));
+    }
+
+    /* Copy inviting link to clipboard */
+    if(isMeDiscussionModerator()) { 
+      list.add(ModeratorPopupOption(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingValues.medium),
+            color: Colors.black
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Icon(Icons.person_add, size: 45),
+        ),
+        title: Intl.message("Copy Link"),
+        description: Intl.message("Create an invitation link and copy it to the clipboard."),
+        onTap: () {
+          BlocProvider.of<SuperpowersBloc>(context).add(
+            CopyDiscussionLinkEvent(
+              discussion: this.arguments.discussion,
+              isVip: false
+            )
+          );
+        }
+      ));
+    }
+
+    /* Copy vip inviting link to clipboard */
+    if(isMeDiscussionModerator()) { 
+      list.add(ModeratorPopupOption(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingValues.medium),
+            color: Colors.black
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Icon(Icons.star_border, size: 50),
+        ),
+        title: Intl.message("Copy VIP Link"),
+        description: Intl.message("Copy a VIP invitation link to the clipboard."),
+        onTap: () {
+          BlocProvider.of<SuperpowersBloc>(context).add(
+            CopyDiscussionLinkEvent(
+              discussion: this.arguments.discussion,
+              isVip: true
+            )
+          );
+        }
+      ));
+    }
+
+    /* Invite user from Twitter handle */
+    if(isMeDiscussionModerator()) {
+      list.add(ModeratorPopupOption(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(SpacingValues.medium),
+            color: Colors.black
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Container(
+            margin: EdgeInsets.all(28),
+            child: SvgPicture.asset('assets/svg/twitter_logo.svg',
+              color: ChathamColors.twitterLogoColor,
+            ),
+          ),
+        ),
+        title: Intl.message("Twitter Invitation"),
+        description: Intl.message("Invite a new user from their Twitter handle."),
         onTap: () => showConfirmationDialog(context, () {
           BlocProvider.of<SuperpowersBloc>(context).add(
             BanParticipantEvent(

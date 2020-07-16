@@ -414,6 +414,7 @@ class Discussion extends Equatable implements Entity {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
+  final DiscussionLinkAccess discussionLinksAccess;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -445,6 +446,7 @@ class Discussion extends Equatable implements Entity {
       this.meParticipant,
       this.meAvailableParticipants,
       this.iconURL,
+      this.discussionLinksAccess,
       postsCache})
       : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
@@ -462,6 +464,7 @@ class Discussion extends Equatable implements Entity {
           List<Participant> participants,
           List<Participant> meAvailableParticipants,
           Moderator moderator,
+          DiscussionLinkAccess discussionLinksAccess,
           List<Post> postsCache}) =>
       Discussion(
           id: this.id,
@@ -476,6 +479,7 @@ class Discussion extends Equatable implements Entity {
           meAvailableParticipants:
               meAvailableParticipants ?? this.meAvailableParticipants,
           iconURL: this.iconURL,
+          discussionLinksAccess : discussionLinksAccess ?? this.discussionLinksAccess,
           postsCache: postsCache ?? this.postsCache);
 
   void addLocalPost(LocalPost post) {
@@ -522,5 +526,31 @@ class Discussion extends Equatable implements Entity {
         ?.map((e) => e?.userProfile?.id)
         ?.contains(this.moderator?.userProfile?.id) ?? false;
   }
+
+}
+
+@JsonAnnotation.JsonSerializable()
+class DiscussionLinkAccess extends Equatable {
+  final String discussionID;
+  final String inviteLinkURL;
+  final String vipInviteLinkURL;
+  final String createdAt;
+  final String updatedAt;
+  final bool isDeleted;
+
+  const DiscussionLinkAccess({
+    this.discussionID, 
+    this.inviteLinkURL, 
+    this.vipInviteLinkURL, 
+    this.createdAt, 
+    this.updatedAt, 
+    this.isDeleted
+  });
+
+  @override
+  List<Object> get props => [discussionID, inviteLinkURL, vipInviteLinkURL, createdAt, updatedAt, isDeleted];
+
+  factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionLinkAccessFromJson(json);
 
 }

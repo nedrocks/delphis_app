@@ -1,9 +1,14 @@
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 
@@ -12,10 +17,12 @@ part 'superpowers_state.dart';
 
 class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
 
+  final NotificationBloc notificationBloc;
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
 
   SuperpowersBloc({
+    @required this.notificationBloc,
     @required this.discussionRepository,
     @required this.participantRepository
   }) : super(ReadyState());
@@ -77,6 +84,26 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
             yield ErrorState(message: error.toString());
           }
         }
+      }
+    }
+    else if(event is CopyDiscussionLinkEvent) {
+      if(this.state is ReadyState) {
+        var link = event.discussion.discussionLinksAccess.inviteLinkURL;
+        if(event.isVip) {
+          link = event.discussion.discussionLinksAccess.vipInviteLinkURL;
+        } 
+        Clipboard.setData(ClipboardData(text: link));
+          notificationBloc.add(NewNotificationEvent(
+            notification: OverlayTopMessage(
+              child: IncognitoModeTextOverlay(
+                  hasGoneIncognito: false, textOverride: Intl.message("An invitation link to this discussion was copied to clipboard!")),
+              onDismiss: () {
+                notificationBloc.add(DismissNotification());
+              },
+            )
+          )
+        );
+        yield ReadyState();
       }
     }
   }

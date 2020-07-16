@@ -272,7 +272,8 @@ class ChathamAppState extends State<ChathamApp>
                           BlocProvider<SuperpowersBloc>(
                             create: (context) => SuperpowersBloc(
                               discussionRepository: RepositoryProvider.of<DiscussionRepository>(context),
-                              participantRepository: RepositoryProvider.of<ParticipantRepository>(context)
+                              participantRepository: RepositoryProvider.of<ParticipantRepository>(context),
+                              notificationBloc: BlocProvider.of<NotificationBloc>(context)
                             ),
                           ),
                         ],

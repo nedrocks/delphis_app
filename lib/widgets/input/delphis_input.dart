@@ -9,7 +9,7 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:delphis_app/widgets/input/buttons/discussion_submit_button.dart';
-import 'package:delphis_app/widgets/input/buttons/moderator_input_button.dart';
+import 'package:delphis_app/widgets/input/buttons/moderator_action_button.dart';
 import 'package:delphis_app/widgets/settings/participant_settings_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -55,7 +55,7 @@ class DelphisInput extends StatefulWidget {
     this.onParticipantMentionPressed,
     this.onDiscussionMentionPressed,
     this.onModeratorButtonPressed,
-    this.isModeratorButtonEnabled = false,
+    this.isModeratorButtonEnabled = true,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -147,10 +147,11 @@ class DelphisInputState extends State<DelphisInput> {
       rowElems.add(SizedBox(
         width: SpacingValues.small,
       ));
-      rowElems.add(ModeratorInputButton(
+      rowElems.add(ModeratorActionButton(
         onPressed: this.widget.onModeratorButtonPressed,
-        height: 39.0,
-        width: 39.0,
+        height: 36.0,
+        width: 36.0,
+        isActive: true,
       ));
     }
     return rowElems;

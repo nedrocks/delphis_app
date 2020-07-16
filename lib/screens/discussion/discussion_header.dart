@@ -103,6 +103,7 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
             Row(
               children: <Widget>[
                 ParticipantImages(
+                  moderator : this.widget.discussion.moderator,
                   height: HeightValues.appBarItemsHeight,
                   participants: this.widget.discussion.participants,
                 ),

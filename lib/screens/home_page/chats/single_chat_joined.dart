@@ -71,6 +71,7 @@ class SingleChatJoined extends StatelessWidget {
                 ),
               ),
               ParticipantImages(
+                moderator: this.discussion.moderator,
                 height: 28.0,
                 maxNonAnonToShow: 4,
                 participants: this.discussion.participants,

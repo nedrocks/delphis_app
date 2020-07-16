@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:delphis_app/data/repository/entity.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -304,6 +305,46 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           yield currentState.update(discussion: updatedDiscussion);
         }
       }
+    } else if (event is DiscussionPostDeletedEvent &&
+        currentState is DiscussionLoadedState) {
+      final discussion = currentState.getDiscussion();
+      if(discussion != null) {
+        var newPostsCache = discussion.postsCache
+          .map((p) {
+            if(p.id == event.post.id)
+              return event.post;
+            return p;
+          })
+          .toList();
+        var updatedDiscussion = currentState.getDiscussion().copyWith(
+          postsCache: newPostsCache,
+        );
+        yield currentState.update(discussion: updatedDiscussion);
+      }
+    } else if (event is DiscussionParticipantBannedEvent &&
+        currentState is DiscussionLoadedState) {
+        final discussion = currentState.getDiscussion();
+      if(discussion != null) {
+        var newParticipants = discussion.participants
+          .map((p) {
+            if(p.id == event.participant.id)
+              return event.participant;
+            return p;
+          })
+          .toList();
+        var newPostsCache = discussion.postsCache
+          .map((p) {
+            if(p.participant.id == event.participant.id)
+              return p.copyWith(isDeleted: true, deletedReasonCode: PostDeletedReason.PARTICIPANT_REMOVED);
+            return p;
+          })
+          .toList();
+        var updatedDiscussion = currentState.getDiscussion().copyWith(
+          postsCache: newPostsCache,
+          participants: newParticipants
+        );
+        yield currentState.update(discussion: updatedDiscussion);
+      }
     } else if (event is SubscribeToDiscussionEvent &&
         currentState is DiscussionLoadedState) {
       if (currentState.getDiscussion() != null &&
@@ -311,9 +352,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         final discussionStream = await this
             .discussionRepository
             .subscribe(currentState.getDiscussion().id);
-        discussionStream.listen((Post post) {
-          this.add(DiscussionPostAddedEvent(post: post));
-        });
+        discussionStream.listen(this.consumeDiscussionSubscriptionEvent);
         yield currentState.update(stream: discussionStream);
       }
     } else if (event is LocalPostCreateSuccess &&
@@ -412,4 +451,17 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     }
   }
+
+  void consumeDiscussionSubscriptionEvent(DiscussionSubscriptionEvent event) {
+    if(event is DiscussionSubscriptionPostAdded) {
+       this.add(DiscussionPostAddedEvent(post: event.post));
+    }
+    else if(event is DiscussionSubscriptionPostDeleted) {
+      this.add(DiscussionPostDeletedEvent(post: event.post));
+    }
+    else if(event is DiscussionSubscriptionParticipantBanned) {
+      this.add(DiscussionParticipantBannedEvent(participant: event.participant));
+    }
+  }
+
 }

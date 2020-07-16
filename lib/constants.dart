@@ -20,6 +20,10 @@ class Constants {
     return _config[_Config.TWITTER_REDIRECT_URL_PREFIX];
   }
 
+  static get twitterRedirectLegacyURLPrefix {
+    return _config[_Config.TWITTER_REDIRECT_URL_PREFIX_LEGACY];
+  }
+
   static get twitterLoginURL {
     return _config[_Config.TWITTER_LOGIN_URL];
   }
@@ -43,6 +47,9 @@ class Constants {
 
 class _Config {
   static const TWITTER_REDIRECT_URL_PREFIX = "redirect-url-prefix";
+  // Hanging onto this for backward compatibility.
+  static const TWITTER_REDIRECT_URL_PREFIX_LEGACY =
+      "redirect-url-prefix-legacy";
   static const TWITTER_LOGIN_URL = "login-url";
   static const UPLOAD_IMAGE_URL = "upload-image";
   static const GQL_ENDPOINT = "gql-endpoint";
@@ -50,7 +57,9 @@ class _Config {
   static const APPLE_AUTH_LOGIN_ENDPOINT = "apple-auth-login-endpoint";
 
   static Map<String, dynamic> debugConstants = {
-    TWITTER_REDIRECT_URL_PREFIX: "delphis-chatham://local.delphishq.com:8000/",
+    TWITTER_REDIRECT_URL_PREFIX: "http://local.chatham.ai/app_redirect",
+    TWITTER_REDIRECT_URL_PREFIX_LEGACY:
+        "delphis-chatham://local.delphishq.com:8000/",
     TWITTER_LOGIN_URL: "http://localhost:8080/twitter/login",
     UPLOAD_IMAGE_URL: "http://localhost:8080/upload_image",
     GQL_ENDPOINT: "http://localhost:8080/query",
@@ -59,7 +68,9 @@ class _Config {
   };
 
   static Map<String, dynamic> stagingConstants = {
-    TWITTER_REDIRECT_URL_PREFIX: "delphis-chatham://app-staging.delphishq.com",
+    TWITTER_REDIRECT_URL_PREFIX_LEGACY:
+        "delphis-chatham://app-staging.delphishq.com",
+    TWITTER_REDIRECT_URL_PREFIX: "https://staging.chatham.ai/app_redirect",
     TWITTER_LOGIN_URL: "https://staging.delphishq.com/twitter/login",
     UPLOAD_IMAGE_URL: "https://staging.delphishq.com/upload_image",
     GQL_ENDPOINT: "https://staging.delphishq.com/query",

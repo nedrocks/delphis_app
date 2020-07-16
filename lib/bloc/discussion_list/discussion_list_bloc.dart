@@ -27,16 +27,7 @@ class DiscussionListBloc
     if(event is DiscussionListFetchEvent && !(this.state is DiscussionListLoading)) {
       try {
         yield DiscussionListLoading(discussionList: prevList, timestamp: DateTime.now());
-        var newList;
-        if (meBloc.state is LoadedMeState) {
-          try {
-            newList = await this.repository.getMyDiscussionList();
-          } catch (err) {
-            newList = await this.repository.getDiscussionList();
-          }
-        } else {
-          newList = await this.repository.getDiscussionList();
-        }
+        var newList = await this.repository.getDiscussionList();
         yield DiscussionListLoaded(discussionList: newList, timestamp: DateTime.now());
       }
       catch (error) {

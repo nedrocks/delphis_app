@@ -8,12 +8,14 @@ import 'package:intl/intl.dart';
 
 class SingleChatUnjoined extends StatelessWidget {
   final Discussion discussion;
+  final bool canJoinDiscussion;
   final VoidCallback onJoinPressed;
   final VoidCallback onDeletePressed;
   final VoidCallback onPressed;
 
   const SingleChatUnjoined({
     @required this.discussion,
+    @required this.canJoinDiscussion,
     @required this.onJoinPressed,
     @required this.onDeletePressed,
     @required this.onPressed,
@@ -92,50 +94,52 @@ class SingleChatUnjoined extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            height: double.infinity,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 87.0,
-                  height: 36.0,
-                  child: RaisedButton(
-                    onPressed: this.onJoinPressed,
-                    child: Text(
-                      Intl.message('Join'),
-                      style: TextThemes.joinButtonTextChatTab,
-                    ),
-                    color: Color.fromRGBO(247, 247, 255, 1.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(22.0),
-                    ),
+          this.canJoinDiscussion
+              ? Container(
+                  height: double.infinity,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 87.0,
+                        height: 36.0,
+                        child: RaisedButton(
+                          onPressed: this.onJoinPressed,
+                          child: Text(
+                            Intl.message('Join'),
+                            style: TextThemes.joinButtonTextChatTab,
+                          ),
+                          color: Color.fromRGBO(247, 247, 255, 1.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(22.0),
+                          ),
+                        ),
+                      ),
+                      // TODO (#10): Reenable the delete key once we have delete on the backend.
+                      // SizedBox(width: SpacingValues.small),
+                      // Container(
+                      //   width: 48.0,
+                      //   height: 24.0,
+                      //   child: RaisedButton(
+                      //     padding: EdgeInsets.all(0.0),
+                      //     color: Color.fromRGBO(133, 134, 159, 1.0),
+                      //     onPressed: this.onDeletePressed,
+                      //     child: Center(
+                      //       child: Text(
+                      //         Intl.message('Delete'),
+                      //         style: TextThemes.deleteButtonTextChatTab,
+                      //       ),
+                      //     ),
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: new BorderRadius.circular(16.0),
+                      //     ),
+                      //   ),
+                      // )
+                    ],
                   ),
-                ),
-                // TODO (#10): Reenable the delete key once we have delete on the backend.
-                // SizedBox(width: SpacingValues.small),
-                // Container(
-                //   width: 48.0,
-                //   height: 24.0,
-                //   child: RaisedButton(
-                //     padding: EdgeInsets.all(0.0),
-                //     color: Color.fromRGBO(133, 134, 159, 1.0),
-                //     onPressed: this.onDeletePressed,
-                //     child: Center(
-                //       child: Text(
-                //         Intl.message('Delete'),
-                //         style: TextThemes.deleteButtonTextChatTab,
-                //       ),
-                //     ),
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: new BorderRadius.circular(16.0),
-                //     ),
-                //   ),
-                // )
-              ],
-            ),
-          ),
+                )
+              : Container(),
         ],
       ),
     );

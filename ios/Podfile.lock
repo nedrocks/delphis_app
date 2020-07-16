@@ -6,9 +6,13 @@ PODS:
     - SocketRocketAblyFork (= 0.5.2-ably-7)
     - ULID (= 1.1.0)
   - Analytics (3.7.0)
+  - apple_sign_in (0.0.1):
+    - Flutter
   - connectivity (0.0.1):
     - Flutter
     - Reachability
+  - connectivity_for_web (0.1.0):
+    - Flutter
   - connectivity_macos (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.2):
@@ -258,7 +262,9 @@ PODS:
 
 DEPENDENCIES:
   - Ably (~> 1.1.15)
+  - apple_sign_in (from `.symlinks/plugins/apple_sign_in/ios`)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - connectivity_for_web (from `.symlinks/plugins/connectivity_for_web/ios`)
   - connectivity_macos (from `.symlinks/plugins/connectivity_macos/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
@@ -315,8 +321,12 @@ SPEC REPOS:
     - ULID
 
 EXTERNAL SOURCES:
+  apple_sign_in:
+    :path: ".symlinks/plugins/apple_sign_in/ios"
   connectivity:
     :path: ".symlinks/plugins/connectivity/ios"
+  connectivity_for_web:
+    :path: ".symlinks/plugins/connectivity_for_web/ios"
   connectivity_macos:
     :path: ".symlinks/plugins/connectivity_macos/ios"
   file_picker:
@@ -367,7 +377,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Ably: 6fca6cd8d6688ce4d646e66e96ffe50179df4388
   Analytics: 77fd5fb102a4a5eedafa2c2b0245ceb7b7c15e45
+  apple_sign_in: 7716c7ddfa195aeab7dec0dc374ef4ff45d1adb4
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
+  connectivity_for_web: 2b8584556930d4bd490d82b836bcf45067ce345b
   connectivity_macos: e2e9731b6b22dda39eb1b128f6969d574460e191
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179

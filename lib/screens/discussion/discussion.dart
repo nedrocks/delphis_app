@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
@@ -165,17 +166,20 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
               .add(SubscribeToDiscussionEvent(this.widget.discussionID, true));
         }
         final discussionObj = state.getDiscussion();
-        
+
         /* In some old discussions the moderator was able to go in incognito mode.
            if this happens, then we re-force to non-incognito mode. By using BLoCs,
            the UI is rebuilt automatically. */
-        if((discussionObj?.meParticipant?.isAnonymous ?? false) && (discussionObj?.isMeDiscussionModerator() ?? false)) {
-          BlocProvider.of<ParticipantBloc>(context).add(ParticipantEventUpdateParticipant(
+        if ((discussionObj?.meParticipant?.isAnonymous ?? false) &&
+            (discussionObj?.isMeDiscussionModerator() ?? false)) {
+          BlocProvider.of<ParticipantBloc>(context)
+              .add(ParticipantEventUpdateParticipant(
             participantID: discussionObj.meParticipant.id,
             isAnonymous: false,
-            gradientName: gradientNameFromString(discussionObj.meParticipant.gradientColor),
+            gradientName: gradientNameFromString(
+                discussionObj.meParticipant.gradientColor),
             flair: discussionObj.meParticipant.flair,
-            isUnsetFlairID:  discussionObj.meParticipant.flair == null,
+            isUnsetFlairID: discussionObj.meParticipant.flair == null,
           ));
         }
 
@@ -196,7 +200,8 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 // of dependencies involved.
                 BlocProvider.of<DiscussionBloc>(context).add(
                     DiscussionQueryEvent(
-                        discussionID: this.widget.discussionID, nonce: DateTime.now()));
+                        discussionID: this.widget.discussionID,
+                        nonce: DateTime.now()));
               }
               setState(() {
                 this._isShowJoinFlow = false;
@@ -232,6 +237,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             superpowersArguments: this._superpowersPopupArguments,
           ),
         );
+        final me = MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state);
         var listViewWithInput = Column(
           children: <Widget>[
             DiscussionHeader(
@@ -255,7 +261,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             expandedConversationView,
             DelphisInputContainer(
               hasJoined: discussionObj?.meParticipant?.hasJoined ?? false,
-              isJoinable: true,
+              isJoinable: (me != null && me.isTwitterAuth),
               discussion: discussionObj,
               participant: discussionObj.meParticipant,
               isShowingParticipantSettings: this._isShowParticipantSettings,
@@ -272,26 +278,26 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                   this._isShowJoinFlow = true;
                 });
               },
-              onMediaTap: (media, type) {              
-                onMediaTap(context, media, type);              
+              onMediaTap: (media, type) {
+                onMediaTap(context, media, type);
               },
               onModeratorButtonPressed: () {
-                showSuperpowersPopup(context, SuperpowersArguments(discussion: state.getDiscussion()));
+                showSuperpowersPopup(context,
+                    SuperpowersArguments(discussion: state.getDiscussion()));
               },
             ),
           ],
         );
 
-
         Widget toRender = SafeArea(
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: Colors.black,
-            body: listViewWithInput,
+            child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: Colors.black,
+          body: listViewWithInput,
         ));
 
         Widget mediaPreview = Container();
-        if(this.mediaToShow != null) {
+        if (this.mediaToShow != null) {
           mediaPreview = mediaToShow;
         }
 
@@ -300,14 +306,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
             toRender,
             Center(
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 200),
-                switchInCurve: Curves.easeIn,
-                switchOutCurve: Curves.easeIn,
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return ScaleTransition(child: child, scale: animation);
-                },
-                child: mediaPreview
-              ),
+                  duration: Duration(milliseconds: 200),
+                  switchInCurve: Curves.easeIn,
+                  switchOutCurve: Curves.easeIn,
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
+                    return ScaleTransition(child: child, scale: animation);
+                  },
+                  child: mediaPreview),
             )
           ],
         );
@@ -315,10 +321,11 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     );
   }
 
-  void showSuperpowersPopup(BuildContext context, SuperpowersArguments arguments) {
+  void showSuperpowersPopup(
+      BuildContext context, SuperpowersArguments arguments) {
     setState(() {
       var focusScope = FocusScope.of(context);
-      if(focusScope.hasFocus) {
+      if (focusScope.hasFocus) {
         this._lastFocusedNode = focusScope.focusedChild;
         focusScope.unfocus();
       }
@@ -339,13 +346,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         mediaType: type,
         onCancel: this.cancelPreview,
       );
-    });    
+    });
   }
 
   void cancelPreview() {
     setState(() {
       this.mediaToShow = null;
-    }); 
+    });
   }
 
   void _onOverlayEntry(BuildContext context, OverlayEntry entry) {
@@ -365,7 +372,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   void _restoreFocusAndDismissOverlay() {
     if (this._lastFocusedNode != null) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(this._lastFocusedNode);
+        FocusScope.of(context).requestFocus(this._lastFocusedNode);
         this._lastFocusedNode = null;
       });
     }
@@ -376,10 +383,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
     BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
     this._superpowersPopupArguments = null;
     this._isShowParticipantSettings = false;
-    if(this._contentOverlayEntry != null) {
+    if (this._contentOverlayEntry != null) {
       this._contentOverlayEntry.remove();
       this._contentOverlayEntry = null;
-    }  
+    }
   }
-
 }

@@ -5,6 +5,7 @@ import 'package:delphis_app/constants.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
+import 'package:delphis_app/screens/auth/base/widgets/apple_signin.dart';
 import 'package:delphis_app/screens/auth/base/widgets/loginWithTwitterButton/twitter_button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,10 @@ class _SignInScreenState extends State<SignInScreen> {
     }, onError: (err) {
       throw err;
     });
+  }
+
+  void handleAppleLoginSuccessful(String accessToken) async {
+    this.authBloc.add(LoadedAuthEvent(accessToken, true, false));
   }
 
   void successfulLogin() async {
@@ -100,7 +105,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       children: [
                         Text(
                           Intl.message(
-                              "The app literally doesn't work without Twitter rn."),
+                              "The app works best with Twitter, but if you're an Apple user you can sign in with Apple to explore discussions."),
                           style: TextThemes.onboardHeading,
                           textAlign: TextAlign.center,
                         ),
@@ -111,10 +116,19 @@ class _SignInScreenState extends State<SignInScreen> {
                             style: TextThemes.onboardBody,
                             textAlign: TextAlign.center),
                         SizedBox(height: SpacingValues.mediumLarge),
-                        LoginWithTwitterButton(
-                          onPressed: () => openLoginDialog(),
-                          width: constraints.maxWidth,
-                          height: 56.0,
+                        Column(
+                          children: [
+                            LoginWithTwitterButton(
+                              onPressed: () => openLoginDialog(),
+                              width: constraints.maxWidth,
+                              height: 56.0,
+                            ),
+                            SizedBox(height: SpacingValues.small),
+                            SignInWithAppleButton(
+                              onLoginSuccessful:
+                                  this.handleAppleLoginSuccessful,
+                            ),
+                          ],
                         ),
                         SizedBox(height: SpacingValues.large),
                         RichText(

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -11,9 +10,7 @@ import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
 part 'media.g.dart';
 
-enum MediaContentType {
-  IMAGE, VIDEO
-}
+enum MediaContentType { IMAGE, VIDEO }
 
 class _CompressImageParam {
   final File file;
@@ -22,13 +19,14 @@ class _CompressImageParam {
 }
 
 class MediaRepository {
-
   Future<MediaUpload> uploadImage(File file) async {
     ReceivePort receivePort = ReceivePort();
-    Isolate.spawn(_compressImage, _CompressImageParam(file, receivePort.sendPort));
+    Isolate.spawn(
+        _compressImage, _CompressImageParam(file, receivePort.sendPort));
     List<int> bytes = await receivePort.first;
 
-    var request = http.MultipartRequest("POST", Uri.parse(Constants.uploadImageUrl));
+    var request =
+        http.MultipartRequest("POST", Uri.parse(Constants.uploadImageUrl));
     var pic = http.MultipartFile.fromBytes("image", bytes, filename: file.path);
     request.files.add(pic);
 
@@ -43,10 +41,8 @@ class MediaRepository {
 
   static void _compressImage(_CompressImageParam param) {
     Image image = decodeImage(param.file.readAsBytesSync());
-    Image thumbnail = copyResize(image, width: 800);
-    param.sendPort.send(encodeJpg(thumbnail, quality: 80));
+    param.sendPort.send(encodeJpg(image, quality: 60));
   }
-  
 }
 
 @JsonAnnotation.JsonSerializable()
@@ -57,14 +53,14 @@ class MediaUpload extends Equatable {
   const MediaUpload({this.mediaId, this.mediaType});
 
   @override
-  List<Object> get props =>[this.mediaId, this.mediaType];
-  
+  List<Object> get props => [this.mediaId, this.mediaType];
+
   factory MediaUpload.fromJson(Map<String, dynamic> json) {
     return MediaUpload(
-      mediaId: json['media_id'] as String,
-      mediaType: json['media_type'] as String);
+        mediaId: json['media_id'] as String,
+        mediaType: json['media_type'] as String);
   }
-  
+
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'media_id': this.mediaId,
@@ -82,13 +78,20 @@ class Media extends Equatable {
   final MediaSize mediaSize;
   final String assetLocation;
 
-  const Media({this.id, this.createdAt, this.isDeleted, this.mediaType, this.mediaSize, this.assetLocation});
+  const Media(
+      {this.id,
+      this.createdAt,
+      this.isDeleted,
+      this.mediaType,
+      this.mediaSize,
+      this.assetLocation});
 
   @override
-  List<Object> get props =>[id, createdAt, isDeleted, mediaType, mediaSize, assetLocation];
-  
+  List<Object> get props =>
+      [id, createdAt, isDeleted, mediaType, mediaSize, assetLocation];
+
   factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
-  
+
   Map<String, dynamic> toJSON() {
     return _$MediaToJson(this);
   }
@@ -98,9 +101,10 @@ class Media extends Equatable {
   }
 
   MediaContentType get mediaContentType {
-    return mediaType.split('/')[0].toLowerCase() == "image" ? MediaContentType.IMAGE : MediaContentType.VIDEO;
+    return mediaType.split('/')[0].toLowerCase() == "image"
+        ? MediaContentType.IMAGE
+        : MediaContentType.VIDEO;
   }
-
 }
 
 @JsonAnnotation.JsonSerializable()
@@ -109,19 +113,15 @@ class MediaSize extends Equatable {
   final int width;
   final double sizeKb;
 
-  const MediaSize({
-    this.height,
-    this.width,
-    this.sizeKb
-  });
+  const MediaSize({this.height, this.width, this.sizeKb});
 
   @override
-  List<Object> get props =>[height, width, sizeKb];
-  
-  factory MediaSize.fromJson(Map<String, dynamic> json) => _$MediaSizeFromJson(json);
-  
+  List<Object> get props => [height, width, sizeKb];
+
+  factory MediaSize.fromJson(Map<String, dynamic> json) =>
+      _$MediaSizeFromJson(json);
+
   Map<String, dynamic> toJSON() {
     return _$MediaSizeToJson(this);
   }
-
 }

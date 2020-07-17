@@ -240,7 +240,8 @@ class DiscussionRepository {
       String preview,
       String mediaId,
       int attempt = 1}) async {
-    if (postContent == null || postContent.length == 0) {
+    if ((postContent == null || postContent.length == 0) &&
+        (mediaId == null || mediaId.length == 0)) {
       // Don't allow for empty posts.
       return null;
     }
@@ -264,12 +265,11 @@ class DiscussionRepository {
     }
 
     var postInputContent = PostContentInput(
-      postText: postContent,
-      postType: PostType.STANDARD,
-      mentionedEntities: mentionedEntities,
-      preview: preview,
-      mediaID: mediaId
-    );
+        postText: postContent,
+        postType: PostType.STANDARD,
+        mentionedEntities: mentionedEntities,
+        preview: preview,
+        mediaID: mediaId);
     final mutation = AddPostGQLMutation(
       discussionID: discussion.id,
       participantID: participantID,
@@ -308,10 +308,8 @@ class DiscussionRepository {
           "Failed to deletePost from discussion because backend connection is severed");
     }
 
-    final mutation = DeletePostMutation(
-      discussionID: discussion.id,
-      postID: post.id
-    );
+    final mutation =
+        DeletePostMutation(discussionID: discussion.id, postID: post.id);
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
@@ -327,7 +325,7 @@ class DiscussionRepository {
     }
     return mutation.parseResult(result.data);
   }
-  
+
   Future<Discussion> updateDiscussion(
       String discussionID, String title, String iconURL,
       {int attempt = 1}) async {
@@ -370,7 +368,8 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
-  Future<Stream<DiscussionSubscriptionEvent>> subscribe(String discussionID, {int attempt = 1}) async {
+  Future<Stream<DiscussionSubscriptionEvent>> subscribe(String discussionID,
+      {int attempt = 1}) async {
     final websocketClient = this.clientBloc.getWebsocketClient();
 
     if (websocketClient == null && attempt <= MAX_ATTEMPTS) {
@@ -518,9 +517,10 @@ class Discussion extends Equatable implements Entity {
   }
 
   bool isMeDiscussionModerator() {
-    return this.meAvailableParticipants
-        ?.map((e) => e?.userProfile?.id)
-        ?.contains(this.moderator?.userProfile?.id) ?? false;
+    return this
+            .meAvailableParticipants
+            ?.map((e) => e?.userProfile?.id)
+            ?.contains(this.moderator?.userProfile?.id) ??
+        false;
   }
-
 }

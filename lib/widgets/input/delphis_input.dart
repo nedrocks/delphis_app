@@ -39,6 +39,7 @@ class DelphisInput extends StatefulWidget {
   final VoidCallback onDiscussionMentionPressed;
   final VoidCallback onModeratorButtonPressed;
   final void Function(FocusNode) onParticipantSettingsPressed;
+  final File mediaFile;
 
   DelphisInput({
     @required this.discussion,
@@ -56,6 +57,7 @@ class DelphisInput extends StatefulWidget {
     this.onDiscussionMentionPressed,
     this.onModeratorButtonPressed,
     this.isModeratorButtonEnabled = false,
+    this.mediaFile,
   });
 
   State<StatefulWidget> createState() => DelphisInputState();
@@ -71,8 +73,6 @@ class DelphisInputState extends State<DelphisInput> {
   double _scrollStart;
 
   String _fullText;
-  File mediaFile;
-  MediaContentType mediaType;
 
   @override
   void initState() {
@@ -100,10 +100,10 @@ class DelphisInputState extends State<DelphisInput> {
     /* Forces a rebuild everytime the focus/text changes.
        This is needed as the UI changes depending on
        the text input focus */
-    this._inputFocusNode.addListener((){
+    this._inputFocusNode.addListener(() {
       setState(() {});
     });
-    this._controller.addListener((){
+    this._controller.addListener(() {
       setState(() {});
     });
 
@@ -119,9 +119,9 @@ class DelphisInputState extends State<DelphisInput> {
 
   @override
   void dispose() {
-    if(this._inputFocusNode != this.widget.inputFocusNode)
+    if (this._inputFocusNode != this.widget.inputFocusNode)
       this._inputFocusNode.dispose();
-    if(this._controller != this.widget.textController)
+    if (this._controller != this.widget.textController)
       this._controller.dispose();
     super.dispose();
   }
@@ -130,7 +130,8 @@ class DelphisInputState extends State<DelphisInput> {
       User me, bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
       ParticipantSettingsButton(
-        onPressed: () => this.widget.onParticipantSettingsPressed(this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
+        onPressed: () => this.widget.onParticipantSettingsPressed(
+            this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
         me: me,
         isModerator: isModerator,
         participant: this.widget.participant,
@@ -158,7 +159,7 @@ class DelphisInputState extends State<DelphisInput> {
 
   Widget buildInput(BuildContext context, MeState state, User me,
       bool isModerator, Widget textInput) {
-    final actionIconSize = 36.0; 
+    final actionIconSize = 36.0;
     return Container(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -166,7 +167,8 @@ class DelphisInputState extends State<DelphisInput> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: buildNonInputRowElems(context, state, me, isModerator, textInput),
+            children: buildNonInputRowElems(
+                context, state, me, isModerator, textInput),
           ),
           SizedBox(
             height: SpacingValues.medium,
@@ -178,22 +180,20 @@ class DelphisInputState extends State<DelphisInput> {
               Row(
                 children: [
                   MentionButton(
-                    onPressed: this.widget.onParticipantMentionPressed,
-                    width: actionIconSize,
-                    height: actionIconSize,
-                    isActive: true,
-                    isDiscussion : false
-                  ),
+                      onPressed: this.widget.onParticipantMentionPressed,
+                      width: actionIconSize,
+                      height: actionIconSize,
+                      isActive: true,
+                      isDiscussion: false),
                   SizedBox(
                     width: SpacingValues.medium,
                   ),
                   MentionButton(
-                    onPressed: this.widget.onDiscussionMentionPressed,
-                    width: actionIconSize,
-                    height: actionIconSize,
-                    isActive: true,
-                    isDiscussion : true
-                  ),
+                      onPressed: this.widget.onDiscussionMentionPressed,
+                      width: actionIconSize,
+                      height: actionIconSize,
+                      isActive: true,
+                      isDiscussion: true),
                   SizedBox(
                     width: SpacingValues.medium,
                   ),
@@ -213,7 +213,7 @@ class DelphisInputState extends State<DelphisInput> {
                     isActive: true,
                     isVideo: false,
                   ),
-                   SizedBox(
+                  SizedBox(
                     width: SpacingValues.medium,
                   ),
                 ],
@@ -222,13 +222,14 @@ class DelphisInputState extends State<DelphisInput> {
               /* Submit button */
               DiscussionSubmitButton(
                 onPressed: () {
-                  if(this.widget.onSubmit != null)
+                  if (this.widget.onSubmit != null)
                     this.widget.onSubmit(_controller.text);
                   return true;
                 },
                 width: actionIconSize,
                 height: actionIconSize,
-                isActive: this._controller.text.isNotEmpty,
+                isActive: this._controller.text.isNotEmpty ||
+                    this.widget.mediaFile != null,
               ),
             ],
           ),
@@ -302,7 +303,7 @@ class DelphisInputState extends State<DelphisInput> {
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
 
         /* Change fulltext state only when building and having focus */
-        if(this._inputFocusNode.hasFocus) {
+        if (this._inputFocusNode.hasFocus) {
           this._fullText = this._controller.text;
         }
 
@@ -369,15 +370,15 @@ class DelphisInputState extends State<DelphisInput> {
                 horizontal: SpacingValues.medium,
                 vertical: SpacingValues.medium),
             child: !this._inputFocusNode.hasFocus
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: this.buildNonInputRowElems(context, state, me, isModerator, textInput),
-                )
-              : this.buildInput(context, state, me, isModerator, textInput),
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: this.buildNonInputRowElems(
+                        context, state, me, isModerator, textInput),
+                  )
+                : this.buildInput(context, state, me, isModerator, textInput),
           ),
         ),
       );
     });
   }
-
 }

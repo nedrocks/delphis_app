@@ -39,7 +39,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
     this.authBloc = BlocProvider.of<AuthBloc>(context);
     this._deepLinkSubscription = getLinksStream().listen((String link) {
-      print("subscriptipon link: $link");
       if (link.startsWith(Constants.twitterRedirectURLPrefix) ||
           link.startsWith(Constants.twitterRedirectLegacyURLPrefix)) {
         String token = RegExp("\\?dc=(.*)").firstMatch(link)?.group(1) ?? null;

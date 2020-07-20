@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
@@ -15,21 +14,18 @@ import 'package:intl/intl.dart';
 class SuperpowersPopup extends StatelessWidget {
   final SuperpowersArguments arguments;
   final VoidCallback onCancel;
-  
-  const SuperpowersPopup({
-    Key key, 
-    @required this.arguments,
-    @required this.onCancel
-  }) : super(key: key);
+
+  const SuperpowersPopup(
+      {Key key, @required this.arguments, @required this.onCancel})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SuperpowersBloc, SuperpowersState> (
+    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
       builder: (context, state) {
-        
         /* Format error messages */
         Widget bottomWidget = Container();
-        if(state is ErrorState) {
+        if (state is ErrorState) {
           bottomWidget = Column(
             children: [
               Text(
@@ -43,7 +39,7 @@ class SuperpowersPopup extends StatelessWidget {
         }
 
         /* Format operation success messages */
-        if(state is SuccessState) {
+        if (state is SuccessState) {
           /* Dismiss the popup if the result is successful */
           SchedulerBinding.instance.addPostFrameCallback((_) {
             this.onCancel();
@@ -51,7 +47,7 @@ class SuperpowersPopup extends StatelessWidget {
         }
 
         /* Format loading status */
-        if(state is LoadingState) {
+        if (state is LoadingState) {
           bottomWidget = Column(
             children: [
               CupertinoActivityIndicator(),
@@ -61,60 +57,61 @@ class SuperpowersPopup extends StatelessWidget {
         }
 
         /* Render popup */
-        return Card(
-          elevation: 50.0,
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.only(
-              left: SpacingValues.extraLarge,
-              right: SpacingValues.extraLarge,
-              top: SpacingValues.mediumLarge),
-            decoration: BoxDecoration(
-              border: Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(36.0),
-                topRight: Radius.circular(36.0)),
-                color: Color.fromRGBO(22, 23, 28, 1.0)
-            ),
+        return SafeArea(
+          child: Card(
+            elevation: 50.0,
+            color: Colors.transparent,
             child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    isMeDiscussionModerator()
-                      ? Intl.message("Mod Superpowers")
-                      : Intl.message("User Superpowers"),
-                    style: TextThemes.goIncognitoHeader,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: SpacingValues.medium),
-                  Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                  SizedBox(height: SpacingValues.small),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.only(
+                  left: SpacingValues.extraLarge,
+                  right: SpacingValues.extraLarge,
+                  top: SpacingValues.mediumLarge),
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(36.0),
+                      topRight: Radius.circular(36.0)),
+                  color: Color.fromRGBO(22, 23, 28, 1.0)),
+              child: Container(
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                    Text(
+                      isMeDiscussionModerator()
+                          ? Intl.message("Mod Superpowers")
+                          : Intl.message("User Superpowers"),
+                      style: TextThemes.goIncognitoHeader,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: SpacingValues.medium),
+                    Container(
+                        height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                    SizedBox(height: SpacingValues.small),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: Row(
                         children: buildOptionList(context),
                       ),
                     ),
-                  SizedBox(height: SpacingValues.small),
-                  bottomWidget,
-                  Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                  SizedBox(height: SpacingValues.mediumLarge),
-                  GestureDetector(
-                    onTap: () {
-                      this.onCancel();
-                    },
-                    child: Text(
-                      Intl.message('Cancel'),
-                      style: TextThemes.cancelText,
-                    )
-                  ),
-                  SizedBox(height: SpacingValues.mediumLarge),
-                ]
-              )
+                    SizedBox(height: SpacingValues.small),
+                    bottomWidget,
+                    Container(
+                        height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                    SizedBox(height: SpacingValues.mediumLarge),
+                    GestureDetector(
+                        onTap: () {
+                          this.onCancel();
+                        },
+                        child: Text(
+                          Intl.message('Cancel'),
+                          style: TextThemes.cancelText,
+                        )),
+                    SizedBox(height: SpacingValues.mediumLarge),
+                  ])),
             ),
-          )
+          ),
         );
       },
     );
@@ -123,9 +120,9 @@ class SuperpowersPopup extends StatelessWidget {
   /* This is overlay-safe */
   void showConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     OverlayEntry overlayEntry;
-    overlayEntry = OverlayEntry(
-      builder: (context) {
-        return Positioned.fill(
+    overlayEntry = OverlayEntry(builder: (context) {
+      return SafeArea(
+        child: Positioned.fill(
           child: GestureDetector(
             onTap: () => overlayEntry?.remove(),
             child: Container(
@@ -134,89 +131,86 @@ class SuperpowersPopup extends StatelessWidget {
                 child: AlertDialog(
                   elevation: 0,
                   title: Text(Intl.message("Are you sure?")),
-                  content: Text("This action will have irreversible effects, do you still desire to proceed?"),
+                  content: Text(
+                      "This action will have irreversible effects, do you still desire to proceed?"),
                   useMaterialBorderRadius: true,
                   actions: [
                     Container(
                       width: MediaQuery.of(context).size.width,
                       child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            FlatButton(
+                          child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FlatButton(
                               child: Text(Intl.message("Cancel")),
-                              onPressed: () => overlayEntry?.remove()
-                            ),
-                            FlatButton(
-                              child: Text(Intl.message("Continue")),
-                              onPressed: () {
-                                overlayEntry?.remove();
-                                onConfirm();
-                              },
-                            )
-                          ],
-                        )
-                      ),
+                              onPressed: () => overlayEntry?.remove()),
+                          FlatButton(
+                            child: Text(Intl.message("Continue")),
+                            onPressed: () {
+                              overlayEntry?.remove();
+                              onConfirm();
+                            },
+                          )
+                        ],
+                      )),
                     ),
                   ],
                 ),
               ),
             ),
-          )
-        );
-      }
-    );
-    Overlay.of(context).insert(
-      overlayEntry
-    );
+          ),
+        ),
+      );
+    });
+    Overlay.of(context).insert(overlayEntry);
   }
 
   List<Widget> buildOptionList(BuildContext context) {
     List<Widget> list = [];
 
     /* Delete post feature */
-    if(arguments.post != null && !arguments.post.isDeleted && (isMeDiscussionModerator() || isMePostAuthor())) { 
+    if (arguments.post != null &&
+        !arguments.post.isDeleted &&
+        (isMeDiscussionModerator() || isMePostAuthor())) {
       list.add(ModeratorPopupOption(
         child: Image.asset("assets/images/app_icon/image.png"),
         title: Intl.message("Delete post"),
         description: Intl.message("Remove this post from the discussion."),
         onTap: () => showConfirmationDialog(context, () {
           BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
-            discussion: this.arguments.discussion,
-            post: this.arguments.post
-          ));
+              discussion: this.arguments.discussion,
+              post: this.arguments.post));
           return true;
         }),
       ));
     }
 
     /* Ban participant feature */
-    if(arguments.participant != null && arguments.post != null && isMeDiscussionModerator() && !isMePostAuthor()) { 
+    if (arguments.participant != null &&
+        arguments.post != null &&
+        isMeDiscussionModerator() &&
+        !isMePostAuthor()) {
       list.add(ModeratorPopupOption(
-        child: Image.asset("assets/images/app_icon/image.png"),
-        title: Intl.message("Kick participant"),
-        description: Intl.message("Ban the author of this post from the discussion."),
-        onTap: () => showConfirmationDialog(context, () {
-          BlocProvider.of<SuperpowersBloc>(context).add(
-            BanParticipantEvent(
-              discussion: this.arguments.discussion,
-              participant: this.arguments.post.participant
-            )
-          );
-          return true;
-        })
-      ));
+          child: Image.asset("assets/images/app_icon/image.png"),
+          title: Intl.message("Kick participant"),
+          description:
+              Intl.message("Ban the author of this post from the discussion."),
+          onTap: () => showConfirmationDialog(context, () {
+                BlocProvider.of<SuperpowersBloc>(context).add(
+                    BanParticipantEvent(
+                        discussion: this.arguments.discussion,
+                        participant: this.arguments.post.participant));
+                return true;
+              })));
     }
 
     /* A user could have no actions avaliable */
-    if(list.length == 0) {
+    if (list.length == 0) {
       list.add(Container(
         height: 80,
         child: Center(
-          child: Text(
-            Intl.message("There are no actions available."),
-            style: TextThemes.goIncognitoOptionName
-          ),
+          child: Text(Intl.message("There are no actions available."),
+              style: TextThemes.goIncognitoOptionName),
         ),
       ));
     }
@@ -229,10 +223,14 @@ class SuperpowersPopup extends StatelessWidget {
   }
 
   bool isMePostAuthor() {
-    return this.arguments.post != null && (this.arguments.discussion?.meAvailableParticipants
-        ?.where((e) => e.discussion.id == this.arguments.discussion.id)
-        ?.map((e) => e.participantID)
-        ?.contains(this.arguments.post.participant?.participantID) ?? false);
+    return this.arguments.post != null &&
+        (this
+                .arguments
+                .discussion
+                ?.meAvailableParticipants
+                ?.where((e) => e.discussion.id == this.arguments.discussion.id)
+                ?.map((e) => e.participantID)
+                ?.contains(this.arguments.post.participant?.participantID) ??
+            false);
   }
-
 }

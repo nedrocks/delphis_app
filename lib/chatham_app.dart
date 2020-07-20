@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:async';
 
-import 'package:cupertino_back_gesture/cupertino_back_gesture.dart';
 import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
@@ -309,49 +308,44 @@ class ChathamAppState extends State<ChathamApp>
                                         .of<ParticipantRepository>(context)),
                               ),
                             ],
-                            child: BackGestureWidthTheme(
-                              backGestureWidth:
-                                  BackGestureWidth.fraction(1 / 2),
-                              child: MultiBlocListener(
-                                listeners: [
-                                  BlocListener<AuthBloc, AuthState>(
-                                      listener: (context, state) {
-                                    if (state is LoggedOutAuthState) {
-                                      Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        '/Auth',
-                                        (Route<dynamic> route) => false,
-                                      );
-                                    }
-                                  }),
-                                  BlocListener<DiscussionBloc, DiscussionState>(
-                                      listener: (context, state) {
-                                    if (state is DiscussionLoadedState) {
-                                      BlocProvider.of<MentionBloc>(context).add(
-                                          AddMentionDataEvent(
-                                              discussion:
-                                                  state.getDiscussion()));
-                                    }
-                                  }),
-                                  BlocListener<AppBloc, AppState>(
-                                      listener: (context, state) {
-                                    if (state is AppLoadedState &&
-                                        state.lifecycleState ==
-                                            AppLifecycleState.resumed) {
-                                      // Reload the discussion which should cause it to subscribe to the websocket.
-                                      BlocProvider.of<DiscussionBloc>(context)
-                                          .add(RefreshPostsEvent(
-                                              discussionID:
-                                                  arguments.discussionID));
-                                    }
-                                  })
-                                ],
-                                child: DelphisDiscussion(
-                                  key: Key(
-                                      'discussion-screen-${arguments.discussionID}'),
-                                  discussionID: arguments.discussionID,
-                                  isStartJoinFlow: arguments.isStartJoinFlow,
-                                ),
+                            child: MultiBlocListener(
+                              listeners: [
+                                BlocListener<AuthBloc, AuthState>(
+                                    listener: (context, state) {
+                                  if (state is LoggedOutAuthState) {
+                                    Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      '/Auth',
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  }
+                                }),
+                                BlocListener<DiscussionBloc, DiscussionState>(
+                                    listener: (context, state) {
+                                  if (state is DiscussionLoadedState) {
+                                    BlocProvider.of<MentionBloc>(context).add(
+                                        AddMentionDataEvent(
+                                            discussion: state.getDiscussion()));
+                                  }
+                                }),
+                                BlocListener<AppBloc, AppState>(
+                                    listener: (context, state) {
+                                  if (state is AppLoadedState &&
+                                      state.lifecycleState ==
+                                          AppLifecycleState.resumed) {
+                                    // Reload the discussion which should cause it to subscribe to the websocket.
+                                    BlocProvider.of<DiscussionBloc>(context)
+                                        .add(RefreshPostsEvent(
+                                            discussionID:
+                                                arguments.discussionID));
+                                  }
+                                })
+                              ],
+                              child: DelphisDiscussion(
+                                key: Key(
+                                    'discussion-screen-${arguments.discussionID}'),
+                                discussionID: arguments.discussionID,
+                                isStartJoinFlow: arguments.isStartJoinFlow,
                               ),
                             ),
                           );

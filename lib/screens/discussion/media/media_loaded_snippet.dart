@@ -4,13 +4,13 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:flutter/material.dart';
 
-class MediaLoadedSnippet extends StatelessWidget {
+class LoadedMediaSnippetWidget extends StatelessWidget {
   final File file;
   final ImageProvider image;
   final VoidCallback onTap;
   final MediaContentType mediaContentType;
 
-  const MediaLoadedSnippet({
+  const LoadedMediaSnippetWidget({
     Key key,
     @required this.file,
     @required this.image,

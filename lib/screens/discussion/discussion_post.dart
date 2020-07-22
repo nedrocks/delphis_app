@@ -238,7 +238,7 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
     return Consumer<MediaChangeNotifier>(
       builder: (context, value, child) {
         if(value.hasData()) {
-          return MediaLoadedSnippet(
+          return LoadedMediaSnippetWidget(
             mediaContentType: value.mediaContentType,
             file: value.file,
             image: value.imageProvider,

@@ -43,7 +43,7 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
   @override
   Widget build(BuildContext context) {
     if (imageFile != null && imageProvider != null) {
-      return MediaLoadedSnippet(
+      return LoadedMediaSnippetWidget(
         mediaContentType: this.widget.post.media?.mediaContentType ??
           this.widget.post.localMediaContentType,
         file: this.imageFile,

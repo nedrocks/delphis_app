@@ -10,6 +10,7 @@ import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_set
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -386,16 +387,23 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
 
   Widget buildSubTitle() {
     var displayName = DisplayNames.formatParticipant(this.widget.discussion.moderator, this.widget.meParticipant);
+    var profileImage = ProfileImage(
+      height: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+      width: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+      profileImageURL: this.widget.meParticipant.userProfile?.profileImageURL,
+      isAnonymous: this.widget.meParticipant.isAnonymous
+    );
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
         style: TextThemes.goIncognitoSubheader,
-        children: <TextSpan>[
-          TextSpan(text: Intl.message('You currently are ')),
-           TextSpan(text: displayName, style: TextStyle(
-             fontWeight: FontWeight.bold,
-             color: Colors.blue
-           )
+        children: [
+          TextSpan(text: Intl.message('You are currently posting as: ')),
+          WidgetSpan(child: profileImage),
+          TextSpan(text: ' $displayName', style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.blue
+          )
           ),
           TextSpan(text: Intl.message('.\nPick how you want your avatar to display.')),
         ],

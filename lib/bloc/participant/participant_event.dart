@@ -24,7 +24,9 @@ class ParticipantEventUpdateParticipant extends ParticipantEvent {
   final bool isAnonymous;
   final bool isUnsetFlairID;
   final bool isUnsetGradient;
-
+  final VoidCallback onSuccess;
+  final Function(dynamic) onError;
+  
   const ParticipantEventUpdateParticipant({
     @required this.participantID,
     this.gradientName,
@@ -32,6 +34,8 @@ class ParticipantEventUpdateParticipant extends ParticipantEvent {
     this.isAnonymous,
     this.isUnsetFlairID,
     this.isUnsetGradient,
+    this.onSuccess,
+    this.onError
   }) : super();
 
   @override

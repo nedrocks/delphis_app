@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -7,6 +8,8 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
 import 'package:delphis_app/util/callbacks.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -221,6 +224,42 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   void updateExistingParticipant() {
+    var didUpdate = (this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous;
+    final notifBloc = BlocProvider.of<NotificationBloc>(context);
+    var onSuccess = !didUpdate ? () {} : () {
+      notifBloc.add(
+        NewNotificationEvent(
+          notification: OverlayTopMessage(
+            showForMs: 2000,
+            child: IncognitoModeTextOverlay(
+              hasGoneIncognito: _selectedIdx == 1,
+            ),
+            onDismiss: () {
+              notifBloc
+                .add(DismissNotification());
+            },
+          ),
+        ),
+      );
+    };
+    var onError = (error) {
+      notifBloc.add(
+        NewNotificationEvent(
+          notification: OverlayTopMessage(
+            showForMs: 3000,
+            child: IncognitoModeTextOverlay(
+              hasGoneIncognito: _selectedIdx == 1,
+              textOverride: error.toString(),
+            ),
+            onDismiss: () {
+              notifBloc
+                .add(DismissNotification());
+            },
+          ),
+        ),
+      );
+    };
+
     (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
         .add(ParticipantEventUpdateParticipant(
       participantID: this.widget.meParticipant.id,
@@ -230,8 +269,10 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           (flair) => flair.id == this._selectedFlairID,
           orElse: () => null),
       isUnsetFlairID: this._selectedFlairID == null,
+      onSuccess: onSuccess,
+      onError: onError
     ));
-    this.widget.onClose((this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous);
+    this.widget.onClose(didUpdate);
   }
 
   void joinDiscussion() async {

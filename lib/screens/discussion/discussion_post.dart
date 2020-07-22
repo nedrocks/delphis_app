@@ -12,6 +12,7 @@ import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
+import 'package:delphis_app/screens/discussion/media/media_loaded_snippet.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/animated_background_color/animated_background_color.dart';
@@ -23,7 +24,9 @@ import 'package:delphis_app/widgets/profile_image/profile_image_and_inviter.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
+import 'media/media_change_notifier.dart';
 import 'post_title.dart';
 
 typedef ConciergePostOptionPressed(
@@ -232,10 +235,25 @@ class _DiscussionPostState extends State<DiscussionPost> with TickerProviderStat
       return Container();
     }
     
-    return MediaSnippetWidget(
-      key: UniqueKey(),
-      post: this.widget.post,
-      onTap: this.widget.onMediaTap
+    return Consumer<MediaChangeNotifier>(
+      builder: (context, value, child) {
+        if(value.hasData()) {
+          return LoadedMediaSnippetWidget(
+            mediaContentType: value.mediaContentType,
+            file: value.file,
+            image: value.imageProvider,
+            onTap: () => this.widget.onMediaTap(value.file, value.mediaContentType)
+          );
+        }
+        
+        return MediaSnippetWidget(
+          post: this.widget.post,
+          onTap: this.widget.onMediaTap,
+          onMediaLoaded: (file, image, type) {
+            Provider.of<MediaChangeNotifier>(context, listen: false).setData(file, image, type);
+          }
+        );
+      },
     );
   }
 

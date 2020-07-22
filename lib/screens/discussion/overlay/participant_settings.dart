@@ -8,6 +8,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
 import 'package:delphis_app/util/callbacks.dart';
+import 'package:delphis_app/util/display_names.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
@@ -384,10 +385,21 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   Widget buildSubTitle() {
-    return Text(
-      Intl.message('Pick how you want your avatar to display.'),
-      style: TextThemes.goIncognitoSubheader,
-      textAlign: TextAlign.center
+    var displayName = DisplayNames.formatParticipant(this.widget.discussion.moderator, this.widget.meParticipant);
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: TextThemes.goIncognitoSubheader,
+        children: <TextSpan>[
+          TextSpan(text: Intl.message('You currently are ')),
+           TextSpan(text: displayName, style: TextStyle(
+             fontWeight: FontWeight.bold,
+             color: Colors.blue
+           )
+          ),
+          TextSpan(text: Intl.message('.\nPick how you want your avatar to display.')),
+        ],
+      ),
     );
   }
 

@@ -133,7 +133,6 @@ class SuperpowersPopup extends StatelessWidget {
                   title: Text(Intl.message("Are you sure?")),
                   content: Text(
                       "This action will have irreversible effects, do you still desire to proceed?"),
-                  useMaterialBorderRadius: true,
                   actions: [
                     Container(
                       width: MediaQuery.of(context).size.width,

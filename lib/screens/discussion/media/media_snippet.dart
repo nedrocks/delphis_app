@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/screens/discussion/media/media_loaded_snippet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -13,11 +14,13 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 class MediaSnippetWidget extends StatefulWidget {
   final Post post;
   final Function(File, MediaContentType) onTap;
+  final Function(File, ImageProvider, MediaContentType) onMediaLoaded;
 
   const MediaSnippetWidget({
     Key key,
     @required this.onTap,
     @required this.post,
+    @required this.onMediaLoaded
   }) : super(key: key);
 
   @override
@@ -39,11 +42,22 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget render;
     if (imageFile != null && imageProvider != null) {
-      render = buildSnippet(this.imageFile, this.imageProvider);
-    } else {
-      render = FutureBuilder(
+      return MediaLoadedSnippet(
+        mediaContentType: this.widget.post.media?.mediaContentType ??
+          this.widget.post.localMediaContentType,
+        file: this.imageFile,
+        image: this.imageProvider,
+        onTap: () => this.widget.onTap(imageFile, this.widget.post.media?.mediaContentType ?? null)
+      );
+    }
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
+      width: MediaQuery.of(context).size.width * 0.75,
+      height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12), color: Colors.grey),
+      child: FutureBuilder(
         future: downloadFile(
             this.widget.post.media?.assetLocation ?? "", this.widget.post.id),
         builder: (context, snapshot) {
@@ -71,8 +85,10 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
                       this.imageProvider = imageSnapshot.data;
                       this.imageFile = snapshot.data;
                     });
+                    if(this.widget.onMediaLoaded != null)
+                      this.widget.onMediaLoaded(snapshot.data, imageSnapshot.data, this.widget.post.media?.mediaContentType ??
+                        this.widget.post.localMediaContentType);
                   });
-                  return buildSnippet(snapshot.data, imageSnapshot.data);
                 }
 
                 return Center(
@@ -86,45 +102,8 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
             child: CupertinoActivityIndicator(),
           );
         },
-      );
-    }
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
-      width: MediaQuery.of(context).size.width * 0.75,
-      height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12), color: Colors.grey),
-      child: render,
+      ),
     );
-  }
-
-  Material buildSnippet(File file, ImageProvider image) {
-    return Material(
-        borderRadius: BorderRadius.circular(12),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-            onTap: () => this
-                .widget
-                .onTap(file, this.widget.post.media?.mediaContentType ?? null),
-            child: Container(
-              decoration: BoxDecoration(
-                  image: DecorationImage(image: image, fit: BoxFit.contain)),
-              child: (this.widget.post.media?.mediaContentType ??
-                          this.widget.post.localMediaContentType) !=
-                      MediaContentType.VIDEO
-                  ? Container()
-                  : Center(
-                      child: Container(
-                        padding: EdgeInsets.all(SpacingValues.xxSmall),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withAlpha(200),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.play_arrow,
-                            color: Colors.white, size: 25),
-                      ),
-                    ),
-            )));
   }
 
   Future<ImageProvider> getImage(

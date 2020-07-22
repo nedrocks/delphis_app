@@ -55,13 +55,14 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   String _selectedFlairID;
   int _selectedIdx;
   _SettingsState _settingsState;
-
+  bool _didChange;
   bool _showLoading;
 
   @override
   void initState() {
     super.initState();
-    this._selectedIdx = 0;
+    this._didChange = false;
+    this._selectedIdx = -1;
     this._settingsState = _SettingsState.ANONYMITY_SELECT;
     this._selectedGradient =
         gradientNameFromString(this.widget.meParticipant?.gradientColor);
@@ -74,7 +75,8 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     Widget child;
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
-        Color actionButtonColor = Color.fromRGBO(247, 247, 255, 0.2);
+        bool actionButtonEnabled = _didChange;
+        Color actionButtonColor = _didChange ? Color.fromRGBO(247, 247, 255, 0.2) : Color.fromRGBO(247, 247, 255, 1.0);
         Widget actionButtonText = Text(
           Intl.message('Update'),
           style: TextThemes.goIncognitoButton,
@@ -84,6 +86,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             child: CircularProgressIndicator(),
           );
         } else if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+          actionButtonEnabled = true;
           actionButtonColor = Color.fromRGBO(247, 247, 255, 1.0);
           actionButtonText = Text(
             Intl.message('Join'),
@@ -99,7 +102,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
           color: actionButtonColor,
           child: actionButtonText,
-          onPressed: () {
+          onPressed: !actionButtonEnabled ? null : () {
             if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
               this.joinDiscussion();
             } else {
@@ -155,6 +158,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this.setState(() {
               this._selectedFlairID = id;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
+              this._didChange = true;
             });
           },
           onCancel: () {
@@ -171,6 +175,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this.setState(() {
               this._selectedGradient = name;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
+              this._didChange = true;
             });
           },
           onCancel: () {
@@ -270,6 +275,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
         onSelected: () {
           setState(() {
             this._selectedIdx = 0;
+            this._didChange = true;
           });
         },
         onEdit: () {
@@ -305,6 +311,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
         onSelected: () {
           setState(() {
             this._selectedIdx = 1;
+            this._didChange = true;
           });
         },
         onEdit: onEdit,

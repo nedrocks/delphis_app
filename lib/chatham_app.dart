@@ -44,7 +44,7 @@ class ChathamApp extends StatefulWidget {
   const ChathamApp({
     key,
     @required this.env,
-  }) : super(key : key);
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => ChathamAppState();
@@ -62,7 +62,7 @@ class ChathamAppState extends State<ChathamApp>
   bool didReceivePushToken;
   bool hasSentDeviceToServer;
   bool requiresReload;
-  
+
   RouteObserver _routeObserver;
   Key _homePageKey;
   AppLifecycleState appLifecycleState;
@@ -166,31 +166,47 @@ class ChathamAppState extends State<ChathamApp>
   Widget build(BuildContext context) {
     return BlocBuilder<AppBloc, AppState>(
       builder: (context, state) {
-        if(state is AppInitial || (state is AppLoadedState && state.lifecycleState != this.appLifecycleState)) {
-          BlocProvider.of<AppBloc>(context).add(AppLifecycleChanged(lifecycle: this.appLifecycleState, when: DateTime.now()));
+        if (state is AppInitial ||
+            (state is AppLoadedState &&
+                state.lifecycleState != this.appLifecycleState)) {
+          BlocProvider.of<AppBloc>(context).add(AppLifecycleChanged(
+              lifecycle: this.appLifecycleState, when: DateTime.now()));
         }
         return MultiBlocProvider(
           providers: <BlocProvider>[
-            BlocProvider<AuthBloc>(create: (context) => AuthBloc(DelphisAuthRepository(this.secureStorage))..add(FetchAuthEvent())),
+            BlocProvider<AuthBloc>(
+                create: (context) =>
+                    AuthBloc(DelphisAuthRepository(this.secureStorage))
+                      ..add(FetchAuthEvent())),
             BlocProvider<MeBloc>(
-              create: (context) => MeBloc(UserRepository(clientBloc: BlocProvider.of<GqlClientBloc>(context)), BlocProvider.of<AuthBloc>(context))
-            ),
-            BlocProvider<DiscussionListBloc>(create: (context) => DiscussionListBloc(
-              repository: RepositoryProvider.of<DiscussionRepository>(context), 
-              meBloc : BlocProvider.of<MeBloc>(context))),
+                create: (context) => MeBloc(
+                    UserRepository(
+                        clientBloc: BlocProvider.of<GqlClientBloc>(context)),
+                    BlocProvider.of<AuthBloc>(context))),
+            BlocProvider<DiscussionListBloc>(
+                create: (context) => DiscussionListBloc(
+                    repository:
+                        RepositoryProvider.of<DiscussionRepository>(context),
+                    meBloc: BlocProvider.of<MeBloc>(context))),
             BlocProvider<MentionBloc>(create: (context) => MentionBloc()),
-            BlocProvider<DiscussionBloc>(create: (context) => DiscussionBloc(
-              discussionRepository: RepositoryProvider.of<DiscussionRepository>(context),
-              mediaRepository: RepositoryProvider.of<MediaRepository>(context))),
-            BlocProvider<NotificationBloc>(create: (context) => NotificationBloc(navKey: navKey)),
+            BlocProvider<DiscussionBloc>(
+                create: (context) => DiscussionBloc(
+                    discussionRepository:
+                        RepositoryProvider.of<DiscussionRepository>(context),
+                    mediaRepository:
+                        RepositoryProvider.of<MediaRepository>(context))),
+            BlocProvider<NotificationBloc>(
+                create: (context) => NotificationBloc(navKey: navKey)),
           ],
           child: MultiBlocListener(
             listeners: [
               BlocListener<AuthBloc, AuthState>(
                   listener: (context, AuthState state) {
                 if (state is InitializedAuthState) {
-                  BlocProvider.of<GqlClientBloc>(context).add(GqlClientAuthChanged(
-                      isAuthed: state.isAuthed, authString: state.authString));
+                  BlocProvider.of<GqlClientBloc>(context).add(
+                      GqlClientAuthChanged(
+                          isAuthed: state.isAuthed,
+                          authString: state.authString));
                 }
               }),
               BlocListener<GqlClientBloc, GqlClientState>(
@@ -202,17 +218,23 @@ class ChathamAppState extends State<ChathamApp>
                   BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
                 } else if (authState is InitializedAuthState &&
                     !authState.isAuthed) {
-                  this.sendDeviceToServer(RepositoryProvider.of<UserDeviceRepository>(context), null);
+                  this.sendDeviceToServer(
+                      RepositoryProvider.of<UserDeviceRepository>(context),
+                      null);
                 }
               }),
               BlocListener<MeBloc, MeState>(listener: (context, MeState state) {
                 if (state is LoadedMeState) {
-                  this.sendDeviceToServer(RepositoryProvider.of<UserDeviceRepository>(context), state.me);
+                  this.sendDeviceToServer(
+                      RepositoryProvider.of<UserDeviceRepository>(context),
+                      state.me);
                 }
               }),
-              BlocListener <DiscussionListBloc, DiscussionListState> (listener: (context, state) {
+              BlocListener<DiscussionListBloc, DiscussionListState>(
+                  listener: (context, state) {
                 if (state is DiscussionListLoaded) {
-                  BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussions: state.discussionList));
+                  BlocProvider.of<MentionBloc>(context).add(
+                      AddMentionDataEvent(discussions: state.discussionList));
                 }
               }),
             ],
@@ -232,8 +254,11 @@ class ChathamAppState extends State<ChathamApp>
                           BlocProvider<ParticipantBloc>(
                             lazy: true,
                             create: (context) => ParticipantBloc(
-                                repository: ParticipantRepository(clientBloc: BlocProvider.of<GqlClientBloc>(context)),
-                                discussionBloc: BlocProvider.of<DiscussionBloc>(context)),
+                                repository: ParticipantRepository(
+                                    clientBloc: BlocProvider.of<GqlClientBloc>(
+                                        context)),
+                                discussionBloc:
+                                    BlocProvider.of<DiscussionBloc>(context)),
                           ),
                         ],
                         child: BlocListener<AuthBloc, AuthState>(
@@ -248,7 +273,9 @@ class ChathamAppState extends State<ChathamApp>
                           },
                           child: HomePageScreen(
                             key: this._homePageKey,
-                            discussionRepository: RepositoryProvider.of<DiscussionRepository>(context),
+                            discussionRepository:
+                                RepositoryProvider.of<DiscussionRepository>(
+                                    context),
                             routeObserver: this._routeObserver,
                           ),
                         ),
@@ -258,58 +285,71 @@ class ChathamAppState extends State<ChathamApp>
                   case '/Discussion':
                     DiscussionArguments arguments =
                         settings.arguments as DiscussionArguments;
-                    return PageTransition(
-                      settings: settings,
-                      type: PageTransitionType.rightToLeft,
-                      child: MultiBlocProvider(
-                        providers: [
-                          BlocProvider<ParticipantBloc>(
-                            lazy: true,
-                            create: (context) => ParticipantBloc(
-                                repository: RepositoryProvider.of<ParticipantRepository>(context),
-                                discussionBloc: BlocProvider.of<DiscussionBloc>(context)),
-                          ),
-                          BlocProvider<SuperpowersBloc>(
-                            create: (context) => SuperpowersBloc(
-                              discussionRepository: RepositoryProvider.of<DiscussionRepository>(context),
-                              participantRepository: RepositoryProvider.of<ParticipantRepository>(context),
-                              notificationBloc: BlocProvider.of<NotificationBloc>(context)
+                    return MaterialPageRoute(
+                        settings: settings,
+                        builder: (BuildContext context) {
+                          return MultiBlocProvider(
+                            providers: [
+                              BlocProvider<ParticipantBloc>(
+                                lazy: true,
+                                create: (context) => ParticipantBloc(
+                                    repository: RepositoryProvider.of<
+                                        ParticipantRepository>(context),
+                                    discussionBloc:
+                                        BlocProvider.of<DiscussionBloc>(
+                                            context)),
+                              ),
+                              BlocProvider<SuperpowersBloc>(
+                                create: (context) => SuperpowersBloc(
+                                    discussionRepository: RepositoryProvider.of<
+                                        DiscussionRepository>(context),
+                                    participantRepository: RepositoryProvider
+                                        .of<ParticipantRepository>(context),
+                                    notificationBloc: BlocProvider.of<NotificationBloc>(context)),
+                              ),
+                            ],
+                            child: MultiBlocListener(
+                              listeners: [
+                                BlocListener<AuthBloc, AuthState>(
+                                    listener: (context, state) {
+                                  if (state is LoggedOutAuthState) {
+                                    Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      '/Auth',
+                                      (Route<dynamic> route) => false,
+                                    );
+                                  }
+                                }),
+                                BlocListener<DiscussionBloc, DiscussionState>(
+                                    listener: (context, state) {
+                                  if (state is DiscussionLoadedState) {
+                                    BlocProvider.of<MentionBloc>(context).add(
+                                        AddMentionDataEvent(
+                                            discussion: state.getDiscussion()));
+                                  }
+                                }),
+                                BlocListener<AppBloc, AppState>(
+                                    listener: (context, state) {
+                                  if (state is AppLoadedState &&
+                                      state.lifecycleState ==
+                                          AppLifecycleState.resumed) {
+                                    // Reload the discussion which should cause it to subscribe to the websocket.
+                                    BlocProvider.of<DiscussionBloc>(context)
+                                        .add(RefreshPostsEvent(
+                                            discussionID:
+                                                arguments.discussionID));
+                                  }
+                                })
+                              ],
+                              child: DelphisDiscussion(
+                                key: Key(
+                                    'discussion-screen-${arguments.discussionID}'),
+                                discussionID: arguments.discussionID,
+                                isStartJoinFlow: arguments.isStartJoinFlow,
+                              ),
                             ),
-                          ),
-                        ],
-                        child: MultiBlocListener (
-                          listeners: [
-                            BlocListener <AuthBloc, AuthState> (listener: (context, state) {
-                                if (state is LoggedOutAuthState) {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    '/Auth',
-                                    (Route<dynamic> route) => false,
-                                  );
-                                }
-                            }),
-                            BlocListener <DiscussionBloc, DiscussionState> (listener: (context, state) {
-                                if (state is DiscussionLoadedState) {
-                                  BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(discussion: state.getDiscussion()));
-                                }
-                            }),
-                            BlocListener<AppBloc, AppState>(listener: (context, state) {
-                                if (state is AppLoadedState &&
-                                    state.lifecycleState ==
-                                        AppLifecycleState.resumed) {
-                                  // Reload the discussion which should cause it to subscribe to the websocket.
-                                  BlocProvider.of<DiscussionBloc>(context).add(RefreshPostsEvent(discussionID: arguments.discussionID));
-                                }
-                            })
-                          ],
-                          child: DelphisDiscussion(
-                            key: Key('discussion-screen-${arguments.discussionID}'),
-                            discussionID: arguments.discussionID,
-                            isStartJoinFlow: arguments.isStartJoinFlow,
-                          ),
-                        ),
-                      ),
-                    );
+                          );
+                        });
                     break;
                   case '/Discussion/Naming':
                     DiscussionNamingArguments arguments =
@@ -371,13 +411,14 @@ class ChathamAppState extends State<ChathamApp>
           } else if (Platform.isAndroid) {
             platform = ChathamPlatform.ANDROID;
           }
-          repository.upsertUserDevice(
-            me?.id, this.pushToken, platform, this.deviceID).then((value) {
-              setState(() {
-                this.hasSentDeviceToServer = true;
-              });
+          repository
+              .upsertUserDevice(me?.id, this.pushToken, platform, this.deviceID)
+              .then((value) {
+            setState(() {
+              this.hasSentDeviceToServer = true;
             });
-          }
+          });
+        }
       });
     } else if (!this.hasSentDeviceToServer) {
       // This is pretty gross but will work..

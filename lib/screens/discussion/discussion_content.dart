@@ -47,7 +47,7 @@ class DiscussionContent extends StatelessWidget {
 
   final VoidCallback onModeratorOverlayClose;
 
-  DiscussionContent({
+  const DiscussionContent({
     @required key,
     @required this.scrollController,
     @required this.discussion,

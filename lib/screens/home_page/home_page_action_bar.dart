@@ -32,10 +32,10 @@ class HomePageActionBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Opacity(
-              opacity: this.currentTab == HomePageTab.CHAT ? 1.0 : 0.4,
-              child: SvgPicture.asset('assets/svg/chat-icon.svg'),
-            ),
+            // Opacity(
+            //   opacity: this.currentTab == HomePageTab.CHAT ? 1.0 : 0.4,
+            //   child: SvgPicture.asset('assets/svg/chat-icon.svg'),
+            // ),
             Container(
               width: 145.0,
               height: 44.0,

@@ -40,11 +40,11 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
       setState(() {
         isFirstBuild = false;
         Future.delayed(Duration(milliseconds: 2000), () {
-          if(this.mounted) {
-             setState(() {
+          if (this.mounted) {
+            setState(() {
               isMultilineTile = false;
             });
-          }   
+          }
         });
       });
     }
@@ -55,7 +55,7 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
       curve: Curves.decelerate,
       child: Container(
         height: this.isMultilineTile ? null : HeightValues.appBarHeight,
-        padding: EdgeInsets.symmetric(horizontal: SpacingValues.mediumLarge),
+        padding: EdgeInsets.only(right: SpacingValues.mediumLarge),
         decoration: BoxDecoration(
           border: Border(
               bottom: BorderSide(color: Color.fromRGBO(151, 151, 151, 0.4))),
@@ -64,13 +64,18 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             GestureDetector(
+              behavior: HitTestBehavior.translucent,
               onTap: () {
                 this.widget.onBackButtonPressed();
               },
               child: Row(
                 children: [
-                  SvgPicture.asset('assets/svg/back_chevron.svg',
-                      color: Color.fromRGBO(81, 82, 88, 1.0)),
+                  SizedBox(width: SpacingValues.mediumLarge),
+                  Container(
+                    height: HeightValues.appBarHeight,
+                    child: SvgPicture.asset('assets/svg/back_chevron.svg',
+                        color: Color.fromRGBO(81, 82, 88, 1.0)),
+                  ),
                   SizedBox(width: SpacingValues.small),
                 ],
               ),
@@ -103,7 +108,7 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
             Row(
               children: <Widget>[
                 ParticipantImages(
-                  moderator : this.widget.discussion.moderator,
+                  moderator: this.widget.discussion.moderator,
                   height: HeightValues.appBarItemsHeight,
                   participants: this.widget.discussion.participants,
                 ),

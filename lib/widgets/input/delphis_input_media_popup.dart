@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -20,35 +21,36 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
   final ScrollController parentScrollController;
   final TextEditingController textController;
   final FocusNode inputFocusNode;
-  final Function(String,
-    File,
-    MediaContentType) onSubmit;
+  final Function(String, File, MediaContentType) onSubmit;
   final Function(File, MediaContentType) onMediaTap;
   final VoidCallback onParticipantMentionPressed;
   final VoidCallback onDiscussionMentionPressed;
   final VoidCallback onModeratorButtonPressed;
 
-  const DelphisInputMediaPopupWidget({
-    Key key,
-    @required this.discussion,
-    @required this.participant,
-    @required this.isShowingParticipantSettings,
-    @required this.onParticipantSettingsPressed,
-    @required this.parentScrollController,
-    @required this.textController,
-    @required this.inputFocusNode,
-    @required this.onSubmit,
-    @required this.onParticipantMentionPressed, 
-    @required this.onDiscussionMentionPressed, 
-    @required this.onMediaTap,
-    @required this.onModeratorButtonPressed
-  }) : super(key: key);
-  
+  const DelphisInputMediaPopupWidget(
+      {Key key,
+      @required this.discussion,
+      @required this.participant,
+      @required this.isShowingParticipantSettings,
+      @required this.onParticipantSettingsPressed,
+      @required this.parentScrollController,
+      @required this.textController,
+      @required this.inputFocusNode,
+      @required this.onSubmit,
+      @required this.onParticipantMentionPressed,
+      @required this.onDiscussionMentionPressed,
+      @required this.onMediaTap,
+      @required this.onModeratorButtonPressed})
+      : super(key: key);
+
   @override
-  _DelphisInputMediaPopupWidgetState createState() => _DelphisInputMediaPopupWidgetState();
+  _DelphisInputMediaPopupWidgetState createState() =>
+      _DelphisInputMediaPopupWidgetState();
 }
 
-class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWidget> with SingleTickerProviderStateMixin {
+class _DelphisInputMediaPopupWidgetState
+    extends State<DelphisInputMediaPopupWidget>
+    with SingleTickerProviderStateMixin {
   final ImagePicker imagePicker = ImagePicker();
   File mediaFile;
   MediaContentType mediaType;
@@ -56,97 +58,110 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
   @override
   Widget build(BuildContext context) {
     var bar = Container();
-    if(mediaFile != null && mediaType != null) {
+    if (mediaFile != null && mediaType != null) {
       bar = Container(
-        padding: EdgeInsets.only(top : SpacingValues.medium, left: SpacingValues.small, right: SpacingValues.small),
+        padding: EdgeInsets.only(
+            top: SpacingValues.medium,
+            left: SpacingValues.small,
+            right: SpacingValues.small),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              MediaInputSnippetWidget(
+                  mediaFile: mediaFile,
+                  mediaType: mediaType,
+                  onCancelTap: (file, type) {
+                    setState(() {
+                      this.mediaFile = null;
+                      this.mediaType = null;
+                    });
+                  },
+                  onTap: this.widget.onMediaTap)
+            ]),
+      );
+    }
+
+    var render = AnimatedSize(
+        vsync: this,
+        duration: Duration(milliseconds: 200),
+        reverseDuration: Duration(milliseconds: 50),
+        curve: Curves.decelerate,
+        child: Column(
           children: [
-            MediaInputSnippetWidget(
-              mediaFile: mediaFile,
-              mediaType: mediaType,
-              onCancelTap: (file, type) {
+            bar,
+            DelphisInput(
+              discussion: widget.discussion,
+              participant: widget.participant,
+              isShowingParticipantSettings: widget.isShowingParticipantSettings,
+              onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
+              parentScrollController: widget.parentScrollController,
+              inputFocusNode: this.widget.inputFocusNode,
+              textController: this.widget.textController,
+              onParticipantMentionPressed:
+                  this.widget.onParticipantMentionPressed,
+              onDiscussionMentionPressed:
+                  this.widget.onDiscussionMentionPressed,
+              onGalleryPressed: this.selectGalleryMedia,
+              onImageCameraPressed: this.selectCameraImage,
+              onVideoCameraPressed: this.selectCameraVideo,
+              onModeratorButtonPressed: this.widget.onModeratorButtonPressed,
+              mediaFile: this.mediaFile,
+              onSubmit: (text) {
+                this.widget.onSubmit(text, this.mediaFile, this.mediaType);
+
+                // Maybe we can interact with DiscussionBloc to catch errors and not discard the image
                 setState(() {
                   this.mediaFile = null;
                   this.mediaType = null;
                 });
               },
-              onTap: this.widget.onMediaTap
             )
-          ]
-        ),
-      );
-    }
-    
-    var render = AnimatedSize(
-      vsync: this,
-      duration: Duration(milliseconds: 200),
-      reverseDuration: Duration(milliseconds: 50),
-      curve: Curves.decelerate,
-      child : Column(
-        children: [
-          bar,
-          DelphisInput(
-            discussion: widget.discussion,
-            participant: widget.participant,
-            isShowingParticipantSettings: widget.isShowingParticipantSettings,
-            onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
-            parentScrollController: widget.parentScrollController,
-            inputFocusNode: this.widget.inputFocusNode,
-            textController: this.widget.textController,
-            onParticipantMentionPressed: this.widget.onParticipantMentionPressed,
-            onDiscussionMentionPressed: this.widget.onDiscussionMentionPressed,
-            onGalleryPressed: this.selectGalleryMedia,
-            onImageCameraPressed: this.selectCameraImage,
-            onVideoCameraPressed: this.selectCameraVideo,
-            onModeratorButtonPressed: this.widget.onModeratorButtonPressed,
-            onSubmit: (text) {
-              this.widget.onSubmit(text, this.mediaFile, this.mediaType);
-
-              // Maybe we can interact with DiscussionBloc to catch errors and not discard the image
-              setState(() {
-                this.mediaFile = null;
-                this.mediaType = null;
-              });
-            },
-          )
-        ],
-      )
-    );
+          ],
+        ));
     return Platform.isAndroid
-      ? FutureBuilder(
-          future: retrieveLostData(),
-          builder: (context, snapshot) => render,
-        )
-      : render;
+        ? FutureBuilder(
+            future: retrieveLostData(),
+            builder: (context, snapshot) => render,
+          )
+        : render;
   }
 
   void selectGalleryMedia() async {
     File mediaFile = await FilePicker.getFile(type: FileType.image);
-    if(mediaFile != null) {
+    if (mediaFile != null) {
       String mimeStr = lookupMimeType(mediaFile.path);
-      var fileType = mimeStr.split('/')[0].toLowerCase() == "image" ? MediaContentType.IMAGE : MediaContentType.VIDEO;
+      var fileType = mimeStr.split('/')[0].toLowerCase() == "image"
+          ? MediaContentType.IMAGE
+          : MediaContentType.VIDEO;
       setState(() {
         this.mediaFile = mediaFile;
         this.mediaType = fileType;
       });
     }
+    FocusScope.of(context).unfocus();
+    Timer(const Duration(milliseconds: 1), () {
+      FocusScope.of(context).requestFocus(this.widget.inputFocusNode);
+    });
   }
 
   void selectCameraImage() async {
     final pickedFile = await imagePicker.getImage(source: ImageSource.camera);
-    if(pickedFile != null) {
+    if (pickedFile != null) {
       setState(() {
         this.mediaFile = File(pickedFile.path);
         this.mediaType = MediaContentType.IMAGE;
       });
     }
+    FocusScope.of(context).unfocus();
+    Timer(const Duration(milliseconds: 1), () {
+      FocusScope.of(context).requestFocus(this.widget.inputFocusNode);
+    });
   }
 
   void selectCameraVideo() async {
     final pickedFile = await imagePicker.getVideo(source: ImageSource.camera);
-    if(pickedFile != null) {
+    if (pickedFile != null) {
       setState(() {
         this.mediaFile = File(pickedFile.path);
         this.mediaType = MediaContentType.VIDEO;
@@ -168,11 +183,9 @@ class _DelphisInputMediaPopupWidgetState extends State<DelphisInputMediaPopupWid
         this.mediaFile = File(response.file.path);
         this.mediaType = mediaType;
       });
-    }
-    else {
+    } else {
       //response.exception.code;
       // Maybe catch errors ?
     }
   }
-
 }

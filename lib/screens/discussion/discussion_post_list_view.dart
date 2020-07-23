@@ -4,14 +4,15 @@ import 'dart:math';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
-import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
+import 'package:delphis_app/screens/discussion/media/media_change_notifier.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_announcement_post.dart';
@@ -33,7 +34,7 @@ class DiscussionPostListView extends StatelessWidget {
 
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
 
-  DiscussionPostListView({
+  const DiscussionPostListView({
     @required key,
     @required this.scrollController,
     @required this.discussion,
@@ -49,7 +50,6 @@ class DiscussionPostListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
-
     final numConciergePosts = (this.discussion.postsCache ?? []).where((post) {
       return post.postType == PostType.CONCIERGE;
     }).length;
@@ -172,6 +172,7 @@ class DiscussionPostListView extends StatelessWidget {
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
+              key: UniqueKey(),
               onConciergeOptionPressed: this.onConciergeOptionPressed,
               // I think this will break due to paging.
               conciergeIndex: max(
@@ -185,7 +186,10 @@ class DiscussionPostListView extends StatelessWidget {
               onModeratorButtonPressed: this.onSuperpowersButtonPressed,
             );
             if (true) {
-              return post;
+              return ChangeNotifierProvider(
+                create: (context) => MediaChangeNotifier(),
+                child: post
+              );
             } else {
               // TODO: This should be hooked up to announcement posts.
               return DiscussionAnnouncementPost(post: post);

@@ -118,23 +118,25 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         }
 
         /* Render popup */
-        return Card(
-          margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          elevation: 50.0,
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.only(
-              left: SpacingValues.extraLarge,
-              right: SpacingValues.extraLarge,
-              top: SpacingValues.mediumLarge),
-            decoration: BoxDecoration(
-              border: Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(36.0),
-                topRight: Radius.circular(36.0)),
-                color: Color.fromRGBO(22, 23, 28, 1.0)
-            ),
-            child: toRender
+        return SafeArea(
+          child: Card(
+            margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            elevation: 50.0,
+            color: Colors.transparent,
+            child: Container(
+              padding: EdgeInsets.only(
+                left: SpacingValues.extraLarge,
+                right: SpacingValues.extraLarge,
+                top: SpacingValues.mediumLarge),
+              decoration: BoxDecoration(
+                border: Border.all(color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(36.0),
+                  topRight: Radius.circular(36.0)),
+                  color: Color.fromRGBO(22, 23, 28, 1.0)
+              ),
+              child: toRender
+            )
           )
         );
       },

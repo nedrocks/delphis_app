@@ -23,6 +23,10 @@ final kThemeData = ThemeData(
     bodyText1: TextThemes.discussionPostText,
     bodyText2: TextThemes.discussionPostInput,
   ),
+  pageTransitionsTheme: PageTransitionsTheme(builders: {
+    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+  }),
 );
 
 class TextThemes {

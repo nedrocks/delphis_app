@@ -356,6 +356,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
     setState(() {
       this.panelToShow = null;
     });
+    BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
   }
 
 }

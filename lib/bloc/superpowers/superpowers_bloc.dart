@@ -156,14 +156,14 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
       await Future.delayed(Duration(seconds: 3));
       
       List<TwitterUserInfo> autocompletes = [];
-      for(int i = 0; i < Random().nextInt(5) + 1; i++) {
+      for(int i = 0; i < 3; i++) {
         autocompletes.add(TwitterUserInfo(
         id: _randomString(8),
         name: _randomString(10),
-        displayName: _randomString(12),
+        displayName: _randomString(60),
         isInvited: Random().nextBool(),
         isVerified: Random().nextBool(),
-        profileImageURL: "https://pbs.twimg.com/profile_images/569623151382765568/IXqTQzHo_400x400.jpeg"
+        profileImageURL: ""
       ));
       }
       

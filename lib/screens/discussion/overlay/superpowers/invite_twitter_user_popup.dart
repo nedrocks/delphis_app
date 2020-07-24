@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers/twitter_user_entry.dart';
@@ -23,7 +27,10 @@ class InviteTwitterUserPopup extends StatefulWidget {
 
 class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
   final autocompleteEntryHeight = 50.0;
+  final queryDebouncher = _Debouncer(1500);
   TextEditingController textController;
+  TwitterUserInfo selectedAutocomplete;
+  int selectedAutocompleteIndex;
 
   @override
   void initState() {
@@ -32,6 +39,8 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
       setState(() {    
       });
     });
+    selectedAutocomplete = null;
+    selectedAutocompleteIndex = -1;
     super.initState();
   }
 
@@ -53,20 +62,41 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
           );
         }
         else if(state is TwitterUserAutocompletesLoadedState) {
-          autocompletes = Container(
-            constraints: BoxConstraints(
-              minHeight: autocompleteEntryHeight,
-              maxHeight: autocompleteEntryHeight * 2
-            ),
+          var heightUnits = min(2.5, max(state.autocompletes.length, 1.2));
+          if(state.autocompletes.length == 0) {
+            autocompletes = Container(
+              margin: EdgeInsets.only(bottom: SpacingValues.medium),
+              child: Center(
+                child: Text(
+                  Intl.message("No results available for the given entry.")
+                )
+              ),
+            );
+          } else {
+            autocompletes = Container(
+            height: heightUnits * autocompleteEntryHeight,
             child: ListView.builder(
               itemCount: state.autocompletes.length,
               itemBuilder: (context, index) {
+                var element = state.autocompletes[index];
                 return TwitterUserEntryWidget(
-                  userInfo: state.autocompletes[index]
+                  userInfo: element,
+                  isChecked: element.isInvited,
+                  isSelected: selectedAutocompleteIndex == index,
+                  onTap: () {
+                    setState(() {
+                      selectedAutocompleteIndex = index;
+                      selectedAutocomplete = element;
+                    });
+                  },
                 );
               }
             ),
           );
+          }        
+        }
+        if(this.textController.text.length == 0) {
+          autocompletes = Container();
         }
 
         var textStyle = Theme.of(context).textTheme.bodyText2;
@@ -89,7 +119,7 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                 child: Column(
                   children: [
                     Text(
-                      Intl.message("Type the Twitter username of the person you wish to invite in this discussion."),
+                      Intl.message("Search a Twitter user you wish to invite in this discussion and select it from the list."),
                       style: TextThemes.goIncognitoSubheader,
                       textAlign: TextAlign.center,
                     ),
@@ -146,8 +176,8 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                             Intl.message('Invite'),
                             style: this.textController.text.length == 0 ? TextThemes.goIncognitoButton : TextThemes.joinButtonTextChatTab
                           ),
-                          onPressed: this.textController.text.length == 0 ? null : () {
-                            this.widget.onSubmit(this.textController.text);
+                          onPressed: selectedAutocomplete == null ? null : () {
+                            this.widget.onSubmit(this.selectedAutocomplete.name);
                           },
                         ),
                       ],
@@ -165,9 +195,35 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
   }
 
   void onTextChanged(BuildContext context, String value) {
-    BlocProvider.of<SuperpowersBloc>(context).add(SearchTwitterUserAutocompletesEvent(
-      query: value
-    ));
+    if(value == null || value.length == 0) {
+      BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+      return;
+    }
+      
+    queryDebouncher.run(() { 
+      BlocProvider.of<SuperpowersBloc>(context).add(SearchTwitterUserAutocompletesEvent(
+        query: value
+      ));
+      setState(() {
+        selectedAutocomplete = null;
+        selectedAutocompleteIndex = -1;
+      });
+    });
   }
 
+}
+
+class _Debouncer {
+  final int milliseconds;
+  VoidCallback action;
+  Timer _timer;
+
+  _Debouncer(this.milliseconds);
+
+  run(VoidCallback action) {
+    if (_timer != null) {
+      _timer.cancel();
+    }
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
 }

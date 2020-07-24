@@ -398,12 +398,14 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
       text: TextSpan(
         style: TextThemes.goIncognitoSubheader,
         children: [
-          TextSpan(text: Intl.message('You are currently posting as: ')),
+          TextSpan(text: Intl.message('You are currently posting as:\n')),
           WidgetSpan(child: profileImage),
-          TextSpan(text: ' $displayName', style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.blue
-          )
+          TextSpan(
+            text: ' $displayName',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue
+            )
           ),
           TextSpan(text: Intl.message('.\nPick how you want your avatar to display.')),
         ],

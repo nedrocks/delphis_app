@@ -57,7 +57,7 @@
               <category android:name="android.intent.category.DEFAULT" />
               <category android:name="android.intent.category.BROWSABLE" />
               <data
-                android:scheme="https" android:host="www.chatham.ai"/>
+                android:scheme="https" android:host="m.chatham.ai"/>
             </intent-filter>
             <intent-filter>
               <action android:name="android.intent.action.VIEW" />

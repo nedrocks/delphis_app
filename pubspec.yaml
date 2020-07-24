@@ -26,7 +26,7 @@ dependencies:
 
   page_transition: ^1.1.4
 
-  flutter_svg: ^0.18.0
+  flutter_svg: ^0.17.4
   url_launcher: ^5.4.5
   random_words: 1.0.2
   image_picker: ^0.6.7+2
@@ -37,7 +37,7 @@ dependencies:
   video_player: ^0.10.11+1
   path_provider: ^1.6.11
   flutter_cache_manager: ^1.4.1
-  image: ^2.1.13
+  image: ^2.1.12
   photo_view: ^0.9.2
   recase: ^3.0.0
 
@@ -50,13 +50,13 @@ dependencies:
   graphql_flutter: ^3.0.0
   json_annotation: ^3.0.0
 
-  flutter_bloc: ^5.0.0
+  flutter_bloc: ^6.0.0
   equatable: ^1.2.0
 
   flutter_segment: ^2.0.2
   uuid: ^2.0.4
 
-  pull_to_refresh: ^1.5.8
+  pull_to_refresh: ^1.6.0
   shared_preferences: ^0.5.7+3
 
   uni_links: ^0.4.0
@@ -74,7 +74,6 @@ dev_dependencies:
   lipsum: 1.0.1
   build_runner: ^1.0.0
   json_serializable: 3.2.5
-  test: ^1.14.7
   image_test_utils: 1.0.0
   flutter_test:
     sdk: flutter

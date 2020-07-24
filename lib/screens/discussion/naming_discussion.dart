@@ -143,7 +143,6 @@ class _DiscussionNamingScreenState extends State<DiscussionNamingScreen> {
                 left: SpacingValues.smallMedium, bottom: SpacingValues.medium),
             fillColor: Colors.blue,
             filled: false,
-            isCollapsed: true,
           ),
           style: TextStyle(
               fontSize: 17.0,

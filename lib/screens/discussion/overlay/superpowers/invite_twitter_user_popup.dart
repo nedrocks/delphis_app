@@ -81,7 +81,7 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                 var element = state.autocompletes[index];
                 return TwitterUserEntryWidget(
                   userInfo: element,
-                  isChecked: element.isInvited,
+                  isChecked: element.invited,
                   isSelected: selectedAutocompleteIndex == index,
                   onTap: () {
                     setState(() {

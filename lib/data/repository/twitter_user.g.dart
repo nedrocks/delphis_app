@@ -12,8 +12,8 @@ TwitterUserInfo _$TwitterUserInfoFromJson(Map<String, dynamic> json) {
     name: json['name'] as String,
     displayName: json['displayName'] as String,
     profileImageURL: json['profileImageURL'] as String,
-    isVerified: json['isVerified'] as bool,
-    isInvited: json['isInvited'] as bool,
+    verified: json['verified'] as bool,
+    invited: json['invited'] as bool,
   );
 }
 
@@ -23,8 +23,8 @@ Map<String, dynamic> _$TwitterUserInfoToJson(TwitterUserInfo instance) =>
       'name': instance.name,
       'displayName': instance.displayName,
       'profileImageURL': instance.profileImageURL,
-      'isVerified': instance.isVerified,
-      'isInvited': instance.isInvited,
+      'verified': instance.verified,
+      'invited': instance.invited,
     };
 
 TwitterUserInput _$TwitterUserInputFromJson(Map<String, dynamic> json) {

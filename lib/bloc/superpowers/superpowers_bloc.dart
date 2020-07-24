@@ -161,8 +161,8 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         id: _randomString(8),
         name: _randomString(10),
         displayName: _randomString(60),
-        isInvited: Random().nextBool(),
-        isVerified: Random().nextBool(),
+        invited: Random().nextBool(),
+        verified: Random().nextBool(),
         profileImageURL: ""
       ));
       }

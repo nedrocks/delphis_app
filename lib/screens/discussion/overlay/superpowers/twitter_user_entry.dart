@@ -39,7 +39,7 @@ class TwitterUserEntryWidget extends StatelessWidget {
               isAnonymous: false,
             ),
           ),
-          !userInfo.isVerified ? Container() : Positioned(
+          !userInfo.verified ? Container() : Positioned(
             bottom: 0,
             right: 0,
             child: VerifiedCheckmark(

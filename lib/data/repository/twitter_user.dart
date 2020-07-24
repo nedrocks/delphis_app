@@ -9,20 +9,20 @@ class TwitterUserInfo extends Equatable {
   final String name;
   final String displayName;
   final String profileImageURL;
-  final bool isVerified;
-  final bool isInvited;
+  final bool verified;
+  final bool invited;
 
   TwitterUserInfo({
     this.id,
     this.name,
     this.displayName,
     this.profileImageURL,
-    this.isVerified,
-    this.isInvited
+    this.verified,
+    this.invited
   });
 
   List<Object> get props => [
-        id, name, displayName, profileImageURL, isVerified, isInvited
+        id, name, displayName, profileImageURL, verified, invited
   ];
 
   factory TwitterUserInfo.fromJson(Map<String, dynamic> json) => _$TwitterUserInfoFromJson(json);

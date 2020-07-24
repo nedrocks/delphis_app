@@ -1,20 +1,16 @@
 import UIKit
 import Flutter
-import Ably
 import UserNotifications
 import Firebase
 
 let apiKey = ""
 let myClientId = "foo"
-let ablyClientOptions = ARTClientOptions()
 let myPushChannel = "push"
 
 let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
 
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate, ARTPushRegistererDelegate {
-    var realtime: ARTRealtime! = nil
-    var channel: ARTRealtimeChannel!
+@objc class AppDelegate: FlutterAppDelegate {
     var myDeviceToken = ""
     var myDeviceId = ""
 
@@ -49,65 +45,38 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
   }
 
     override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        print("[LOCALLOG] Registration for remote notifications successful")
         self.myDeviceToken = deviceToken.reduce("", {$0 + String(format: "%02X", $1)})
-        print("received device token: " + self.myDeviceToken)
-        ARTPush.didRegisterForRemoteNotifications(withDeviceToken: deviceToken, realtime: self.getAblyRealtime())
         DispatchQueue.main.async {
-            print("here1")
-            print("is token channel existing? ");
             self._tokenChannel?.invokeMethod("didReceiveTokenAndDeviceID", arguments:"\(self.myDeviceId).\(self.myDeviceToken)")
-//            self._tokenChannel?.invokeMethod("didReceiveToken", arguments: self.myDeviceToken)
-//            self._tokenChannel?.invokeMethod("didReceiveDeviceID", arguments: self.myDeviceId)
         }
     }
 
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("[LOCALLOG] Error registering for remote notifications")
-        ARTPush.didFailToRegisterForRemoteNotificationsWithError(error, realtime: self.getAblyRealtime())
-
         DispatchQueue.main.async {
-            print("here2")
-            print("is token channel existing? ");
             self._tokenChannel?.invokeMethod("didReceiveTokenAndDeviceID", arguments:"\(self.myDeviceId).")
-//            self._tokenChannel?.invokeMethod("didReceiveToken", arguments: "")
-//            self._tokenChannel?.invokeMethod("didReceiveDeviceID", arguments: self.myDeviceId)
         }
     }
 
-    func didActivateAblyPush(_ error: ARTErrorInfo?) {
-//        if let error = error {
-//            // Handle error
-//            print("[LOCALLOG] Push activation failed, err=\(String(describing: error))")
-//            return
-//        }
-//        print("[LOCALLOG] Push activation successful")
-//
-//        self.channel = self.realtime.channels.get(myPushChannel)
-//        self.channel.push.subscribeDevice { (err) in
-//            if(err != nil){
-//                print("[LOCALLOG] Device Subscription on push channel failed with err=\(String(describing: err))")
-//                return
-//            }
-//            self.myDeviceId = self.realtime.device.id
-//            print("[LOCALLOG] Client ID: " + myClientId)
-//            print("[LOCALLOG] Device Token: " + self.myDeviceToken)
-//            print("[LOCALLOG] Device ID: " + self.myDeviceId)
-//            print("[LOCALLOG] Push channel: " + myPushChannel)
-//        }
-    }
-
-    func didDeactivateAblyPush(_ error: ARTErrorInfo?) {
-        //print("[LOCALLOG] push deactivated")
-    }
-
-    private func getAblyRealtime() -> ARTRealtime {
-        if(realtime == nil){
-            ablyClientOptions.clientId = myClientId
-            ablyClientOptions.key = apiKey
-            realtime = ARTRealtime(options: ablyClientOptions)
+    override func application(_ application: UIApplication,
+                     continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
+    {
+        print("here")
+        // Get URL components from the incoming user activity
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let incomingURL = userActivity.webpageURL,
+            let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+            return false
         }
-        return realtime
+
+        // Check for specific URL components that you need
+        guard let path = components.path,
+        let params = components.queryItems else {
+            return false
+        }
+        print("path = \(path)")
+
+        return true
     }
 }
 

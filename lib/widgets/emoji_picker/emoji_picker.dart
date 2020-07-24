@@ -52,7 +52,7 @@ class ChathamEmojiPicker extends StatelessWidget {
                 decoration: InputDecoration(border: InputBorder.none),
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: this.height * 2 / 3 * 0.7)),
-            Text(Intl.message('Pick an emoji or photo'),
+            Text(Intl.message('Pick an emoji'),
                 style: TextThemes.emojiPickerText),
           ],
         ),

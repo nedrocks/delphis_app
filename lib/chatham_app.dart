@@ -11,6 +11,7 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ import 'package:uni_links/uni_links.dart';
 
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/discussion/discussion_bloc.dart';
+import 'bloc/link/link_bloc.dart';
 import 'bloc/me/me_bloc.dart';
 import 'bloc/notification/notification_bloc.dart';
 import 'bloc/participant/participant_bloc.dart';
@@ -68,8 +70,6 @@ class ChathamAppState extends State<ChathamApp>
   AppLifecycleState appLifecycleState;
 
   StreamSubscription _deepLinkSubscription;
-  Uri _latestDeeplinkURI;
-  String _latestDeeplink = 'Unknown';
 
   @override
   void dispose() {
@@ -103,45 +103,21 @@ class ChathamAppState extends State<ChathamApp>
   }
 
   void initPlatformState() async {
-    // Attach a listener to the links stream
-    _deepLinkSubscription = getLinksStream().listen((String link) {
-      if (!mounted) return;
-      setState(() {
-        _latestDeeplink = link ?? 'Unknown';
-        _latestDeeplinkURI = null;
-        try {
-          if (link != null) _latestDeeplinkURI = Uri.parse(link);
-        } on FormatException {}
-      });
-    }, onError: (err) {
-      if (!mounted) return;
-      setState(() {
-        _latestDeeplink = 'Failed to get latest link: $err.';
-        _latestDeeplinkURI = null;
-      });
-    });
-
-    // Attach a second listener to the stream
     getLinksStream().listen((String link) {
-      print('got link: $link');
+      BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: link));
     }, onError: (err) {
       print('got err: $err');
     });
 
     // Get the latest link
     String initialLink;
-    Uri initialUri;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       initialLink = await getInitialLink();
-      print('initial link: $initialLink');
-      if (initialLink != null) initialUri = Uri.parse(initialLink);
     } on PlatformException {
       initialLink = 'Failed to get initial link.';
-      initialUri = null;
     } on FormatException {
       initialLink = 'Failed to parse the initial link as Uri.';
-      initialUri = null;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -149,10 +125,13 @@ class ChathamAppState extends State<ChathamApp>
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
-      _latestDeeplink = initialLink;
-      _latestDeeplinkURI = initialUri;
-    });
+    try {
+      BlocProvider.of<LinkBloc>(context)
+          .add(LinkChangeEvent(newLink: initialLink));
+    } catch (err) {
+      // fail silently
+      print('err: $err');
+    }
   }
 
   @override
@@ -235,6 +214,25 @@ class ChathamAppState extends State<ChathamApp>
                 if (state is DiscussionListLoaded) {
                   BlocProvider.of<MentionBloc>(context).add(
                       AddMentionDataEvent(discussions: state.discussionList));
+                }
+              }),
+              BlocListener<LinkBloc, LinkState>(listener: (context, state) {
+                if (state is ExternalLinkState) {
+                  // Let's parse the link
+                  Uri linkURI;
+                  try {
+                    linkURI = Uri.parse(state.link);
+                  } catch (err) {
+                    // This is an invalid URI.
+                  }
+                  if (linkURI != null) {
+                    if (ChathamLinkParser.isNormalDiscussionLink(linkURI)) {
+                      // We need to try and show the discussion.
+                    } else if (ChathamLinkParser.isVIPDiscussionLink(linkURI)) {
+                      // We need to join the discussion and then show it.
+
+                    }
+                  }
                 }
               }),
             ],

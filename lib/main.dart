@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/app/app_bloc.dart';
+import 'package:delphis_app/bloc/link/link_bloc.dart';
 import 'package:delphis_app/bloc/observer.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/constants.dart';
@@ -21,7 +22,7 @@ void main() {
       statusBarBrightness: Brightness.dark,
     ),
   );
-  Constants.setEnvironment(Environment.STAGING);
+  Constants.setEnvironment(Environment.DEV);
   Bloc.observer = ChathamBlocObserver();
 
   var appKey = GlobalKey();
@@ -29,6 +30,7 @@ void main() {
       providers: [
         BlocProvider<AppBloc>(create: (context) => AppBloc()),
         BlocProvider<GqlClientBloc>(create: (context) => GqlClientBloc()),
+        BlocProvider<LinkBloc>(create: (context) => LinkBloc()),
       ],
       child: MultiRepositoryProvider(providers: [
         RepositoryProvider<DiscussionRepository>(
@@ -43,5 +45,5 @@ void main() {
         RepositoryProvider<ParticipantRepository>(
             create: (context) => ParticipantRepository(
                 clientBloc: BlocProvider.of<GqlClientBloc>(context))),
-      ], child: ChathamApp(key: appKey, env: Environment.STAGING))));
+      ], child: ChathamApp(key: appKey, env: Environment.DEV))));
 }

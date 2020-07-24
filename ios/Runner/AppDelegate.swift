@@ -57,27 +57,26 @@ let lifeCycleDelegate = FlutterPluginAppLifeCycleDelegate();
         }
     }
 
-    override func application(_ application: UIApplication,
-                     continue userActivity: NSUserActivity,
-                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
-    {
-        print("here")
-        // Get URL components from the incoming user activity
-        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-            let incomingURL = userActivity.webpageURL,
-            let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
-            return false
-        }
-
-        // Check for specific URL components that you need
-        guard let path = components.path,
-        let params = components.queryItems else {
-            return false
-        }
-        print("path = \(path)")
-
-        return true
-    }
+//    override func application(_ application: UIApplication,
+//                     continue userActivity: NSUserActivity,
+//                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
+//    {
+//        // Get URL components from the incoming user activity
+//        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+//            let incomingURL = userActivity.webpageURL,
+//            let components = NSURLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+//            return false
+//        }
+//
+//        // Check for specific URL components that you need
+//        guard let path = components.path,
+//        let params = components.queryItems else {
+//            return false
+//        }
+//        print("path = \(path)")
+//
+//        return true
+//    }
 }
 
 extension AppDelegate {

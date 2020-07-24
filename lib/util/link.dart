@@ -1,23 +1,29 @@
-class ChathamLinkParser {
-  static bool isNormalDiscussionLink(Uri link) {
-    try {
-      final pathParts = link.path.split('/');
-      if (link.path.startsWith('/d') && (pathParts.length == 2)) {
-        return true;
-      }
-    } catch (_) {
-      return false;
-    }
-  }
+class ChathamDiscussionLinkParams {
+  final String discussionID;
+  final String vipLinkToken;
 
-  static bool isVIPDiscussionLink(Uri link) {
+  const ChathamDiscussionLinkParams(this.discussionID, this.vipLinkToken);
+
+  bool get isVipLink => vipLinkToken != null;
+}
+
+class ChathamLinkParser {
+  static ChathamDiscussionLinkParams getChathamDiscussionLinkParams(Uri link) {
     try {
-      final pathParts = link.path.split('/');
-      if (link.path.startsWith('/d') && (pathParts.length == 3)) {
-        return true;
+      if (link.path.startsWith('/d')) {
+        if (link.pathSegments.length == 2) {
+          return ChathamDiscussionLinkParams(link.pathSegments[1], null);
+        } else if (link.pathSegments.length == 3) {
+          return ChathamDiscussionLinkParams(
+              link.pathSegments[1], link.pathSegments[2]);
+        } else {
+          return null;
+        }
       }
     } catch (_) {
-      return false;
+      return null;
     }
+
+    return null;
   }
 }

@@ -308,41 +308,34 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     } else if (event is DiscussionPostDeletedEvent &&
         currentState is DiscussionLoadedState) {
       final discussion = currentState.getDiscussion();
-      if(discussion != null) {
-        var newPostsCache = discussion.postsCache
-          .map((p) {
-            if(p.id == event.post.id)
-              return event.post;
-            return p;
-          })
-          .toList();
+      if (discussion != null) {
+        var newPostsCache = discussion.postsCache.map((p) {
+          if (p.id == event.post.id) return event.post;
+          return p;
+        }).toList();
         var updatedDiscussion = currentState.getDiscussion().copyWith(
-          postsCache: newPostsCache,
-        );
+              postsCache: newPostsCache,
+            );
         yield currentState.update(discussion: updatedDiscussion);
       }
     } else if (event is DiscussionParticipantBannedEvent &&
         currentState is DiscussionLoadedState) {
-        final discussion = currentState.getDiscussion();
-      if(discussion != null) {
-        var newParticipants = discussion.participants
-          .map((p) {
-            if(p.id == event.participant.id)
-              return event.participant;
-            return p;
-          })
-          .toList();
-        var newPostsCache = discussion.postsCache
-          .map((p) {
-            if(p.participant.id == event.participant.id)
-              return p.copyWith(isDeleted: true, deletedReasonCode: PostDeletedReason.PARTICIPANT_REMOVED);
-            return p;
-          })
-          .toList();
-        var updatedDiscussion = currentState.getDiscussion().copyWith(
-          postsCache: newPostsCache,
-          participants: newParticipants
-        );
+      final discussion = currentState.getDiscussion();
+      if (discussion != null) {
+        var newParticipants = discussion.participants.map((p) {
+          if (p.id == event.participant.id) return event.participant;
+          return p;
+        }).toList();
+        var newPostsCache = discussion.postsCache.map((p) {
+          if (p.participant.id == event.participant.id)
+            return p.copyWith(
+                isDeleted: true,
+                deletedReasonCode: PostDeletedReason.PARTICIPANT_REMOVED);
+          return p;
+        }).toList();
+        var updatedDiscussion = currentState
+            .getDiscussion()
+            .copyWith(postsCache: newPostsCache, participants: newParticipants);
         yield currentState.update(discussion: updatedDiscussion);
       }
     } else if (event is SubscribeToDiscussionEvent &&
@@ -453,15 +446,13 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   }
 
   void consumeDiscussionSubscriptionEvent(DiscussionSubscriptionEvent event) {
-    if(event is DiscussionSubscriptionPostAdded) {
-       this.add(DiscussionPostAddedEvent(post: event.post));
-    }
-    else if(event is DiscussionSubscriptionPostDeleted) {
+    if (event is DiscussionSubscriptionPostAdded) {
+      this.add(DiscussionPostAddedEvent(post: event.post));
+    } else if (event is DiscussionSubscriptionPostDeleted) {
       this.add(DiscussionPostDeletedEvent(post: event.post));
-    }
-    else if(event is DiscussionSubscriptionParticipantBanned) {
-      this.add(DiscussionParticipantBannedEvent(participant: event.participant));
+    } else if (event is DiscussionSubscriptionParticipantBanned) {
+      this.add(
+          DiscussionParticipantBannedEvent(participant: event.participant));
     }
   }
-
 }

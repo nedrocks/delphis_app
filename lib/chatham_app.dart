@@ -13,6 +13,8 @@ import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -226,11 +228,46 @@ class ChathamAppState extends State<ChathamApp>
                     // This is an invalid URI.
                   }
                   if (linkURI != null) {
-                    if (ChathamLinkParser.isNormalDiscussionLink(linkURI)) {
-                      // We need to try and show the discussion.
-                    } else if (ChathamLinkParser.isVIPDiscussionLink(linkURI)) {
+                    final linkArgs =
+                        ChathamLinkParser.getChathamDiscussionLinkParams(
+                            linkURI);
+                    if (linkArgs.isVipLink) {
                       // We need to join the discussion and then show it.
-
+                      try {
+                        RepositoryProvider.of<DiscussionRepository>(context)
+                            .joinDiscussionWithVIPLink(
+                          discussionID: linkArgs.discussionID,
+                          vipToken: linkArgs.vipLinkToken,
+                        )
+                            .then((disc) {
+                          navKey.currentState.pushNamed('/Discussion',
+                              arguments: DiscussionArguments(
+                                discussionID: linkArgs.discussionID,
+                                isStartJoinFlow: true,
+                              ));
+                        }).catchError((err) {
+                          BlocProvider.of<NotificationBloc>(context).add(
+                            NewNotificationEvent(
+                              notification: OverlayTopMessage(
+                                child: IncognitoModeTextOverlay(
+                                  hasGoneIncognito: false,
+                                  textOverride: "Failed to join discussion.",
+                                ),
+                                onDismiss: () {
+                                  BlocProvider.of<NotificationBloc>(context)
+                                      .add(DismissNotification());
+                                },
+                              ),
+                            ),
+                          );
+                        });
+                      } catch (err) {}
+                    } else {
+                      navKey.currentState.pushNamed('/Discussion',
+                          arguments: DiscussionArguments(
+                            discussionID: linkArgs.discussionID,
+                            isStartJoinFlow: false,
+                          ));
                     }
                   }
                 }

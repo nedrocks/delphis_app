@@ -1,6 +1,5 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
-import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
@@ -75,6 +74,7 @@ class ChatsList extends StatelessWidget {
 
         return SmartRefresher(
           enablePullDown: true,
+          enablePullUp: false,
           header: CustomHeader(
             builder: (context, status) {
               Widget body;
@@ -97,11 +97,13 @@ class ChatsList extends StatelessWidget {
               );
             },
           ),
+          footer: Container(),
           controller: this.refreshController,
           onRefresh: () async {
             BlocProvider.of<DiscussionListBloc>(context)
                 .add(DiscussionListFetchEvent());
           },
+          onLoading: () {},
           child: ListView.builder(
             padding: EdgeInsets.zero,
             key: Key('discussion-list-view'),

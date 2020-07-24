@@ -102,17 +102,19 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
               SizedBox(height: SpacingValues.small),
               bottomWidget,
               Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-              SizedBox(height: SpacingValues.mediumLarge),
               GestureDetector(
                 onTap: () {
                   this.widget.onCancel();
                 },
-                child: Text(
-                  Intl.message('Cancel'),
-                  style: TextThemes.cancelText,
+                child: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.symmetric(horizontal: SpacingValues.xxLarge, vertical: SpacingValues.mediumLarge),
+                  child: Text(
+                    Intl.message('Close'),
+                    style: TextThemes.backButton,
+                  )
                 )
               ),
-              SizedBox(height: SpacingValues.mediumLarge),
             ]
           )
         );

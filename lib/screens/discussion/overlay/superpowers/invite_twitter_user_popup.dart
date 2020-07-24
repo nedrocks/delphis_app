@@ -162,7 +162,14 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        GoBack(height: 16.0, onPressed: this.widget.onCancel),
+                        GestureDetector(
+                          onTap: this.widget.onCancel,
+                          child: Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.symmetric(horizontal: SpacingValues.xxLarge, vertical: SpacingValues.mediumLarge),
+                            child: GoBack(height: 16.0, onPressed: null),
+                          ),
+                        ),
                         RaisedButton(
                           padding: EdgeInsets.symmetric(
                             horizontal: SpacingValues.xxLarge,

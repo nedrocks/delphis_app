@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:equatable/equatable.dart';
@@ -115,7 +119,7 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         notificationBloc.add(NewNotificationEvent(
           notification: OverlayTopMessage(
             child: IncognitoModeTextOverlay(
-                hasGoneIncognito: false, textOverride: Intl.message("@${event.twitterHandle} has been sent an invitation!")),
+                hasGoneIncognito: false, textOverride: Intl.message("@${event.input.name} has been sent an invitation!")),
             onDismiss: () {
               notificationBloc.add(DismissNotification());
             },
@@ -124,6 +128,61 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         yield ReadyState();
       }
     }
+    else if(event is InviteTwitterUserEvent) {
+      if(this.state is ReadyState) {
+        yield LoadingState();
+        
+        // TODO: call backend here
+        await Future.delayed(Duration(seconds: 3));
+
+        notificationBloc.add(NewNotificationEvent(
+          notification: OverlayTopMessage(
+            child: IncognitoModeTextOverlay(
+                hasGoneIncognito: false, textOverride: Intl.message("@${event.input.name} has been sent an invitation!")),
+            onDismiss: () {
+              notificationBloc.add(DismissNotification());
+            },
+          )
+        ));
+        yield ReadyState();
+      }
+    }
+    else if(event is SearchTwitterUserAutocompletesEvent) {
+      yield TwitterUserAutocompletesLoadingState(
+        query: event.query
+      );
+      
+      // TODO: call backend here
+      await Future.delayed(Duration(seconds: 3));
+      
+      List<TwitterUserInfo> autocompletes = [];
+      for(int i = 0; i < Random().nextInt(5) + 1; i++) {
+        autocompletes.add(TwitterUserInfo(
+        id: _randomString(8),
+        name: _randomString(10),
+        displayName: _randomString(12),
+        isInvited: Random().nextBool(),
+        isVerified: Random().nextBool(),
+        profileImageURL: "https://pbs.twimg.com/profile_images/569623151382765568/IXqTQzHo_400x400.jpeg"
+      ));
+      }
+      
+      yield TwitterUserAutocompletesLoadedState(
+        autocompletes: autocompletes
+      );
+    }
   }
+
+  String _randomString(int length) {
+   var rand = new Random();
+   var codeUnits = new List<int>.generate(
+      length, 
+      (index){
+         return rand.nextInt(33)+89;
+      }
+   );
+   
+   return new String.fromCharCodes(codeUnits);
+}
 
 }

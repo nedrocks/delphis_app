@@ -49,12 +49,23 @@ class CopyDiscussionLinkEvent extends SuperpowersEvent {
 }
 
 class InviteTwitterUserEvent extends SuperpowersEvent {
-  final String twitterHandle;
+  final TwitterUserInput input;
 
   const InviteTwitterUserEvent({
-    @required this.twitterHandle
+    @required this.input
   });
 
   @override
-  List<Object> get props => [twitterHandle];
+  List<Object> get props => [input];
+}
+
+class SearchTwitterUserAutocompletesEvent extends SuperpowersEvent {
+  final String query;
+
+  const SearchTwitterUserAutocompletesEvent({
+    @required this.query
+  });
+
+  @override
+  List<Object> get props => [query];
 }

@@ -2,6 +2,7 @@
 import 'dart:ui';
 
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -303,7 +304,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
           ),
         ),
         title: Intl.message("Twitter Invitation"),
-        description: Intl.message("Invite a new user from their Twitter handle."),
+        description: Intl.message("Invite new users searching them on Twitter."),
         onTap: () {
           setState(() {
             this.panelToShow = InviteTwitterUserPopup(
@@ -312,7 +313,9 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 this.cancelPanelToShow();
                 BlocProvider.of<SuperpowersBloc>(context).add(
                   InviteTwitterUserEvent(
-                    twitterHandle: twitterHandle
+                    input: TwitterUserInput(
+                      name: twitterHandle
+                    )
                   )
                 );
               },

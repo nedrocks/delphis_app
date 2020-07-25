@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -7,6 +8,10 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/participant_anonymity_setting_option.dart';
 import 'package:delphis_app/util/callbacks.dart';
+import 'package:delphis_app/util/display_names.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
+import 'package:delphis_app/widgets/profile_image/profile_image.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,13 +60,14 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   String _selectedFlairID;
   int _selectedIdx;
   _SettingsState _settingsState;
-
+  bool _didChange;
   bool _showLoading;
 
   @override
   void initState() {
     super.initState();
-    this._selectedIdx = 0;
+    this._didChange = false;
+    this._selectedIdx = -1;
     this._settingsState = _SettingsState.ANONYMITY_SELECT;
     this._selectedGradient =
         gradientNameFromString(this.widget.meParticipant?.gradientColor);
@@ -74,7 +80,8 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     Widget child;
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
-        Color actionButtonColor = Color.fromRGBO(247, 247, 255, 0.2);
+        bool actionButtonEnabled = _didChange;
+        Color actionButtonColor = _didChange ? Color.fromRGBO(247, 247, 255, 0.2) : Color.fromRGBO(247, 247, 255, 1.0);
         Widget actionButtonText = Text(
           Intl.message('Update'),
           style: TextThemes.goIncognitoButton,
@@ -84,6 +91,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             child: CircularProgressIndicator(),
           );
         } else if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+          actionButtonEnabled = true;
           actionButtonColor = Color.fromRGBO(247, 247, 255, 1.0);
           actionButtonText = Text(
             Intl.message('Join'),
@@ -99,7 +107,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
           color: actionButtonColor,
           child: actionButtonText,
-          onPressed: () {
+          onPressed: !actionButtonEnabled ? null : () {
             if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
               this.joinDiscussion();
             } else {
@@ -155,6 +163,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this.setState(() {
               this._selectedFlairID = id;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
+              this._didChange = true;
             });
           },
           onCancel: () {
@@ -171,6 +180,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this.setState(() {
               this._selectedGradient = name;
               this._settingsState = _SettingsState.ANONYMITY_SELECT;
+              this._didChange = true;
             });
           },
           onCancel: () {
@@ -216,6 +226,42 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   void updateExistingParticipant() {
+    var didUpdate = (this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous;
+    final notifBloc = BlocProvider.of<NotificationBloc>(context);
+    var onSuccess = !didUpdate ? () {} : () {
+      notifBloc.add(
+        NewNotificationEvent(
+          notification: OverlayTopMessage(
+            showForMs: 2000,
+            child: IncognitoModeTextOverlay(
+              hasGoneIncognito: _selectedIdx == 1,
+            ),
+            onDismiss: () {
+              notifBloc
+                .add(DismissNotification());
+            },
+          ),
+        ),
+      );
+    };
+    var onError = (error) {
+      notifBloc.add(
+        NewNotificationEvent(
+          notification: OverlayTopMessage(
+            showForMs: 3000,
+            child: IncognitoModeTextOverlay(
+              hasGoneIncognito: _selectedIdx == 1,
+              textOverride: error.toString(),
+            ),
+            onDismiss: () {
+              notifBloc
+                .add(DismissNotification());
+            },
+          ),
+        ),
+      );
+    };
+
     (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
         .add(ParticipantEventUpdateParticipant(
       participantID: this.widget.meParticipant.id,
@@ -225,8 +271,10 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           (flair) => flair.id == this._selectedFlairID,
           orElse: () => null),
       isUnsetFlairID: this._selectedFlairID == null,
+      onSuccess: onSuccess,
+      onError: onError
     ));
-    this.widget.onClose((this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous);
+    this.widget.onClose(didUpdate);
   }
 
   void joinDiscussion() async {
@@ -270,6 +318,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
         onSelected: () {
           setState(() {
             this._selectedIdx = 0;
+            this._didChange = true;
           });
         },
         onEdit: () {
@@ -305,6 +354,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
         onSelected: () {
           setState(() {
             this._selectedIdx = 1;
+            this._didChange = true;
           });
         },
         onEdit: onEdit,
@@ -336,10 +386,30 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   Widget buildSubTitle() {
-    return Text(
-      Intl.message('Pick how you want your avatar to display.'),
-      style: TextThemes.goIncognitoSubheader,
-      textAlign: TextAlign.center
+    var displayName = DisplayNames.formatParticipant(this.widget.discussion.moderator, this.widget.meParticipant);
+    var profileImage = ProfileImage(
+      height: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+      width: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+      profileImageURL: this.widget.meParticipant.userProfile?.profileImageURL,
+      isAnonymous: this.widget.meParticipant.isAnonymous
+    );
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: TextThemes.goIncognitoSubheader,
+        children: [
+          TextSpan(text: Intl.message('You are currently posting as:\n')),
+          WidgetSpan(child: profileImage),
+          TextSpan(
+            text: ' $displayName',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.blue
+            )
+          ),
+          TextSpan(text: Intl.message('.\nPick how you want your avatar to display.')),
+        ],
+      ),
     );
   }
 

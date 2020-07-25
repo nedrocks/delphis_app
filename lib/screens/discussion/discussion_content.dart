@@ -114,7 +114,6 @@ class DiscussionContent extends StatelessWidget {
       this.onOverlayOpen(overlayEntry);
     } else if (this.isShowParticipantSettings) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);
-      final notificationBloc = BlocProvider.of<NotificationBloc>(context);
       final overlayEntry = OverlayEntry(
         builder: (context) => AnimatedDiscussionPopup(
           child: Container(width: 0, height: 0),
@@ -125,22 +124,6 @@ class DiscussionContent extends StatelessWidget {
               me: MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state),
               participantBloc: participantBloc,
               onClose: (didUpdate) {
-                if (didUpdate) {
-                  notificationBloc.add(
-                    NewNotificationEvent(
-                      notification: OverlayTopMessage(
-                        child: IncognitoModeTextOverlay(
-                          hasGoneIncognito: didUpdate
-                              ? !this.discussion.meParticipant.isAnonymous
-                              : this.discussion.meParticipant.isAnonymous,
-                        ),
-                        onDismiss: () {
-                          notificationBloc.add(DismissNotification());
-                        },
-                      ),
-                    ),
-                  );
-                }
                 this.onSettingsOverlayClose(didUpdate);
               },
             ),

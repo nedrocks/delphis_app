@@ -8,6 +8,7 @@ import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
@@ -340,7 +341,9 @@ class ChathamAppState extends State<ChathamApp>
                                         DiscussionRepository>(context),
                                     participantRepository: RepositoryProvider
                                         .of<ParticipantRepository>(context),
-                                    notificationBloc: BlocProvider.of<NotificationBloc>(context)),
+                                    notificationBloc: BlocProvider.of<NotificationBloc>(context),
+                                    twitterUserRepository: RepositoryProvider.of<
+                                        TwitterUserRepository>(context)),
                               ),
                             ],
                             child: MultiBlocListener(

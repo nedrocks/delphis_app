@@ -310,18 +310,25 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         onTap: () {
           setState(() {
             this.panelToShow = InviteTwitterUserPopup(
+              participant: this.widget.arguments?.discussion?.meParticipant,
+              discussion: this.widget.arguments?.discussion,
               onCancel: this.cancelPanelToShow,
               onSubmit: (twitterHandle) {
                 this.cancelPanelToShow();
                 BlocProvider.of<SuperpowersBloc>(context).add(
                   InviteTwitterUserEvent(
-                    input: TwitterUserInput(
-                      name: twitterHandle
-                    )
+                    discussionID: this.widget.arguments?.discussion?.id,
+                    invitingParticipantID: this.widget.arguments?.discussion?.meParticipant?.id,
+                    twitterUsers: [
+                      TwitterUserInput(
+                        name: twitterHandle
+                      )
+                    ]
                   )
                 );
               },
             );
+            BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
           });
         }
       ));

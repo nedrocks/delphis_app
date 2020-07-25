@@ -24,11 +24,13 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
   final NotificationBloc notificationBloc;
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
+  final TwitterUserRepository twitterUserRepository;
 
   SuperpowersBloc({
     @required this.notificationBloc,
     @required this.discussionRepository,
-    @required this.participantRepository
+    @required this.participantRepository,
+    @required this.twitterUserRepository
   }) : super(ReadyState());
 
   @override
@@ -113,76 +115,46 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
       if(this.state is ReadyState) {
         yield LoadingState();
         
-        // TODO: call backend here
-        await Future.delayed(Duration(seconds: 3));
+        try {
+          var invites = await twitterUserRepository.inviteUsersToDiscussion(event.discussionID, event.invitingParticipantID, event.twitterUsers);
+          yield InviteTwitterUserSuccessState(
+            invites: invites
+          );
+          notificationBloc.add(NewNotificationEvent(
+            notification: OverlayTopMessage(
+              child: IncognitoModeTextOverlay(
+                  hasGoneIncognito: false, textOverride: Intl.message("Your invitation has been sent!")),
+              showForMs: 1500,
+              onDismiss: () {
+                notificationBloc.add(DismissNotification());
+              },
+            )
+          ));
+          yield ReadyState();
+        }
+        catch (error) {
+          yield ErrorState(message: error.toString());
+        }  
 
-        notificationBloc.add(NewNotificationEvent(
-          notification: OverlayTopMessage(
-            child: IncognitoModeTextOverlay(
-                hasGoneIncognito: false, textOverride: Intl.message("@${event.input.name} has been sent an invitation!")),
-            onDismiss: () {
-              notificationBloc.add(DismissNotification());
-            },
-          )
-        ));
-        yield ReadyState();
-      }
-    }
-    else if(event is InviteTwitterUserEvent) {
-      if(this.state is ReadyState) {
-        yield LoadingState();
-        
-        // TODO: call backend here
-        await Future.delayed(Duration(seconds: 3));
-
-        notificationBloc.add(NewNotificationEvent(
-          notification: OverlayTopMessage(
-            child: IncognitoModeTextOverlay(
-                hasGoneIncognito: false, textOverride: Intl.message("@${event.input.name} has been sent an invitation!")),
-            onDismiss: () {
-              notificationBloc.add(DismissNotification());
-            },
-          )
-        ));
-        yield ReadyState();
       }
     }
     else if(event is SearchTwitterUserAutocompletesEvent) {
-      yield TwitterUserAutocompletesLoadingState(
-        query: event.query
-      );
-      
-      // TODO: call backend here
-      await Future.delayed(Duration(seconds: 3));
-      
-      List<TwitterUserInfo> autocompletes = [];
-      for(int i = 0; i < 3; i++) {
-        autocompletes.add(TwitterUserInfo(
-        id: _randomString(8),
-        name: _randomString(10),
-        displayName: _randomString(60),
-        invited: Random().nextBool(),
-        verified: Random().nextBool(),
-        profileImageURL: ""
-      ));
+      if(this.state is ReadyState || this.state is TwitterUserAutocompletesLoadingState) {
+        yield TwitterUserAutocompletesLoadingState(
+          query: event.query
+        );
+        
+        try {
+          var autocompletes = await twitterUserRepository.getUserInfoAutocompletes(event.query, event.discussionID, event.invitingParticipantID);
+          yield TwitterUserAutocompletesLoadedState(
+            autocompletes: autocompletes
+          );
+        }
+        catch (error) {
+          yield ErrorState(message: error.toString());
+        }
       }
-      
-      yield TwitterUserAutocompletesLoadedState(
-        autocompletes: autocompletes
-      );
     }
   }
-
-  String _randomString(int length) {
-   var rand = new Random();
-   var codeUnits = new List<int>.generate(
-      length, 
-      (index){
-         return rand.nextInt(33)+89;
-      }
-   );
-   
-   return new String.fromCharCodes(codeUnits);
-}
 
 }

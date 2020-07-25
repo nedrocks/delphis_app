@@ -68,34 +68,34 @@ class BanParticipantSuccessState extends SuccessState {
   List<Object> get props => [this.timestamp, this.message, this.participant];
 }
 
-class InviteTwitterUserSuccessState extends ReadyState {
-  final DiscussionInvite invite;
+class InviteTwitterUserSuccessState extends SuccessState {
+  final List<DiscussionInvite> invites;
 
   InviteTwitterUserSuccessState({
-    @required this.invite
-  });
+    @required this.invites
+  }) : super(message: "");
 
   @override
-  List<Object> get props => [this.timestamp, this.invite];
+  List<Object> get props => [this.timestamp, this.invites];
 }
 
-class TwitterUserAutocompletesLoadingState extends SuperpowersState {
+class TwitterUserAutocompletesLoadingState extends LoadingState {
   final String query;
 
   TwitterUserAutocompletesLoadingState({
     @required this.query,
-  }) : super(DateTime.now());
+  }) : super();
 
   @override
   List<Object> get props => [this.timestamp, this.query];
 }
 
-class TwitterUserAutocompletesLoadedState extends SuperpowersState {
+class TwitterUserAutocompletesLoadedState extends ReadyState {
   final List<TwitterUserInfo> autocompletes;
 
   TwitterUserAutocompletesLoadedState({
     @required this.autocompletes
-  }) : super(DateTime.now());
+  }) : super();
 
   @override
   List<Object> get props => [this.timestamp, this.autocompletes];

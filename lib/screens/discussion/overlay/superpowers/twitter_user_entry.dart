@@ -4,7 +4,6 @@ import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:delphis_app/widgets/verified_checkmark/verified_checkmark.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class TwitterUserEntryWidget extends StatelessWidget {
   final TwitterUserInfo userInfo;
@@ -103,7 +102,7 @@ class TwitterUserEntryWidget extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                userInfo.displayName,
+                                "${userInfo.displayName}",
                                 style: TextThemes.goIncognitoOptionName,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -116,7 +115,6 @@ class TwitterUserEntryWidget extends StatelessWidget {
                             ],
                           ),
                         )
-                        // TODO: format and show nickname too
                       ],
                     ),
                   ),

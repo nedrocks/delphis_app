@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:flutter/material.dart';
 
 import '../repository/discussion.dart';
@@ -286,6 +287,34 @@ const DiscussionFragmentFull = """
   $PostsConnectionFragment
 """;
 
+
+const TwitterUserInfoFragment = """
+  fragment TwitterUserInfoFragment on TwitterUserInfo {
+    id
+    verified
+    name
+    displayName
+    profileImageURL
+  	invited
+  }
+""";
+
+const DiscussionInviteFragment = """
+  fragment DiscussionInviteFragment on DiscussionInvite {
+    id
+    discussion {
+      id
+    }
+    invitingParticipant {
+      id
+    }
+    createdAt
+    updatedAt
+    isDeleted
+    status
+  }
+""";
+
 abstract class GQLQuery<T> {
   T parseResult(dynamic data);
   String query();
@@ -446,5 +475,35 @@ class ListMyDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
 
   List<Discussion> parseResult(dynamic data) {
     return User.fromJson(data["me"]).discussions;
+  }
+}
+
+class TwitterUserAutocompletesQuery extends GQLQuery<List<TwitterUserInfo>> {
+  final String queryParam;
+  final String discussionID;
+  final String invitingParticipantID;
+  final String _internalQuery = """
+    query TwitterUserAutocompletes(\$query: ID!, \$discussionID: ID!, \$invitingParticipantID: ID!) {
+      twitterUserAutocompletes(query: \$query, discussionID: \$discussionID, invitingParticipantID: \$invitingParticipantID) {
+        ...TwitterUserInfoFragment
+      }
+    }
+    $TwitterUserInfoFragment
+  """;
+
+  const TwitterUserAutocompletesQuery({
+    @required this.queryParam,
+    @required this.discussionID,
+    @required this.invitingParticipantID
+  }) : super();
+
+  String query() {
+    return this._internalQuery;
+  }
+
+  List<TwitterUserInfo> parseResult(dynamic data) {
+    return (data["twitterUserAutocompletes"] as List<dynamic>)
+        .map((elem) => TwitterUserInfo.fromJson(elem))
+        .toList();
   }
 }

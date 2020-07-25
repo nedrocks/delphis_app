@@ -1,9 +1,110 @@
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
+import 'package:delphis_app/data/provider/mutations.dart';
+import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
 part 'twitter_user.g.dart';
 
-@JsonSerializable()
+const MAX_ATTEMPTS = 3;
+const BACKOFF = 1;
+
+class TwitterUserRepository {
+  final GqlClientBloc clientBloc;
+
+  const TwitterUserRepository({
+    @required this.clientBloc,
+  });
+  
+  Future<List<TwitterUserInfo>> getUserInfoAutocompletes(
+      String query, String discussionID, String invitingParticipantID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getUserInfoAutocompletes(
+           query, discussionID, invitingParticipantID,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get Twitter user autocompletes because backend connection is severed");
+    }
+    final gqlQuery = TwitterUserAutocompletesQuery(
+      queryParam: query,
+      discussionID: discussionID,
+      invitingParticipantID: invitingParticipantID,
+    );
+
+    final QueryResult result = await client.query(
+      QueryOptions(
+        documentNode: gql(gqlQuery.query()),
+        variables: {
+          'query': gqlQuery.queryParam,
+          'discussionID': gqlQuery.discussionID,
+          'invitingParticipantID': gqlQuery.invitingParticipantID
+        },
+        fetchPolicy: FetchPolicy.noCache,
+      ),
+    );
+
+    if (result.hasException) {
+      print(result.exception.clientException);
+      throw result.exception;
+    }
+    return gqlQuery.parseResult(result.data);
+  }
+
+  Future<List<DiscussionInvite>> inviteUsersToDiscussion(
+      String discussionID, String invitingParticipantID, List<TwitterUserInput> twitterUsers,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return inviteUsersToDiscussion(
+           discussionID, invitingParticipantID, twitterUsers,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to invite Twitter users because backend connection is severed");
+    }
+
+    final mutation = InviteTwitterUsersToDiscussionMutation(
+      discussionID: discussionID,
+      invitingParticipantID: invitingParticipantID,
+      twitterUsers: twitterUsers);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'invitingParticipantID': invitingParticipantID,
+          'twitterUsersInput': twitterUsers.map((e) => e.toJSON()).toList(),
+        },
+        update: (cache, result) {
+          return cache;
+        }
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
+
+}
+
+
+@JsonAnnotation.JsonSerializable()
 class TwitterUserInfo extends Equatable {
   final String id;
   final String name;
@@ -12,7 +113,7 @@ class TwitterUserInfo extends Equatable {
   final bool verified;
   final bool invited;
 
-  TwitterUserInfo({
+  const TwitterUserInfo({
     this.id,
     this.name,
     this.displayName,
@@ -33,17 +134,15 @@ class TwitterUserInfo extends Equatable {
 
 }
 
-@JsonSerializable()
+@JsonAnnotation.JsonSerializable()
 class TwitterUserInput extends Equatable {
   final String name;
 
-  TwitterUserInput({
-    this.name,
+  const TwitterUserInput({
+    @required this.name,
   });
 
   List<Object> get props => [name];
-
-  factory TwitterUserInput.fromJson(Map<String, dynamic> json) => _$TwitterUserInputFromJson(json);
 
   Map<String, dynamic> toJSON() {
     return _$TwitterUserInputToJson(this);

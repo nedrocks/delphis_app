@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -13,12 +15,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class InviteTwitterUserPopup extends StatefulWidget {
+  final Participant participant;
+  final Discussion discussion;
   final VoidCallback onCancel;
   final Function(String) onSubmit;
   
   InviteTwitterUserPopup({
     @required this.onCancel,
-    @required this.onSubmit
+    @required this.onSubmit,
+    @required this.participant,
+    @required this.discussion
   });
 
   @override
@@ -27,7 +33,7 @@ class InviteTwitterUserPopup extends StatefulWidget {
 
 class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
   final autocompleteEntryHeight = 50.0;
-  final queryDebouncher = _Debouncer(1500);
+  final queryDebouncher = _Debouncer(1000);
   TextEditingController textController;
   TwitterUserInfo selectedAutocomplete;
   int selectedAutocompleteIndex;
@@ -55,7 +61,7 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
     return BlocBuilder<SuperpowersBloc, SuperpowersState>(
       builder: (context, state) {
         Widget autocompletes = Container();
-        if(state is TwitterUserAutocompletesLoadingState) {
+        if(state is TwitterUserAutocompletesLoadingState || queryDebouncher.isWaiting) {
           autocompletes = Container(
             margin: EdgeInsets.only(bottom: SpacingValues.mediumLarge),
             child: CupertinoActivityIndicator(),
@@ -94,6 +100,17 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
             ),
           );
           }        
+        } else if (state is ErrorState) {
+          autocompletes = Container(
+              margin: EdgeInsets.only(bottom: SpacingValues.medium),
+              child: Center(
+                child: Text(
+                  state.message,
+                  style: Theme.of(context).textTheme.bodyText2.copyWith(color: Colors.red),
+                  textAlign: TextAlign.center,
+                )
+              ),
+            );
         }
         if(this.textController.text.length == 0) {
           autocompletes = Container();
@@ -119,7 +136,7 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                 child: Column(
                   children: [
                     Text(
-                      Intl.message("Search a Twitter user you wish to invite in this discussion and select it from the list."),
+                      Intl.message("Search a Twitter user you wish to invite in this discussion and select them from the list."),
                       style: TextThemes.goIncognitoSubheader,
                       textAlign: TextAlign.center,
                     ),
@@ -206,10 +223,12 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
       BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
       return;
     }
-      
+
     queryDebouncher.run(() { 
       BlocProvider.of<SuperpowersBloc>(context).add(SearchTwitterUserAutocompletesEvent(
-        query: value
+        query: value, 
+        discussionID: this.widget.discussion.id,
+        invitingParticipantID: this.widget.participant.id
       ));
       setState(() {
         selectedAutocomplete = null;
@@ -232,5 +251,9 @@ class _Debouncer {
       _timer.cancel();
     }
     _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+
+  bool get isWaiting {
+    return _timer?.isActive ?? false;
   }
 }

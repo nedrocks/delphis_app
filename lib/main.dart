@@ -6,6 +6,7 @@ import 'package:delphis_app/constants.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,5 +46,8 @@ void main() {
         RepositoryProvider<ParticipantRepository>(
             create: (context) => ParticipantRepository(
                 clientBloc: BlocProvider.of<GqlClientBloc>(context))),
+        RepositoryProvider<TwitterUserRepository>(
+            create: (context) => TwitterUserRepository(
+                clientBloc: BlocProvider.of<GqlClientBloc>(context)))
       ], child: ChathamApp(key: appKey, env: Environment.STAGING))));
 }

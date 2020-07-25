@@ -45,6 +45,33 @@ class AddPostGQLMutation extends GQLMutation<Post> {
   }
 }
 
+class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
+  final String discussionID;
+  final String vipToken;
+
+  final String _mutation = """
+    mutation JoinDiscussionWithVIPToken(\$discussionID: ID!, \$vipToken: ID!) {
+      joinDiscussionWithVIPToken(discussionID: \$discussionID, vipToken: \$vipToken) {
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  const JoinDiscussionWithVIPLinkMutation({
+    @required this.discussionID,
+    @required this.vipToken,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["joinDiscussionWithVIPToken"]);
+  }
+}
+
 class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
   final AnonymityType anonymityType;

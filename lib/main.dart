@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/app/app_bloc.dart';
+import 'package:delphis_app/bloc/link/link_bloc.dart';
 import 'package:delphis_app/bloc/observer.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/constants.dart';
@@ -29,6 +30,7 @@ void main() {
       providers: [
         BlocProvider<AppBloc>(create: (context) => AppBloc()),
         BlocProvider<GqlClientBloc>(create: (context) => GqlClientBloc()),
+        BlocProvider<LinkBloc>(create: (context) => LinkBloc()),
       ],
       child: MultiRepositoryProvider(providers: [
         RepositoryProvider<DiscussionRepository>(

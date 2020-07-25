@@ -232,6 +232,48 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
+  Future<Discussion> joinDiscussionWithVIPLink(
+      {@required String discussionID,
+      @required String vipToken,
+      int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return joinDiscussionWithVIPLink(
+            discussionID: discussionID,
+            vipToken: vipToken,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to addPost to discussion because backend connection is severed");
+    }
+
+    final mutation = JoinDiscussionWithVIPLinkMutation(
+      discussionID: discussionID,
+      vipToken: vipToken,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'vipToken': vipToken,
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
+
   Future<Post> addPost(
       {@required Discussion discussion,
       @required String participantID,

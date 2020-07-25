@@ -76,6 +76,8 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
         // What to do about this error?
         yield ParticipantLoaded(
             participant: currentState.participant, isUpdating: false);
+        if(event.onError != null)
+          event.onError(err);
         return;
       }
       this
@@ -85,6 +87,8 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
         participant: updatedParticipant,
         isUpdating: false,
       );
+      if(event.onSuccess != null)
+          event.onSuccess();
     } else if (event is ParticipantEventAddParticipant) {
       yield ParticipantLoaded(participant: null, isUpdating: true);
       final addedParticipant = await this.repository.addDiscussionParticipant(

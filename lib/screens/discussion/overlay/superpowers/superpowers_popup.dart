@@ -11,6 +11,7 @@ import 'package:delphis_app/screens/discussion/overlay/overlay_alert_dialog.dart
 import 'package:delphis_app/screens/discussion/overlay/superpowers/invite_twitter_user_popup.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup_option.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
+import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -119,7 +120,11 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                   ),
                 ),
               SizedBox(height: SpacingValues.small),
-              bottomWidget,
+              AnimatedSizeContainer(
+                builder: (context) {
+                  return bottomWidget;
+                },
+              ),
               Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
               GestureDetector(
                 onTap: () {

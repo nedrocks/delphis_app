@@ -8,6 +8,7 @@ import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/superpowers/twitter_user_entry.dart';
+import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -141,7 +142,11 @@ class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: SpacingValues.medium),
-                    autocompletes,
+                    AnimatedSizeContainer(
+                      builder: (context) {
+                        return autocompletes;
+                      },
+                    ),
                     TextField(
                       autofocus: true,
                       showCursor: true,

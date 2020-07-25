@@ -14,19 +14,17 @@ class OverlayAlertDialog extends OverlayEntry {
     
   static Widget _buildEntry(BuildContext context, Widget title, Widget content, List<Widget> actions) {
     return SafeArea(
-      child: Positioned.fill(
+      child: Container(
+        color: Colors.grey.withOpacity(0.7),
         child: GestureDetector(
           onTap: () => false,
-          child: Container(
-            color: Colors.black.withOpacity(0.45),
-            child: Center(
-              child: CupertinoAlertDialog(
-                title: title,
-                content: content,
-                actions: actions
-              ),
+          child: Center(
+            child: CupertinoAlertDialog(
+              title: title,
+              content: content,
+              actions: actions
             ),
-          ),
+          )
         )
       ),
     );

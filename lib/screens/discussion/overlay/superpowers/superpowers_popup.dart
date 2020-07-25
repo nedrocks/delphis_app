@@ -1,6 +1,7 @@
 
 import 'dart:ui';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -34,6 +35,24 @@ class SuperpowersPopup extends StatefulWidget {
 
 class _SuperpowersPopupState extends State<SuperpowersPopup> {
   Widget panelToShow;
+  OverlayEntry lastOverlayEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    BackButtonInterceptor.add(this.androidBackbuttonInterceptor);
+  }
+
+  @override
+  void dispose() {
+    BackButtonInterceptor.remove(this.androidBackbuttonInterceptor);
+    super.dispose();
+  }
+
+  bool androidBackbuttonInterceptor(bool value) {
+    removeConfirmationDialog();
+    return value;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,12 +183,12 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
       actions: [
         CupertinoDialogAction(
           child: Text(Intl.message("Cancel")),
-          onPressed: () => overlayEntry?.remove()
+          onPressed: removeConfirmationDialog
         ),
         CupertinoDialogAction(
           child: Text(Intl.message("Continue")),
           onPressed: () {
-            overlayEntry?.remove();
+            removeConfirmationDialog();
             onConfirm();
           },
         )
@@ -178,6 +197,18 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
     Overlay.of(context).insert(
       overlayEntry
     );
+    setState(() {
+      lastOverlayEntry = overlayEntry;
+    });
+  }
+
+  void removeConfirmationDialog() {
+    lastOverlayEntry?.remove();
+    if(mounted) {
+       setState(() {
+        lastOverlayEntry = null;
+      });
+    }
   }
 
   List<Widget> buildOptionList(BuildContext context) {

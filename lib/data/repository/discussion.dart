@@ -190,6 +190,35 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<DiscussionLinkAccess> getDiscussionLinkAccess(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getDiscussionLinkAccess(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final query = DiscussionLinkAccessGQLQuery(discussionID: discussionID);
+
+    final QueryResult result = await client.query(QueryOptions(
+      documentNode: gql(query.query()),
+      variables: {
+        'id': discussionID,
+      },
+      fetchPolicy: FetchPolicy.noCache,
+    ));
+    // Handle exceptions
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return query.parseResult(result.data);
+  }
+
   Future<Discussion> createDiscussion(
       {@required String title,
       @required AnonymityType anonymityType,
@@ -520,7 +549,8 @@ class Discussion extends Equatable implements Entity {
           meAvailableParticipants:
               meAvailableParticipants ?? this.meAvailableParticipants,
           iconURL: this.iconURL,
-          discussionLinksAccess : discussionLinksAccess ?? this.discussionLinksAccess,
+          discussionLinksAccess:
+              discussionLinksAccess ?? this.discussionLinksAccess,
           postsCache: postsCache ?? this.postsCache);
 
   void addLocalPost(LocalPost post) {
@@ -580,19 +610,24 @@ class DiscussionLinkAccess extends Equatable {
   final String updatedAt;
   final bool isDeleted;
 
-  const DiscussionLinkAccess({
-    this.discussionID, 
-    this.inviteLinkURL, 
-    this.vipInviteLinkURL, 
-    this.createdAt, 
-    this.updatedAt, 
-    this.isDeleted
-  });
+  const DiscussionLinkAccess(
+      {this.discussionID,
+      this.inviteLinkURL,
+      this.vipInviteLinkURL,
+      this.createdAt,
+      this.updatedAt,
+      this.isDeleted});
 
   @override
-  List<Object> get props => [discussionID, inviteLinkURL, vipInviteLinkURL, createdAt, updatedAt, isDeleted];
+  List<Object> get props => [
+        discussionID,
+        inviteLinkURL,
+        vipInviteLinkURL,
+        createdAt,
+        updatedAt,
+        isDeleted
+      ];
 
   factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
       _$DiscussionLinkAccessFromJson(json);
-
 }

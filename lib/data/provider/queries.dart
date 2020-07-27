@@ -274,19 +274,21 @@ const DiscussionFragmentFull = """
     postsConnection {
       ...PostsConnectionFragment
     }
-    discussionLinksAccess {
-      discussionID
-      inviteLinkURL
-      vipInviteLinkURL
-      createdAt
-      updatedAt
-      isDeleted
-    }
   }
   $DiscussionListFragment
   $PostsConnectionFragment
 """;
 
+const DiscussionLinkAccessFragment = """
+  fragment DiscussionLinkAccessFragment on DiscussionLinkAccess {
+    discussionID
+    inviteLinkURL
+    vipInviteLinkURL
+    createdAt
+    updatedAt
+    isDeleted
+  }
+""";
 
 const TwitterUserInfoFragment = """
   fragment TwitterUserInfoFragment on TwitterUserInfo {
@@ -432,6 +434,33 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 }
 
+class DiscussionLinkAccessGQLQuery extends GQLQuery<DiscussionLinkAccess> {
+  final String discussionID;
+  final String _query = """
+    query DiscussionLinkAccess(\$id: ID!) {
+      discussion(id: \$id){
+        discussionLinksAccess {
+          ...DiscussionLinkAccessFragment
+        }
+      }
+    }
+    $DiscussionLinkAccessFragment
+  """;
+
+  const DiscussionLinkAccessGQLQuery({
+    this.discussionID,
+  }) : super();
+
+  String query() {
+    return this._query;
+  }
+
+  DiscussionLinkAccess parseResult(dynamic data) {
+    return DiscussionLinkAccess.fromJson(
+        data["discussion"]["discussionLinksAccess"]);
+  }
+}
+
 class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
   final String _query = """
     query Discussions() {
@@ -491,11 +520,11 @@ class TwitterUserAutocompletesQuery extends GQLQuery<List<TwitterUserInfo>> {
     $TwitterUserInfoFragment
   """;
 
-  const TwitterUserAutocompletesQuery({
-    @required this.queryParam,
-    @required this.discussionID,
-    @required this.invitingParticipantID
-  }) : super();
+  const TwitterUserAutocompletesQuery(
+      {@required this.queryParam,
+      @required this.discussionID,
+      @required this.invitingParticipantID})
+      : super();
 
   String query() {
     return this._internalQuery;

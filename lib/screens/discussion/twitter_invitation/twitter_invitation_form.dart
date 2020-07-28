@@ -7,7 +7,8 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_user_search_list_entry.dart';
+import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_invited_handle.dart';
+import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_user_info_list_entry.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,13 +20,16 @@ class TwitterInvitationForm extends StatefulWidget {
   final Participant participant;
   final Discussion discussion;
   final VoidCallback onCancel;
-  final double maxListEntriesBeforeScroll;
+  final double maxSearchSectionHeight;
+  final double maxInviteSectionHeight;
 
-  TwitterInvitationForm(
-      {@required this.onCancel,
-      @required this.participant,
-      @required this.discussion,
-      this.maxListEntriesBeforeScroll = 2.5});
+  const TwitterInvitationForm({
+    @required this.onCancel,
+    @required this.participant,
+    @required this.discussion,
+    this.maxSearchSectionHeight = 80,
+    this.maxInviteSectionHeight = 100,
+  });
 
   @override
   _TwitterInvitationFormState createState() => _TwitterInvitationFormState();
@@ -35,8 +39,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
   final autocompleteEntryHeight = 50.0;
   final queryDebouncher = _Debouncer(1000);
   TextEditingController textController;
-  TwitterUserInfo selectedAutocomplete;
-  int selectedAutocompleteIndex;
+  List<TwitterUserInfo> curSelections;
 
   @override
   void initState() {
@@ -44,8 +47,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
     this.textController.addListener(() {
       setState(() {});
     });
-    selectedAutocomplete = null;
-    selectedAutocompleteIndex = -1;
+    this.curSelections = [];
     super.initState();
   }
 
@@ -68,8 +70,8 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
             child: CupertinoActivityIndicator(),
           );
         } else if (state is TwitterInvitationSearchSuccessState) {
-          var heightUnits = min(this.widget.maxListEntriesBeforeScroll,
-              max(state.autocompletes.length, 1.2));
+          var heightUnits = min(this.widget.maxSearchSectionHeight,
+              max(state.autocompletes.length, 1.2) * autocompleteEntryHeight);
           if (state.autocompletes.length == 0) {
             contentWidget = Container(
               margin: EdgeInsets.only(bottom: SpacingValues.medium),
@@ -79,19 +81,24 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
             );
           } else {
             contentWidget = Container(
-              height: heightUnits * autocompleteEntryHeight,
+              margin: EdgeInsets.only(bottom: SpacingValues.small),
+              height: heightUnits,
               child: ListView.builder(
                   itemCount: state.autocompletes.length,
                   itemBuilder: (context, index) {
                     var element = state.autocompletes[index];
-                    return TwitterUserSearchListEntry(
+                    var selected = isSelected(element);
+                    if (selected) return Container();
+                    return TwitterUserInfoListEntry(
                       userInfo: element,
                       isChecked: element.invited,
-                      isSelected: selectedAutocompleteIndex == index,
+                      isSelected: selected,
                       onTap: () {
                         setState(() {
-                          selectedAutocompleteIndex = index;
-                          selectedAutocomplete = element;
+                          if (selected)
+                            removeSelection(element);
+                          else
+                            addSelection(element);
                         });
                       },
                     );
@@ -99,6 +106,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
             );
           }
         } else if (state is TwitterInvitationInviteSuccessState) {
+          this.curSelections.clear();
           var message = "";
           if (state.invites.length == 0) {
             message = Intl.message("No invitation has been sent.");
@@ -139,6 +147,10 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
           contentWidget = Container();
         }
 
+        contentWidget = Column(
+          children: <Widget>[buildSelectionsWidget(), contentWidget],
+        );
+
         var textStyle = Theme.of(context).textTheme.bodyText2;
         var hintStyle =
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
@@ -163,7 +175,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                     children: [
                       Text(
                         Intl.message(
-                            "Search a Twitter user you wish to invite in this discussion and select them from the list."),
+                            "Seach users from Twitter you wish to invite in this discussion and fill your invite list."),
                         style: TextThemes.goIncognitoSubheader,
                         textAlign: TextAlign.center,
                       ),
@@ -205,7 +217,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                           maxLength: 60,
                           onChanged: (value) =>
                               this.onTextChanged(context, value)),
-                      SizedBox(height: SpacingValues.medium),
+                      SizedBox(height: SpacingValues.small),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -233,7 +245,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                                 style: this.textController.text.length == 0
                                     ? TextThemes.goIncognitoButton
                                     : TextThemes.joinButtonTextChatTab),
-                            onPressed: selectedAutocomplete == null
+                            onPressed: this.curSelections.length == 0
                                 ? null
                                 : () {
                                     BlocProvider.of<TwitterInvitationBloc>(
@@ -246,12 +258,11 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                                                 .discussion
                                                 ?.meParticipant
                                                 ?.id,
-                                            invitedTwitterUsers: [
-                                          TwitterUserInput(
-                                              name: this
-                                                  .selectedAutocomplete
-                                                  .name)
-                                        ]));
+                                            invitedTwitterUsers: this
+                                                .curSelections
+                                                .map((e) => TwitterUserInput(
+                                                    name: e.name))
+                                                .toList()));
                                   },
                           ),
                         ],
@@ -279,11 +290,59 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
               query: value,
               discussionID: this.widget.discussion.id,
               invitingParticipantID: this.widget.participant.id));
-      setState(() {
-        selectedAutocomplete = null;
-        selectedAutocompleteIndex = -1;
-      });
     });
+  }
+
+  Widget buildSelectionsWidget() {
+    if (this.curSelections.length == 0) return Container();
+    return Container(
+      constraints:
+          BoxConstraints(maxHeight: this.widget.maxInviteSectionHeight),
+      margin: EdgeInsets.only(
+          left: SpacingValues.small,
+          right: SpacingValues.small,
+          bottom: SpacingValues.small),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.zero,
+        child: Container(
+          width: double.infinity,
+          child: Wrap(
+            alignment: WrapAlignment.start,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            children: this
+                .curSelections
+                .map((e) => Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: SpacingValues.xxSmall,
+                          vertical: SpacingValues.extraSmall),
+                      child: TwitterInvitedHandle(
+                          user: e,
+                          onDeletePressed: () {
+                            setState(() {
+                              removeSelection(e);
+                            });
+                          }),
+                    ))
+                .toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool isSelected(TwitterUserInfo userInfo) {
+    for (var selection in this.curSelections) {
+      if (selection.id == userInfo.id) return true;
+    }
+    return false;
+  }
+
+  void addSelection(TwitterUserInfo userInfo) {
+    this.curSelections.add(userInfo);
+  }
+
+  void removeSelection(TwitterUserInfo userInfo) {
+    this.curSelections.removeWhere((e) => e.id == userInfo.id);
   }
 }
 

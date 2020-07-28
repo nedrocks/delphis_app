@@ -5,13 +5,13 @@ import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:delphis_app/widgets/verified_checkmark/verified_checkmark.dart';
 import 'package:flutter/material.dart';
 
-class TwitterUserSearchListEntry extends StatelessWidget {
+class TwitterUserInfoListEntry extends StatelessWidget {
   final TwitterUserInfo userInfo;
   final VoidCallback onTap;
   final bool isChecked;
   final bool isSelected;
 
-  TwitterUserSearchListEntry(
+  const TwitterUserInfoListEntry(
       {@required this.userInfo,
       this.onTap,
       this.isChecked = true,

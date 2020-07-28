@@ -23,10 +23,16 @@ class CreateChatFlowState extends CreateChatState {
   final CreateChatPage nextPage;
   final String title;
   final String description;
-  // TODO: These won't be objects but not sure what types they should be yet.
+  /*
+   * What should the objects for invited users look like? According to 
+   * https://github.com/delphis-inc/delphis_app/pull/108/files for the twitter 
+   * users we can use TwitterUserInput. For Chatham users can we / should we 
+   * use the same? I think it's reasonable to do so.
+   */
   final List<Object> chathamInvitedUsers;
   final List<Object> twitterInvitedUsers;
   final String discussionID;
+  final bool isLoading;
 
   CreateChatFlowState({
     this.currentPage,
@@ -36,6 +42,7 @@ class CreateChatFlowState extends CreateChatState {
     this.chathamInvitedUsers,
     this.twitterInvitedUsers,
     this.discussionID,
+    this.isLoading,
   })  : this.nextPage = CreateChatFlowState.getNextPage(currentPage, nextPage),
         super();
 
@@ -72,10 +79,11 @@ class CreateChatFlowState extends CreateChatState {
   CreateChatFlowState update({
     CreateChatPage currentPage,
     CreateChatPage nextPage,
-    String updatedTitle,
-    String updatedDescription,
+    String title,
+    String description,
     List<Object> chathamInvitedUsers,
     List<Object> twitterInvitedUsers,
+    bool isLoading,
   }) {
     CreateChatPage calculatedNextPage;
     if (currentPage == null) {
@@ -90,10 +98,11 @@ class CreateChatFlowState extends CreateChatState {
       discussionID: this.discussionID,
       currentPage: currentPage ?? this.currentPage,
       nextPage: calculatedNextPage,
-      title: updatedTitle ?? this.title,
-      description: updatedDescription ?? this.description,
+      title: title ?? this.title,
+      description: description ?? this.description,
       chathamInvitedUsers: chathamInvitedUsers ?? this.chathamInvitedUsers,
       twitterInvitedUsers: twitterInvitedUsers ?? this.twitterInvitedUsers,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }

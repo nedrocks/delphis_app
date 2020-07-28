@@ -15,14 +15,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-class InviteTwitterUserPopup extends StatefulWidget {
+class TwitterInvitationForm extends StatefulWidget {
   final Participant participant;
   final Discussion discussion;
   final VoidCallback onCancel;
   final Function(String) onSubmit;
   final double maxListEntriesBeforeScroll;
 
-  InviteTwitterUserPopup(
+  TwitterInvitationForm(
       {@required this.onCancel,
       @required this.onSubmit,
       @required this.participant,
@@ -30,10 +30,10 @@ class InviteTwitterUserPopup extends StatefulWidget {
       this.maxListEntriesBeforeScroll});
 
   @override
-  _InviteTwitterUserPopupState createState() => _InviteTwitterUserPopupState();
+  _TwitterInvitationFormState createState() => _TwitterInvitationFormState();
 }
 
-class _InviteTwitterUserPopupState extends State<InviteTwitterUserPopup> {
+class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
   final autocompleteEntryHeight = 50.0;
   final queryDebouncher = _Debouncer(1000);
   TextEditingController textController;

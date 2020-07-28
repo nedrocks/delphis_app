@@ -531,6 +531,7 @@ class TwitterUserAutocompletesQuery extends GQLQuery<List<TwitterUserInfo>> {
   }
 
   List<TwitterUserInfo> parseResult(dynamic data) {
+    if (data["twitterUserAutocompletes"] == null) return [];
     return (data["twitterUserAutocompletes"] as List<dynamic>)
         .map((elem) => TwitterUserInfo.fromJson(elem))
         .toList();

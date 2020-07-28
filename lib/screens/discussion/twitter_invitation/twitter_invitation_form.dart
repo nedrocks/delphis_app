@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/bloc/twitter_invitation/twitter_invitation_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers/twitter_user_entry.dart';
+import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_user_search_list_entry.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,15 +19,13 @@ class TwitterInvitationForm extends StatefulWidget {
   final Participant participant;
   final Discussion discussion;
   final VoidCallback onCancel;
-  final Function(String) onSubmit;
   final double maxListEntriesBeforeScroll;
 
   TwitterInvitationForm(
       {@required this.onCancel,
-      @required this.onSubmit,
       @required this.participant,
       @required this.discussion,
-      this.maxListEntriesBeforeScroll});
+      this.maxListEntriesBeforeScroll = 2.5});
 
   @override
   _TwitterInvitationFormState createState() => _TwitterInvitationFormState();
@@ -59,33 +57,34 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
+    return BlocBuilder<TwitterInvitationBloc, TwitterInvitationState>(
       builder: (context, state) {
-        Widget autocompletes = Container();
-        if (state is TwitterUserAutocompletesLoadingState ||
+        Widget contentWidget = Container();
+
+        if (state is TwitterInvitationLoadingState ||
             queryDebouncher.isWaiting) {
-          autocompletes = Container(
+          contentWidget = Container(
             margin: EdgeInsets.only(bottom: SpacingValues.mediumLarge),
             child: CupertinoActivityIndicator(),
           );
-        } else if (state is TwitterUserAutocompletesLoadedState) {
+        } else if (state is TwitterInvitationSearchSuccessState) {
           var heightUnits = min(this.widget.maxListEntriesBeforeScroll,
               max(state.autocompletes.length, 1.2));
           if (state.autocompletes.length == 0) {
-            autocompletes = Container(
+            contentWidget = Container(
               margin: EdgeInsets.only(bottom: SpacingValues.medium),
               child: Center(
                   child: Text(Intl.message(
                       "No results available for the given entry."))),
             );
           } else {
-            autocompletes = Container(
+            contentWidget = Container(
               height: heightUnits * autocompleteEntryHeight,
               child: ListView.builder(
                   itemCount: state.autocompletes.length,
                   itemBuilder: (context, index) {
                     var element = state.autocompletes[index];
-                    return TwitterUserEntryWidget(
+                    return TwitterUserSearchListEntry(
                       userInfo: element,
                       isChecked: element.invited,
                       isSelected: selectedAutocompleteIndex == index,
@@ -99,12 +98,35 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                   }),
             );
           }
-        } else if (state is ErrorState) {
-          autocompletes = Container(
+        } else if (state is TwitterInvitationInviteSuccessState) {
+          var message = "";
+          if (state.invites.length == 0) {
+            message = Intl.message("No invitation has been sent.");
+          } else if (state.invites.length == 1) {
+            message =
+                Intl.message("Your invitation has been successfully sent.");
+          } else {
+            message = Intl.message(
+                "Your ${state.invites.length} invitations has been successfully sent.");
+          }
+          contentWidget = Container(
             margin: EdgeInsets.only(bottom: SpacingValues.medium),
             child: Center(
                 child: Text(
-              state.message,
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  .copyWith(color: Colors.green),
+              textAlign: TextAlign.center,
+            )),
+          );
+        } else if (state is TwitterInvitationErrorState) {
+          contentWidget = Container(
+            margin: EdgeInsets.only(bottom: SpacingValues.medium),
+            child: Center(
+                child: Text(
+              state.error.toString(),
               style: Theme.of(context)
                   .textTheme
                   .bodyText2
@@ -114,7 +136,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
           );
         }
         if (this.textController.text.length == 0) {
-          autocompletes = Container();
+          contentWidget = Container();
         }
 
         var textStyle = Theme.of(context).textTheme.bodyText2;
@@ -148,7 +170,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                       SizedBox(height: SpacingValues.medium),
                       AnimatedSizeContainer(
                         builder: (context) {
-                          return autocompletes;
+                          return contentWidget;
                         },
                       ),
                       TextField(
@@ -180,7 +202,7 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                           ),
                           keyboardType: TextInputType.multiline,
                           maxLines: 1,
-                          maxLength: 15,
+                          maxLength: 60,
                           onChanged: (value) =>
                               this.onTextChanged(context, value)),
                       SizedBox(height: SpacingValues.medium),
@@ -214,8 +236,22 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
                             onPressed: selectedAutocomplete == null
                                 ? null
                                 : () {
-                                    this.widget.onSubmit(
-                                        this.selectedAutocomplete.name);
+                                    BlocProvider.of<TwitterInvitationBloc>(
+                                            context)
+                                        .add(TwitterInvitationInviteEvent(
+                                            discussionID:
+                                                this.widget.discussion?.id,
+                                            invitingParticipantID: this
+                                                .widget
+                                                .discussion
+                                                ?.meParticipant
+                                                ?.id,
+                                            invitedTwitterUsers: [
+                                          TwitterUserInput(
+                                              name: this
+                                                  .selectedAutocomplete
+                                                  .name)
+                                        ]));
                                   },
                           ),
                         ],
@@ -232,13 +268,14 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
 
   void onTextChanged(BuildContext context, String value) {
     if (value == null || value.length == 0) {
-      BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+      BlocProvider.of<TwitterInvitationBloc>(context)
+          .add(TwitterInvitationResetEvent());
       return;
     }
 
     queryDebouncher.run(() {
-      BlocProvider.of<SuperpowersBloc>(context).add(
-          SearchTwitterUserAutocompletesEvent(
+      BlocProvider.of<TwitterInvitationBloc>(context).add(
+          TwitterInvitationSearchEvent(
               query: value,
               discussionID: this.widget.discussion.id,
               invitingParticipantID: this.widget.participant.id));

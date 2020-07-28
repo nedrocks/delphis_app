@@ -2,9 +2,9 @@ part of 'superpowers_bloc.dart';
 
 abstract class SuperpowersState extends Equatable {
   final DateTime timestamp;
-  
+
   SuperpowersState(this.timestamp);
-  
+
   List<Object> get props => [this.timestamp];
 }
 
@@ -18,9 +18,7 @@ class ReadyState extends SuperpowersState {
 class SuccessState extends ReadyState {
   final String message;
 
-  SuccessState({
-    @required this.message
-  });
+  SuccessState({@required this.message});
 
   @override
   List<Object> get props => [this.timestamp, this.message];
@@ -36,9 +34,7 @@ class LoadingState extends SuperpowersState {
 class ErrorState extends ReadyState {
   final String message;
 
-  ErrorState({
-    @required this.message
-  });
+  ErrorState({@required this.message});
 
   @override
   List<Object> get props => [this.timestamp, this.message];
@@ -47,10 +43,8 @@ class ErrorState extends ReadyState {
 class DeletePostSuccessState extends SuccessState {
   final Post post;
 
-  DeletePostSuccessState({
-    @required message,
-    @required this.post
-  }) : super(message: message);
+  DeletePostSuccessState({@required message, @required this.post})
+      : super(message: message);
 
   @override
   List<Object> get props => [this.timestamp, this.message, this.post];
@@ -59,44 +53,9 @@ class DeletePostSuccessState extends SuccessState {
 class BanParticipantSuccessState extends SuccessState {
   final Participant participant;
 
-  BanParticipantSuccessState({
-    @required message,
-    @required this.participant
-  }) : super(message: message);
+  BanParticipantSuccessState({@required message, @required this.participant})
+      : super(message: message);
 
   @override
   List<Object> get props => [this.timestamp, this.message, this.participant];
-}
-
-class InviteTwitterUserSuccessState extends SuccessState {
-  final List<DiscussionInvite> invites;
-
-  InviteTwitterUserSuccessState({
-    @required this.invites
-  }) : super(message: "");
-
-  @override
-  List<Object> get props => [this.timestamp, this.invites];
-}
-
-class TwitterUserAutocompletesLoadingState extends LoadingState {
-  final String query;
-
-  TwitterUserAutocompletesLoadingState({
-    @required this.query,
-  }) : super();
-
-  @override
-  List<Object> get props => [this.timestamp, this.query];
-}
-
-class TwitterUserAutocompletesLoadedState extends ReadyState {
-  final List<TwitterUserInfo> autocompletes;
-
-  TwitterUserAutocompletesLoadedState({
-    @required this.autocompletes
-  }) : super();
-
-  @override
-  List<Object> get props => [this.timestamp, this.autocompletes];
 }

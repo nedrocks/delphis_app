@@ -4,19 +4,24 @@ abstract class TwitterInvitationEvent extends Equatable {
   const TwitterInvitationEvent();
 }
 
+class TwitterInvitationResetEvent extends TwitterInvitationEvent {
+  const TwitterInvitationResetEvent();
+
+  @override
+  List<Object> get props => throw UnimplementedError();
+}
+
 class TwitterInvitationInviteEvent extends TwitterInvitationEvent {
   final DateTime now;
   final String discussionID;
   final String invitingParticipantID;
   final List<TwitterUserInput> invitedTwitterUsers;
-  final VoidCallback onComplete;
 
   TwitterInvitationInviteEvent(
       {now,
       this.discussionID,
       this.invitingParticipantID,
-      this.invitedTwitterUsers,
-      this.onComplete})
+      this.invitedTwitterUsers})
       : this.now = now ?? DateTime.now(),
         super();
 

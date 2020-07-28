@@ -22,7 +22,9 @@ class TwitterInvitationBloc
   Stream<TwitterInvitationState> mapEventToState(
     TwitterInvitationEvent event,
   ) async* {
-    if (event is TwitterInvitationInviteEvent &&
+    if (event is TwitterInvitationResetEvent) {
+      yield TwitterInvitationInitialState();
+    } else if (event is TwitterInvitationInviteEvent &&
         !(this.state is TwitterInvitationLoadingState)) {
       yield TwitterInvitationInviteLoadingState(timestamp: DateTime.now());
 
@@ -32,10 +34,6 @@ class TwitterInvitationBloc
             event.invitingParticipantID,
             event.invitedTwitterUsers);
         yield TwitterInvitationInviteSuccessState(invites: invites);
-        if (event.onComplete != null) {
-          event.onComplete();
-        }
-        yield TwitterInvitationInitialState();
       } catch (error) {
         yield TwitterInvitationErrorState(
             timestamp: DateTime.now(), error: error);

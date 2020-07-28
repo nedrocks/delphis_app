@@ -162,8 +162,7 @@ class ChathamAppState extends State<ChathamApp>
                       ..add(FetchAuthEvent())),
             BlocProvider<MeBloc>(
                 create: (context) => MeBloc(
-                    UserRepository(
-                        clientBloc: BlocProvider.of<GqlClientBloc>(context)),
+                    RepositoryProvider.of<UserRepository>(context),
                     BlocProvider.of<AuthBloc>(context))),
             BlocProvider<DiscussionListBloc>(
                 create: (context) => DiscussionListBloc(
@@ -337,13 +336,14 @@ class ChathamAppState extends State<ChathamApp>
                               ),
                               BlocProvider<SuperpowersBloc>(
                                 create: (context) => SuperpowersBloc(
-                                    discussionRepository: RepositoryProvider.of<
-                                        DiscussionRepository>(context),
-                                    participantRepository: RepositoryProvider
-                                        .of<ParticipantRepository>(context),
-                                    notificationBloc: BlocProvider.of<NotificationBloc>(context),
-                                    twitterUserRepository: RepositoryProvider.of<
-                                        TwitterUserRepository>(context)),
+                                  discussionRepository: RepositoryProvider.of<
+                                      DiscussionRepository>(context),
+                                  participantRepository: RepositoryProvider.of<
+                                      ParticipantRepository>(context),
+                                  notificationBloc:
+                                      BlocProvider.of<NotificationBloc>(
+                                          context),
+                                ),
                               ),
                             ],
                             child: MultiBlocListener(

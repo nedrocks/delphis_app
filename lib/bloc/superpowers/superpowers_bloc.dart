@@ -1,11 +1,7 @@
-import 'dart:math';
-
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
-import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:equatable/equatable.dart';
@@ -20,141 +16,84 @@ part 'superpowers_event.dart';
 part 'superpowers_state.dart';
 
 class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
-
   final NotificationBloc notificationBloc;
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
-  final TwitterUserRepository twitterUserRepository;
-
-  SuperpowersBloc({
-    @required this.notificationBloc,
-    @required this.discussionRepository,
-    @required this.participantRepository,
-    @required this.twitterUserRepository
-  }) : super(ReadyState());
+  SuperpowersBloc(
+      {@required this.notificationBloc,
+      @required this.discussionRepository,
+      @required this.participantRepository})
+      : super(ReadyState());
 
   @override
   Stream<SuperpowersState> mapEventToState(SuperpowersEvent event) async* {
-    if(event is ResetEvent) {
+    if (event is ResetEvent) {
       yield ReadyState();
-    }
-    else if(event is DeletePostEvent) {
-      if(this.state is ReadyState) {
+    } else if (event is DeletePostEvent) {
+      if (this.state is ReadyState) {
         yield LoadingState();
         try {
-          var deletedPost = await discussionRepository.deletePost(event.discussion, event.post);
-          event.discussion.postsCache = event.discussion.postsCache
-            .map((p) {
-              if(p.id == event.post.id)
-                return deletedPost;
-              return p;
-            })
-            .toList();
+          var deletedPost = await discussionRepository.deletePost(
+              event.discussion, event.post);
+          event.discussion.postsCache = event.discussion.postsCache.map((p) {
+            if (p.id == event.post.id) return deletedPost;
+            return p;
+          }).toList();
           yield DeletePostSuccessState(
-            message: Intl.message("The post has been successfully deleted!"),
-            post: deletedPost
-          );
-        }
-        catch (error) {
-          if(error is OperationException) {
+              message: Intl.message("The post has been successfully deleted!"),
+              post: deletedPost);
+        } catch (error) {
+          if (error is OperationException) {
             yield ErrorState(message: error.graphqlErrors[0].message);
-          }
-          else {
+          } else {
             yield ErrorState(message: error.toString());
           }
         }
       }
-    }
-    else if(event is BanParticipantEvent) {
-      if(this.state is ReadyState) {
+    } else if (event is BanParticipantEvent) {
+      if (this.state is ReadyState) {
         yield LoadingState();
         try {
-          var bannedParticipant = await participantRepository.banParticipant(event.discussion, event.participant);
-          event.discussion.postsCache = event.discussion.postsCache
-            .map((p) {
-              if(p.participant.id == event.participant.id)
-                return p.copyWith(isDeleted: true, deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
-              return p;
-            })
-            .toList();
+          var bannedParticipant = await participantRepository.banParticipant(
+              event.discussion, event.participant);
+          event.discussion.postsCache = event.discussion.postsCache.map((p) {
+            if (p.participant.id == event.participant.id)
+              return p.copyWith(
+                  isDeleted: true,
+                  deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
+            return p;
+          }).toList();
           yield BanParticipantSuccessState(
-            message: Intl.message("The participant has been successfully banned!"),
-            participant: bannedParticipant
-          );
-        }
-        catch (error) {
-          if(error is OperationException) {
+              message:
+                  Intl.message("The participant has been successfully banned!"),
+              participant: bannedParticipant);
+        } catch (error) {
+          if (error is OperationException) {
             yield ErrorState(message: error.graphqlErrors[0].message);
-          }
-          else {
+          } else {
             yield ErrorState(message: error.toString());
           }
         }
       }
-    }
-    else if(event is CopyDiscussionLinkEvent) {
-      if(this.state is ReadyState) {
+    } else if (event is CopyDiscussionLinkEvent) {
+      if (this.state is ReadyState) {
         var link = event.discussion.discussionLinksAccess.inviteLinkURL;
-        if(event.isVip) {
+        if (event.isVip) {
           link = event.discussion.discussionLinksAccess.vipInviteLinkURL;
-        } 
+        }
         Clipboard.setData(ClipboardData(text: link));
         notificationBloc.add(NewNotificationEvent(
-          notification: OverlayTopMessage(
-            child: IncognitoModeTextOverlay(
-                hasGoneIncognito: false, textOverride: Intl.message("An invitation link to this discussion was copied to clipboard!")),
-            onDismiss: () {
-              notificationBloc.add(DismissNotification());
-            },
-          )
-        ));
+            notification: OverlayTopMessage(
+          child: IncognitoModeTextOverlay(
+              hasGoneIncognito: false,
+              textOverride: Intl.message(
+                  "An invitation link to this discussion was copied to clipboard!")),
+          onDismiss: () {
+            notificationBloc.add(DismissNotification());
+          },
+        )));
         yield ReadyState();
       }
     }
-    else if(event is InviteTwitterUserEvent) {
-      if(this.state is ReadyState) {
-        yield LoadingState();
-        
-        try {
-          var invites = await twitterUserRepository.inviteUsersToDiscussion(event.discussionID, event.invitingParticipantID, event.twitterUsers);
-          yield InviteTwitterUserSuccessState(
-            invites: invites
-          );
-          notificationBloc.add(NewNotificationEvent(
-            notification: OverlayTopMessage(
-              child: IncognitoModeTextOverlay(
-                  hasGoneIncognito: false, textOverride: Intl.message("Your invitation has been sent!")),
-              showForMs: 1500,
-              onDismiss: () {
-                notificationBloc.add(DismissNotification());
-              },
-            )
-          ));
-          yield ReadyState();
-        }
-        catch (error) {
-          yield ErrorState(message: error.toString());
-        }  
-
-      }
-    }
-    else if(event is SearchTwitterUserAutocompletesEvent) {
-      if(this.state is ReadyState || this.state is TwitterUserAutocompletesLoadingState) {
-        yield TwitterUserAutocompletesLoadingState(
-          query: event.query
-        );
-        
-        try {
-          var autocompletes = await twitterUserRepository.getUserInfoAutocompletes(event.query, event.discussionID, event.invitingParticipantID);
-          yield TwitterUserAutocompletesLoadedState(
-            autocompletes: autocompletes
-          );
-        }
-        catch (error) {
-          yield ErrorState(message: error.toString());
-        }
-      }
-    }
   }
-
 }

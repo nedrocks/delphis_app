@@ -7,6 +7,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
+import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,6 +46,9 @@ void main() {
             create: (context) => MediaRepository()),
         RepositoryProvider<ParticipantRepository>(
             create: (context) => ParticipantRepository(
+                clientBloc: BlocProvider.of<GqlClientBloc>(context))),
+        RepositoryProvider<UserRepository>(
+            create: (context) => UserRepository(
                 clientBloc: BlocProvider.of<GqlClientBloc>(context))),
         RepositoryProvider<TwitterUserRepository>(
             create: (context) => TwitterUserRepository(

@@ -305,45 +305,45 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
           }));
     }
 
-    /* Invite user from Twitter handle */
-    if (isMeDiscussionModerator()) {
-      list.add(ModeratorPopupOption(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SpacingValues.medium),
-                color: Colors.black),
-            clipBehavior: Clip.antiAlias,
-            child: Container(
-              margin: EdgeInsets.all(28),
-              child: SvgPicture.asset(
-                'assets/svg/twitter_logo.svg',
-                color: ChathamColors.twitterLogoColor,
-              ),
-            ),
-          ),
-          title: Intl.message("Twitter Invitation"),
-          description:
-              Intl.message("Invite new users searching them on Twitter."),
-          onTap: () {
-            setState(() {
-              this.panelToShow = BlocProvider<TwitterInvitationBloc>(
-                create: (context) => TwitterInvitationBloc(
-                  repository: RepositoryProvider.of<UserRepository>(context),
-                  twitterUserRepository:
-                      RepositoryProvider.of<TwitterUserRepository>(context),
-                ),
-                child: TwitterInvitationForm(
-                  participant: this.widget.arguments?.discussion?.meParticipant,
-                  discussion: this.widget.arguments?.discussion,
-                  onCancel: this.cancelPanelToShow,
-                ),
-              );
-              BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
-            });
-          }));
-    }
+    // /* Invite user from Twitter handle */
+    // if (isMeDiscussionModerator()) {
+    //   list.add(ModeratorPopupOption(
+    //       child: Container(
+    //         width: double.infinity,
+    //         height: double.infinity,
+    //         decoration: BoxDecoration(
+    //             borderRadius: BorderRadius.circular(SpacingValues.medium),
+    //             color: Colors.black),
+    //         clipBehavior: Clip.antiAlias,
+    //         child: Container(
+    //           margin: EdgeInsets.all(28),
+    //           child: SvgPicture.asset(
+    //             'assets/svg/twitter_logo.svg',
+    //             color: ChathamColors.twitterLogoColor,
+    //           ),
+    //         ),
+    //       ),
+    //       title: Intl.message("Twitter Invitation"),
+    //       description:
+    //           Intl.message("Invite new users searching them on Twitter."),
+    //       onTap: () {
+    //         setState(() {
+    //           this.panelToShow = BlocProvider<TwitterInvitationBloc>(
+    //             create: (context) => TwitterInvitationBloc(
+    //               repository: RepositoryProvider.of<UserRepository>(context),
+    //               twitterUserRepository:
+    //                   RepositoryProvider.of<TwitterUserRepository>(context),
+    //             ),
+    //             child: TwitterInvitationForm(
+    //               participant: this.widget.arguments?.discussion?.meParticipant,
+    //               discussion: this.widget.arguments?.discussion,
+    //               onCancel: this.cancelPanelToShow,
+    //             ),
+    //           );
+    //           BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+    //         });
+    //       }));
+    // }
 
     /* A user could have no actions avaliable */
     if (list.length == 0) {

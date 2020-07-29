@@ -1,9 +1,11 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
+import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -34,7 +36,6 @@ class HomePageScreen extends StatefulWidget {
 }
 
 class _HomePageScreenState extends State<HomePageScreen> {
-  final Color _topBarBackgroundColor = Color.fromRGBO(22, 23, 28, 1.0);
   HomePageTab _currentTab;
 
   @override
@@ -66,11 +67,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
             children: [
               Container(
                   height: windowPadding.top,
-                  color: this._topBarBackgroundColor),
+                  color: ChathamColors.topBarBackgroundColor),
               HomePageTopBar(
                   height: 80.0,
                   title: Intl.message('Chats'),
-                  backgroundColor: this._topBarBackgroundColor),
+                  backgroundColor: ChathamColors.topBarBackgroundColor),
               Expanded(
                 child: ChatsScreen(
                   discussionRepository: this.widget.discussionRepository,
@@ -82,16 +83,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   ? Container(width: 0, height: 0)
                   : HomePageActionBar(
                       currentTab: this._currentTab,
-                      backgroundColor: this._topBarBackgroundColor,
+                      backgroundColor: ChathamColors.topBarBackgroundColor,
                       onNewChatPressed: () {
-                        BlocProvider.of<DiscussionBloc>(context).add(
-                          NewDiscussionEvent(
-                            title:
-                                "${currentUser.profile.displayName}'s discussion",
-                            anonymityType: AnonymityType.UNKNOWN,
-                            nonce: DateTime.now().toString(),
-                          ),
-                        );
+                        Navigator.pushNamed(context, '/Discussion/Upsert',
+                            arguments: UpsertDiscussionArguments());
                       },
                     ),
             ],

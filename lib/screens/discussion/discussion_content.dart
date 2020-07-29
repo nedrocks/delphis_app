@@ -8,9 +8,10 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers_popup.dart';
+import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup.dart';
 import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
@@ -135,24 +136,32 @@ class DiscussionContent extends StatelessWidget {
       this.onOverlayOpen(overlayEntry);
     } else if (this.superpowersArguments != null) {
       final overlayEntry = OverlayEntry(
-        builder: (overlayContext) => MultiBlocProvider(
-          providers: [
-            // This is needed because the overlay will have a different BuildContext
-            BlocProvider<SuperpowersBloc>.value(value: BlocProvider.of<SuperpowersBloc>(context)),
-            BlocProvider<MeBloc>.value(value: BlocProvider.of<MeBloc>(context)),
-          ],
-          child: AnimatedDiscussionPopup(
-            child: Container(width: 0, height: 0),
-            popup: DiscussionPopup(
-              contents: SuperpowersPopup(
-                arguments: this.superpowersArguments,
-                onCancel: this.onModeratorOverlayClose,
-              ),
-            ),
-            animationMillis: this.isAnimationEnabled ? 200 : 0,
-          ),
-        )
-      );
+          builder: (overlayContext) => MultiRepositoryProvider(
+                providers: [
+                  RepositoryProvider<TwitterUserRepository>.value(
+                      value: RepositoryProvider.of<TwitterUserRepository>(
+                          context)),
+                ],
+                child: MultiBlocProvider(
+                  providers: [
+                    // This is needed because the overlay will have a different BuildContext
+                    BlocProvider<SuperpowersBloc>.value(
+                        value: BlocProvider.of<SuperpowersBloc>(context)),
+                    BlocProvider<MeBloc>.value(
+                        value: BlocProvider.of<MeBloc>(context)),
+                  ],
+                  child: AnimatedDiscussionPopup(
+                    child: Container(width: 0, height: 0),
+                    popup: DiscussionPopup(
+                      contents: SuperpowersPopup(
+                        arguments: this.superpowersArguments,
+                        onCancel: this.onModeratorOverlayClose,
+                      ),
+                    ),
+                    animationMillis: this.isAnimationEnabled ? 200 : 0,
+                  ),
+                ),
+              ));
 
       this.onOverlayOpen(overlayEntry);
     }

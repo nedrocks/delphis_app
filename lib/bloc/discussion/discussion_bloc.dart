@@ -83,9 +83,15 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();
-        final discussion =
+        var discussion =
             await discussionRepository.getDiscussion(event.discussionID);
         int conciergeStep = getConciergeStep(discussion);
+        if (discussion.isMeDiscussionModerator()) {
+          final discussionLinkAccess = await discussionRepository
+              .getDiscussionLinkAccess(event.discussionID);
+          discussion =
+              discussion.copyWith(discussionLinksAccess: discussionLinkAccess);
+        }
         yield DiscussionLoadedState(
           discussion: discussion,
           lastUpdate: DateTime.now(),

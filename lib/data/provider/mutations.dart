@@ -1,8 +1,10 @@
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:flutter/material.dart';
@@ -351,3 +353,35 @@ class BanParticipantMutation extends GQLMutation<Participant> {
     return Participant.fromJson(data["banParticipant"]);
   }
 }
+
+class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<DiscussionInvite>> {
+  final String discussionID;
+  final String invitingParticipantID;
+  final List<TwitterUserInput> twitterUsers;
+
+  final String _mutation = """
+    mutation InviteTwitterUsersToDiscussion(\$discussionID: ID!, \$invitingParticipantID: ID!, \$twitterUsersInput: [TwitterUserInput!]) {
+      inviteTwitterUsersToDiscussion(discussionID: \$discussionID, invitingParticipantID: \$invitingParticipantID, twitterUsers: \$twitterUsersInput) {
+        ...DiscussionInviteFragment
+      }
+    }
+    $DiscussionInviteFragment
+  """;
+
+  const InviteTwitterUsersToDiscussionMutation({
+    @required this.discussionID,
+    @required this.invitingParticipantID,
+    @required this.twitterUsers
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  List<DiscussionInvite> parseResult(dynamic data) {
+    return (data["inviteTwitterUsersToDiscussion"] as List<dynamic>)
+        .map((elem) => DiscussionInvite.fromJson(elem))
+        .toList();
+  }
+}
+

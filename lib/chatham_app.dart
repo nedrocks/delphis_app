@@ -8,6 +8,7 @@ import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
+import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
@@ -161,8 +162,7 @@ class ChathamAppState extends State<ChathamApp>
                       ..add(FetchAuthEvent())),
             BlocProvider<MeBloc>(
                 create: (context) => MeBloc(
-                    UserRepository(
-                        clientBloc: BlocProvider.of<GqlClientBloc>(context)),
+                    RepositoryProvider.of<UserRepository>(context),
                     BlocProvider.of<AuthBloc>(context))),
             BlocProvider<DiscussionListBloc>(
                 create: (context) => DiscussionListBloc(
@@ -320,7 +320,6 @@ class ChathamAppState extends State<ChathamApp>
                   case '/Discussion':
                     DiscussionArguments arguments =
                         settings.arguments as DiscussionArguments;
-
                     return MaterialPageRoute(
                         settings: settings,
                         builder: (BuildContext context) {
@@ -337,10 +336,14 @@ class ChathamAppState extends State<ChathamApp>
                               ),
                               BlocProvider<SuperpowersBloc>(
                                 create: (context) => SuperpowersBloc(
-                                    discussionRepository: RepositoryProvider.of<
-                                        DiscussionRepository>(context),
-                                    participantRepository: RepositoryProvider
-                                        .of<ParticipantRepository>(context)),
+                                  discussionRepository: RepositoryProvider.of<
+                                      DiscussionRepository>(context),
+                                  participantRepository: RepositoryProvider.of<
+                                      ParticipantRepository>(context),
+                                  notificationBloc:
+                                      BlocProvider.of<NotificationBloc>(
+                                          context),
+                                ),
                               ),
                             ],
                             child: MultiBlocListener(

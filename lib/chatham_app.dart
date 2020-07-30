@@ -427,14 +427,15 @@ class ChathamAppState extends State<ChathamApp>
                                 MeBloc.extractMe(
                                     BlocProvider.of<MeBloc>(context).state)))
                             ..add(UpsertDiscussionSelectDiscussionEvent(
-                                BlocProvider.of<DiscussionBloc>(context)
-                                    .state
-                                    .getDiscussion())),
+                                arguments.discussion)),
                           child: BlocListener<DiscussionBloc, DiscussionState>(
                             listener: (context, state) {
-                              BlocProvider.of<UpsertDiscussionBloc>(context)
-                                  .add(UpsertDiscussionSelectDiscussionEvent(
-                                      state.getDiscussion()));
+                              if (state.getDiscussion()?.id ==
+                                  arguments.discussion.id) {
+                                BlocProvider.of<UpsertDiscussionBloc>(context)
+                                    .add(UpsertDiscussionSelectDiscussionEvent(
+                                        state.getDiscussion()));
+                              }
                             },
                             child: BlocListener<MeBloc, MeState>(
                               listener: (context, state) {

@@ -4,25 +4,31 @@ abstract class AuthEvent extends Equatable {
   const AuthEvent();
 }
 
-class FetchAuthEvent extends AuthEvent {
+class TwitterSignInAuthEvent extends AuthEvent {
   @override
   List<Object> get props => [];
 }
 
-class LoadedAuthEvent extends AuthEvent {
-  final String authString;
-  final bool isSuccess;
-  final bool isFromLocalStorage;
-
-  const LoadedAuthEvent(
-      this.authString, this.isSuccess, this.isFromLocalStorage)
-      : super();
-
+class AppleSignInAuthEvent extends AuthEvent {
   @override
-  List<Object> get props => [this.authString, this.isSuccess];
+  List<Object> get props => [];
+}
+
+class LocalSignInAuthEvent extends AuthEvent {
+  @override
+  List<Object> get props => [];
 }
 
 class LogoutAuthEvent extends AuthEvent {
   @override
   List<Object> get props => [];
+}
+
+class SetTokenAuthEvent extends AuthEvent {
+  final String token;
+
+  SetTokenAuthEvent(this.token);
+
+  @override
+  List<Object> get props => [token];
 }

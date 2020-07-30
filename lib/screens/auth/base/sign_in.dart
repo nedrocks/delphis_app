@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
-import 'package:delphis_app/constants.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -12,85 +9,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SignInScreen extends StatefulWidget {
-  @override
-  _SignInScreenState createState() => _SignInScreenState();
-}
-
-class _SignInScreenState extends State<SignInScreen> {
+class SignInScreen extends StatelessWidget {
   static const twitterWidgetHeight = 76.0;
   static const feedbackLink =
       'mailto:ned@chatham.ai?subject=Twitter%20Makes%20Me%20Mad';
-  StreamSubscription _deepLinkSubscription;
-  AuthBloc authBloc;
-
-  @override
-  void dispose() {
-    _deepLinkSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    this.authBloc = BlocProvider.of<AuthBloc>(context);
-    this._deepLinkSubscription = getLinksStream().listen((String link) {
-      if (link.startsWith(Constants.twitterRedirectURLPrefix) ||
-          link.startsWith(Constants.twitterRedirectLegacyURLPrefix)) {
-        String token = RegExp("\\?dc=(.*)").firstMatch(link)?.group(1) ?? null;
-        if (token != null) {
-          this.authBloc.add(LoadedAuthEvent(token, true, false));
-        }
-      }
-    }, onError: (err) {
-      throw err;
-    });
-  }
-
-  void handleAppleLoginSuccessful(String accessToken) async {
-    this.authBloc.add(LoadedAuthEvent(accessToken, true, false));
-  }
-
-  void successfulLogin() async {
-    await closeWebView();
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil('/Home', (Route<dynamic> route) => false);
-  }
-
-  void openLoginDialog() async {
-    var url = Constants.twitterLoginURL;
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.black,
-        body: Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-          ),
-          alignment: Alignment.bottomCenter,
-          padding: EdgeInsets.symmetric(horizontal: SpacingValues.xxxxLarge),
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-            return BlocListener<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is InitializedAuthState) {
-                  this.successfulLogin();
-                }
-              },
-              child: SizedBox(
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is SignedInAuthState) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              '/Home', (Route<dynamic> route) => false);
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          backgroundColor: Colors.black,
+          body: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+            ),
+            alignment: Alignment.bottomCenter,
+            padding: EdgeInsets.symmetric(horizontal: SpacingValues.xxxxLarge),
+            child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+              return SizedBox(
                 height: constraints.maxHeight * 0.7,
                 child: Flex(
                   direction: Axis.vertical,
@@ -120,14 +67,19 @@ class _SignInScreenState extends State<SignInScreen> {
                         Column(
                           children: [
                             LoginWithTwitterButton(
-                              onPressed: () => openLoginDialog(),
+                              onPressed: () {
+                                BlocProvider.of<AuthBloc>(context)
+                                    .add(TwitterSignInAuthEvent());
+                              },
                               width: constraints.maxWidth,
                               height: 56.0,
                             ),
                             SizedBox(height: SpacingValues.small),
                             SignInWithAppleButton(
-                              onLoginSuccessful:
-                                  this.handleAppleLoginSuccessful,
+                              onLoginSuccessful: (token) {
+                                BlocProvider.of<AuthBloc>(context)
+                                    .add(SetTokenAuthEvent(token));
+                              },
                             ),
                           ],
                         ),
@@ -154,9 +106,9 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ],
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         ),
       ),
     );

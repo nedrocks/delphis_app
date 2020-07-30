@@ -127,7 +127,7 @@ class ChatsList extends StatelessWidget {
                   }
                   return SingleChat(
                     discussion: discussionElem,
-                    canJoinDiscussions: currentUser.isTwitterAuth,
+                    canJoinDiscussions: currentUser?.isTwitterAuth,
                     onJoinPressed: () {
                       this.onJoinDiscussionPressed(discussionElem);
                     },

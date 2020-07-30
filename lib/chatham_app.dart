@@ -159,9 +159,10 @@ class ChathamAppState extends State<ChathamApp>
         return MultiBlocProvider(
           providers: <BlocProvider>[
             BlocProvider<AuthBloc>(
-                create: (context) =>
-                    AuthBloc(DelphisAuthRepository(this.secureStorage))
-                      ..add(FetchAuthEvent())),
+              create: (context) =>
+                  AuthBloc(DelphisAuthRepository(this.secureStorage))
+                    ..add(LocalSignInAuthEvent()),
+            ),
             BlocProvider<MeBloc>(
                 create: (context) => MeBloc(
                     RepositoryProvider.of<UserRepository>(context),
@@ -185,22 +186,22 @@ class ChathamAppState extends State<ChathamApp>
             listeners: [
               BlocListener<AuthBloc, AuthState>(
                   listener: (context, AuthState state) {
-                if (state is InitializedAuthState) {
+                if (state is SignedInAuthState) {
                   BlocProvider.of<GqlClientBloc>(context).add(
                       GqlClientAuthChanged(
-                          isAuthed: state.isAuthed,
-                          authString: state.authString));
+                          isAuthed: true, authString: state.authString));
+                } else if (state is LoggedOutAuthState) {
+                  BlocProvider.of<GqlClientBloc>(context).add(
+                      GqlClientAuthChanged(isAuthed: false, authString: ""));
                 }
               }),
               BlocListener<GqlClientBloc, GqlClientState>(
                   listener: (context, state) {
                 final authState = BlocProvider.of<AuthBloc>(context).state;
-                if (authState is InitializedAuthState &&
-                    authState.isAuthed &&
+                if (authState is SignedInAuthState &&
                     state is GqlClientConnectedState) {
                   BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-                } else if (authState is InitializedAuthState &&
-                    !authState.isAuthed) {
+                } else if (authState is LoggedOutAuthState) {
                   this.sendDeviceToServer(
                       RepositoryProvider.of<UserDeviceRepository>(context),
                       null);
@@ -233,6 +234,9 @@ class ChathamAppState extends State<ChathamApp>
                     final linkArgs =
                         ChathamLinkParser.getChathamDiscussionLinkParams(
                             linkURI);
+                    if (linkArgs == null) {
+                      return;
+                    }
                     if (linkArgs.isVipLink) {
                       // We need to join the discussion and then show it.
                       try {

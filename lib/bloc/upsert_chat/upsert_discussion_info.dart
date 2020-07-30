@@ -13,23 +13,25 @@ class UpsertDiscussionInfo extends Equatable {
   final String inviteLink;
   final bool isNewDiscussion;
 
-  UpsertDiscussionInfo(
-      {this.meUser,
-      this.discussion,
-      this.title,
-      this.description,
-      this.inviteMode,
-      this.inviteLink,
-      this.isNewDiscussion});
+  UpsertDiscussionInfo({
+    this.meUser,
+    this.discussion,
+    this.title,
+    this.description,
+    this.inviteMode,
+    this.inviteLink,
+    this.isNewDiscussion = true,
+  });
 
-  UpsertDiscussionInfo copyWith(
-      {meUser,
-      discussion,
-      title,
-      description,
-      inviteMode,
-      inviteLink,
-      isNewDiscussion}) {
+  UpsertDiscussionInfo copyWith({
+    meUser,
+    discussion,
+    title,
+    description,
+    inviteMode,
+    inviteLink,
+    isNewDiscussion,
+  }) {
     return UpsertDiscussionInfo(
         meUser: meUser ?? this.meUser,
         discussion: discussion ?? this.discussion,

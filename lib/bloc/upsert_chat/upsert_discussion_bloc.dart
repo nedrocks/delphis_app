@@ -28,7 +28,10 @@ class UpsertDiscussionBloc
       final updated = this.state.info.copyWith(meUser: event.me);
       yield UpsertDiscussionReadyState(updated);
     } else if (event is UpsertDiscussionSelectDiscussionEvent) {
-      final updated = this.state.info.copyWith(discussion: event.discussion);
+      final updated = this.state.info.copyWith(
+            discussion: event.discussion,
+            isNewDiscussion: false,
+          );
       yield UpsertDiscussionReadyState(updated);
     } else if (event is UpsertDiscussionSetInfoEvent) {
       final updated = this.state.info.copyWith(

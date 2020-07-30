@@ -1,6 +1,7 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
+import 'package:delphis_app/screens/upsert_discussion/pages/invite_mode_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/title_description_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/twitter_auth_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
@@ -83,8 +84,13 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
             ));
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
-        // TODO: Handle this case.
-        break;
+        return InviteModePage(
+          onBack: () => this.onBack(context, info, page),
+          onNext: () => this.onNext(context, info, page),
+          prevButtonText: Intl.message("Back"),
+          nextButtonText: Intl.message("Create"),
+          isUpdateMode: this.widget.arguments.isUpdateMode,
+        );
       case UpsertDiscussionScreenPage.CONFIRMATION:
         // TODO: Handle this case.
         break;
@@ -104,7 +110,9 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
         });
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
-        // TODO: Handle this case.
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.TITLE_DESCRIPTION;
+        });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:
         // TODO: Handle this case.
@@ -131,7 +139,9 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
         });
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
-        // TODO: Handle this case.
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.CONFIRMATION;
+        });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:
         // TODO: Handle this case.

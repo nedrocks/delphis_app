@@ -13,7 +13,8 @@ UpsertDiscussionArguments _$UpsertDiscussionArgumentsFromJson(
         ? null
         : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
     firstPage: _$enumDecodeNullable(
-        _$UpsertDiscussionScreenPageEnumMap, json['initialPage']),
+        _$UpsertDiscussionScreenPageEnumMap, json['firstPage']),
+    isUpdateMode: json['isUpdateMode'] as bool,
   );
 }
 
@@ -21,7 +22,8 @@ Map<String, dynamic> _$UpsertDiscussionArgumentsToJson(
         UpsertDiscussionArguments instance) =>
     <String, dynamic>{
       'discussion': instance.discussion,
-      'initialPage': _$UpsertDiscussionScreenPageEnumMap[instance.firstPage],
+      'firstPage': _$UpsertDiscussionScreenPageEnumMap[instance.firstPage],
+      'isUpdateMode': instance.isUpdateMode,
     };
 
 T _$enumDecode<T>(

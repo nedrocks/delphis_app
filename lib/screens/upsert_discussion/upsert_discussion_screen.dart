@@ -47,6 +47,7 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
 
   Widget mapPageToWidget(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
+    final isUpdate = this.widget.arguments.isUpdateMode;
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         return TitleDescriptionPage(
@@ -54,6 +55,8 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           onNext: () => this.onNext(context, info, page),
           prevButtonText: Intl.message("Back"),
           nextButtonText: Intl.message("Continue"),
+          initialTitle: isUpdate ? info.discussion.title : null,
+          initialDescription: isUpdate ? info.discussion.description : null,
         );
       case UpsertDiscussionScreenPage.TWITTER_AUTH:
         // TODO: Handle this case.

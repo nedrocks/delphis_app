@@ -9,6 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class TitleDescriptionPage extends StatefulWidget {
+  final String initialTitle;
+  final String initialDescription;
   final String nextButtonText;
   final String prevButtonText;
   final VoidCallback onBack;
@@ -20,6 +22,8 @@ class TitleDescriptionPage extends StatefulWidget {
     @required this.prevButtonText,
     @required this.onBack,
     @required this.onNext,
+    this.initialTitle,
+    this.initialDescription,
   }) : super(key: key);
 
   @override
@@ -35,6 +39,8 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
   void initState() {
     this.titleController = TextEditingController();
     this.descriptionController = TextEditingController();
+    this.titleController.text = this.widget.initialTitle ?? "";
+    this.descriptionController.text = this.widget.initialDescription ?? "";
     super.initState();
   }
 

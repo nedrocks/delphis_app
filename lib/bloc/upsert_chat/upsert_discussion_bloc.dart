@@ -45,19 +45,22 @@ class UpsertDiscussionBloc
           yield UpsertDiscussionErrorState(this.state.info,
               Intl.message("You didn't insert all the required fields"));
         }
+
         /* The real call must be updated on the backend to support the new flow:
              + description
              + inviteMode
-             - anonymityMode (?)
-        */
-        // final discussion = await this
-        //     .discussionRepository
-        //     .createDiscussion(title: this.state.info.title);
+             - anonymityMode (?) */
+        // final discussion = await this.discussionRepository.createDiscussion(
+        //       title: this.state.info.title,
+        //       description: this.state.info.description,
+        //       anonymityType: AnonymityType.WEAK,
+        //     );
 
         /* This is mocked for UI development */
         await Future.delayed(Duration(seconds: 2));
+        final Discussion discussion = Discussion();
         final updated = this.state.info.copyWith(
-            discussion: Discussion(),
+            discussion: discussion,
             inviteLink: "This is a test invitation link");
         yield UpsertDiscussionReadyState(updated);
       } catch (error) {

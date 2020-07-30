@@ -10,12 +10,12 @@ part 'screen_arguments.g.dart';
 class UpsertDiscussionArguments {
   final Discussion discussion;
   final UpsertDiscussionScreenPage firstPage;
-  final bool isSinglePage;
+  final bool isUpdateMode;
 
   const UpsertDiscussionArguments({
     this.discussion,
     this.firstPage = UpsertDiscussionScreenPage.TITLE_DESCRIPTION,
-    this.isSinglePage = false,
+    this.isUpdateMode = false,
   });
 
   factory UpsertDiscussionArguments.fromJsonString(String input) =>

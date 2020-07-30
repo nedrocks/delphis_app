@@ -76,16 +76,18 @@ class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
 
 class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
+  final String description;
   final AnonymityType anonymityType;
 
   const CreateDiscussionGQLMutation({
     @required this.title,
+    @required this.description,
     @required this.anonymityType,
   });
 
   final String _mutation = """
-    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!) {
-      createDiscussion(anonymityType: \$anonymityType, title: \$title) {
+    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!) {
+      createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description) {
         ...DiscussionFragmentFull
       }
     }
@@ -207,6 +209,7 @@ class ConciergeOptionMutation extends GQLMutation<Post> {
 class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   final String discussionID;
   final String title;
+  final String description;
   final String iconURL;
 
   final String _mutation = """
@@ -221,12 +224,14 @@ class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   const UpdateDiscussionMutation({
     @required this.discussionID,
     this.title,
+    this.description,
     this.iconURL,
   }) : super();
 
   Map<String, dynamic> createInputObject() {
     return {
       'title': this.title,
+      'description': this.description,
       'iconURL': this.iconURL,
     };
   }
@@ -354,7 +359,8 @@ class BanParticipantMutation extends GQLMutation<Participant> {
   }
 }
 
-class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<DiscussionInvite>> {
+class InviteTwitterUsersToDiscussionMutation
+    extends GQLMutation<List<DiscussionInvite>> {
   final String discussionID;
   final String invitingParticipantID;
   final List<TwitterUserInput> twitterUsers;
@@ -371,7 +377,7 @@ class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<Discussion
   const InviteTwitterUsersToDiscussionMutation({
     @required this.discussionID,
     @required this.invitingParticipantID,
-    @required this.twitterUsers
+    @required this.twitterUsers,
   }) : super();
 
   String mutation() {
@@ -384,4 +390,3 @@ class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<Discussion
         .toList();
   }
 }
-

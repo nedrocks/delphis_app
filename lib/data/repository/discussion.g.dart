@@ -37,6 +37,17 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ? null
         : DiscussionLinkAccess.fromJson(
             json['discussionLinksAccess'] as Map<String, dynamic>),
+    description: json['description'] as String,
+    titleHistory: (json['titleHistory'] as List)
+        ?.map((e) => e == null
+            ? null
+            : HistoricalString.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    descriptionHistory: (json['descriptionHistory'] as List)
+        ?.map((e) => e == null
+            ? null
+            : HistoricalString.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
   );
 }
 
@@ -54,6 +65,9 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meAvailableParticipants': instance.meAvailableParticipants,
       'iconURL': instance.iconURL,
       'discussionLinksAccess': instance.discussionLinksAccess,
+      'description': instance.description,
+      'titleHistory': instance.titleHistory,
+      'descriptionHistory': instance.descriptionHistory,
     };
 
 T _$enumDecode<T>(

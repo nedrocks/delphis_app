@@ -235,9 +235,11 @@ class DiscussionUpdateEvent extends DiscussionEvent {
   final String discussionID;
   final String title;
   final String selectedEmoji;
+  final String description;
 
   DiscussionUpdateEvent({
     @required this.title,
+    @required this.description,
     @required this.discussionID,
     @required this.selectedEmoji,
   }) : super();

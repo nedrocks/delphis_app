@@ -8,18 +8,26 @@ import 'package:intl/intl.dart';
 class BasePageWidget extends StatelessWidget {
   final Widget contents;
   final String title;
-  final String backButtonText;
-  final String nextButtonText;
+  final Widget backButtonChild;
+  final Widget nextButtonChild;
+  final bool backDisable;
+  final bool nextDisable;
+  final Color backColor;
+  final Color nextColor;
   final VoidCallback onNext;
   final VoidCallback onBack;
 
   const BasePageWidget({
     @required this.contents,
     @required this.title,
-    @required this.backButtonText,
-    @required this.nextButtonText,
-    @required this.onNext,
-    @required this.onBack,
+    this.backButtonChild,
+    this.nextButtonChild,
+    this.onNext,
+    this.onBack,
+    this.backDisable = false,
+    this.nextDisable = false,
+    this.backColor,
+    this.nextColor,
   }) : super();
 
   @override
@@ -42,32 +50,38 @@ class BasePageWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                RaisedButton(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: SpacingValues.large,
-                    vertical: SpacingValues.medium,
-                  ),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25.0)),
-                  color: Color.fromRGBO(247, 247, 255, 0.2),
-                  child: Text(this.backButtonText),
-                  onPressed: this.onBack,
-                ),
-                RaisedButton(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: SpacingValues.xxLarge,
-                    vertical: SpacingValues.medium,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                  ),
-                  color: Color.fromRGBO(247, 247, 255, 1.0),
-                  child: Text(
-                    Intl.message(this.nextButtonText),
-                    style: TextThemes.joinButtonTextChatTab,
-                  ),
-                  onPressed: this.onNext,
-                ),
+                this.backDisable
+                    ? Container()
+                    : RaisedButton(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SpacingValues.large,
+                          vertical: SpacingValues.medium,
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0)),
+                        color: this.backColor ??
+                            Color.fromRGBO(247, 247, 255, 0.2),
+                        child: this.backButtonChild,
+                        onPressed: this.onBack,
+                        animationDuration: Duration(milliseconds: 100),
+                      ),
+                this.nextDisable
+                    ? Container()
+                    : RaisedButton(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SpacingValues.xxLarge,
+                          vertical: SpacingValues.medium,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                        color: this.nextColor ??
+                            Color.fromRGBO(247, 247, 255, 1.0),
+                        child: this.nextButtonChild,
+                        onPressed: this.onNext,
+                        splashColor: Colors.grey.withOpacity(0.8),
+                        animationDuration: Duration(milliseconds: 100),
+                      ),
               ],
             ),
           ],

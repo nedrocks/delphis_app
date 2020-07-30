@@ -438,6 +438,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             .updateDiscussion(
                 event.discussionID,
                 event.title,
+                event.description,
                 event.selectedEmoji == null
                     ? null
                     : "emoji://${event.selectedEmoji}");

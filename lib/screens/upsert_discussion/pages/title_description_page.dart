@@ -57,11 +57,15 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
+          color: Colors.black,
           height: height,
           child: BasePageWidget(
             title: "New Discussion",
-            nextButtonText: this.widget.nextButtonText,
-            backButtonText: this.widget.prevButtonText,
+            nextButtonChild: Text(
+              this.widget.nextButtonText,
+              style: TextThemes.joinButtonTextChatTab,
+            ),
+            backButtonChild: Text(this.widget.prevButtonText),
             onBack: this.widget.onBack,
             onNext: () => this.onNext(context),
             contents: Expanded(
@@ -70,27 +74,25 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                 child: Column(
                   children: <Widget>[
                     Expanded(
-                      flex: 1,
-                      child: Center(
-                          child: Container(
-                        decoration: BoxDecoration(shape: BoxShape.circle),
-                        clipBehavior: Clip.antiAlias,
-                        child: Image.asset(
-                          'assets/images/app_icon/image.png',
-                          width: MediaQuery.of(context).size.width * 0.2,
-                        ),
-                      )),
-                    ),
-                    Expanded(
-                      flex: 1,
                       child: Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/app_icon/image.png',
+                                width: MediaQuery.of(context).size.width * 0.2,
+                              ),
+                            ),
+                            SizedBox(
+                              height: SpacingValues.mediumLarge,
+                            ),
                             Text(
                               Intl.message(
                                   'This lets you create a new conversation for which you will be the moderator.'),
-                              style: TextThemes.onboardBody,
+                              style: TextThemes.onboardHeading,
                               textAlign: TextAlign.center,
                             ),
                             SizedBox(
@@ -106,51 +108,59 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                         ),
                       ),
                     ),
-                    AnimatedSizeContainer(
-                      builder: (context) {
-                        if (error != null) {
-                          return Container(
-                            margin: EdgeInsets.only(top: SpacingValues.medium),
-                            child: Text(
-                              error.toString(),
-                              textAlign: TextAlign.center,
-                              style: TextThemes.discussionPostText
-                                  .copyWith(color: Colors.red),
-                            ),
-                          );
-                        }
-                        return Container();
-                      },
-                    ),
                     Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(Intl.message('Enter a title for your chat:')),
-                            SizedBox(
-                              height: SpacingValues.extraSmall,
-                            ),
-                            UpsertDiscussionTextField(
-                              textController: this.titleController,
-                              hint: Intl.message("A great title..."),
-                              autofocus: false,
-                            ),
-                            SizedBox(
-                              height: SpacingValues.medium,
-                            ),
-                            Text(Intl.message('A description for your chat:')),
-                            SizedBox(
-                              height: SpacingValues.extraSmall,
-                            ),
-                            UpsertDiscussionTextField(
-                              textController: this.descriptionController,
-                              hint: Intl.message("A cool description..."),
-                              autofocus: false,
-                              maxLines: 4,
-                            ),
-                          ],
-                        )),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          AnimatedSizeContainer(
+                            builder: (context) {
+                              if (error != null) {
+                                return Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                          top: SpacingValues.medium),
+                                      child: Text(
+                                        error.toString(),
+                                        textAlign: TextAlign.center,
+                                        style: TextThemes.discussionPostText
+                                            .copyWith(color: Colors.red),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: SpacingValues.medium,
+                                    ),
+                                  ],
+                                );
+                              }
+                              return Container();
+                            },
+                          ),
+                          Text(Intl.message('Enter a title for your chat:')),
+                          SizedBox(
+                            height: SpacingValues.extraSmall,
+                          ),
+                          UpsertDiscussionTextField(
+                            textController: this.titleController,
+                            hint: Intl.message("A great title..."),
+                            autofocus: false,
+                          ),
+                          SizedBox(
+                            height: SpacingValues.medium,
+                          ),
+                          Text(Intl.message('A description for your chat:')),
+                          SizedBox(
+                            height: SpacingValues.extraSmall,
+                          ),
+                          UpsertDiscussionTextField(
+                            textController: this.descriptionController,
+                            hint: Intl.message("A cool description..."),
+                            autofocus: false,
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

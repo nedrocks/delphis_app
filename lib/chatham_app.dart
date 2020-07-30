@@ -256,7 +256,7 @@ class ChathamAppState extends State<ChathamApp>
                           navKey.currentState.pushNamed('/Discussion',
                               arguments: DiscussionArguments(
                                 discussionID: linkArgs.discussionID,
-                                isStartJoinFlow: true,
+                                isStartJoinFlow: disc.meParticipant == null,
                               ));
                         }).catchError((err) {
                           BlocProvider.of<NotificationBloc>(context).add(

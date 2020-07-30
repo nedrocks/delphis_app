@@ -31,7 +31,7 @@ class UpsertDiscussionReadyState extends UpsertDiscussionState {
   List<Object> get props => [info, timestamp];
 }
 
-class UpsertDiscussionCreateLoadingState extends UpsertDiscussionState {
+class UpsertDiscussionCreateLoadingState extends UpsertDiscussionLoadingState {
   final DateTime timestamp = DateTime.now();
   final UpsertDiscussionInfo info;
 

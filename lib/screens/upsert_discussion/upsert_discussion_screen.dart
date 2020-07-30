@@ -1,6 +1,8 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
+import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
+import 'package:delphis_app/screens/upsert_discussion/pages/confirmation_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/invite_mode_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/title_description_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/twitter_auth_page.dart';
@@ -92,8 +94,16 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           isUpdateMode: this.widget.arguments.isUpdateMode,
         );
       case UpsertDiscussionScreenPage.CONFIRMATION:
-        // TODO: Handle this case.
-        break;
+        return ConfirmationPage(
+          onBack: () => this.onBack(context, info, page),
+          onNext: () => this.onNext(context, info, page),
+          prevButtonText: Intl.message("Back"),
+          nextButtonText: Intl.message("Go to chat"),
+          onRetry: () {
+            BlocProvider.of<UpsertDiscussionBloc>(context)
+                .add(UpsertDiscussionCreateDiscussionEvent());
+          },
+        );
     }
     return Container();
   }
@@ -115,7 +125,9 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
         });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:
-        // TODO: Handle this case.
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
+        });
         break;
     }
   }
@@ -141,10 +153,19 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         setState(() {
           this.currentPage = UpsertDiscussionScreenPage.CONFIRMATION;
+          BlocProvider.of<UpsertDiscussionBloc>(context)
+              .add(UpsertDiscussionCreateDiscussionEvent());
         });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:
-        // TODO: Handle this case.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/Discussion',
+          ModalRoute.withName("/Home"),
+          arguments: DiscussionArguments(
+            discussionID: info.discussion.id,
+            isStartJoinFlow: false,
+          ),
+        );
         break;
     }
   }

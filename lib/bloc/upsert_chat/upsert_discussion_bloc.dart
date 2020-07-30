@@ -13,6 +13,7 @@ part 'upsert_discussion_state.dart';
 class UpsertDiscussionBloc
     extends Bloc<UpsertDiscussionEvent, UpsertDiscussionState> {
   final DiscussionRepository discussionRepository;
+  var attempt = 0;
 
   UpsertDiscussionBloc(this.discussionRepository)
       : super(UpsertDiscussionReadyState(UpsertDiscussionInfo()));
@@ -61,11 +62,16 @@ class UpsertDiscussionBloc
 
         /* This is mocked for UI development */
         await Future.delayed(Duration(seconds: 2));
-        final Discussion discussion = Discussion();
-        final updated = this.state.info.copyWith(
-            discussion: discussion,
-            inviteLink: "This is a test invitation link");
-        yield UpsertDiscussionReadyState(updated);
+        // yield UpsertDiscussionErrorState(
+        //     this.state.info, "Something went wrong.");
+        if (attempt++ > 1)
+          yield UpsertDiscussionReadyState(this.state.info.copyWith(
+              discussion:
+                  Discussion(id: "34bbaab2-eee8-4b64-bbfa-e4c4f71ae5a6"),
+              inviteLink:
+                  "https://docs.flutter.io/flutter/services/UrlLauncher-class.html"));
+        else
+          throw "This is an error example for any kind of problem that may occur";
       } catch (error) {
         yield UpsertDiscussionErrorState(this.state.info, error);
       }

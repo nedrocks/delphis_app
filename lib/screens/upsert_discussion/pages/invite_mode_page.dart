@@ -10,6 +10,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class InviteModePage extends StatefulWidget {
+  static final everyoneFollowedText = Intl.message(
+      "Automatically allow everyone I’m following to join, but manually approve everyone else.");
+  static final everyoneApprovedText =
+      Intl.message("Manually approve all requests to join.");
   final String nextButtonText;
   final String prevButtonText;
   final VoidCallback onBack;
@@ -127,8 +131,7 @@ class _InviteModePageState extends State<InviteModePage> {
                             _ModeOption(
                               isSelected: state.info.inviteMode ==
                                   DiscussionInviteMode.EVERYONE_FOLLOWED,
-                              text: Intl.message(
-                                  "Automatically allow everyone I’m following to join, but manually approve everyone else."),
+                              text: InviteModePage.everyoneFollowedText,
                               onTap: () =>
                                   BlocProvider.of<UpsertDiscussionBloc>(context)
                                       .add(
@@ -143,8 +146,7 @@ class _InviteModePageState extends State<InviteModePage> {
                             _ModeOption(
                               isSelected: state.info.inviteMode ==
                                   DiscussionInviteMode.EVERYONE_APPROVED,
-                              text: Intl.message(
-                                  "Manually approve all requests to join."),
+                              text: InviteModePage.everyoneApprovedText,
                               onTap: () =>
                                   BlocProvider.of<UpsertDiscussionBloc>(context)
                                       .add(

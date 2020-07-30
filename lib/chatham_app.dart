@@ -435,7 +435,7 @@ class ChathamAppState extends State<ChathamApp>
                           child: BlocListener<DiscussionBloc, DiscussionState>(
                             listener: (context, state) {
                               if (state.getDiscussion()?.id ==
-                                  arguments.discussion.id) {
+                                  arguments.discussion?.id) {
                                 BlocProvider.of<UpsertDiscussionBloc>(context)
                                     .add(UpsertDiscussionSelectDiscussionEvent(
                                         state.getDiscussion()));

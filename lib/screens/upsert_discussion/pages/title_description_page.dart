@@ -55,6 +55,7 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         child: Container(
           color: Colors.black,
@@ -72,94 +73,85 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
               child: Container(
                 margin: EdgeInsets.all(SpacingValues.extraLarge),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              decoration: BoxDecoration(shape: BoxShape.circle),
-                              clipBehavior: Clip.antiAlias,
-                              child: Image.asset(
-                                'assets/images/app_icon/image.png',
-                                width: MediaQuery.of(context).size.width * 0.2,
-                              ),
-                            ),
-                            SizedBox(
-                              height: SpacingValues.mediumLarge,
-                            ),
-                            Text(
-                              Intl.message(
-                                  'This lets you create a new conversation for which you will be the moderator.'),
-                              style: TextThemes.onboardHeading,
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: SpacingValues.smallMedium,
-                            ),
-                            Text(
-                              Intl.message(
-                                  'Your identity will be visible to everyone but all participants will be anonymous to each other (and you).'),
-                              style: TextThemes.onboardBody,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
+                    Container(
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.asset(
+                        'assets/images/app_icon/image.png',
+                        width: MediaQuery.of(context).size.width * 0.2,
                       ),
                     ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          AnimatedSizeContainer(
-                            builder: (context) {
-                              if (error != null) {
-                                return Column(
-                                  children: [
-                                    Container(
-                                      margin: EdgeInsets.only(
-                                          top: SpacingValues.medium),
-                                      child: Text(
-                                        error.toString(),
-                                        textAlign: TextAlign.center,
-                                        style: TextThemes.discussionPostText
-                                            .copyWith(color: Colors.red),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: SpacingValues.medium,
-                                    ),
-                                  ],
-                                );
-                              }
-                              return Container();
-                            },
-                          ),
-                          Text(Intl.message('Enter a title for your chat:')),
-                          SizedBox(
-                            height: SpacingValues.extraSmall,
-                          ),
-                          UpsertDiscussionTextField(
-                            textController: this.titleController,
-                            hint: Intl.message("A great title..."),
-                            autofocus: false,
-                          ),
-                          SizedBox(
-                            height: SpacingValues.medium,
-                          ),
-                          Text(Intl.message('A description for your chat:')),
-                          SizedBox(
-                            height: SpacingValues.extraSmall,
-                          ),
-                          UpsertDiscussionTextField(
-                            textController: this.descriptionController,
-                            hint: Intl.message("A cool description..."),
-                            autofocus: false,
-                            maxLines: 3,
-                          ),
-                        ],
-                      ),
+                    SizedBox(
+                      height: SpacingValues.mediumLarge,
+                    ),
+                    Text(
+                      Intl.message(
+                          'This lets you create a new conversation for which you will be the moderator.'),
+                      style: TextThemes.onboardHeading,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: SpacingValues.smallMedium,
+                    ),
+                    Text(
+                      Intl.message(
+                          'Your identity will be visible to everyone but all participants will be anonymous to each other (and you).'),
+                      style: TextThemes.onboardBody,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: SpacingValues.mediumLarge,
+                    ),
+                    AnimatedSizeContainer(
+                      builder: (context) {
+                        if (error != null) {
+                          return Column(
+                            children: [
+                              Container(
+                                margin:
+                                    EdgeInsets.only(top: SpacingValues.medium),
+                                child: Text(
+                                  error.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextThemes.discussionPostText
+                                      .copyWith(color: Colors.red),
+                                ),
+                              ),
+                              SizedBox(
+                                height: SpacingValues.medium,
+                              ),
+                            ],
+                          );
+                        }
+                        return Container();
+                      },
+                    ),
+                    SizedBox(
+                      height: SpacingValues.mediumLarge,
+                    ),
+                    Text(Intl.message('Enter a title for your chat:')),
+                    SizedBox(
+                      height: SpacingValues.extraSmall,
+                    ),
+                    UpsertDiscussionTextField(
+                      textController: this.titleController,
+                      hint: Intl.message("A great title..."),
+                      autofocus: false,
+                    ),
+                    SizedBox(
+                      height: SpacingValues.small,
+                    ),
+                    Text(Intl.message('A description for your chat:')),
+                    SizedBox(
+                      height: SpacingValues.extraSmall,
+                    ),
+                    UpsertDiscussionTextField(
+                      textController: this.descriptionController,
+                      hint: Intl.message("A cool description..."),
+                      autofocus: false,
+                      maxLines: 3,
                     ),
                   ],
                 ),

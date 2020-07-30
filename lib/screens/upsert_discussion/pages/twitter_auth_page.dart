@@ -60,20 +60,16 @@ class TwitterAuthPage extends StatelessWidget {
               child: Container(
                 margin: EdgeInsets.all(SpacingValues.extraLarge),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      flex: 2,
-                      child: Center(
-                        child: SvgPicture.asset(
-                          'assets/svg/twitter_logo.svg',
-                          color: ChathamColors.signInTwitterBackground,
-                          semanticsLabel: 'Twitter Logo',
-                          width: 96,
-                          height: twitterWidgetHeight,
-                        ),
-                      ),
+                    SvgPicture.asset(
+                      'assets/svg/twitter_logo.svg',
+                      color: ChathamColors.signInTwitterBackground,
+                      semanticsLabel: 'Twitter Logo',
+                      width: 96,
+                      height: twitterWidgetHeight,
                     ),
+                    SizedBox(height: SpacingValues.xxxxLarge),
                     AnimatedSizeContainer(
                       builder: (context) {
                         return BlocBuilder<AuthBloc, AuthState>(
@@ -86,26 +82,18 @@ class TwitterAuthPage extends StatelessWidget {
                         );
                       },
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            Intl.message(
-                                "In order to invite a curated list of participants, moderators need to be able to identify themselves so that the participants can trust them."),
-                            style: TextThemes.onboardHeading,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: SpacingValues.mediumLarge),
-                          Text(
-                              Intl.message(
-                                  "You can do so by authenticating through social media for now."),
-                              style: TextThemes.onboardBody,
-                              textAlign: TextAlign.center),
-                        ],
-                      ),
+                    Text(
+                      Intl.message(
+                          "In order to invite a curated list of participants, moderators need to be able to identify themselves so that the participants can trust them."),
+                      style: TextThemes.onboardHeading,
+                      textAlign: TextAlign.center,
                     ),
+                    SizedBox(height: SpacingValues.large),
+                    Text(
+                        Intl.message(
+                            "You can do so by authenticating through social media for now."),
+                        style: TextThemes.onboardBody,
+                        textAlign: TextAlign.center),
                   ],
                 ),
               ),

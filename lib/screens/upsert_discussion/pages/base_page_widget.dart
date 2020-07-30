@@ -1,6 +1,5 @@
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
-import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

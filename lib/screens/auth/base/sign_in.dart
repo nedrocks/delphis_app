@@ -4,6 +4,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/auth/base/widgets/apple_signin.dart';
 import 'package:delphis_app/screens/auth/base/widgets/loginWithTwitterButton/twitter_button.dart';
+import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,6 +67,39 @@ class SignInScreen extends StatelessWidget {
                         SizedBox(height: SpacingValues.mediumLarge),
                         Column(
                           children: [
+                            AnimatedSizeContainer(
+                              builder: (context) {
+                                return BlocBuilder<AuthBloc, AuthState>(
+                                  builder: (context, state) {
+                                    if (state is LoadingAuthState) {
+                                      return Container(
+                                        margin: EdgeInsets.only(
+                                            bottom: SpacingValues.large),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      );
+                                    } else if (state is ErrorAuthState) {
+                                      return Container(
+                                        margin: EdgeInsets.only(
+                                            bottom: SpacingValues.large),
+                                        child: Center(
+                                          child: Text(
+                                            state.error.toString(),
+                                            textAlign: TextAlign.center,
+                                            style: TextThemes.discussionPostText
+                                                .copyWith(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return Container();
+                                  },
+                                );
+                              },
+                            ),
                             LoginWithTwitterButton(
                               onPressed: () {
                                 BlocProvider.of<AuthBloc>(context)

@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/title_description_page.dart';
@@ -65,12 +66,21 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           initialDescription: description,
         );
       case UpsertDiscussionScreenPage.TWITTER_AUTH:
-        return TwitterAuthPage(
-          onBack: () => this.onBack(context, info, page),
-          onNext: () => this.onNext(context, info, page),
-          prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Sign in with Twitter"),
-        );
+        return BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              if (state is SignedInAuthState && this.onNext != null) {
+                this.onNext(context, info, page);
+              }
+            },
+            child: TwitterAuthPage(
+              onBack: () => this.onBack(context, info, page),
+              onNext: () {
+                BlocProvider.of<AuthBloc>(context)
+                    .add(TwitterSignInAuthEvent());
+              },
+              prevButtonText: Intl.message("Back"),
+              nextButtonText: Intl.message("Sign in with Twitter"),
+            ));
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         // TODO: Handle this case.
@@ -104,11 +114,11 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
 
   void onNext(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
-    // TODO: Handle Update case
+    // TODO: Handle Update case when we need to show only one page
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         setState(() {
-          if (true || info.meUser == null || !info.meUser.isTwitterAuth) {
+          if (info.meUser == null || !info.meUser.isTwitterAuth) {
             this.currentPage = UpsertDiscussionScreenPage.TWITTER_AUTH;
           } else {
             this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
@@ -116,7 +126,9 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
         });
         break;
       case UpsertDiscussionScreenPage.TWITTER_AUTH:
-        // TODO: Handle this case.
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
+        });
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         // TODO: Handle this case.

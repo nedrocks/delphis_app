@@ -60,6 +60,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           } else {
             await launch(url);
           }
+
+          /* Ideally, we need to check the app lifecycle and check that when the
+             app is resumed without a deep link with token. To make it simple,
+             since widgets will get covered by the platform webview, we wait a
+             little and then yield and error state. If the sign in is successful,
+             it will be substituted by a success state when the SetTokenAuthEvent
+             event is fired, and the user will not notice. */
+          await Future.delayed(Duration(seconds: 2));
+          yield ErrorAuthState(
+              "Something went wrong while signing in.\nPlease try again.");
         } else {
           throw 'Could not launch $url';
         }

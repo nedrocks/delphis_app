@@ -382,7 +382,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           anonymityType: event.anonymityType, title: event.title);
       try {
         final discussion = await this.discussionRepository.createDiscussion(
-            title: event.title, anonymityType: event.anonymityType);
+              title: event.title,
+              description: event.description,
+              anonymityType: event.anonymityType,
+            );
         yield DiscussionLoadedState(
             discussion: discussion,
             lastUpdate: DateTime.now(),

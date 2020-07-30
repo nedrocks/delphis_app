@@ -55,7 +55,7 @@ class TwitterAuthPage extends StatelessWidget {
             ),
             backButtonChild: Text(this.prevButtonText),
             onBack: this.onBack,
-            onNext: () {},
+            onNext: this.onNext,
             contents: Expanded(
               child: Container(
                 margin: EdgeInsets.all(SpacingValues.extraLarge),
@@ -75,7 +75,28 @@ class TwitterAuthPage extends StatelessWidget {
                         return BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             if (state is LoadingAuthState) {
-                              return CircularProgressIndicator();
+                              return Container(
+                                margin: EdgeInsets.only(
+                                    bottom: SpacingValues.large),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            } else if (state is ErrorAuthState) {
+                              return Container(
+                                margin: EdgeInsets.only(
+                                    bottom: SpacingValues.large),
+                                child: Center(
+                                  child: Text(
+                                    state.error.toString(),
+                                    textAlign: TextAlign.center,
+                                    style:
+                                        TextThemes.discussionPostText.copyWith(
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              );
                             }
                             return Container();
                           },

@@ -249,6 +249,7 @@ const DiscussionListFragment = """
   fragment DiscussionListFragment on Discussion {
     id
     title
+    description
     moderator {
       ...DiscussionModeratorFragment
     }
@@ -263,6 +264,7 @@ const DiscussionListFragment = """
     }
     anonymityType
     iconURL
+    discussionJoinability
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment
@@ -273,6 +275,14 @@ const DiscussionFragmentFull = """
     ...DiscussionListFragment
     postsConnection {
       ...PostsConnectionFragment
+    }
+    titleHistory {
+      value
+      createdAt
+    }
+    descriptionHistory {
+      value
+      createdAt
     }
   }
   $DiscussionListFragment

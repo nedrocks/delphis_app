@@ -177,19 +177,13 @@ class RefreshPostsEvent extends DiscussionEvent {
   List<Object> get props => [this.discussionID, this.now];
 }
 
-class NewDiscussionEvent extends DiscussionEvent {
-  final String title;
-  final AnonymityType anonymityType;
-  final String nonce;
+class LoadLocalDiscussionEvent extends DiscussionEvent {
+  final Discussion discussion;
 
-  NewDiscussionEvent(
-      {@required this.title,
-      @required this.anonymityType,
-      @required this.nonce})
-      : super();
+  LoadLocalDiscussionEvent({@required this.discussion});
 
   @override
-  List<Object> get props => [this.nonce];
+  List<Object> get props => [this.discussion];
 }
 
 class LoadPreviousPostsPageEvent extends DiscussionEvent {
@@ -235,9 +229,11 @@ class DiscussionUpdateEvent extends DiscussionEvent {
   final String discussionID;
   final String title;
   final String selectedEmoji;
+  final String description;
 
   DiscussionUpdateEvent({
     @required this.title,
+    @required this.description,
     @required this.discussionID,
     @required this.selectedEmoji,
   }) : super();

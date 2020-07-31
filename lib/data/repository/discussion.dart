@@ -2,7 +2,9 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_subscription.dart';
+import 'package:delphis_app/data/repository/historical_string.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -219,10 +221,13 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<Discussion> createDiscussion(
-      {@required String title,
-      @required AnonymityType anonymityType,
-      int attempt = 1}) async {
+  Future<Discussion> createDiscussion({
+    @required String title,
+    @required String description,
+    @required AnonymityType anonymityType,
+    @required DiscussionCreationSettings creationSettings,
+    int attempt = 1,
+  }) async {
     if (title == null || title.length == 0) {
       return null;
     }
@@ -232,15 +237,23 @@ class DiscussionRepository {
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
         return createDiscussion(
-            title: title, anonymityType: anonymityType, attempt: attempt + 1);
+          title: title,
+          description: description,
+          anonymityType: anonymityType,
+          creationSettings: creationSettings,
+          attempt: attempt + 1,
+        );
       });
     } else if (client == null) {
       throw Exception(
           'Failed to createDiscussion because backend connection is severed');
     }
 
-    final mutation =
-        CreateDiscussionGQLMutation(anonymityType: anonymityType, title: title);
+    final mutation = CreateDiscussionGQLMutation(
+        anonymityType: anonymityType,
+        title: title,
+        description: description,
+        creationSettings: creationSettings);
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -248,6 +261,8 @@ class DiscussionRepository {
         variables: {
           'anonymityType': anonymityType.toString().split('.')[1].toUpperCase(),
           'title': title,
+          'description': description,
+          'discussionSettings': mutation.createInputObject()
         },
         update: (Cache cache, QueryResult result) {
           return cache;
@@ -398,8 +413,12 @@ class DiscussionRepository {
   }
 
   Future<Discussion> updateDiscussion(
-      String discussionID, String title, String iconURL,
-      {int attempt = 1}) async {
+    String discussionID,
+    String title,
+    String description,
+    String iconURL, {
+    int attempt = 1,
+  }) async {
     if (title == null || title.length == 0) {
       return null;
     }
@@ -408,7 +427,7 @@ class DiscussionRepository {
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return updateDiscussion(discussionID, title, iconURL,
+        return updateDiscussion(discussionID, title, description, iconURL,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -417,7 +436,10 @@ class DiscussionRepository {
     }
 
     final mutation = UpdateDiscussionMutation(
-        discussionID: discussionID, title: title, iconURL: iconURL);
+        discussionID: discussionID,
+        title: title,
+        description: description,
+        iconURL: iconURL);
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -485,6 +507,10 @@ class Discussion extends Equatable implements Entity {
   final List<Participant> meAvailableParticipants;
   final String iconURL;
   final DiscussionLinkAccess discussionLinksAccess;
+  final String description;
+  final List<HistoricalString> titleHistory;
+  final List<HistoricalString> descriptionHistory;
+  final DiscussionJoinabilitySetting discussionJoinability;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -502,23 +528,31 @@ class Discussion extends Equatable implements Entity {
         meParticipant,
         meAvailableParticipants,
         iconURL,
+        description,
+        titleHistory,
+        descriptionHistory,
+        discussionJoinability,
       ];
 
-  Discussion(
-      {this.id,
-      this.moderator,
-      this.anonymityType,
-      this.postsConnection,
-      this.participants,
-      this.title,
-      this.createdAt,
-      this.updatedAt,
-      this.meParticipant,
-      this.meAvailableParticipants,
-      this.iconURL,
-      this.discussionLinksAccess,
-      postsCache})
-      : this.postsCache =
+  Discussion({
+    this.id,
+    this.moderator,
+    this.anonymityType,
+    this.postsConnection,
+    this.participants,
+    this.title,
+    this.createdAt,
+    this.updatedAt,
+    this.meParticipant,
+    this.meAvailableParticipants,
+    this.iconURL,
+    this.discussionLinksAccess,
+    this.description,
+    this.titleHistory,
+    this.descriptionHistory,
+    this.discussionJoinability,
+    postsCache,
+  }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) =>
@@ -528,30 +562,41 @@ class Discussion extends Equatable implements Entity {
     return _$DiscussionToJson(this);
   }
 
-  Discussion copyWith(
-          {PostsConnection postsConnection,
-          Participant meParticipant,
-          List<Participant> participants,
-          List<Participant> meAvailableParticipants,
-          Moderator moderator,
-          DiscussionLinkAccess discussionLinksAccess,
-          List<Post> postsCache}) =>
+  Discussion copyWith({
+    PostsConnection postsConnection,
+    Participant meParticipant,
+    List<Participant> participants,
+    List<Participant> meAvailableParticipants,
+    Moderator moderator,
+    DiscussionLinkAccess discussionLinksAccess,
+    String description,
+    List<HistoricalString> titleHistory,
+    List<HistoricalString> descriptionHistory,
+    DiscussionJoinabilitySetting discussionJoinability,
+    List<Post> postsCache,
+  }) =>
       Discussion(
-          id: this.id,
-          moderator: moderator ?? this.moderator,
-          anonymityType: this.anonymityType,
-          participants: participants ?? this.participants,
-          title: this.title,
-          createdAt: this.createdAt,
-          updatedAt: this.updatedAt,
-          postsConnection: postsConnection ?? this.postsConnection,
-          meParticipant: meParticipant ?? this.meParticipant,
-          meAvailableParticipants:
-              meAvailableParticipants ?? this.meAvailableParticipants,
-          iconURL: this.iconURL,
-          discussionLinksAccess:
-              discussionLinksAccess ?? this.discussionLinksAccess,
-          postsCache: postsCache ?? this.postsCache);
+        id: this.id,
+        moderator: moderator ?? this.moderator,
+        anonymityType: this.anonymityType,
+        participants: participants ?? this.participants,
+        title: this.title,
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
+        postsConnection: postsConnection ?? this.postsConnection,
+        meParticipant: meParticipant ?? this.meParticipant,
+        meAvailableParticipants:
+            meAvailableParticipants ?? this.meAvailableParticipants,
+        iconURL: this.iconURL,
+        discussionLinksAccess:
+            discussionLinksAccess ?? this.discussionLinksAccess,
+        description: description ?? this.description,
+        titleHistory: titleHistory ?? this.titleHistory,
+        descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+        discussionJoinability:
+            discussionJoinability ?? this.discussionJoinability,
+        postsCache: postsCache ?? this.postsCache,
+      );
 
   void addLocalPost(LocalPost post) {
     this.postsCache.insert(0, post.post);
@@ -630,4 +675,9 @@ class DiscussionLinkAccess extends Equatable {
 
   factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
       _$DiscussionLinkAccessFromJson(json);
+}
+
+enum DiscussionJoinabilitySetting {
+  ALLOW_TWITTER_FRIENDS,
+  ALL_REQUIRE_APPROVAL
 }

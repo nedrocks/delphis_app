@@ -6,12 +6,14 @@ import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
-import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
+import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
@@ -157,9 +159,10 @@ class ChathamAppState extends State<ChathamApp>
         return MultiBlocProvider(
           providers: <BlocProvider>[
             BlocProvider<AuthBloc>(
-                create: (context) =>
-                    AuthBloc(DelphisAuthRepository(this.secureStorage))
-                      ..add(FetchAuthEvent())),
+              create: (context) =>
+                  AuthBloc(DelphisAuthRepository(this.secureStorage))
+                    ..add(LocalSignInAuthEvent()),
+            ),
             BlocProvider<MeBloc>(
                 create: (context) => MeBloc(
                     RepositoryProvider.of<UserRepository>(context),
@@ -183,22 +186,22 @@ class ChathamAppState extends State<ChathamApp>
             listeners: [
               BlocListener<AuthBloc, AuthState>(
                   listener: (context, AuthState state) {
-                if (state is InitializedAuthState) {
+                if (state is SignedInAuthState) {
                   BlocProvider.of<GqlClientBloc>(context).add(
                       GqlClientAuthChanged(
-                          isAuthed: state.isAuthed,
-                          authString: state.authString));
+                          isAuthed: true, authString: state.authString));
+                } else if (state is LoggedOutAuthState) {
+                  BlocProvider.of<GqlClientBloc>(context).add(
+                      GqlClientAuthChanged(isAuthed: false, authString: ""));
                 }
               }),
               BlocListener<GqlClientBloc, GqlClientState>(
                   listener: (context, state) {
                 final authState = BlocProvider.of<AuthBloc>(context).state;
-                if (authState is InitializedAuthState &&
-                    authState.isAuthed &&
+                if (authState is SignedInAuthState &&
                     state is GqlClientConnectedState) {
                   BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
-                } else if (authState is InitializedAuthState &&
-                    !authState.isAuthed) {
+                } else if (authState is LoggedOutAuthState) {
                   this.sendDeviceToServer(
                       RepositoryProvider.of<UserDeviceRepository>(context),
                       null);
@@ -231,6 +234,9 @@ class ChathamAppState extends State<ChathamApp>
                     final linkArgs =
                         ChathamLinkParser.getChathamDiscussionLinkParams(
                             linkURI);
+                    if (linkArgs == null) {
+                      return;
+                    }
                     if (linkArgs.isVipLink) {
                       // We need to join the discussion and then show it.
                       try {
@@ -410,6 +416,42 @@ class ChathamAppState extends State<ChathamApp>
                             onClosePressed: (context) {
                               Navigator.pop(context);
                             }));
+                    break;
+                  case '/Discussion/Upsert':
+                    UpsertDiscussionArguments arguments =
+                        settings.arguments as UpsertDiscussionArguments;
+                    return PageTransition(
+                        settings: settings,
+                        type: PageTransitionType.rightToLeft,
+                        child: BlocProvider<UpsertDiscussionBloc>(
+                          create: (context) => UpsertDiscussionBloc(
+                              RepositoryProvider.of<DiscussionRepository>(
+                                  context))
+                            ..add(UpsertDiscussionMeUserChangeEvent(
+                                MeBloc.extractMe(
+                                    BlocProvider.of<MeBloc>(context).state)))
+                            ..add(UpsertDiscussionSelectDiscussionEvent(
+                                arguments.discussion)),
+                          child: BlocListener<DiscussionBloc, DiscussionState>(
+                            listener: (context, state) {
+                              if (state.getDiscussion()?.id ==
+                                  arguments.discussion?.id) {
+                                BlocProvider.of<UpsertDiscussionBloc>(context)
+                                    .add(UpsertDiscussionSelectDiscussionEvent(
+                                        state.getDiscussion()));
+                              }
+                            },
+                            child: BlocListener<MeBloc, MeState>(
+                              listener: (context, state) {
+                                BlocProvider.of<UpsertDiscussionBloc>(context)
+                                    .add(UpsertDiscussionMeUserChangeEvent(
+                                        MeBloc.extractMe(state)));
+                              },
+                              child:
+                                  UpsertDiscussionScreen(arguments: arguments),
+                            ),
+                          ),
+                        ));
                     break;
                   case '/Auth':
                     return PageTransition(

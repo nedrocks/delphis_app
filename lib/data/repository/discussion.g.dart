@@ -37,6 +37,19 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ? null
         : DiscussionLinkAccess.fromJson(
             json['discussionLinksAccess'] as Map<String, dynamic>),
+    description: json['description'] as String,
+    titleHistory: (json['titleHistory'] as List)
+        ?.map((e) => e == null
+            ? null
+            : HistoricalString.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    descriptionHistory: (json['descriptionHistory'] as List)
+        ?.map((e) => e == null
+            ? null
+            : HistoricalString.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    discussionJoinability: _$enumDecodeNullable(
+        _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
   );
 }
 
@@ -54,6 +67,11 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meAvailableParticipants': instance.meAvailableParticipants,
       'iconURL': instance.iconURL,
       'discussionLinksAccess': instance.discussionLinksAccess,
+      'description': instance.description,
+      'titleHistory': instance.titleHistory,
+      'descriptionHistory': instance.descriptionHistory,
+      'discussionJoinability':
+          _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
     };
 
 T _$enumDecode<T>(
@@ -92,6 +110,11 @@ const _$AnonymityTypeEnumMap = {
   AnonymityType.UNKNOWN: 'UNKNOWN',
   AnonymityType.WEAK: 'WEAK',
   AnonymityType.STRONG: 'STRONG',
+};
+
+const _$DiscussionJoinabilitySettingEnumMap = {
+  DiscussionJoinabilitySetting.ALLOW_TWITTER_FRIENDS: 'ALLOW_TWITTER_FRIENDS',
+  DiscussionJoinabilitySetting.ALL_REQUIRE_APPROVAL: 'ALL_REQUIRE_APPROVAL',
 };
 
 DiscussionLinkAccess _$DiscussionLinkAccessFromJson(Map<String, dynamic> json) {

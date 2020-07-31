@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -76,21 +77,33 @@ class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
 
 class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
+  final String description;
   final AnonymityType anonymityType;
+  final DiscussionCreationSettings creationSettings;
 
   const CreateDiscussionGQLMutation({
     @required this.title,
+    @required this.description,
     @required this.anonymityType,
+    @required this.creationSettings,
   });
 
   final String _mutation = """
-    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!) {
-      createDiscussion(anonymityType: \$anonymityType, title: \$title) {
+    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!, \$discussionSettings: DiscussionCreationSettings!) {
+      createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description, discussionSettings : \$discussionSettings) {
         ...DiscussionFragmentFull
+        discussionLinksAccess {
+          ...DiscussionLinkAccessFragment
+        }
       }
     }
     $DiscussionFragmentFull
+    $DiscussionLinkAccessFragment
   """;
+
+  Map<String, dynamic> createInputObject() {
+    return this.creationSettings.toJSON();
+  }
 
   String mutation() {
     return this._mutation;
@@ -207,6 +220,7 @@ class ConciergeOptionMutation extends GQLMutation<Post> {
 class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   final String discussionID;
   final String title;
+  final String description;
   final String iconURL;
 
   final String _mutation = """
@@ -221,12 +235,14 @@ class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   const UpdateDiscussionMutation({
     @required this.discussionID,
     this.title,
+    this.description,
     this.iconURL,
   }) : super();
 
   Map<String, dynamic> createInputObject() {
     return {
       'title': this.title,
+      'description': this.description,
       'iconURL': this.iconURL,
     };
   }
@@ -354,7 +370,8 @@ class BanParticipantMutation extends GQLMutation<Participant> {
   }
 }
 
-class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<DiscussionInvite>> {
+class InviteTwitterUsersToDiscussionMutation
+    extends GQLMutation<List<DiscussionInvite>> {
   final String discussionID;
   final String invitingParticipantID;
   final List<TwitterUserInput> twitterUsers;
@@ -371,7 +388,7 @@ class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<Discussion
   const InviteTwitterUsersToDiscussionMutation({
     @required this.discussionID,
     @required this.invitingParticipantID,
-    @required this.twitterUsers
+    @required this.twitterUsers,
   }) : super();
 
   String mutation() {
@@ -384,4 +401,3 @@ class InviteTwitterUsersToDiscussionMutation extends GQLMutation<List<Discussion
         .toList();
   }
 }
-

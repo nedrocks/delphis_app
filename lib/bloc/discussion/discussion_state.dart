@@ -77,18 +77,3 @@ class DiscussionLoadedState extends DiscussionState {
   @override
   List<Object> get props => [this.discussion, this.lastUpdate, this.isLoading];
 }
-
-class AddingDiscussionState extends DiscussionState {
-  final String title;
-  final AnonymityType anonymityType;
-
-  AddingDiscussionState({@required this.title, @required this.anonymityType})
-      : super();
-
-  Discussion getDiscussion() {
-    return null;
-  }
-
-  @override
-  List<Object> get props => [this.title, this.anonymityType];
-}

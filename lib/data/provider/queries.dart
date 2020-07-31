@@ -264,6 +264,7 @@ const DiscussionListFragment = """
     }
     anonymityType
     iconURL
+    discussionJoinability
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment

@@ -376,24 +376,12 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         discussion: currentState.discussion,
         localPosts: currentState.localPosts,
       );
-    } else if (event is NewDiscussionEvent) {
-      final originalState = currentState;
-      yield AddingDiscussionState(
-          anonymityType: event.anonymityType, title: event.title);
-      try {
-        final discussion = await this.discussionRepository.createDiscussion(
-              title: event.title,
-              description: event.description,
-              anonymityType: event.anonymityType,
-            );
-        yield DiscussionLoadedState(
-            discussion: discussion,
-            lastUpdate: DateTime.now(),
-            onboardingConciergeStep: getConciergeStep(discussion));
-      } catch (err) {
-        // TODO: We should probably say that we failed somewhere.
-        yield originalState;
-      }
+    } else if (event is LoadLocalDiscussionEvent) {
+      // This might be used for local cached copies too eventually
+      yield DiscussionLoadedState(
+          discussion: event.discussion,
+          lastUpdate: DateTime.now(),
+          onboardingConciergeStep: getConciergeStep(event.discussion));
     } else if (event is DiscussionConciergeOptionSelectedEvent &&
         currentState is DiscussionLoadedState &&
         currentState.discussion.id == event.discussionID) {

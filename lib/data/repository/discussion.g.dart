@@ -48,6 +48,8 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
             ? null
             : HistoricalString.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    discussionJoinability: _$enumDecodeNullable(
+        _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
   );
 }
 
@@ -68,6 +70,8 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'description': instance.description,
       'titleHistory': instance.titleHistory,
       'descriptionHistory': instance.descriptionHistory,
+      'discussionJoinability':
+          _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
     };
 
 T _$enumDecode<T>(
@@ -106,6 +110,11 @@ const _$AnonymityTypeEnumMap = {
   AnonymityType.UNKNOWN: 'UNKNOWN',
   AnonymityType.WEAK: 'WEAK',
   AnonymityType.STRONG: 'STRONG',
+};
+
+const _$DiscussionJoinabilitySettingEnumMap = {
+  DiscussionJoinabilitySetting.ALLOW_TWITTER_FRIENDS: 'ALLOW_TWITTER_FRIENDS',
+  DiscussionJoinabilitySetting.ALL_REQUIRE_APPROVAL: 'ALL_REQUIRE_APPROVAL',
 };
 
 DiscussionLinkAccess _$DiscussionLinkAccessFromJson(Map<String, dynamic> json) {

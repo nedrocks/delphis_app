@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -78,21 +79,31 @@ class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
   final String description;
   final AnonymityType anonymityType;
+  final DiscussionCreationSettings creationSettings;
 
   const CreateDiscussionGQLMutation({
     @required this.title,
     @required this.description,
     @required this.anonymityType,
+    @required this.creationSettings,
   });
 
   final String _mutation = """
-    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!) {
-      createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description) {
+    mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!, \$discussionSettings: DiscussionCreationSettings!) {
+      createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description, discussionSettings : \$discussionSettings) {
         ...DiscussionFragmentFull
+        discussionLinksAccess {
+          ...DiscussionLinkAccessFragment
+        }
       }
     }
     $DiscussionFragmentFull
+    $DiscussionLinkAccessFragment
   """;
+
+  Map<String, dynamic> createInputObject() {
+    return this.creationSettings.toJSON();
+  }
 
   String mutation() {
     return this._mutation;

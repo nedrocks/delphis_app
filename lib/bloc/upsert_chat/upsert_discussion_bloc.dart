@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
@@ -13,7 +14,6 @@ part 'upsert_discussion_state.dart';
 class UpsertDiscussionBloc
     extends Bloc<UpsertDiscussionEvent, UpsertDiscussionState> {
   final DiscussionRepository discussionRepository;
-  var attempt = 0;
 
   UpsertDiscussionBloc(this.discussionRepository)
       : super(UpsertDiscussionReadyState(UpsertDiscussionInfo()));
@@ -55,28 +55,18 @@ class UpsertDiscussionBloc
           return;
         }
 
-        /* The real call must be updated on the backend to support the new flow:
-             + description
-             + inviteMode
-             - anonymityMode (?) */
-        // final discussion = await this.discussionRepository.createDiscussion(
-        //       title: this.state.info.title,
-        //       description: this.state.info.description,
-        //       anonymityType: AnonymityType.WEAK,
-        //     );
-
-        /* This is mocked for UI development */
-        await Future.delayed(Duration(seconds: 2));
-        // yield UpsertDiscussionErrorState(
-        //     this.state.info, "Something went wrong.");
-        if (attempt++ > 1)
-          yield UpsertDiscussionReadyState(info.copyWith(
-              discussion:
-                  Discussion(id: "34bbaab2-eee8-4b64-bbfa-e4c4f71ae5a6"),
-              inviteLink:
-                  "https://docs.flutter.io/flutter/services/UrlLauncher-class.html"));
-        else
-          throw "This is an error example for any kind of problem that may occur";
+        final discussion = await this.discussionRepository.createDiscussion(
+            title: info.title,
+            description: info.description,
+            anonymityType: AnonymityType.WEAK,
+            creationSettings: DiscussionCreationSettings(
+              discussionJoinability: info.inviteMode,
+            ));
+        yield UpsertDiscussionReadyState(info.copyWith(
+          discussion: discussion,
+          isNewDiscussion: false,
+          inviteLink: discussion.discussionLinksAccess.inviteLinkURL,
+        ));
       } catch (error) {
         yield UpsertDiscussionErrorState(this.state.info, error);
       }

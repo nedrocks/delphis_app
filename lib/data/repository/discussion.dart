@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:delphis_app/data/repository/historical_string.dart';
 import 'package:equatable/equatable.dart';
@@ -224,6 +225,7 @@ class DiscussionRepository {
     @required String title,
     @required String description,
     @required AnonymityType anonymityType,
+    @required DiscussionCreationSettings creationSettings,
     int attempt = 1,
   }) async {
     if (title == null || title.length == 0) {
@@ -238,6 +240,7 @@ class DiscussionRepository {
           title: title,
           description: description,
           anonymityType: anonymityType,
+          creationSettings: creationSettings,
           attempt: attempt + 1,
         );
       });
@@ -247,10 +250,10 @@ class DiscussionRepository {
     }
 
     final mutation = CreateDiscussionGQLMutation(
-      anonymityType: anonymityType,
-      title: title,
-      description: description,
-    );
+        anonymityType: anonymityType,
+        title: title,
+        description: description,
+        creationSettings: creationSettings);
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -258,7 +261,8 @@ class DiscussionRepository {
         variables: {
           'anonymityType': anonymityType.toString().split('.')[1].toUpperCase(),
           'title': title,
-          'description': description
+          'description': description,
+          'discussionSettings': mutation.createInputObject()
         },
         update: (Cache cache, QueryResult result) {
           return cache;
@@ -506,6 +510,8 @@ class Discussion extends Equatable implements Entity {
   final String description;
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
+  final DiscussionJoinabilitySetting discussionJoinability;
+
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
 
@@ -525,6 +531,7 @@ class Discussion extends Equatable implements Entity {
         description,
         titleHistory,
         descriptionHistory,
+        discussionJoinability,
       ];
 
   Discussion({
@@ -543,6 +550,7 @@ class Discussion extends Equatable implements Entity {
     this.description,
     this.titleHistory,
     this.descriptionHistory,
+    this.discussionJoinability,
     postsCache,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
@@ -564,6 +572,7 @@ class Discussion extends Equatable implements Entity {
     String description,
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
+    DiscussionJoinabilitySetting discussionJoinability,
     List<Post> postsCache,
   }) =>
       Discussion(
@@ -584,6 +593,8 @@ class Discussion extends Equatable implements Entity {
         description: description ?? this.description,
         titleHistory: titleHistory ?? this.titleHistory,
         descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+        discussionJoinability:
+            discussionJoinability ?? this.discussionJoinability,
         postsCache: postsCache ?? this.postsCache,
       );
 

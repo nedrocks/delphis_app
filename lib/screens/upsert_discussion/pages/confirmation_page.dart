@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
@@ -69,7 +70,9 @@ class ConfirmationPage extends StatelessWidget {
                     ],
                   ),
                   backDisable: true,
-                  onNext: this.onNext,
+                  onNext: this.onNext == null
+                      ? null
+                      : () => this.onNextInternal(context, state.info),
                   contents: Expanded(
                     child: Container(
                       color: Colors.transparent,
@@ -310,5 +313,13 @@ class ConfirmationPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void onNextInternal(BuildContext context, UpsertDiscussionInfo info) {
+    if (this.onNext != null) {
+      BlocProvider.of<DiscussionBloc>(context)
+          .add(LoadLocalDiscussionEvent(discussion: info.discussion));
+      this.onNext();
+    }
   }
 }

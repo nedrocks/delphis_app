@@ -50,9 +50,7 @@ class UpsertDiscussionBloc
       yield UpsertDiscussionCreateLoadingState(info);
       try {
         if (((info.title?.length ?? 0) == 0) || info.inviteMode == null) {
-          yield UpsertDiscussionErrorState(
-              info, Intl.message("You didn't insert all the required fields"));
-          return;
+          throw Intl.message("You didn't insert all the required fields");
         }
 
         final discussion = await this.discussionRepository.createDiscussion(

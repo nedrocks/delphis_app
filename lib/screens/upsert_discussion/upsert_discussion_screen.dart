@@ -8,7 +8,6 @@ import 'package:delphis_app/screens/upsert_discussion/pages/invite_mode_page.dar
 import 'package:delphis_app/screens/upsert_discussion/pages/title_description_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/twitter_auth_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
-import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -17,10 +16,18 @@ enum UpsertDiscussionScreenPage {
   TITLE_DESCRIPTION,
   TWITTER_AUTH,
   INVITATION_MODE,
+  CREATION_LOADING,
   CONFIRMATION
 }
 
 class UpsertDiscussionScreen extends StatefulWidget {
+  static const pageFlowOrder = [
+    UpsertDiscussionScreenPage.TITLE_DESCRIPTION,
+    UpsertDiscussionScreenPage.TWITTER_AUTH,
+    UpsertDiscussionScreenPage.INVITATION_MODE,
+    UpsertDiscussionScreenPage.CREATION_LOADING,
+    UpsertDiscussionScreenPage.CONFIRMATION
+  ];
   final UpsertDiscussionArguments arguments;
 
   const UpsertDiscussionScreen({Key key, this.arguments}) : super(key: key);
@@ -28,25 +35,43 @@ class UpsertDiscussionScreen extends StatefulWidget {
   _UpsertDiscussionScreenState createState() => _UpsertDiscussionScreenState();
 }
 
-class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
+class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
+    with SingleTickerProviderStateMixin {
   UpsertDiscussionScreenPage currentPage;
+  TabController tabController;
+
+  int pageToTabIndex(UpsertDiscussionScreenPage page) {
+    return UpsertDiscussionScreen.pageFlowOrder.indexOf(page);
+  }
 
   @override
   void initState() {
     currentPage = this.widget.arguments.firstPage ??
         UpsertDiscussionScreenPage.TITLE_DESCRIPTION;
+    tabController = TabController(
+        vsync: this, length: UpsertDiscussionScreen.pageFlowOrder.length);
+    tabController.index = this.widget.arguments.firstPage != null
+        ? pageToTabIndex(this.widget.arguments.firstPage)
+        : 0;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
       builder: (context, state) {
-        return AnimatedSizeContainer(
-          builder: (context) {
-            return mapPageToWidget(context, state.info, this.currentPage);
-          },
-        );
+        return TabBarView(
+            physics: NeverScrollableScrollPhysics(),
+            controller: tabController,
+            children: UpsertDiscussionScreen.pageFlowOrder
+                .map((page) => mapPageToWidget(context, state.info, page))
+                .toList());
       },
     );
   }
@@ -94,28 +119,33 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           nextButtonText: Intl.message("Create"),
           isUpdateMode: this.widget.arguments.isUpdateMode,
         );
-      case UpsertDiscussionScreenPage.CONFIRMATION:
-        return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
-          builder: (context, state) {
-            if (state is UpsertDiscussionErrorState ||
-                state is UpsertDiscussionLoadingState) {
-              return CreationLoadingPage(
-                  onBack: () => this.onBack(context, info, page),
-                  prevButtonText: Intl.message("Back"),
-                  onRetry: () {
-                    BlocProvider.of<UpsertDiscussionBloc>(context).add(
-                      UpsertDiscussionCreateDiscussionEvent(),
-                    );
-                  });
-            } else {
-              return ConfirmationPage(
-                onBack: () => this.onBack(context, info, page),
-                onNext: () => this.onNext(context, info, page),
-                prevButtonText: Intl.message("Back"),
-                nextButtonText: Intl.message("Go to chat"),
-              );
-            }
+      case UpsertDiscussionScreenPage.CREATION_LOADING:
+        return BlocListener<UpsertDiscussionBloc, UpsertDiscussionState>(
+          listenWhen: (prev, curr) {
+            return prev is UpsertDiscussionCreateLoadingState &&
+                curr is UpsertDiscussionReadyState &&
+                curr.info.discussion != null;
           },
+          listener: (context, state) {
+            this.onNext(context, state.info,
+                UpsertDiscussionScreenPage.CREATION_LOADING);
+          },
+          child: CreationLoadingPage(
+            onBack: () => this.onBack(context, info, page),
+            prevButtonText: Intl.message("Back"),
+            onRetry: () {
+              BlocProvider.of<UpsertDiscussionBloc>(context).add(
+                UpsertDiscussionCreateDiscussionEvent(),
+              );
+            },
+          ),
+        );
+      case UpsertDiscussionScreenPage.CONFIRMATION:
+        return ConfirmationPage(
+          onBack: () => this.onBack(context, info, page),
+          onNext: () => this.onNext(context, info, page),
+          prevButtonText: Intl.message("Back"),
+          nextButtonText: Intl.message("Go to chat"),
         );
     }
     return Container();
@@ -130,16 +160,25 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
       case UpsertDiscussionScreenPage.TWITTER_AUTH:
         setState(() {
           this.currentPage = UpsertDiscussionScreenPage.TITLE_DESCRIPTION;
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         setState(() {
           this.currentPage = UpsertDiscussionScreenPage.TITLE_DESCRIPTION;
+          tabController.animateTo(pageToTabIndex(currentPage));
+        });
+        break;
+      case UpsertDiscussionScreenPage.CREATION_LOADING:
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:
         setState(() {
           this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
     }
@@ -156,18 +195,27 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           } else {
             this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
           }
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
       case UpsertDiscussionScreenPage.TWITTER_AUTH:
         setState(() {
           this.currentPage = UpsertDiscussionScreenPage.INVITATION_MODE;
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         setState(() {
-          this.currentPage = UpsertDiscussionScreenPage.CONFIRMATION;
+          this.currentPage = UpsertDiscussionScreenPage.CREATION_LOADING;
+          tabController.animateTo(pageToTabIndex(currentPage));
           BlocProvider.of<UpsertDiscussionBloc>(context)
               .add(UpsertDiscussionCreateDiscussionEvent());
+        });
+        break;
+      case UpsertDiscussionScreenPage.CREATION_LOADING:
+        setState(() {
+          this.currentPage = UpsertDiscussionScreenPage.CONFIRMATION;
+          tabController.animateTo(pageToTabIndex(currentPage));
         });
         break;
       case UpsertDiscussionScreenPage.CONFIRMATION:

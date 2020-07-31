@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -7,13 +8,16 @@ import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/base_page_widget.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/invite_mode_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/widgets/bullet_point.dart';
-import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
+import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
+import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConfirmationPage extends StatelessWidget {
   final String nextButtonText;
@@ -275,11 +279,36 @@ class ConfirmationPage extends StatelessWidget {
     );
   }
 
-  void sendInvitationTweet(BuildContext context, UpsertDiscussionInfo info) {
-    // TODO: Send real tweet
+  void sendInvitationTweet(
+      BuildContext context, UpsertDiscussionInfo info) async {
+    String url = Uri.https("twitter.com", "/intent/tweet", {
+      "text": Intl.message(
+          "I’m moderating a discussion: “${info.title}”.\n\nJoin:"),
+      "url": info.inviteLink
+    }).toString();
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
   }
 
   void copyInvitationLink(BuildContext context, UpsertDiscussionInfo info) {
-    // TODO: Copy to clipboard and send notification to user
+    Clipboard.setData(ClipboardData(text: info.inviteLink));
+    BlocProvider.of<NotificationBloc>(context).add(
+      NewNotificationEvent(
+        notification: OverlayTopMessage(
+          child: IncognitoModeTextOverlay(
+            hasGoneIncognito: false,
+            textOverride: Intl.message(
+                "An invitation link to this discussion was copied to clipboard!"),
+          ),
+          onDismiss: () {
+            BlocProvider.of<NotificationBloc>(context).add(
+              DismissNotification(),
+            );
+          },
+          showForMs: 2000,
+        ),
+      ),
+    );
   }
 }

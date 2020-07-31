@@ -1,8 +1,8 @@
-import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/colors.dart';
-import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
+import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
@@ -15,10 +15,12 @@ import 'dart:ui';
 import 'home_page_action_bar.dart';
 
 typedef void DiscussionCallback(Discussion discussion);
+typedef void HomePageChatTabCallback(HomePageTab tab);
 
 enum HomePageTab {
-  MENTION,
-  CHAT,
+  ARCHIVED,
+  ACTIVE,
+  TRASHED,
 }
 
 class HomePageScreen extends StatefulWidget {
@@ -46,12 +48,23 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   void initState() {
     super.initState();
-    this._currentTab = HomePageTab.CHAT;
+    this._currentTab = HomePageTab.ACTIVE;
   }
 
   @override
   void deactivate() {
     super.deactivate();
+  }
+
+  String _getTitle() {
+    switch (this._currentTab) {
+      case HomePageTab.ACTIVE:
+        return 'Active Chats';
+      case HomePageTab.ARCHIVED:
+        return 'Archived Chats';
+      case HomePageTab.TRASHED:
+        return 'Deleted Chats';
+    }
   }
 
   @override
@@ -70,7 +83,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   color: ChathamColors.topBarBackgroundColor),
               HomePageTopBar(
                   height: 80.0,
-                  title: Intl.message('Chats'),
+                  title: Intl.message(this._getTitle()),
                   backgroundColor: ChathamColors.topBarBackgroundColor),
               Expanded(
                 child: ChatsScreen(
@@ -87,6 +100,21 @@ class _HomePageScreenState extends State<HomePageScreen> {
                       onNewChatPressed: () {
                         Navigator.pushNamed(context, '/Discussion/Upsert',
                             arguments: UpsertDiscussionArguments());
+                      },
+                      onTabPressed: (HomePageTab tab) {
+                        setState(() {
+                          this._currentTab = tab;
+                        });
+                      },
+                      onOptionSelected: (HeaderOption option) {
+                        switch (option) {
+                          case HeaderOption.logout:
+                            BlocProvider.of<AuthBloc>(context)
+                                .add(LogoutAuthEvent());
+                            break;
+                          default:
+                            break;
+                        }
                       },
                     ),
             ],

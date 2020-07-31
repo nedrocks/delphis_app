@@ -7,10 +7,12 @@ typedef HeaderOptionsCallback(HeaderOption option);
 class HeaderOptionsButton extends StatelessWidget {
   final double diameter;
   final HeaderOptionsCallback onPressed;
+  final bool isVertical;
 
   const HeaderOptionsButton({
     @required this.diameter,
     @required this.onPressed,
+    this.isVertical = false,
   }) : super();
 
   @override
@@ -20,12 +22,10 @@ class HeaderOptionsButton extends StatelessWidget {
         width: this.diameter,
         height: this.diameter,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Color.fromRGBO(34, 35, 40, 1.0)
-        ),
+            shape: BoxShape.circle, color: Color.fromRGBO(34, 35, 40, 0.0)),
         alignment: Alignment.center,
         child: Icon(
-          Icons.more_horiz,
+          this.isVertical ? Icons.more_vert : Icons.more_horiz,
           size: this.diameter * 0.8,
           color: Color.fromRGBO(200, 200, 207, 1.0),
           semanticLabel: "More...",

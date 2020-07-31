@@ -286,7 +286,7 @@ class ConfirmationPage extends StatelessWidget {
       BuildContext context, UpsertDiscussionInfo info) async {
     String url = Uri.https("twitter.com", "/intent/tweet", {
       "text": Intl.message(
-          "I’m moderating a discussion: “${info.title}”.\n\nJoin:"),
+          "Check out my discussion “${info.title}” on @chathamai:"),
       "url": info.inviteLink
     }).toString();
     if (await canLaunch(url)) {

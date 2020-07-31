@@ -26,10 +26,6 @@ class CreationLoadingPage extends StatelessWidget {
     return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
       builder: (context, state) {
         final height = MediaQuery.of(context).size.height;
-        String title = Intl.message("Loading...");
-        if (state is UpsertDiscussionErrorState) {
-          title = Intl.message("There is a problem");
-        }
         Widget content = Container();
         if (state is UpsertDiscussionLoadingState) {
           content = Container(
@@ -116,33 +112,24 @@ class CreationLoadingPage extends StatelessWidget {
           body: SingleChildScrollView(
             child: Container(
               height: height,
-              decoration: BoxDecoration(
-                color: Colors.black,
-              ),
-              child: BasePageWidget(
-                title: title,
-                backDisable: true,
-                nextDisable: true,
-                contents: Expanded(
-                  child: Container(
-                    margin: EdgeInsets.all(SpacingValues.extraLarge),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'assets/images/app_icon/image.png',
-                          width: 96.0,
-                          height: 96.0,
-                        ),
-                        SizedBox(height: SpacingValues.large),
-                        AnimatedSizeContainer(
-                          builder: (context) {
-                            return content;
-                          },
-                        ),
-                      ],
+              color: Colors.black,
+              padding: EdgeInsets.all(SpacingValues.extraLarge),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/app_icon/image.png',
+                      width: 96.0,
+                      height: 96.0,
                     ),
-                  ),
+                    SizedBox(height: SpacingValues.large),
+                    AnimatedSizeContainer(
+                      builder: (context) {
+                        return content;
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

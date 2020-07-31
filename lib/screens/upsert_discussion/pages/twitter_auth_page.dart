@@ -105,14 +105,14 @@ class TwitterAuthPage extends StatelessWidget {
                     ),
                     Text(
                       Intl.message(
-                          "In order to invite a curated list of participants, moderators need to be able to identify themselves so that the participants can trust them."),
+                          "In order to invite a curated list of participants, moderators need to be able to identify themselves so that participants can trust them. Chatham identifies its users by using their Twitter identities."),
                       style: TextThemes.onboardHeading,
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: SpacingValues.large),
                     Text(
                         Intl.message(
-                            "You can do so by authenticating through social media for now."),
+                            "You can do so by authenticating through Twitter for now."),
                         style: TextThemes.onboardBody,
                         textAlign: TextAlign.center),
                   ],

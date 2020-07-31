@@ -3,6 +3,7 @@ import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/confirmation_page.dart';
+import 'package:delphis_app/screens/upsert_discussion/pages/creation_loading_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/invite_mode_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/title_description_page.dart';
 import 'package:delphis_app/screens/upsert_discussion/pages/twitter_auth_page.dart';
@@ -94,14 +95,26 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen> {
           isUpdateMode: this.widget.arguments.isUpdateMode,
         );
       case UpsertDiscussionScreenPage.CONFIRMATION:
-        return ConfirmationPage(
-          onBack: () => this.onBack(context, info, page),
-          onNext: () => this.onNext(context, info, page),
-          prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Go to chat"),
-          onRetry: () {
-            BlocProvider.of<UpsertDiscussionBloc>(context)
-                .add(UpsertDiscussionCreateDiscussionEvent());
+        return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
+          builder: (context, state) {
+            if (state is UpsertDiscussionErrorState ||
+                state is UpsertDiscussionLoadingState) {
+              return CreationLoadingPage(
+                  onBack: () => this.onBack(context, info, page),
+                  prevButtonText: Intl.message("Back"),
+                  onRetry: () {
+                    BlocProvider.of<UpsertDiscussionBloc>(context).add(
+                      UpsertDiscussionCreateDiscussionEvent(),
+                    );
+                  });
+            } else {
+              return ConfirmationPage(
+                onBack: () => this.onBack(context, info, page),
+                onNext: () => this.onNext(context, info, page),
+                prevButtonText: Intl.message("Back"),
+                nextButtonText: Intl.message("Go to chat"),
+              );
+            }
           },
         );
     }

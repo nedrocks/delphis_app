@@ -6,6 +6,8 @@ class UpsertDiscussionTextField extends StatelessWidget {
   final TextEditingController textController;
   final int maxLines;
   final bool autofocus;
+  final int maxLenght;
+  final bool showLengthCounter;
 
   const UpsertDiscussionTextField({
     Key key,
@@ -14,6 +16,8 @@ class UpsertDiscussionTextField extends StatelessWidget {
     @required this.textController,
     this.maxLines = 1,
     this.autofocus = true,
+    this.maxLenght = 50,
+    this.showLengthCounter = false,
   }) : super(key: key);
 
   @override
@@ -21,11 +25,12 @@ class UpsertDiscussionTextField extends StatelessWidget {
     var textStyle = Theme.of(context).textTheme.bodyText2;
     var hintStyle = textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
     return TextField(
+      maxLengthEnforced: true,
       autofocus: autofocus,
       showCursor: true,
       controller: this.textController,
       decoration: InputDecoration(
-        counter: Container(),
+        counter: this.showLengthCounter ? null : Container(),
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 13.0),
         hintStyle: hintStyle,
         hintText: this.hint,
@@ -46,7 +51,7 @@ class UpsertDiscussionTextField extends StatelessWidget {
       ),
       keyboardType: TextInputType.multiline,
       maxLines: this.maxLines,
-      maxLength: 60,
+      maxLength: maxLenght,
       onChanged: onChanged,
     );
   }

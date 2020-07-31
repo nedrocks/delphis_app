@@ -39,6 +39,9 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
   @override
   void initState() {
     this.titleController = TextEditingController();
+    this.titleController.addListener(() {
+      setState(() {});
+    });
     this.descriptionController = TextEditingController();
     this.titleController.text = this.widget.initialTitle ?? "";
     this.descriptionController.text = this.widget.initialDescription ?? "";
@@ -69,7 +72,12 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
             ),
             backButtonChild: Text(this.widget.prevButtonText),
             onBack: this.widget.onBack,
-            onNext: () => this.onNext(context),
+            onNext: (titleController.text?.length ?? 0) == 0
+                ? null
+                : () => this.onNext(context),
+            nextColor: (titleController.text?.length ?? 0) == 0
+                ? Color.fromRGBO(247, 247, 255, 0.5)
+                : Color.fromRGBO(247, 247, 255, 1.0),
             contents: Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -144,6 +152,8 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                         textController: this.titleController,
                         hint: Intl.message("A great title..."),
                         autofocus: false,
+                        maxLenght: 50,
+                        showLengthCounter: true,
                       ),
                       SizedBox(
                         height: SpacingValues.small,
@@ -157,6 +167,8 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                         hint: Intl.message("A cool description..."),
                         autofocus: false,
                         maxLines: 3,
+                        maxLenght: 140,
+                        showLengthCounter: true,
                       ),
                     ],
                   ),
@@ -176,12 +188,10 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
       this.error = null;
       if ((title?.length == 0 ?? true)) {
         error = Intl.message("You need to fill the title field.");
-      } else if ((description?.length == 0 ?? true)) {
-        error = Intl.message("You need to fill the description field.");
       }
       if (error == null && this.widget.onNext != null) {
         BlocProvider.of<UpsertDiscussionBloc>(context).add(
-          UpsertDiscussionSetInfoEvent(
+          UpsertDiscussionSetTitleDescriptionEvent(
             description: description,
             title: title,
           ),

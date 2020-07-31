@@ -665,3 +665,8 @@ class DiscussionLinkAccess extends Equatable {
   factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
       _$DiscussionLinkAccessFromJson(json);
 }
+
+enum DiscussionJoinabilitySetting {
+  ALLOW_TWITTER_FRIENDS,
+  ALL_REQUIRE_APPROVAL
+}

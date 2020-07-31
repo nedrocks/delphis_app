@@ -38,15 +38,26 @@ class UpsertDiscussionCreateDiscussionEvent extends UpsertDiscussionEvent {
 }
 
 /* Whenever a user wants to set some data fields of the fields in the current
-   editing/creation state. NOTE: Only non-null fields will be considered. */
-class UpsertDiscussionSetInfoEvent extends UpsertDiscussionEvent {
+   editing/creation state. */
+class UpsertDiscussionSetTitleDescriptionEvent extends UpsertDiscussionEvent {
   final DateTime timestamp = DateTime.now();
   final String title;
   final String description;
-  final DiscussionInviteMode inviteMode;
 
-  UpsertDiscussionSetInfoEvent({this.title, this.description, this.inviteMode});
+  UpsertDiscussionSetTitleDescriptionEvent({this.title, this.description});
 
   @override
-  List<Object> get props => [timestamp, title, description, inviteMode];
+  List<Object> get props => [timestamp, title, description];
+}
+
+/* Whenever a user wants to set some data fields of the fields in the current
+   editing/creation state. */
+class UpsertDiscussionSetInviteModeEvent extends UpsertDiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final DiscussionJoinabilitySetting inviteMode;
+
+  UpsertDiscussionSetInviteModeEvent({this.inviteMode});
+
+  @override
+  List<Object> get props => [timestamp, inviteMode];
 }

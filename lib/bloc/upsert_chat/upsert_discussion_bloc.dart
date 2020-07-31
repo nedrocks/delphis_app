@@ -24,7 +24,7 @@ class UpsertDiscussionBloc
   ) async* {
     if (this.state is UpsertDiscussionLoadingState) {
       /* We don't want anything to happen while something is loading.
-         it would be dangerous and treath state consistency. */
+         it would be dangerous and a threat to state consistency. */
     } else if (event is UpsertDiscussionMeUserChangeEvent) {
       final updated = this.state.info.copyWith(meUser: event.me);
       yield UpsertDiscussionReadyState(updated);
@@ -34,20 +34,25 @@ class UpsertDiscussionBloc
             isNewDiscussion: false,
           );
       yield UpsertDiscussionReadyState(updated);
-    } else if (event is UpsertDiscussionSetInfoEvent) {
+    } else if (event is UpsertDiscussionSetTitleDescriptionEvent) {
       final updated = this.state.info.copyWith(
           title: event.title,
           description: event.description,
-          inviteMode: event.inviteMode);
+          overrideDescription: true);
+      yield UpsertDiscussionReadyState(updated);
+    } else if (event is UpsertDiscussionSetInviteModeEvent) {
+      final updated = this.state.info.copyWith(
+            inviteMode: event.inviteMode,
+          );
       yield UpsertDiscussionReadyState(updated);
     } else if (event is UpsertDiscussionCreateDiscussionEvent) {
-      yield UpsertDiscussionCreateLoadingState(this.state.info);
+      final info = this.state.info;
+      yield UpsertDiscussionCreateLoadingState(info);
       try {
-        if ((this.state.info.title?.length == 0 ?? true) ||
-            this.state.info.description == null ||
-            this.state.info.inviteMode == null) {
-          yield UpsertDiscussionErrorState(this.state.info,
-              Intl.message("You didn't insert all the required fields"));
+        if (((info.title?.length ?? 0) == 0) || info.inviteMode == null) {
+          yield UpsertDiscussionErrorState(
+              info, Intl.message("You didn't insert all the required fields"));
+          return;
         }
 
         /* The real call must be updated on the backend to support the new flow:
@@ -65,7 +70,7 @@ class UpsertDiscussionBloc
         // yield UpsertDiscussionErrorState(
         //     this.state.info, "Something went wrong.");
         if (attempt++ > 1)
-          yield UpsertDiscussionReadyState(this.state.info.copyWith(
+          yield UpsertDiscussionReadyState(info.copyWith(
               discussion:
                   Discussion(id: "34bbaab2-eee8-4b64-bbfa-e4c4f71ae5a6"),
               inviteLink:

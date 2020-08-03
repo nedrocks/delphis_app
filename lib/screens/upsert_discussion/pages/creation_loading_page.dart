@@ -1,7 +1,6 @@
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/upsert_discussion/pages/base_page_widget.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +24,6 @@ class CreationLoadingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
       builder: (context, state) {
-        final height = MediaQuery.of(context).size.height;
         Widget content = Container();
         if (state is UpsertDiscussionLoadingState) {
           content = Container(
@@ -109,11 +107,10 @@ class CreationLoadingPage extends StatelessWidget {
           );
         }
         return Scaffold(
-          body: SingleChildScrollView(
+          body: Container(
+            color: Colors.black,
+            padding: EdgeInsets.all(SpacingValues.extraLarge),
             child: Container(
-              height: height,
-              color: Colors.black,
-              padding: EdgeInsets.all(SpacingValues.extraLarge),
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

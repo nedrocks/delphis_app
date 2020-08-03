@@ -39,7 +39,6 @@ class ConfirmationPage extends StatelessWidget {
     return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
       builder: (context, state) {
         if (state is UpsertDiscussionReadyState) {
-          final height = MediaQuery.of(context).size.height;
           String inviteMode = '';
           switch (state.info.inviteMode) {
             case DiscussionJoinabilitySetting.ALLOW_TWITTER_FRIENDS:
@@ -51,226 +50,212 @@ class ConfirmationPage extends StatelessWidget {
           }
           return Scaffold(
             resizeToAvoidBottomInset: true,
-            body: SingleChildScrollView(
-              child: Container(
-                color: Colors.black,
-                height: height,
-                child: BasePageWidget(
-                  title: "Congratulations!",
-                  nextButtonChild: Row(
+            body: Container(
+              color: Colors.black,
+              child: BasePageWidget(
+                title: "Congratulations!",
+                nextButtonChild: Row(
+                  children: <Widget>[
+                    Text(
+                      this.nextButtonText,
+                      style: TextThemes.joinButtonTextChatTab,
+                    ),
+                    SizedBox(
+                      width: SpacingValues.small,
+                    ),
+                    Icon(Icons.arrow_forward, color: Colors.black),
+                  ],
+                ),
+                backDisable: true,
+                onNext: this.onNext == null
+                    ? null
+                    : () => this.onNextInternal(context, state.info),
+                contents: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.all(SpacingValues.extraLarge),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        this.nextButtonText,
-                        style: TextThemes.joinButtonTextChatTab,
+                      Container(
+                        child: SvgPicture.asset(
+                          'assets/svg/chat-icon.svg',
+                          width: 80,
+                          color: Colors.white,
+                        ),
                       ),
                       SizedBox(
-                        width: SpacingValues.small,
+                        height: SpacingValues.xxLarge,
                       ),
-                      Icon(Icons.arrow_forward, color: Colors.black),
-                    ],
-                  ),
-                  backDisable: true,
-                  onNext: this.onNext == null
-                      ? null
-                      : () => this.onNextInternal(context, state.info),
-                  contents: Expanded(
-                    child: Container(
-                      color: Colors.transparent,
-                      padding: EdgeInsets.all(SpacingValues.extraLarge),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            child: SvgPicture.asset(
-                              'assets/svg/chat-icon.svg',
-                              width: 80,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(
-                            height: SpacingValues.xxLarge,
-                          ),
-                          Text(
-                            Intl.message(
-                                'Your new discussion has been successfully created.'),
-                            style: TextThemes.onboardHeading,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: SpacingValues.mediumLarge,
-                          ),
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                                horizontal: SpacingValues.large),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      BulletPoint(
-                                        color: Colors.white,
-                                        size: TextThemes.onboardBody.fontSize /
-                                            1.5,
-                                        margin: EdgeInsets.only(
-                                            top: (TextThemes
-                                                        .onboardBody.fontSize /
-                                                    1.5) *
-                                                0.3),
-                                      ),
-                                      SizedBox(width: SpacingValues.large),
-                                      Flexible(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                            Text(
-                                              state.info.title,
-                                              style: TextThemes.onboardBody
-                                                  .copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            SizedBox(
-                                              height: SpacingValues.small,
-                                            ),
-                                            (state.info.description?.length ??
-                                                        0) >
-                                                    0
-                                                ? Text(
-                                                    state.info.description,
-                                                    maxLines: 3,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  )
-                                                : Container(),
-                                          ],
-                                        ),
-                                      )
-                                    ],
+                      Text(
+                        Intl.message(
+                            'Your new discussion has been successfully created.'),
+                        style: TextThemes.onboardHeading,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: SpacingValues.mediumLarge,
+                      ),
+                      Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: SpacingValues.large),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  BulletPoint(
+                                    color: Colors.white,
+                                    size: TextThemes.onboardBody.fontSize / 1.5,
+                                    margin: EdgeInsets.only(
+                                        top: (TextThemes.onboardBody.fontSize /
+                                                1.5) *
+                                            0.3),
                                   ),
-                                ),
-                                SizedBox(
-                                  height: SpacingValues.medium,
-                                ),
-                                Container(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      BulletPoint(
-                                        color: Colors.white,
-                                        size: TextThemes.onboardBody.fontSize /
-                                            1.5,
-                                        margin: EdgeInsets.only(
-                                            top: (TextThemes
-                                                        .onboardBody.fontSize /
-                                                    1.5) *
-                                                0.3),
-                                      ),
-                                      SizedBox(width: SpacingValues.large),
-                                      Flexible(
-                                        child: Text(
-                                          inviteMode,
-                                          style: TextThemes.onboardBody,
-                                          maxLines: 4,
+                                  SizedBox(width: SpacingValues.large),
+                                  Flexible(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          state.info.title,
+                                          style: TextThemes.onboardBody
+                                              .copyWith(
+                                                  fontWeight: FontWeight.bold),
+                                          maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: SpacingValues.large,
-                          ),
-                          Pressable(
-                            height: 50,
-                            width: double.infinity,
-                            onPressed: () =>
-                                copyInvitationLink(context, state.info),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(100.0),
-                            ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: Color.fromRGBO(247, 247, 255, 1.0),
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.content_copy,
-                                    color: Colors.black,
-                                    size: 30,
-                                  ),
-                                  SizedBox(
-                                    width: SpacingValues.smallMedium,
-                                  ),
-                                  Text(
-                                    Intl.message('Copy invitation link'),
-                                    style: TextThemes.signInWithTwitter,
-                                  ),
+                                        SizedBox(
+                                          height: SpacingValues.small,
+                                        ),
+                                        (state.info.description?.length ?? 0) >
+                                                0
+                                            ? Text(
+                                                state.info.description,
+                                                maxLines: 3,
+                                                overflow: TextOverflow.ellipsis,
+                                              )
+                                            : Container(),
+                                      ],
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            height: SpacingValues.mediumLarge,
-                          ),
-                          Pressable(
-                            height: 50,
-                            width: double.infinity,
-                            onPressed: () =>
-                                sendInvitationTweet(context, state.info),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(100.0),
+                            SizedBox(
+                              height: SpacingValues.medium,
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                color: ChathamColors.twitterLogoColor,
-                                borderRadius: BorderRadius.circular(100.0),
-                              ),
-                              alignment: Alignment.center,
+                            Container(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/twitter_logo.svg',
-                                    color: Colors.black,
-                                    width: 32.0,
-                                    height: 32.0,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  BulletPoint(
+                                    color: Colors.white,
+                                    size: TextThemes.onboardBody.fontSize / 1.5,
+                                    margin: EdgeInsets.only(
+                                        top: (TextThemes.onboardBody.fontSize /
+                                                1.5) *
+                                            0.3),
                                   ),
-                                  SizedBox(
-                                    width: SpacingValues.smallMedium,
-                                  ),
-                                  Text(
-                                    Intl.message('Tweet your invite'),
-                                    style: TextThemes.signInWithTwitter,
-                                  ),
+                                  SizedBox(width: SpacingValues.large),
+                                  Flexible(
+                                    child: Text(
+                                      inviteMode,
+                                      style: TextThemes.onboardBody,
+                                      maxLines: 4,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  )
                                 ],
                               ),
-                            ),
-                          ),
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
+                      SizedBox(
+                        height: SpacingValues.large,
+                      ),
+                      Pressable(
+                        height: 50,
+                        width: double.infinity,
+                        onPressed: () =>
+                            copyInvitationLink(context, state.info),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(100.0),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: Color.fromRGBO(247, 247, 255, 1.0),
+                            borderRadius: BorderRadius.circular(100.0),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.content_copy,
+                                color: Colors.black,
+                                size: 30,
+                              ),
+                              SizedBox(
+                                width: SpacingValues.smallMedium,
+                              ),
+                              Text(
+                                Intl.message('Copy invitation link'),
+                                style: TextThemes.signInWithTwitter,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: SpacingValues.mediumLarge,
+                      ),
+                      Pressable(
+                        height: 50,
+                        width: double.infinity,
+                        onPressed: () =>
+                            sendInvitationTweet(context, state.info),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(100.0),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            color: ChathamColors.twitterLogoColor,
+                            borderRadius: BorderRadius.circular(100.0),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/svg/twitter_logo.svg',
+                                color: Colors.black,
+                                width: 32.0,
+                                height: 32.0,
+                              ),
+                              SizedBox(
+                                width: SpacingValues.smallMedium,
+                              ),
+                              Text(
+                                Intl.message('Tweet your invite'),
+                                style: TextThemes.signInWithTwitter,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

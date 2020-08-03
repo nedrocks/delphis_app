@@ -23,7 +23,7 @@ class DiscussionLoadingState extends DiscussionState {
 }
 
 class DiscussionErrorState extends DiscussionState {
-  final Exception error;
+  final error;
 
   DiscussionErrorState(this.error) : super();
 

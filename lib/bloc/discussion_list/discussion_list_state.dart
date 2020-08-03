@@ -34,7 +34,7 @@ class DiscussionListLoading extends DiscussionListHasTimestamp {
   final DateTime timestamp;
 
   DiscussionListLoading({
-     @required this.discussionList,
+    @required this.discussionList,
     @required this.timestamp,
   }) : super();
 

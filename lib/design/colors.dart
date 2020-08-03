@@ -352,6 +352,6 @@ class ChathamColors {
   };
 
   static final Color muteChatSlideButtonColor = Colors.blueGrey;
-  static final Color archiveChatSlideButtonColor = Colors.greenAccent;
+  static final Color archiveChatSlideButtonColor = Colors.green;
   static final Color deleteChatSlideButtonColor = Colors.redAccent;
 }

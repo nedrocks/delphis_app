@@ -1,5 +1,3 @@
-
-
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,17 +10,17 @@ class ModeratorActionButton extends StatelessWidget {
   const ModeratorActionButton({
     @required this.onPressed,
     @required this.isActive,
-    @required this.width, 
+    @required this.width,
     @required this.height,
   }) : super();
-  
+
   @override
   Widget build(BuildContext context) {
-    Widget icon = Icon(Icons.star, size: this.width / 1.5, color: Color.fromRGBO(11, 12, 16, 1.0));
+    Widget icon = Icon(Icons.settings,
+        size: this.width / 1.5, color: Color.fromRGBO(11, 12, 16, 1.0));
     Widget render = Pressable(
       onPressed: () {
-        if(this.isActive && onPressed != null)
-          onPressed();        
+        if (this.isActive && onPressed != null) onPressed();
         return true;
       },
       width: this.width,
@@ -33,7 +31,7 @@ class ModeratorActionButton extends StatelessWidget {
           color: this.isActive
               ? Color.fromRGBO(246, 246, 246, 1.0)
               : Color.fromRGBO(246, 246, 246, 0.4)),
-          child: icon,
+      child: icon,
     );
 
     return render;

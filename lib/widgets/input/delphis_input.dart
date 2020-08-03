@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
@@ -132,42 +131,41 @@ class DelphisInputState extends State<DelphisInput> {
   List<Widget> buildNonInputRowElems(BuildContext context, MeState state,
       User me, bool isModerator, Widget textInput) {
     final rowElems = <Widget>[
-      AnimatedSizeContainer(
-        builder: (context) {
-          return BlocBuilder<ParticipantBloc, ParticipantState>(
-            builder: (context, participantState) {
-              Widget button = ParticipantSettingsButton(
-                onPressed: () => this.widget.onParticipantSettingsPressed(
-                    this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
-                me: me,
-                isModerator: isModerator,
-                participant: this.widget.participant,
-                discussion: this.widget.discussion,
-                width: 39.0,
-                height: 39.0,
-              );
+      AnimatedSizeContainer(builder: (context) {
+        return BlocBuilder<ParticipantBloc, ParticipantState>(
+          builder: (context, participantState) {
+            Widget button = ParticipantSettingsButton(
+              onPressed: () => this.widget.onParticipantSettingsPressed(
+                  this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
+              me: me,
+              isModerator: isModerator,
+              participant: this.widget.participant,
+              discussion: this.widget.discussion,
+              width: 39.0,
+              height: 39.0,
+            );
 
-              if(participantState is ParticipantLoaded && participantState.isUpdating) {
-                button = Stack(
-                  children: [
-                    button,
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
-                        ),
-                        child: CupertinoActivityIndicator(),
+            if (participantState is ParticipantLoaded &&
+                participantState.isUpdating) {
+              button = Stack(
+                children: [
+                  button,
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
                       ),
-                    )
-                  ],
-                );
-              }
+                      child: CupertinoActivityIndicator(),
+                    ),
+                  )
+                ],
+              );
+            }
 
-              return button;
-            },
-          );
-        }
-      ),
+            return button;
+          },
+        );
+      }),
       SizedBox(
         width: SpacingValues.medium,
       ),

@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class SuperpowersScreen extends StatefulWidget {
@@ -202,58 +203,6 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
   List<Widget> buildOptionList(BuildContext context) {
     List<Widget> list = [];
 
-    /* Delete post feature */
-    if (this.widget.arguments.post != null &&
-        !this.widget.arguments.post.isDeleted &&
-        (isMeDiscussionModerator() || isMePostAuthor())) {
-      list.add(SuperpowersOption(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(SpacingValues.medium),
-              color: Colors.black),
-          clipBehavior: Clip.antiAlias,
-          child: Icon(Icons.delete_forever, size: 50),
-        ),
-        title: Intl.message("Delete post"),
-        description: Intl.message("Remove this post from the discussion."),
-        onTap: () => showConfirmationDialog(context, () {
-          BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
-              discussion: this.widget.arguments.discussion,
-              post: this.widget.arguments.post));
-          return true;
-        }),
-      ));
-    }
-
-    /* Ban participant feature */
-    if (this.widget.arguments.participant != null &&
-        this.widget.arguments.post != null &&
-        isMeDiscussionModerator() &&
-        !isMePostAuthor()) {
-      list.add(SuperpowersOption(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SpacingValues.medium),
-                color: Colors.black),
-            clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.block, size: 50),
-          ),
-          title: Intl.message("Kick participant"),
-          description:
-              Intl.message("Ban the author of this post from the discussion."),
-          onTap: () => showConfirmationDialog(context, () {
-                BlocProvider.of<SuperpowersBloc>(context).add(
-                    BanParticipantEvent(
-                        discussion: this.widget.arguments.discussion,
-                        participant: this.widget.arguments.post.participant));
-                return true;
-              })));
-    }
-
     /* Copy inviting link to clipboard */
     if (isMeDiscussionModerator()) {
       list.add(SuperpowersOption(
@@ -264,11 +213,11 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
                 borderRadius: BorderRadius.circular(SpacingValues.medium),
                 color: Colors.black),
             clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.person_add, size: 45),
+            child: Icon(Icons.person_add, size: 36),
           ),
           title: Intl.message("Copy Link"),
           description: Intl.message(
-              "Create an invitation link and copy it to the clipboard."),
+              "Create an invitation link and copy it to the clipboard so that you can share it with other people."),
           onTap: () {
             BlocProvider.of<SuperpowersBloc>(context).add(
                 CopyDiscussionLinkEvent(
@@ -281,22 +230,25 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
     if (isMeDiscussionModerator()) {
       list.add(SuperpowersOption(
           child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SpacingValues.medium),
-                color: Colors.black),
-            clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.settings, size: 45),
-          ),
-          title: Intl.message("Discussion Preferences"),
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                margin: EdgeInsets.all(21),
+                child: SvgPicture.asset(
+                  'assets/svg/chat-icon.svg',
+                  width: 36,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("Chat Settings"),
           description: Intl.message(
-              "Manage the settings of this discussion including title, description, and how you prefer to manage invitations."),
+              "Manage the preferences of this discussion including its title, description, and invitation mode."),
           onTap: () {
-            BlocProvider.of<SuperpowersBloc>(context).add(
-                CopyDiscussionLinkEvent(
-                    discussion: this.widget.arguments.discussion,
-                    isVip: false));
+            // TODO: Hook this up to something
           }));
     }
 

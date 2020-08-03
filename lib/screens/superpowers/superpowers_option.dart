@@ -18,9 +18,10 @@ class SuperpowersOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = 120.0;
+    final height = 102.0;
     return Container(
       height: height,
+      width: height * 3.4,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -33,7 +34,7 @@ class SuperpowersOption extends StatelessWidget {
         child: InkWell(
           onTap: this.onTap,
           child: Container(
-            padding: EdgeInsets.all(SpacingValues.medium),
+            margin: EdgeInsets.all(SpacingValues.medium),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -52,27 +53,33 @@ class SuperpowersOption extends StatelessWidget {
                       horizontal: SpacingValues.medium,
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
-                        Flexible(
-                          child: Text(
-                            title,
-                            style: TextThemes.goIncognitoButton,
-                            textAlign: TextAlign.left,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              title,
+                              style: TextThemes.superpowerOptionName,
+                              textAlign: TextAlign.left,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                        SizedBox(height: SpacingValues.small),
-                        Flexible(
-                          child: Text(
-                            description,
-                            style: TextThemes.goIncognitoSubheader,
-                            textAlign: TextAlign.left,
-                            maxLines: 4,
-                            //overflow: TextOverflow.ellipsis,
+                        Expanded(
+                          flex: 2,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              description,
+                              style: TextThemes.superpowerOptionDescription,
+                              textAlign: TextAlign.left,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         )
                       ],

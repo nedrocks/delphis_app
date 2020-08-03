@@ -94,9 +94,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                 Text(
-                  isMeDiscussionModerator()
-                      ? Intl.message("Mod Superpowers")
-                      : Intl.message("User Superpowers"),
+                  Intl.message("Post Actions"),
                   style: TextThemes.goIncognitoHeader,
                   textAlign: TextAlign.center,
                 ),
@@ -104,10 +102,16 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 Container(
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 SizedBox(height: SpacingValues.small),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: buildOptionList(context),
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 300,
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: buildOptionList(context),
+                    ),
                   ),
                 ),
                 SizedBox(height: SpacingValues.small),
@@ -206,7 +210,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
     if (this.widget.arguments.post != null &&
         !this.widget.arguments.post.isDeleted &&
         (isMeDiscussionModerator() || isMePostAuthor())) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersPopupOption(
         child: Container(
           width: double.infinity,
           height: double.infinity,
@@ -214,10 +218,11 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
               borderRadius: BorderRadius.circular(SpacingValues.medium),
               color: Colors.black),
           clipBehavior: Clip.antiAlias,
-          child: Icon(Icons.delete_forever, size: 50),
+          child: Icon(Icons.delete_forever, size: 40),
         ),
-        title: Intl.message("Delete post"),
-        description: Intl.message("Remove this post from the discussion."),
+        title: Intl.message("Delete Post"),
+        description: Intl.message(
+            "Remove the selected post from this discussion, so that no participant will be able to read it."),
         onTap: () => showConfirmationDialog(context, () {
           BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
               discussion: this.widget.arguments.discussion,
@@ -232,7 +237,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         this.widget.arguments.post != null &&
         isMeDiscussionModerator() &&
         !isMePostAuthor()) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersPopupOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -240,11 +245,11 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 borderRadius: BorderRadius.circular(SpacingValues.medium),
                 color: Colors.black),
             clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.block, size: 50),
+            child: Icon(Icons.block, size: 36),
           ),
-          title: Intl.message("Kick participant"),
-          description:
-              Intl.message("Ban the author of this post from the discussion."),
+          title: Intl.message("Kick Participant"),
+          description: Intl.message(
+              "Ban the author of the selected post from the discussion and delete every post they authored."),
           onTap: () => showConfirmationDialog(context, () {
                 BlocProvider.of<SuperpowersBloc>(context).add(
                     BanParticipantEvent(
@@ -253,91 +258,6 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 return true;
               })));
     }
-
-    /* Copy inviting link to clipboard */
-    if (isMeDiscussionModerator()) {
-      list.add(ModeratorPopupOption(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SpacingValues.medium),
-                color: Colors.black),
-            clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.person_add, size: 45),
-          ),
-          title: Intl.message("Copy Link"),
-          description: Intl.message(
-              "Create an invitation link and copy it to the clipboard."),
-          onTap: () {
-            BlocProvider.of<SuperpowersBloc>(context).add(
-                CopyDiscussionLinkEvent(
-                    discussion: this.widget.arguments.discussion,
-                    isVip: false));
-          }));
-    }
-
-    /* Copy vip inviting link to clipboard */
-    if (isMeDiscussionModerator()) {
-      list.add(ModeratorPopupOption(
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(SpacingValues.medium),
-                color: Colors.black),
-            clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.star_border, size: 50),
-          ),
-          title: Intl.message("Copy VIP Link"),
-          description:
-              Intl.message("Copy a VIP invitation link to the clipboard."),
-          onTap: () {
-            BlocProvider.of<SuperpowersBloc>(context).add(
-                CopyDiscussionLinkEvent(
-                    discussion: this.widget.arguments.discussion, isVip: true));
-          }));
-    }
-
-    // /* Invite user from Twitter handle */
-    // if (isMeDiscussionModerator()) {
-    //   list.add(ModeratorPopupOption(
-    //       child: Container(
-    //         width: double.infinity,
-    //         height: double.infinity,
-    //         decoration: BoxDecoration(
-    //             borderRadius: BorderRadius.circular(SpacingValues.medium),
-    //             color: Colors.black),
-    //         clipBehavior: Clip.antiAlias,
-    //         child: Container(
-    //           margin: EdgeInsets.all(28),
-    //           child: SvgPicture.asset(
-    //             'assets/svg/twitter_logo.svg',
-    //             color: ChathamColors.twitterLogoColor,
-    //           ),
-    //         ),
-    //       ),
-    //       title: Intl.message("Twitter Invitation"),
-    //       description:
-    //           Intl.message("Invite new users searching them on Twitter."),
-    //       onTap: () {
-    //         setState(() {
-    //           this.panelToShow = BlocProvider<TwitterInvitationBloc>(
-    //             create: (context) => TwitterInvitationBloc(
-    //               repository: RepositoryProvider.of<UserRepository>(context),
-    //               twitterUserRepository:
-    //                   RepositoryProvider.of<TwitterUserRepository>(context),
-    //             ),
-    //             child: TwitterInvitationForm(
-    //               participant: this.widget.arguments?.discussion?.meParticipant,
-    //               discussion: this.widget.arguments?.discussion,
-    //               onCancel: this.cancelPanelToShow,
-    //             ),
-    //           );
-    //           BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
-    //         });
-    //       }));
-    // }
 
     /* A user could have no actions avaliable */
     if (list.length == 0) {

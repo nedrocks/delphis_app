@@ -459,24 +459,25 @@ class ChathamAppState extends State<ChathamApp>
                   case '/Discussion/Superpowers':
                     SuperpowersArguments arguments =
                         settings.arguments as SuperpowersArguments;
-                    return PageTransition(
+                    return MaterialPageRoute(
                       settings: settings,
-                      type: PageTransitionType.rightToLeft,
-                      child: BlocProvider<SuperpowersBloc>(
-                        create: (context) => SuperpowersBloc(
-                          discussionRepository:
-                              RepositoryProvider.of<DiscussionRepository>(
-                                  context),
-                          participantRepository:
-                              RepositoryProvider.of<ParticipantRepository>(
-                                  context),
-                          notificationBloc:
-                              BlocProvider.of<NotificationBloc>(context),
-                        ),
-                        child: SuperpowersScreen(
-                          arguments: arguments,
-                        ),
-                      ),
+                      builder: (context) {
+                        return BlocProvider<SuperpowersBloc>(
+                          create: (context) => SuperpowersBloc(
+                            discussionRepository:
+                                RepositoryProvider.of<DiscussionRepository>(
+                                    context),
+                            participantRepository:
+                                RepositoryProvider.of<ParticipantRepository>(
+                                    context),
+                            notificationBloc:
+                                BlocProvider.of<NotificationBloc>(context),
+                          ),
+                          child: SuperpowersScreen(
+                            arguments: arguments,
+                          ),
+                        );
+                      },
                     );
                     break;
                   case '/Auth':

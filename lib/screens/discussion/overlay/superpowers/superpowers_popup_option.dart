@@ -2,63 +2,83 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
 
-class ModeratorPopupOption extends StatelessWidget {
+class SuperpowersPopupOption extends StatelessWidget {
   final Widget child;
   final String title;
   final String description;
   final VoidCallback onTap;
 
-  const ModeratorPopupOption({
-    Key key,
-    @required this.title, 
-    @required this.description, 
-    @required this.onTap, 
-    @required this.child
-  }) : super(key: key);
-  
+  const SuperpowersPopupOption(
+      {Key key,
+      @required this.title,
+      @required this.description,
+      @required this.onTap,
+      @required this.child})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    final width = 120.0;
+    final height = 100.0;
     return Container(
-      height: width * 1.8,
-      width: width,
+      height: height,
+      width: height * 3.4,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Color.fromRGBO(57, 58, 63, 0.4)
+        color: Color.fromRGBO(57, 58, 63, 0.4),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(
+        borderRadius: BorderRadius.circular(12),
         color: Colors.transparent,
         child: InkWell(
           onTap: this.onTap,
           child: Container(
-            padding: EdgeInsets.all(SpacingValues.medium),
-            child: Column(
+            margin: EdgeInsets.all(SpacingValues.medium),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  height: width * 0.8,
+                  width: height * 0.8,
                   child: Center(
                     child: child,
                   ),
                 ),
-                SizedBox(height: SpacingValues.medium),
-                Text(
-                  title,
-                  style: TextThemes.goIncognitoButton,
-                  textAlign: TextAlign.left,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: SpacingValues.small),
-                Text(
-                  description,
-                  style: TextThemes.goIncognitoOptionAction.copyWith(),
-                  textAlign: TextAlign.left,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.symmetric(
+                      vertical: SpacingValues.small,
+                      horizontal: SpacingValues.medium,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextThemes.superpowerOptionName,
+                            textAlign: TextAlign.left,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            description,
+                            style: TextThemes.superpowerOptionDescription,
+                            textAlign: TextAlign.left,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -68,4 +88,3 @@ class ModeratorPopupOption extends StatelessWidget {
     );
   }
 }
-

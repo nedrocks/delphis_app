@@ -59,115 +59,115 @@ class _InviteModePageState extends State<InviteModePage> {
 
         return Scaffold(
           resizeToAvoidBottomInset: true,
-          body: SingleChildScrollView(
-            child: Container(
-              color: Colors.black,
-              height: height,
-              child: BasePageWidget(
-                title: "Invitation Mode",
-                nextButtonChild: nextButton,
-                backButtonChild: Text(this.widget.prevButtonText),
-                onBack: this.widget.onBack,
-                onNext: state.info.inviteMode == null
-                    ? null
-                    : () => this.onNext(context, state.info),
-                nextColor: state.info.inviteMode == null
-                    ? Color.fromRGBO(247, 247, 255, 0.5)
-                    : Color.fromRGBO(247, 247, 255, 1.0),
-                contents: Expanded(
-                  child: Container(
-                    margin: EdgeInsets.all(SpacingValues.extraLarge),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          Intl.message(
-                              'Who would you like to have access to your discussion?'),
-                          style: TextThemes.onboardHeading,
-                          textAlign: TextAlign.center,
+          body: Container(
+            color: Colors.black,
+            child: BasePageWidget(
+              title: "Invitation Mode",
+              nextButtonChild: nextButton,
+              backButtonChild: Text(this.widget.prevButtonText),
+              onBack: this.widget.onBack,
+              onNext: state.info.inviteMode == null
+                  ? null
+                  : () => this.onNext(context, state.info),
+              nextColor: state.info.inviteMode == null
+                  ? Color.fromRGBO(247, 247, 255, 0.5)
+                  : Color.fromRGBO(247, 247, 255, 1.0),
+              contents: Container(
+                margin: EdgeInsets.all(SpacingValues.extraLarge),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: <Widget>[
+                      Text(
+                        Intl.message(
+                            'Who would you like to have access to your discussion?'),
+                        style: TextThemes.onboardHeading,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: SpacingValues.smallMedium,
+                      ),
+                      Text(
+                        Intl.message(
+                            'Choose how you prefer to manage invitations for this discussion.'),
+                        style: TextThemes.onboardBody,
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: SpacingValues.large,
+                      ),
+                      Container(
+                        child: SvgPicture.asset(
+                          'assets/svg/paper_airplane.svg',
+                          width: 50,
+                          color: Colors.white,
                         ),
-                        SizedBox(
-                          height: SpacingValues.smallMedium,
-                        ),
-                        Text(
-                          Intl.message(
-                              'Choose how you prefer to manage invitations for this discussion.'),
-                          style: TextThemes.onboardBody,
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: SpacingValues.large,
-                        ),
-                        Container(
-                          child: SvgPicture.asset(
-                            'assets/svg/paper_airplane.svg',
-                            width: 50,
-                            color: Colors.white,
+                      ),
+                      SizedBox(
+                        height: SpacingValues.xxLarge,
+                      ),
+                      AnimatedSizeContainer(
+                        builder: (context) {
+                          if (error != null) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(
+                                      top: SpacingValues.medium),
+                                  child: Text(
+                                    error.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextThemes.discussionPostText
+                                        .copyWith(color: Colors.red),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: SpacingValues.medium,
+                                ),
+                              ],
+                            );
+                          }
+                          return Container();
+                        },
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          CheckListOption(
+                            isSelected: state.info.inviteMode ==
+                                DiscussionJoinabilitySetting
+                                    .ALLOW_TWITTER_FRIENDS,
+                            text: InviteModePage.allowTwitterFriendsText,
+                            onTap: () =>
+                                BlocProvider.of<UpsertDiscussionBloc>(context)
+                                    .add(
+                              UpsertDiscussionSetInviteModeEvent(
+                                  inviteMode: DiscussionJoinabilitySetting
+                                      .ALLOW_TWITTER_FRIENDS),
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: SpacingValues.xxLarge,
-                        ),
-                        AnimatedSizeContainer(
-                          builder: (context) {
-                            if (error != null) {
-                              return Column(
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                        top: SpacingValues.medium),
-                                    child: Text(
-                                      error.toString(),
-                                      textAlign: TextAlign.center,
-                                      style: TextThemes.discussionPostText
-                                          .copyWith(color: Colors.red),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: SpacingValues.medium,
-                                  ),
-                                ],
-                              );
-                            }
-                            return Container();
-                          },
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            CheckListOption(
-                              isSelected: state.info.inviteMode ==
-                                  DiscussionJoinabilitySetting
-                                      .ALLOW_TWITTER_FRIENDS,
-                              text: InviteModePage.allowTwitterFriendsText,
-                              onTap: () =>
-                                  BlocProvider.of<UpsertDiscussionBloc>(context)
-                                      .add(
-                                UpsertDiscussionSetInviteModeEvent(
-                                    inviteMode: DiscussionJoinabilitySetting
-                                        .ALLOW_TWITTER_FRIENDS),
-                              ),
+                          SizedBox(
+                            height: SpacingValues.mediumLarge,
+                          ),
+                          CheckListOption(
+                            isSelected: state.info.inviteMode ==
+                                DiscussionJoinabilitySetting
+                                    .ALL_REQUIRE_APPROVAL,
+                            text: InviteModePage.allRequireApprovalText,
+                            onTap: () =>
+                                BlocProvider.of<UpsertDiscussionBloc>(context)
+                                    .add(
+                              UpsertDiscussionSetInviteModeEvent(
+                                  inviteMode: DiscussionJoinabilitySetting
+                                      .ALL_REQUIRE_APPROVAL),
                             ),
-                            SizedBox(
-                              height: SpacingValues.mediumLarge,
-                            ),
-                            CheckListOption(
-                              isSelected: state.info.inviteMode ==
-                                  DiscussionJoinabilitySetting
-                                      .ALL_REQUIRE_APPROVAL,
-                              text: InviteModePage.allRequireApprovalText,
-                              onTap: () =>
-                                  BlocProvider.of<UpsertDiscussionBloc>(context)
-                                      .add(
-                                UpsertDiscussionSetInviteModeEvent(
-                                    inviteMode: DiscussionJoinabilitySetting
-                                        .ALL_REQUIRE_APPROVAL),
-                              ),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ),

@@ -1,3 +1,9 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
+
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
@@ -5,17 +11,12 @@ import 'package:delphis_app/data/provider/subscriptions.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:delphis_app/data/repository/historical_string.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
+import 'entity.dart';
 import 'moderator.dart';
 import 'participant.dart';
 import 'post.dart';
 import 'post_content_input.dart';
-import 'entity.dart';
 
 part 'discussion.g.dart';
 
@@ -515,6 +516,9 @@ class Discussion extends Equatable implements Entity {
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
 
+  @JsonAnnotation.JsonKey(ignore: true)
+  bool isDeletedLocally;
+
   @override
   List<Object> get props => [
         id,
@@ -532,6 +536,7 @@ class Discussion extends Equatable implements Entity {
         titleHistory,
         descriptionHistory,
         discussionJoinability,
+        isDeletedLocally,
       ];
 
   Discussion({
@@ -552,6 +557,7 @@ class Discussion extends Equatable implements Entity {
     this.descriptionHistory,
     this.discussionJoinability,
     postsCache,
+    this.isDeletedLocally = false,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -563,40 +569,49 @@ class Discussion extends Equatable implements Entity {
   }
 
   Discussion copyWith({
-    PostsConnection postsConnection,
-    Participant meParticipant,
-    List<Participant> participants,
-    List<Participant> meAvailableParticipants,
+    String id,
     Moderator moderator,
+    AnonymityType anonymityType,
+    PostsConnection postsConnection,
+    List<Participant> participants,
+    String title,
+    String createdAt,
+    String updatedAt,
+    Participant meParticipant,
+    List<Participant> meAvailableParticipants,
+    String iconURL,
     DiscussionLinkAccess discussionLinksAccess,
     String description,
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
     List<Post> postsCache,
-  }) =>
-      Discussion(
-        id: this.id,
-        moderator: moderator ?? this.moderator,
-        anonymityType: this.anonymityType,
-        participants: participants ?? this.participants,
-        title: this.title,
-        createdAt: this.createdAt,
-        updatedAt: this.updatedAt,
-        postsConnection: postsConnection ?? this.postsConnection,
-        meParticipant: meParticipant ?? this.meParticipant,
-        meAvailableParticipants:
-            meAvailableParticipants ?? this.meAvailableParticipants,
-        iconURL: this.iconURL,
-        discussionLinksAccess:
-            discussionLinksAccess ?? this.discussionLinksAccess,
-        description: description ?? this.description,
-        titleHistory: titleHistory ?? this.titleHistory,
-        descriptionHistory: descriptionHistory ?? this.descriptionHistory,
-        discussionJoinability:
-            discussionJoinability ?? this.discussionJoinability,
-        postsCache: postsCache ?? this.postsCache,
-      );
+    bool isDeletedLocally,
+  }) {
+    return Discussion(
+      id: id ?? this.id,
+      moderator: moderator ?? this.moderator,
+      anonymityType: anonymityType ?? this.anonymityType,
+      postsConnection: postsConnection ?? this.postsConnection,
+      participants: participants ?? this.participants,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      meParticipant: meParticipant ?? this.meParticipant,
+      meAvailableParticipants:
+          meAvailableParticipants ?? this.meAvailableParticipants,
+      iconURL: iconURL ?? this.iconURL,
+      discussionLinksAccess:
+          discussionLinksAccess ?? this.discussionLinksAccess,
+      description: description ?? this.description,
+      titleHistory: titleHistory ?? this.titleHistory,
+      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+      discussionJoinability:
+          discussionJoinability ?? this.discussionJoinability,
+      postsCache: postsCache ?? this.postsCache,
+      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+    );
+  }
 
   void addLocalPost(LocalPost post) {
     this.postsCache.insert(0, post.post);

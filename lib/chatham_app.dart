@@ -12,6 +12,8 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/util/link.dart';
@@ -390,6 +392,7 @@ class ChathamAppState extends State<ChathamApp>
                                     'discussion-screen-${arguments.discussionID}'),
                                 discussionID: arguments.discussionID,
                                 isStartJoinFlow: arguments.isStartJoinFlow,
+                                routeObserver: this._routeObserver,
                               ),
                             ),
                           );
@@ -452,6 +455,29 @@ class ChathamAppState extends State<ChathamApp>
                             ),
                           ),
                         ));
+                    break;
+                  case '/Discussion/Superpowers':
+                    SuperpowersArguments arguments =
+                        settings.arguments as SuperpowersArguments;
+                    return PageTransition(
+                      settings: settings,
+                      type: PageTransitionType.rightToLeft,
+                      child: BlocProvider<SuperpowersBloc>(
+                        create: (context) => SuperpowersBloc(
+                          discussionRepository:
+                              RepositoryProvider.of<DiscussionRepository>(
+                                  context),
+                          participantRepository:
+                              RepositoryProvider.of<ParticipantRepository>(
+                                  context),
+                          notificationBloc:
+                              BlocProvider.of<NotificationBloc>(context),
+                        ),
+                        child: SuperpowersScreen(
+                          arguments: arguments,
+                        ),
+                      ),
+                    );
                     break;
                   case '/Auth':
                     return PageTransition(

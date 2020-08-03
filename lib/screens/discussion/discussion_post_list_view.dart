@@ -6,7 +6,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/screens/discussion/media/media_change_notifier.dart';
-import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +44,7 @@ class DiscussionPostListView extends StatelessWidget {
     @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
-    this.isVisible = true, 
+    this.isVisible = true,
   }) : super(key: key);
 
   @override
@@ -187,9 +187,7 @@ class DiscussionPostListView extends StatelessWidget {
             );
             if (true) {
               return ChangeNotifierProvider(
-                create: (context) => MediaChangeNotifier(),
-                child: post
-              );
+                  create: (context) => MediaChangeNotifier(), child: post);
             } else {
               // TODO: This should be hooked up to announcement posts.
               return DiscussionAnnouncementPost(post: post);

@@ -5,7 +5,7 @@ import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/overlay_alert_dialog.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup_option.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,19 +14,19 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-class SuperpowersPopup extends StatefulWidget {
+class SuperpowersScreen extends StatefulWidget {
   final SuperpowersArguments arguments;
-  final VoidCallback onCancel;
 
-  const SuperpowersPopup(
-      {Key key, @required this.arguments, @required this.onCancel})
-      : super(key: key);
+  const SuperpowersScreen({
+    Key key,
+    @required this.arguments,
+  }) : super(key: key);
 
   @override
-  _SuperpowersPopupState createState() => _SuperpowersPopupState();
+  _SuperpowersScreenState createState() => _SuperpowersScreenState();
 }
 
-class _SuperpowersPopupState extends State<SuperpowersPopup> {
+class _SuperpowersScreenState extends State<SuperpowersScreen> {
   Widget panelToShow;
   OverlayEntry lastOverlayEntry;
 
@@ -70,7 +70,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         if (state is SuccessState) {
           /* Dismiss the popup if the result is successful */
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            this.widget.onCancel();
+            this.onCancel(context);
           });
         }
 
@@ -89,14 +89,15 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
           toRender = panelToShow;
         } else {
           toRender = Container(
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: SpacingValues.extraLarge),
                 Text(
                   isMeDiscussionModerator()
-                      ? Intl.message("Mod Superpowers")
-                      : Intl.message("User Superpowers"),
+                      ? Intl.message("Moderator Superpowers")
+                      : Intl.message("User Options"),
                   style: TextThemes.goIncognitoHeader,
                   textAlign: TextAlign.center,
                 ),
@@ -104,10 +105,16 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 Container(
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 SizedBox(height: SpacingValues.small),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: buildOptionList(context),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Container(
+                      margin: EdgeInsets.all(SpacingValues.medium),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: buildOptionList(context),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(height: SpacingValues.small),
@@ -119,41 +126,34 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 Container(
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 GestureDetector(
-                    onTap: () {
-                      this.widget.onCancel();
-                    },
-                    child: Container(
-                        color: Colors.transparent,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: SpacingValues.xxLarge,
-                            vertical: SpacingValues.mediumLarge),
-                        child: Text(
-                          Intl.message('Close'),
-                          style: TextThemes.backButton,
-                        ))),
-              ]));
+                  onTap: () {
+                    this.onCancel(context);
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SpacingValues.xxLarge,
+                        vertical: SpacingValues.mediumLarge),
+                    child: Text(
+                      Intl.message('Close'),
+                      style: TextThemes.backButton,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         /* Render popup */
-        return SafeArea(
-            child: Card(
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                elevation: 50.0,
-                color: Colors.transparent,
-                child: Container(
-                    padding: EdgeInsets.only(
-                        left: SpacingValues.extraLarge,
-                        right: SpacingValues.extraLarge,
-                        top: SpacingValues.mediumLarge),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(36.0),
-                            topRight: Radius.circular(36.0)),
-                        color: Color.fromRGBO(22, 23, 28, 1.0)),
-                    child: toRender)));
+        return Scaffold(
+          body: SafeArea(
+            child: Container(
+              color: Color.fromRGBO(22, 23, 28, 1.0),
+              child: toRender,
+            ),
+          ),
+        );
       },
     );
   }
@@ -206,7 +206,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
     if (this.widget.arguments.post != null &&
         !this.widget.arguments.post.isDeleted &&
         (isMeDiscussionModerator() || isMePostAuthor())) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersOption(
         child: Container(
           width: double.infinity,
           height: double.infinity,
@@ -232,7 +232,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         this.widget.arguments.post != null &&
         isMeDiscussionModerator() &&
         !isMePostAuthor()) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -256,7 +256,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
 
     /* Copy inviting link to clipboard */
     if (isMeDiscussionModerator()) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -277,9 +277,9 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
           }));
     }
 
-    /* Copy vip inviting link to clipboard */
+    /* Modify discussion's information */
     if (isMeDiscussionModerator()) {
-      list.add(ModeratorPopupOption(
+      list.add(SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -287,15 +287,16 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 borderRadius: BorderRadius.circular(SpacingValues.medium),
                 color: Colors.black),
             clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.star_border, size: 50),
+            child: Icon(Icons.settings, size: 45),
           ),
-          title: Intl.message("Copy VIP Link"),
-          description:
-              Intl.message("Copy a VIP invitation link to the clipboard."),
+          title: Intl.message("Discussion Preferences"),
+          description: Intl.message(
+              "Manage the settings of this discussion including title, description, and how you prefer to manage invitations."),
           onTap: () {
             BlocProvider.of<SuperpowersBloc>(context).add(
                 CopyDiscussionLinkEvent(
-                    discussion: this.widget.arguments.discussion, isVip: true));
+                    discussion: this.widget.arguments.discussion,
+                    isVip: false));
           }));
     }
 
@@ -378,5 +379,9 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
       this.panelToShow = null;
     });
     BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+  }
+
+  void onCancel(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }

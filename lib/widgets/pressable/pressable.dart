@@ -6,6 +6,7 @@ class Pressable extends StatelessWidget {
   final double width;
   final double height;
   final BoxDecoration decoration;
+  final bool showInkwell;
 
   const Pressable({
     @required this.onPressed,
@@ -13,10 +14,24 @@ class Pressable extends StatelessWidget {
     @required this.width,
     @required this.height,
     this.decoration,
+    this.showInkwell = true,
   }) : super();
 
   @override
   Widget build(BuildContext context) {
+    Widget wrappedChild;
+    if (this.showInkwell) {
+      wrappedChild = InkWell(
+        borderRadius: this.decoration?.borderRadius,
+        onTap: this.onPressed,
+      );
+    } else {
+      wrappedChild = GestureDetector(
+        onTap: this.onPressed,
+        child: child,
+      );
+    }
+
     return Container(
       width: this.width,
       height: this.height,
@@ -27,15 +42,12 @@ class Pressable extends StatelessWidget {
           this.child,
           Positioned.fill(
             child: Material(
-              shape: this.decoration.shape == BoxShape.circle
+              shape: this.decoration?.shape == BoxShape.circle
                   ? CircleBorder()
                   : null,
-              borderRadius: this.decoration.borderRadius,
+              borderRadius: this.decoration?.borderRadius,
               color: Colors.transparent,
-              child: InkWell(
-                borderRadius: this.decoration.borderRadius,
-                onTap: this.onPressed,
-              ),
+              child: wrappedChild,
             ),
           ),
         ],

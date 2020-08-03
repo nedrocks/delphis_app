@@ -7,25 +7,32 @@ import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ChatsList extends StatelessWidget {
   final Duration durationBeforeAutoRefresh;
   final DiscussionCallback onJoinDiscussionPressed;
-  final DiscussionCallback onDeleteDiscussionInvitePressed;
+  final DiscussionCallback onDeleteDiscussionPressed;
+  final DiscussionCallback onArchiveDiscussionPressed;
+  final DiscussionCallback onMuteDiscussionPressed;
   final DiscussionCallback onDiscussionPressed;
   final RefreshController refreshController;
   final User currentUser;
+  final SlidableController slidableController;
 
   ChatsList({
     Key key,
     @required this.refreshController,
     @required this.onJoinDiscussionPressed,
-    @required this.onDeleteDiscussionInvitePressed,
+    @required this.onDeleteDiscussionPressed,
+    @required this.onArchiveDiscussionPressed,
+    @required this.onMuteDiscussionPressed,
     @required this.onDiscussionPressed,
     @required this.currentUser,
     this.durationBeforeAutoRefresh,
+    this.slidableController,
   }) : super(key: key);
 
   Widget build(BuildContext context) {
@@ -128,20 +135,21 @@ class ChatsList extends StatelessWidget {
                   return SingleChat(
                     discussion: discussionElem,
                     canJoinDiscussions: currentUser?.isTwitterAuth ?? false,
+                    slidableController: this.slidableController,
                     onJoinPressed: () {
                       this.onJoinDiscussionPressed(discussionElem);
                     },
                     onDeletePressed: () {
-                      this.onDeleteDiscussionInvitePressed(discussionElem);
+                      this.onDeleteDiscussionPressed(discussionElem);
                     },
                     onPressed: () {
                       this.onDiscussionPressed(discussionElem);
                     },
                     onArchivePressed: () {
-                      // TODO: Hook it up to BLoC and repositories
+                      this.onArchiveDiscussionPressed(discussionElem);
                     },
                     onMutePressed: () {
-                      // TODO: Hook it up to BLoC and repositories
+                      this.onMuteDiscussionPressed(discussionElem);
                     },
                   );
                 },

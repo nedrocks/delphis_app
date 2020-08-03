@@ -13,6 +13,7 @@ class SingleChat extends StatelessWidget {
   final VoidCallback onPressed;
   final VoidCallback onArchivePressed;
   final VoidCallback onMutePressed;
+  final SlidableController slidableController;
 
   const SingleChat({
     @required this.discussion,
@@ -22,6 +23,7 @@ class SingleChat extends StatelessWidget {
     @required this.canJoinDiscussions,
     @required this.onArchivePressed,
     @required this.onMutePressed,
+    this.slidableController,
   }) : super();
 
   @override
@@ -48,6 +50,8 @@ class SingleChat extends StatelessWidget {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.15,
+      controller: this.slidableController,
+      closeOnScroll: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(

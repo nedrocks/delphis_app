@@ -4,8 +4,8 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_list.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ChatsScreen extends StatefulWidget {
@@ -26,11 +26,12 @@ class ChatsScreen extends StatefulWidget {
 class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
   RefreshController _refreshController;
   GlobalKey _chatListKey;
-  DiscussionListBloc discussionListBloc;
+  SlidableController slidableController;
 
   @override
   void dispose() {
     this.widget.routeObserver.unsubscribe(this);
+    this.slidableController?.activeState?.dispose();
     super.dispose();
   }
 
@@ -38,6 +39,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
   void initState() {
     super.initState();
 
+    this.slidableController = SlidableController();
     this._refreshController = RefreshController(initialRefresh: false);
     this._chatListKey = GlobalKey();
   }
@@ -50,20 +52,13 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
 
   @override
   void didPopNext() {
-    this.discussionListBloc?.add(DiscussionListFetchEvent());
+    BlocProvider.of<DiscussionListBloc>(context)
+        .add(DiscussionListFetchEvent());
     super.didPopNext();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (this.discussionListBloc == null) {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        setState(() {
-          this.discussionListBloc =
-              BlocProvider.of<DiscussionListBloc>(context);
-        });
-      });
-    }
     return ChatsList(
       currentUser: this.widget.currentUser,
       key: this._chatListKey,
@@ -75,10 +70,19 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
               isStartJoinFlow: true,
             ));
       },
-      onDeleteDiscussionInvitePressed: (Discussion discussion) {},
       onDiscussionPressed: (Discussion discussion) {
         Navigator.of(context).pushNamed('/Discussion',
             arguments: DiscussionArguments(discussionID: discussion.id));
+      },
+      slidableController: slidableController,
+      onDeleteDiscussionPressed: (Discussion discussion) {
+        // TODO: Hook this up to backend mutations somehow
+      },
+      onArchiveDiscussionPressed: (Discussion discussion) {
+        // TODO: Hook this up to backend mutations somehow
+      },
+      onMuteDiscussionPressed: (Discussion discussion) {
+        // TODO: Hook this up to backend mutations somehow
       },
     );
   }

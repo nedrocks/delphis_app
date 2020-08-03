@@ -137,6 +137,12 @@ class ChatsList extends StatelessWidget {
                     onPressed: () {
                       this.onDiscussionPressed(discussionElem);
                     },
+                    onArchivePressed: () {
+                      // TODO: Hook it up to BLoC and repositories
+                    },
+                    onMutePressed: () {
+                      // TODO: Hook it up to BLoC and repositories
+                    },
                   );
                 },
               );

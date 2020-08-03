@@ -1,7 +1,9 @@
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat_joined.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat_unjoined.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class SingleChat extends StatelessWidget {
   final Discussion discussion;
@@ -9,6 +11,8 @@ class SingleChat extends StatelessWidget {
   final VoidCallback onDeletePressed;
   final VoidCallback onJoinPressed;
   final VoidCallback onPressed;
+  final VoidCallback onArchivePressed;
+  final VoidCallback onMutePressed;
 
   const SingleChat({
     @required this.discussion,
@@ -16,6 +20,8 @@ class SingleChat extends StatelessWidget {
     @required this.onJoinPressed,
     @required this.onPressed,
     @required this.canJoinDiscussions,
+    @required this.onArchivePressed,
+    @required this.onMutePressed,
   }) : super();
 
   @override
@@ -38,13 +44,40 @@ class SingleChat extends StatelessWidget {
         onPressed: this.onPressed,
       );
     }
-    return DecoratedBox(
+
+    return Slidable(
+      actionPane: SlidableDrawerActionPane(),
+      actionExtentRatio: 0.15,
+      child: DecoratedBox(
         decoration: BoxDecoration(
           border: Border(
             bottom:
                 BorderSide(color: Color.fromRGBO(22, 23, 28, 1.0), width: 1.0),
           ),
         ),
-        child: contents);
+        child: contents,
+      ),
+      actions: <Widget>[],
+      secondaryActions: <Widget>[
+        IconSlideAction(
+          caption: 'Delete',
+          color: ChathamColors.deleteChatSlideButtonColor,
+          icon: Icons.delete,
+          onTap: this.onDeletePressed,
+        ),
+        IconSlideAction(
+          caption: 'Mute',
+          color: ChathamColors.muteChatSlideButtonColor,
+          icon: Icons.volume_off,
+          onTap: this.onMutePressed,
+        ),
+        IconSlideAction(
+          caption: 'Archive',
+          icon: Icons.archive,
+          color: ChathamColors.archiveChatSlideButtonColor,
+          onTap: this.onArchivePressed,
+        ),
+      ],
+    );
   }
 }

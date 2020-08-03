@@ -32,9 +32,10 @@ class BasePageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
+      child: Padding(
         padding: EdgeInsets.only(bottom: SpacingValues.large),
         child: Column(
+          mainAxisSize: MainAxisSize.max,
           children: [
             Container(
               color: ChathamColors.topBarBackgroundColor,
@@ -44,7 +45,16 @@ class BasePageWidget extends StatelessWidget {
               title: Intl.message(title),
               backgroundColor: ChathamColors.topBarBackgroundColor,
             ),
-            this.contents,
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: this.contents,
+                  ),
+                ),
+              ),
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,

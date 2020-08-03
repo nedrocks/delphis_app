@@ -186,6 +186,7 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   void onNext(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
+    FocusScope.of(context).unfocus();
     // TODO: Handle Update case when we need to show only one page
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:

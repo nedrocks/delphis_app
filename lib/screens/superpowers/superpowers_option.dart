@@ -18,10 +18,8 @@ class SuperpowersOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = 102.0;
     return Container(
-      height: height,
-      width: height * 3.4,
+      height: 105,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -40,13 +38,16 @@ class SuperpowersOption extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: height * 0.8,
-                  child: Center(
-                    child: child,
-                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Container(
+                      width: constraints.maxHeight,
+                      height: constraints.maxHeight,
+                      child: child,
+                    );
+                  },
                 ),
-                Expanded(
+                Flexible(
                   child: Container(
                     margin: EdgeInsets.symmetric(
                       vertical: SpacingValues.small,

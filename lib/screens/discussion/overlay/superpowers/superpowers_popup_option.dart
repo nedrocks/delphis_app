@@ -18,10 +18,8 @@ class SuperpowersPopupOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = 100.0;
     return Container(
-      height: height,
-      width: height * 3.4,
+      height: 105,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -40,13 +38,16 @@ class SuperpowersPopupOption extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  width: height * 0.8,
-                  child: Center(
-                    child: child,
-                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Container(
+                      width: constraints.maxHeight,
+                      height: constraints.maxHeight,
+                      child: child,
+                    );
+                  },
                 ),
-                Expanded(
+                Flexible(
                   child: Container(
                     margin: EdgeInsets.symmetric(
                       vertical: SpacingValues.small,
@@ -55,25 +56,31 @@ class SuperpowersPopupOption extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
                       children: <Widget>[
                         Expanded(
-                          child: Text(
-                            title,
-                            style: TextThemes.superpowerOptionName,
-                            textAlign: TextAlign.left,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              title,
+                              style: TextThemes.superpowerOptionName,
+                              textAlign: TextAlign.left,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         Expanded(
                           flex: 2,
-                          child: Text(
-                            description,
-                            style: TextThemes.superpowerOptionDescription,
-                            textAlign: TextAlign.left,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              description,
+                              style: TextThemes.superpowerOptionDescription,
+                              textAlign: TextAlign.left,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         )
                       ],

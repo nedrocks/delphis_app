@@ -19,11 +19,11 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
   final NotificationBloc notificationBloc;
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
-  SuperpowersBloc(
-      {@required this.notificationBloc,
-      @required this.discussionRepository,
-      @required this.participantRepository})
-      : super(ReadyState());
+  SuperpowersBloc({
+    @required this.notificationBloc,
+    @required this.discussionRepository,
+    @required this.participantRepository,
+  }) : super(ReadyState());
 
   @override
   Stream<SuperpowersState> mapEventToState(SuperpowersEvent event) async* {

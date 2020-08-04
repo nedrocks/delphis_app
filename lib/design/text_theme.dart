@@ -151,6 +151,19 @@ class TextThemes {
     letterSpacing: -0.22,
   );
 
+  static final superpowerOptionName = TextStyle(
+    fontSize: 18.0,
+    fontWeight: FontWeight.w600,
+    color: Color.fromRGBO(227, 227, 236, 1.0),
+    letterSpacing: 0.09,
+  );
+  static final superpowerOptionDescription = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w400,
+    color: Colors.white,
+    letterSpacing: -0.22,
+  );
+
   static final backButton = TextStyle(
     fontSize: 15.0,
     fontWeight: FontWeight.w400,

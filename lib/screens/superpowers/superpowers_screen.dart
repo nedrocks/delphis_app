@@ -5,28 +5,29 @@ import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/overlay_alert_dialog.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup_option.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
-class SuperpowersPopup extends StatefulWidget {
+class SuperpowersScreen extends StatefulWidget {
   final SuperpowersArguments arguments;
-  final VoidCallback onCancel;
 
-  const SuperpowersPopup(
-      {Key key, @required this.arguments, @required this.onCancel})
-      : super(key: key);
+  const SuperpowersScreen({
+    Key key,
+    @required this.arguments,
+  }) : super(key: key);
 
   @override
-  _SuperpowersPopupState createState() => _SuperpowersPopupState();
+  _SuperpowersScreenState createState() => _SuperpowersScreenState();
 }
 
-class _SuperpowersPopupState extends State<SuperpowersPopup> {
+class _SuperpowersScreenState extends State<SuperpowersScreen> {
   Widget panelToShow;
   OverlayEntry lastOverlayEntry;
 
@@ -70,7 +71,7 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
         if (state is SuccessState) {
           /* Dismiss the popup if the result is successful */
           SchedulerBinding.instance.addPostFrameCallback((_) {
-            this.widget.onCancel();
+            this.onCancel(context);
           });
         }
 
@@ -89,12 +90,15 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
           toRender = panelToShow;
         } else {
           toRender = Container(
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: SpacingValues.extraLarge),
                 Text(
-                  Intl.message("Post Actions"),
+                  isMeDiscussionModerator()
+                      ? Intl.message("Moderator Superpowers")
+                      : Intl.message("User Options"),
                   style: TextThemes.goIncognitoHeader,
                   textAlign: TextAlign.center,
                 ),
@@ -102,15 +106,15 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 Container(
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 SizedBox(height: SpacingValues.small),
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: 300,
-                  ),
+                Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: buildOptionList(context),
+                    child: Container(
+                      margin: EdgeInsets.all(SpacingValues.medium),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: buildOptionList(context),
+                      ),
                     ),
                   ),
                 ),
@@ -123,41 +127,34 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 Container(
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 GestureDetector(
-                    onTap: () {
-                      this.widget.onCancel();
-                    },
-                    child: Container(
-                        color: Colors.transparent,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: SpacingValues.xxLarge,
-                            vertical: SpacingValues.mediumLarge),
-                        child: Text(
-                          Intl.message('Close'),
-                          style: TextThemes.backButton,
-                        ))),
-              ]));
+                  onTap: () {
+                    this.onCancel(context);
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SpacingValues.xxLarge,
+                        vertical: SpacingValues.mediumLarge),
+                    child: Text(
+                      Intl.message('Close'),
+                      style: TextThemes.backButton,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         /* Render popup */
-        return SafeArea(
-            child: Card(
-                margin: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom),
-                elevation: 50.0,
-                color: Colors.transparent,
-                child: Container(
-                    padding: EdgeInsets.only(
-                        left: SpacingValues.extraLarge,
-                        right: SpacingValues.extraLarge,
-                        top: SpacingValues.mediumLarge),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Color.fromRGBO(34, 35, 40, 1.0), width: 1.5),
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(36.0),
-                            topRight: Radius.circular(36.0)),
-                        color: Color.fromRGBO(22, 23, 28, 1.0)),
-                    child: toRender)));
+        return Scaffold(
+          body: SafeArea(
+            child: Container(
+              color: Color.fromRGBO(22, 23, 28, 1.0),
+              child: toRender,
+            ),
+          ),
+        );
       },
     );
   }
@@ -206,38 +203,9 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
   List<Widget> buildOptionList(BuildContext context) {
     List<Widget> list = [];
 
-    /* Delete post feature */
-    if (this.widget.arguments.post != null &&
-        !this.widget.arguments.post.isDeleted &&
-        (isMeDiscussionModerator() || isMePostAuthor())) {
-      list.add(SuperpowersPopupOption(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(SpacingValues.medium),
-              color: Colors.black),
-          clipBehavior: Clip.antiAlias,
-          child: Icon(Icons.delete_forever, size: 40),
-        ),
-        title: Intl.message("Delete Post"),
-        description: Intl.message(
-            "Remove the selected post from this discussion, so that no participant will be able to read it."),
-        onTap: () => showConfirmationDialog(context, () {
-          BlocProvider.of<SuperpowersBloc>(context).add(DeletePostEvent(
-              discussion: this.widget.arguments.discussion,
-              post: this.widget.arguments.post));
-          return true;
-        }),
-      ));
-    }
-
-    /* Ban participant feature */
-    if (this.widget.arguments.participant != null &&
-        this.widget.arguments.post != null &&
-        isMeDiscussionModerator() &&
-        !isMePostAuthor()) {
-      list.add(SuperpowersPopupOption(
+    /* Copy inviting link to clipboard */
+    if (isMeDiscussionModerator()) {
+      list.add(SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -245,19 +213,84 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
                 borderRadius: BorderRadius.circular(SpacingValues.medium),
                 color: Colors.black),
             clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.block, size: 36),
+            child: Icon(Icons.person_add, size: 36),
           ),
-          title: Intl.message("Kick Participant"),
+          title: Intl.message("Copy Link"),
           description: Intl.message(
-              "Ban the author of the selected post from the discussion and delete every post they authored."),
-          onTap: () => showConfirmationDialog(context, () {
-                BlocProvider.of<SuperpowersBloc>(context).add(
-                    BanParticipantEvent(
-                        discussion: this.widget.arguments.discussion,
-                        participant: this.widget.arguments.post.participant));
-                return true;
-              })));
+              "Create an invitation link and copy it to the clipboard so that you can share it with other people."),
+          onTap: () {
+            BlocProvider.of<SuperpowersBloc>(context).add(
+                CopyDiscussionLinkEvent(
+                    discussion: this.widget.arguments.discussion,
+                    isVip: false));
+          }));
     }
+
+    /* Modify discussion's information */
+    if (isMeDiscussionModerator()) {
+      list.add(SuperpowersOption(
+          child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                margin: EdgeInsets.all(21),
+                child: SvgPicture.asset(
+                  'assets/svg/chat-icon.svg',
+                  width: 36,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("Chat Settings"),
+          description: Intl.message(
+              "Manage the preferences of this discussion including its title, description, and invitation mode."),
+          onTap: () {
+            // TODO: Hook this up to something
+          }));
+    }
+
+    // /* Invite user from Twitter handle */
+    // if (isMeDiscussionModerator()) {
+    //   list.add(ModeratorPopupOption(
+    //       child: Container(
+    //         width: double.infinity,
+    //         height: double.infinity,
+    //         decoration: BoxDecoration(
+    //             borderRadius: BorderRadius.circular(SpacingValues.medium),
+    //             color: Colors.black),
+    //         clipBehavior: Clip.antiAlias,
+    //         child: Container(
+    //           margin: EdgeInsets.all(28),
+    //           child: SvgPicture.asset(
+    //             'assets/svg/twitter_logo.svg',
+    //             color: ChathamColors.twitterLogoColor,
+    //           ),
+    //         ),
+    //       ),
+    //       title: Intl.message("Twitter Invitation"),
+    //       description:
+    //           Intl.message("Invite new users searching them on Twitter."),
+    //       onTap: () {
+    //         setState(() {
+    //           this.panelToShow = BlocProvider<TwitterInvitationBloc>(
+    //             create: (context) => TwitterInvitationBloc(
+    //               repository: RepositoryProvider.of<UserRepository>(context),
+    //               twitterUserRepository:
+    //                   RepositoryProvider.of<TwitterUserRepository>(context),
+    //             ),
+    //             child: TwitterInvitationForm(
+    //               participant: this.widget.arguments?.discussion?.meParticipant,
+    //               discussion: this.widget.arguments?.discussion,
+    //               onCancel: this.cancelPanelToShow,
+    //             ),
+    //           );
+    //           BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+    //         });
+    //       }));
+    // }
 
     /* A user could have no actions avaliable */
     if (list.length == 0) {
@@ -298,5 +331,9 @@ class _SuperpowersPopupState extends State<SuperpowersPopup> {
       this.panelToShow = null;
     });
     BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
+  }
+
+  void onCancel(BuildContext context) {
+    Navigator.of(context).pop();
   }
 }

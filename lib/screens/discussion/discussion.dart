@@ -3,8 +3,8 @@ import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
-import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/concierge_content.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
@@ -12,7 +12,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/media/media_preview.dart';
-import 'package:delphis_app/screens/discussion/screen_args/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
 import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
@@ -30,18 +30,20 @@ import 'screen_args/discussion_naming.dart';
 class DelphisDiscussion extends StatefulWidget {
   final String discussionID;
   final bool isStartJoinFlow;
+  final RouteObserver routeObserver;
 
   const DelphisDiscussion({
     key,
     @required this.discussionID,
     @required this.isStartJoinFlow,
+    @required this.routeObserver,
   }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => DelphisDiscussionState();
 }
 
-class DelphisDiscussionState extends State<DelphisDiscussion> {
+class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
   bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
   bool _isShowParticipantSettings;
@@ -81,12 +83,32 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    this.widget.routeObserver.subscribe(this, ModalRoute.of(context));
+  }
+
+  @override
   void deactivate() {
     if (this._contentOverlayEntry != null) {
       this._contentOverlayEntry.remove();
       this._contentOverlayEntry = null;
     }
     super.deactivate();
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {
+      this._restoreFocusAndDismissOverlay();
+    });
+    super.didPopNext();
+  }
+
+  @override
+  void dispose() {
+    this.widget.routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
   void handleConciergePostOptionPressed(Discussion discussion, Post post,
@@ -282,7 +304,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
                 onMediaTap(context, media, type);
               },
               onModeratorButtonPressed: () {
-                showSuperpowersPopup(context,
+                showSuperpowersScreen(context,
                     SuperpowersArguments(discussion: state.getDiscussion()));
               },
             ),
@@ -319,6 +341,21 @@ class DelphisDiscussionState extends State<DelphisDiscussion> {
         );
       },
     );
+  }
+
+  void showSuperpowersScreen(
+      BuildContext context, SuperpowersArguments arguments) {
+    setState(() {
+      var focusScope = FocusScope.of(context);
+      if (focusScope.hasFocus) {
+        this._lastFocusedNode = focusScope.focusedChild;
+        focusScope.unfocus();
+      }
+      Navigator.of(context).pushNamed(
+        '/Discussion/Superpowers',
+        arguments: arguments,
+      );
+    });
   }
 
   void showSuperpowersPopup(

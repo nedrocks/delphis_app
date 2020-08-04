@@ -2,13 +2,13 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:flutter/material.dart';
 
-class SuperpowersPopupOption extends StatelessWidget {
+class SuperpowersOption extends StatelessWidget {
   final Widget child;
   final String title;
   final String description;
   final VoidCallback onTap;
 
-  const SuperpowersPopupOption(
+  const SuperpowersOption(
       {Key key,
       @required this.title,
       @required this.description,

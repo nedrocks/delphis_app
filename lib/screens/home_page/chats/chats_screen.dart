@@ -106,9 +106,13 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
             }
           },
           onMuteDiscussionPressed: (Discussion discussion) {
+            // TODO: Provide a way of choosing for how long muting a chat
             if (currentTab.value == HomePageTab.ACTIVE) {
               BlocProvider.of<DiscussionListBloc>(context).add(
-                DiscussionListMuteEvent(discussion),
+                DiscussionListMuteEvent(
+                  discussion,
+                  Duration(days: 365).inSeconds,
+                ),
               );
             }
           },

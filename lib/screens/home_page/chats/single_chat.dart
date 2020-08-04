@@ -92,7 +92,9 @@ class SingleChat extends StatelessWidget {
                 icon: this.discussion.isMuted
                     ? Icons.volume_up
                     : Icons.volume_off,
-                onTap: this.onMutePressed,
+                onTap: this.discussion.isMuted
+                    ? this.onUnMutePressed
+                    : this.onMutePressed,
               ),
               IconSlideAction(
                 caption: 'Archive',

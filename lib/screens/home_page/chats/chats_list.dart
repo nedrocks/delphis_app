@@ -1,5 +1,5 @@
-import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -62,7 +62,7 @@ class ChatsList extends StatelessWidget {
         /* Select the current open list */
         return Consumer<HomePageTabNotifier>(
           builder: (context, currentTab, _) {
-            var showedDiscussions = [];
+            var showedDiscussions = <Discussion>[];
             switch (currentTab.value) {
               case HomePageTab.ARCHIVED:
                 showedDiscussions = state.archivedDiscussions;
@@ -144,7 +144,6 @@ class ChatsList extends StatelessWidget {
               onLoading: () {},
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                key: Key('discussion-list-view'),
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
                 itemCount: showedDiscussions.length + 1,
@@ -152,43 +151,30 @@ class ChatsList extends StatelessWidget {
                   if (index == 0) return errorWidget;
                   index--;
                   var discussionElem = showedDiscussions[index];
-                  return BlocBuilder<DiscussionBloc, DiscussionState>(
-                    builder: (context, discussionState) {
-                      if (discussionState is DiscussionLoadedState &&
-                          discussionState.getDiscussion() != null) {
-                        if (discussionState.getDiscussion().id ==
-                            discussionElem.id) {
-                          showedDiscussions[index] =
-                              discussionState.getDiscussion();
-                          discussionElem = showedDiscussions[index];
-                        }
-                      }
-                      return SingleChat(
-                        discussion: discussionElem,
-                        canJoinDiscussions: currentUser?.isTwitterAuth ?? false,
-                        slidableController: this.slidableController,
-                        onJoinPressed: () {
-                          this.onJoinDiscussionPressed(discussionElem);
-                        },
-                        onPressed: () {
-                          this.onDiscussionPressed(discussionElem);
-                        },
-                        onDeletePressed: () {
-                          this.onDeleteDiscussionPressed(discussionElem);
-                        },
-                        onArchivePressed: () {
-                          this.onArchiveDiscussionPressed(discussionElem);
-                        },
-                        onActivatePressed: () {
-                          this.onActivateDiscussionPressed(discussionElem);
-                        },
-                        onMutePressed: () {
-                          this.onMuteDiscussionPressed(discussionElem);
-                        },
-                        onUnMutePressed: () {
-                          this.onUnMuteDiscussionPressed(discussionElem);
-                        },
-                      );
+                  return SingleChat(
+                    discussion: discussionElem,
+                    canJoinDiscussions: currentUser?.isTwitterAuth ?? false,
+                    slidableController: this.slidableController,
+                    onJoinPressed: () {
+                      this.onJoinDiscussionPressed(discussionElem);
+                    },
+                    onPressed: () {
+                      this.onDiscussionPressed(discussionElem);
+                    },
+                    onDeletePressed: () {
+                      this.onDeleteDiscussionPressed(discussionElem);
+                    },
+                    onArchivePressed: () {
+                      this.onArchiveDiscussionPressed(discussionElem);
+                    },
+                    onActivatePressed: () {
+                      this.onActivateDiscussionPressed(discussionElem);
+                    },
+                    onMutePressed: () {
+                      this.onMuteDiscussionPressed(discussionElem);
+                    },
+                    onUnMutePressed: () {
+                      this.onUnMuteDiscussionPressed(discussionElem);
                     },
                   );
                 },
@@ -235,7 +221,7 @@ class ChatsList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              Intl.message("You haven't deleted any chat yet."),
+              Intl.message("You didn't delete any chat yet."),
               style: TextThemes.onboardHeading,
               textAlign: TextAlign.center,
             ),
@@ -244,7 +230,7 @@ class ChatsList extends StatelessWidget {
             ),
             Text(
               Intl.message(
-                  "You can delete a chat when you don't wish to participate in it anymore.\nDeleted chats will disappear from your feed after 90 days from the deletion."),
+                  "You can delete a chat if you don't wish to participate in it anymore.\nDeleted chats will disappear from your feed after 90 days from the deletion."),
               textAlign: TextAlign.center,
               style: TextThemes.onboardBody,
             ),

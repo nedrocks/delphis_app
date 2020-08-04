@@ -6,6 +6,7 @@ import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
+import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,39 +143,43 @@ class ChatsList extends StatelessWidget {
                     .add(DiscussionListFetchEvent());
               },
               onLoading: () {},
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: showedDiscussions.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == 0) return errorWidget;
-                  index--;
-                  var discussionElem = showedDiscussions[index];
-                  return SingleChat(
-                    discussion: discussionElem,
-                    canJoinDiscussions: currentUser?.isTwitterAuth ?? false,
-                    slidableController: this.slidableController,
-                    onJoinPressed: () {
-                      this.onJoinDiscussionPressed(discussionElem);
-                    },
-                    onPressed: () {
-                      this.onDiscussionPressed(discussionElem);
-                    },
-                    onDeletePressed: () {
-                      this.onDeleteDiscussionPressed(discussionElem);
-                    },
-                    onArchivePressed: () {
-                      this.onArchiveDiscussionPressed(discussionElem);
-                    },
-                    onActivatePressed: () {
-                      this.onActivateDiscussionPressed(discussionElem);
-                    },
-                    onMutePressed: () {
-                      this.onMuteDiscussionPressed(discussionElem);
-                    },
-                    onUnMutePressed: () {
-                      this.onUnMuteDiscussionPressed(discussionElem);
+              child: AnimatedSizeContainer(
+                builder: (context) {
+                  return ListView.builder(
+                    padding: EdgeInsets.zero,
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: showedDiscussions.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) return errorWidget;
+                      index--;
+                      var discussionElem = showedDiscussions[index];
+                      return SingleChat(
+                        discussion: discussionElem,
+                        canJoinDiscussions: currentUser?.isTwitterAuth ?? false,
+                        slidableController: this.slidableController,
+                        onJoinPressed: () {
+                          this.onJoinDiscussionPressed(discussionElem);
+                        },
+                        onPressed: () {
+                          this.onDiscussionPressed(discussionElem);
+                        },
+                        onDeletePressed: () {
+                          this.onDeleteDiscussionPressed(discussionElem);
+                        },
+                        onArchivePressed: () {
+                          this.onArchiveDiscussionPressed(discussionElem);
+                        },
+                        onActivatePressed: () {
+                          this.onActivateDiscussionPressed(discussionElem);
+                        },
+                        onMutePressed: () {
+                          this.onMuteDiscussionPressed(discussionElem);
+                        },
+                        onUnMutePressed: () {
+                          this.onUnMuteDiscussionPressed(discussionElem);
+                        },
+                      );
                     },
                   );
                 },

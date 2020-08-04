@@ -25,22 +25,31 @@ class DiscussionListBloc
     DiscussionListEvent event,
   ) async* {
     // TODO: Format user-friendly errors
-    var prevList = this.state.discussionList;
+    var prevActiveList = this.state.activeDiscussions;
+    var prevArchivedList = this.state.archivedDiscussions;
+    var prevDeletedList = this.state.deletedDiscussions;
     if (event is DiscussionListFetchEvent &&
         !(this.state is DiscussionListLoading)) {
       yield DiscussionListLoading(
-        discussionList: prevList,
+        activeDiscussions: prevActiveList,
+        archivedDiscussions: prevArchivedList,
+        deletedDiscussions: prevDeletedList,
         timestamp: DateTime.now(),
       );
       try {
+        // TODO: Fetch 3 different lists
         var newList = await this.repository.getDiscussionList();
         yield DiscussionListLoaded(
-          discussionList: newList,
+          activeDiscussions: newList,
+          archivedDiscussions: [],
+          deletedDiscussions: [],
           timestamp: DateTime.now(),
         );
       } catch (error) {
         yield DiscussionListError(
-          discussionList: prevList,
+          activeDiscussions: prevActiveList,
+          archivedDiscussions: prevArchivedList,
+          deletedDiscussions: prevDeletedList,
           error: error,
           timestamp: DateTime.now(),
         );
@@ -54,14 +63,18 @@ class DiscussionListBloc
          an async function, which fires an "error" event to this bloc only in
          case something goes wrong. Those "error" events are not visible outside
          of this class scope. */
-      var listWithoutElement = prevList.map((e) {
+      var transform = (e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(isDeletedLocally: true);
         }
         return e;
-      }).toList();
+      };
+      var activeListWithoutElement = prevActiveList.map(transform).toList();
+      var archivedListWithoutElement = prevArchivedList.map(transform).toList();
       yield DiscussionListLoaded(
-        discussionList: listWithoutElement,
+        activeDiscussions: activeListWithoutElement,
+        archivedDiscussions: archivedListWithoutElement,
+        deletedDiscussions: prevDeletedList,
         timestamp: DateTime.now(),
       );
       () async {
@@ -69,7 +82,7 @@ class DiscussionListBloc
           /* TODO: This is mocked behavior for UI testing. We need to hook this
            up with repositories and real backend mutations. */
           await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(3) == 0) {
+          if (Random().nextInt(2) == 0) {
             throw "some random error";
           }
           this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
@@ -83,14 +96,18 @@ class DiscussionListBloc
          something went wrong with the requested operation. We restore the
          changes that we pretended to be successful, and yield an error state
          accordingly. */
-      var updatedList = prevList.map((e) {
+      var transform = (e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(isDeletedLocally: false);
         }
         return e;
-      }).toList();
+      };
+      var activeListWithElement = prevActiveList.map(transform).toList();
+      var archivedListWithElement = prevArchivedList.map(transform).toList();
       yield DiscussionListError(
-        discussionList: updatedList,
+        activeDiscussions: activeListWithElement,
+        archivedDiscussions: archivedListWithElement,
+        deletedDiscussions: prevDeletedList,
         error: event.error,
         timestamp: DateTime.now(),
       );
@@ -98,92 +115,25 @@ class DiscussionListBloc
       /* This event is asynchronously fired by this bloc internally in case 
          everything has been executed flawlessly. We finalize the changes
          requested. */
-      var updatedList =
-          prevList.where((e) => e.id == event.discussion.id).toList();
+      var transform = (e) => e.id != event.discussion.id;
+      var updatedActiveList = prevActiveList.where(transform).toList();
+      var updatedArchivedList = prevArchivedList.where(transform).toList();
+      var updatedDeletedList = [event.discussion] + prevDeletedList;
       yield DiscussionListLoaded(
-        discussionList: updatedList,
+        activeDiscussions: updatedActiveList,
+        archivedDiscussions: updatedArchivedList,
+        deletedDiscussions: updatedDeletedList,
         timestamp: DateTime.now(),
       );
     } else if (event is DiscussionListArchiveEvent) {
-      /* See comments reported on DiscussionListDeleteEvent event handler. */
-      var wasArchived = false;
-      var updatedList = prevList.map((e) {
-        if (e.id == event.discussion.id) {
-          // TODO: Apply local transformation and change the required flags
-          // TODO: wasArchived = ??? retrieve it from object
-        }
-        return e;
-      }).toList();
-      yield DiscussionListLoaded(
-        discussionList: updatedList,
-        timestamp: DateTime.now(),
-      );
-      () async {
-        try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(3) == 0) {
-            throw "some random error";
-          }
-        } catch (error) {
-          this.add(_DiscussionListArchiveAsyncErrorEvent(
-              event.discussion, wasArchived, error));
-        }
-      }();
     } else if (event is _DiscussionListArchiveAsyncErrorEvent) {
-      /* See comments reported on _DiscussionListArchiveAsyncErrorEvent event handler */
-      var updatedList = prevList.map((e) {
-        if (e.id == event.discussion.id) {
-          // TODO: Restore old "archived" flag value using event.wasArchived
-        }
-        return e;
-      }).toList();
-      yield DiscussionListError(
-        discussionList: updatedList,
-        error: event.error,
-        timestamp: DateTime.now(),
-      );
+    } else if (event is _DiscussionListArchiveAsyncSuccessEvent) {
     } else if (event is DiscussionListMuteEvent) {
-      /* See comments reported on DiscussionListDeleteEvent event handler. */
-      var wasMuted = false;
-      var updatedList = prevList.map((e) {
-        if (e.id == event.discussion.id) {
-          // TODO: Apply local transformation and change the required flags
-          // TODO: wasMuted = ??? retrieve it from object
-        }
-        return e;
-      }).toList();
-      yield DiscussionListLoaded(
-        discussionList: updatedList,
-        timestamp: DateTime.now(),
-      );
-      () async {
-        try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(3) == 0) {
-            throw "some random error";
-          }
-        } catch (error) {
-          this.add(_DiscussionListMuteAsyncErrorEvent(
-              event.discussion, wasMuted, error));
-        }
-      }();
     } else if (event is _DiscussionListMuteAsyncErrorEvent) {
-      /* See comments reported on _DiscussionListArchiveAsyncErrorEvent event handler */
-      var updatedList = prevList.map((e) {
-        if (e.id == event.discussion.id) {
-          // TODO: Restore old "muted" flag value using event.wasArchived
-        }
-        return e;
-      }).toList();
-      yield DiscussionListError(
-        discussionList: updatedList,
-        error: event.error,
-        timestamp: DateTime.now(),
-      );
-    }
+    } else if (event is DiscussionListUnMuteEvent) {
+    } else if (event is _DiscussionListUnMuteAsyncErrorEvent) {
+    } else if (event is DiscussionListActivateEvent) {
+    } else if (event is _DiscussionListActivateAsyncErrorEvent) {
+    } else if (event is _DiscussionListActivateAsyncSuccessEvent) {}
   }
 }

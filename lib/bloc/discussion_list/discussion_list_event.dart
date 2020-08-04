@@ -55,56 +55,123 @@ class _DiscussionListDeleteAsyncSuccessEvent extends DiscussionListEvent {
 class DiscussionListArchiveEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool archived;
 
-  DiscussionListArchiveEvent(this.discussion, this.archived)
+  DiscussionListArchiveEvent(this.discussion)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion, this.archived];
+  List<Object> get props => [this.now, this.discussion];
 }
 
 class _DiscussionListArchiveAsyncErrorEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool wasArchived;
   final error;
 
-  _DiscussionListArchiveAsyncErrorEvent(
-      this.discussion, this.wasArchived, this.error)
+  _DiscussionListArchiveAsyncErrorEvent(this.discussion, this.error)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props =>
-      [this.now, this.discussion, this.wasArchived, this.error];
+  List<Object> get props => [this.now, this.discussion, this.error];
+}
+
+class _DiscussionListArchiveAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListArchiveAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion];
 }
 
 class DiscussionListMuteEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool muted;
 
-  DiscussionListMuteEvent(this.discussion, this.muted)
+  DiscussionListMuteEvent(this.discussion)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion, this.muted];
+  List<Object> get props => [this.now, this.discussion];
 }
 
 class _DiscussionListMuteAsyncErrorEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool wasMuted;
   final error;
 
-  _DiscussionListMuteAsyncErrorEvent(this.discussion, this.wasMuted, this.error)
+  _DiscussionListMuteAsyncErrorEvent(this.discussion, this.error)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props =>
-      [this.now, this.discussion, this.wasMuted, this.error];
+  List<Object> get props => [this.now, this.discussion, this.error];
+}
+
+class DiscussionListUnMuteEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  DiscussionListUnMuteEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion];
+}
+
+class _DiscussionListUnMuteAsyncErrorEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+  final error;
+
+  _DiscussionListUnMuteAsyncErrorEvent(this.discussion, this.error)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion, this.error];
+}
+
+class DiscussionListActivateEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  DiscussionListActivateEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion];
+}
+
+class _DiscussionListActivateAsyncErrorEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+  final error;
+
+  _DiscussionListActivateAsyncErrorEvent(this.discussion, this.error)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion, this.error];
+}
+
+class _DiscussionListActivateAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListActivateAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion];
 }

@@ -512,12 +512,19 @@ class Discussion extends Equatable implements Entity {
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
   final DiscussionJoinabilitySetting discussionJoinability;
+  final DateTime mutedUntil;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
 
   @JsonAnnotation.JsonKey(ignore: true)
+  bool isActivatedLocally;
+
+  @JsonAnnotation.JsonKey(ignore: true)
   bool isDeletedLocally;
+
+  @JsonAnnotation.JsonKey(ignore: true)
+  bool isArchivedLocally;
 
   @override
   List<Object> get props => [
@@ -536,7 +543,10 @@ class Discussion extends Equatable implements Entity {
         titleHistory,
         descriptionHistory,
         discussionJoinability,
+        mutedUntil,
         isDeletedLocally,
+        isActivatedLocally,
+        isArchivedLocally,
       ];
 
   Discussion({
@@ -556,61 +566,27 @@ class Discussion extends Equatable implements Entity {
     this.titleHistory,
     this.descriptionHistory,
     this.discussionJoinability,
+    this.mutedUntil,
     postsCache,
     this.isDeletedLocally = false,
+    this.isActivatedLocally = false,
+    this.isArchivedLocally = false,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
-  factory Discussion.fromJson(Map<String, dynamic> json) =>
-      _$DiscussionFromJson(json);
+  factory Discussion.fromJson(Map<String, dynamic> json) {
+    var parsed = _$DiscussionFromJson(json);
+    if (json['mutedForSeconds'] != null) {
+      var seconds = json['mutedForSeconds'] as int;
+      return parsed.copyWith(
+        mutedUntil: DateTime.now().add(Duration(seconds: seconds)),
+      );
+    }
+    return parsed;
+  }
 
   Map<String, dynamic> toJSON() {
     return _$DiscussionToJson(this);
-  }
-
-  Discussion copyWith({
-    String id,
-    Moderator moderator,
-    AnonymityType anonymityType,
-    PostsConnection postsConnection,
-    List<Participant> participants,
-    String title,
-    String createdAt,
-    String updatedAt,
-    Participant meParticipant,
-    List<Participant> meAvailableParticipants,
-    String iconURL,
-    DiscussionLinkAccess discussionLinksAccess,
-    String description,
-    List<HistoricalString> titleHistory,
-    List<HistoricalString> descriptionHistory,
-    DiscussionJoinabilitySetting discussionJoinability,
-    List<Post> postsCache,
-    bool isDeletedLocally,
-  }) {
-    return Discussion(
-      id: id ?? this.id,
-      moderator: moderator ?? this.moderator,
-      anonymityType: anonymityType ?? this.anonymityType,
-      postsConnection: postsConnection ?? this.postsConnection,
-      participants: participants ?? this.participants,
-      title: title ?? this.title,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      meParticipant: meParticipant ?? this.meParticipant,
-      meAvailableParticipants:
-          meAvailableParticipants ?? this.meAvailableParticipants,
-      iconURL: iconURL ?? this.iconURL,
-      discussionLinksAccess:
-          discussionLinksAccess ?? this.discussionLinksAccess,
-      description: description ?? this.description,
-      titleHistory: titleHistory ?? this.titleHistory,
-      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
-      discussionJoinability:
-          discussionJoinability ?? this.discussionJoinability,
-      postsCache: postsCache ?? this.postsCache,
-      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
-    );
   }
 
   void addLocalPost(LocalPost post) {
@@ -658,6 +634,61 @@ class Discussion extends Equatable implements Entity {
             ?.map((e) => e?.userProfile?.id)
             ?.contains(this.moderator?.userProfile?.id) ??
         false;
+  }
+
+  bool get isMuted {
+    return mutedUntil != null && mutedUntil.isAfter(DateTime.now());
+  }
+
+  Discussion copyWith({
+    String id,
+    Moderator moderator,
+    AnonymityType anonymityType,
+    PostsConnection postsConnection,
+    List<Participant> participants,
+    String title,
+    String createdAt,
+    String updatedAt,
+    Participant meParticipant,
+    List<Participant> meAvailableParticipants,
+    String iconURL,
+    DiscussionLinkAccess discussionLinksAccess,
+    String description,
+    List<HistoricalString> titleHistory,
+    List<HistoricalString> descriptionHistory,
+    DiscussionJoinabilitySetting discussionJoinability,
+    DateTime mutedUntil,
+    List<Post> postsCache,
+    bool isActivatedLocally,
+    bool isDeletedLocally,
+    bool isArchivedLocally,
+  }) {
+    return Discussion(
+      id: id ?? this.id,
+      moderator: moderator ?? this.moderator,
+      anonymityType: anonymityType ?? this.anonymityType,
+      postsConnection: postsConnection ?? this.postsConnection,
+      participants: participants ?? this.participants,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      meParticipant: meParticipant ?? this.meParticipant,
+      meAvailableParticipants:
+          meAvailableParticipants ?? this.meAvailableParticipants,
+      iconURL: iconURL ?? this.iconURL,
+      discussionLinksAccess:
+          discussionLinksAccess ?? this.discussionLinksAccess,
+      description: description ?? this.description,
+      titleHistory: titleHistory ?? this.titleHistory,
+      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+      discussionJoinability:
+          discussionJoinability ?? this.discussionJoinability,
+      mutedUntil: mutedUntil ?? this.mutedUntil,
+      postsCache: postsCache ?? this.postsCache,
+      isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
+      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+      isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+    );
   }
 }
 

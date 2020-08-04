@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/colors.dart';
+import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_screen.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
@@ -9,6 +10,7 @@ import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'dart:ui';
 
@@ -23,7 +25,7 @@ enum HomePageTab {
   TRASHED,
 }
 
-class HomePageScreen extends StatefulWidget {
+class HomePageScreen extends StatelessWidget {
   final DiscussionRepository discussionRepository;
   final RouteObserver routeObserver;
 
@@ -33,31 +35,8 @@ class HomePageScreen extends StatefulWidget {
     @required this.routeObserver,
   }) : super(key: key);
 
-  @override
-  State<StatefulWidget> createState() => _HomePageScreenState();
-}
-
-class _HomePageScreenState extends State<HomePageScreen> {
-  HomePageTab _currentTab;
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    this._currentTab = HomePageTab.ACTIVE;
-  }
-
-  @override
-  void deactivate() {
-    super.deactivate();
-  }
-
-  String _getTitle() {
-    switch (this._currentTab) {
+  String _getTitle(HomePageTab currentTab) {
+    switch (currentTab) {
       case HomePageTab.ACTIVE:
         return 'Active Chats';
       case HomePageTab.ARCHIVED:
@@ -65,6 +44,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       case HomePageTab.TRASHED:
         return 'Deleted Chats';
     }
+    return "";
   }
 
   @override
@@ -81,40 +61,52 @@ class _HomePageScreenState extends State<HomePageScreen> {
               Container(
                   height: windowPadding.top,
                   color: ChathamColors.topBarBackgroundColor),
-              HomePageTopBar(
-                  height: 80.0,
-                  title: Intl.message(this._getTitle()),
-                  backgroundColor: ChathamColors.topBarBackgroundColor),
+              Consumer<HomePageTabNotifier>(
+                builder: (context, currentTab, child) {
+                  return HomePageTopBar(
+                    height: 80.0,
+                    title: Intl.message(
+                      this._getTitle(currentTab.value),
+                    ),
+                    backgroundColor: ChathamColors.topBarBackgroundColor,
+                  );
+                },
+              ),
               Expanded(
                 child: ChatsScreen(
-                  discussionRepository: this.widget.discussionRepository,
-                  routeObserver: this.widget.routeObserver,
+                  discussionRepository: this.discussionRepository,
+                  routeObserver: this.routeObserver,
                   currentUser: currentUser,
                 ),
               ),
               currentUser == null || !currentUser.isTwitterAuth
                   ? Container(width: 0, height: 0)
-                  : HomePageActionBar(
-                      currentTab: this._currentTab,
-                      backgroundColor: ChathamColors.topBarBackgroundColor,
-                      onNewChatPressed: () {
-                        Navigator.pushNamed(context, '/Discussion/Upsert',
-                            arguments: UpsertDiscussionArguments());
-                      },
-                      onTabPressed: (HomePageTab tab) {
-                        setState(() {
-                          this._currentTab = tab;
-                        });
-                      },
-                      onOptionSelected: (HeaderOption option) {
-                        switch (option) {
-                          case HeaderOption.logout:
-                            BlocProvider.of<AuthBloc>(context)
-                                .add(LogoutAuthEvent());
-                            break;
-                          default:
-                            break;
-                        }
+                  : Consumer<HomePageTabNotifier>(
+                      builder: (context, currentTab, child) {
+                        return HomePageActionBar(
+                          currentTab: currentTab.value,
+                          backgroundColor: ChathamColors.topBarBackgroundColor,
+                          onNewChatPressed: () {
+                            Navigator.pushNamed(context, '/Discussion/Upsert',
+                                arguments: UpsertDiscussionArguments());
+                          },
+                          onTabPressed: (HomePageTab tab) {
+                            Provider.of<HomePageTabNotifier>(
+                              context,
+                              listen: false,
+                            ).value = tab;
+                          },
+                          onOptionSelected: (HeaderOption option) {
+                            switch (option) {
+                              case HeaderOption.logout:
+                                BlocProvider.of<AuthBloc>(context)
+                                    .add(LogoutAuthEvent());
+                                break;
+                              default:
+                                break;
+                            }
+                          },
+                        );
                       },
                     ),
             ],

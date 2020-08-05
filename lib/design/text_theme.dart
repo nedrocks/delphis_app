@@ -236,6 +236,11 @@ class TextThemes {
     color: Color.fromRGBO(23, 23, 28, 1.0),
     letterSpacing: -0.22,
   );
+  static final homeScreenActionBarItem = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w300,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+  );
 
   static final emojiPickerText = TextStyle(
     fontSize: 11.0,

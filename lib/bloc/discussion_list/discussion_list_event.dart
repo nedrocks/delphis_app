@@ -24,7 +24,7 @@ class DiscussionListDeleteEvent extends DiscussionListEvent {
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion];
+  List<Object> get props => [this.now, this.discussion.id];
 }
 
 class _DiscussionListDeleteAsyncErrorEvent extends DiscussionListEvent {
@@ -37,7 +37,7 @@ class _DiscussionListDeleteAsyncErrorEvent extends DiscussionListEvent {
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion, this.error];
+  List<Object> get props => [this.now, this.discussion.id, this.error];
 }
 
 class _DiscussionListDeleteAsyncSuccessEvent extends DiscussionListEvent {
@@ -49,62 +49,155 @@ class _DiscussionListDeleteAsyncSuccessEvent extends DiscussionListEvent {
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion];
+  List<Object> get props => [this.now, this.discussion.id];
 }
 
 class DiscussionListArchiveEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool archived;
 
-  DiscussionListArchiveEvent(this.discussion, this.archived)
+  DiscussionListArchiveEvent(this.discussion)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props => [this.now, this.discussion, this.archived];
+  List<Object> get props => [this.now, this.discussion.id];
 }
 
 class _DiscussionListArchiveAsyncErrorEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool wasArchived;
   final error;
 
-  _DiscussionListArchiveAsyncErrorEvent(
-      this.discussion, this.wasArchived, this.error)
+  _DiscussionListArchiveAsyncErrorEvent(this.discussion, this.error)
       : this.now = DateTime.now(),
         super();
 
   @override
-  List<Object> get props =>
-      [this.now, this.discussion, this.wasArchived, this.error];
+  List<Object> get props => [this.now, this.discussion.id, this.error];
+}
+
+class _DiscussionListArchiveAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListArchiveAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
 }
 
 class DiscussionListMuteEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;
-  final bool muted;
+  final int mutedForSeconds;
 
-  DiscussionListMuteEvent(this.discussion, this.muted)
-      : this.now = DateTime.now(),
-        super();
-
-  @override
-  List<Object> get props => [this.now, this.discussion, this.muted];
-}
-
-class _DiscussionListMuteAsyncErrorEvent extends DiscussionListEvent {
-  final DateTime now;
-  final Discussion discussion;
-  final bool wasMuted;
-  final error;
-
-  _DiscussionListMuteAsyncErrorEvent(this.discussion, this.wasMuted, this.error)
+  DiscussionListMuteEvent(this.discussion, this.mutedForSeconds)
       : this.now = DateTime.now(),
         super();
 
   @override
   List<Object> get props =>
-      [this.now, this.discussion, this.wasMuted, this.error];
+      [this.now, this.discussion.id, this.mutedForSeconds];
+}
+
+class _DiscussionListMuteAsyncErrorEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+  final error;
+
+  _DiscussionListMuteAsyncErrorEvent(this.discussion, this.error)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id, this.error];
+}
+
+class _DiscussionListMuteAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListMuteAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
+}
+
+class DiscussionListUnMuteEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  DiscussionListUnMuteEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
+}
+
+class _DiscussionListUnMuteAsyncErrorEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+  final error;
+
+  _DiscussionListUnMuteAsyncErrorEvent(this.discussion, this.error)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id, this.error];
+}
+
+class _DiscussionListUnMuteAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListUnMuteAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
+}
+
+class DiscussionListActivateEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  DiscussionListActivateEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
+}
+
+class _DiscussionListActivateAsyncErrorEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+  final error;
+
+  _DiscussionListActivateAsyncErrorEvent(this.discussion, this.error)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id, this.error];
+}
+
+class _DiscussionListActivateAsyncSuccessEvent extends DiscussionListEvent {
+  final DateTime now;
+  final Discussion discussion;
+
+  _DiscussionListActivateAsyncSuccessEvent(this.discussion)
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now, this.discussion.id];
 }

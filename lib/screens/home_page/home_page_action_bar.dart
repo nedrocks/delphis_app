@@ -1,5 +1,6 @@
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
+import 'package:delphis_app/screens/home_page/home_page_action_bar_item.dart';
 import 'package:delphis_app/widgets/pressable/pressable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -31,88 +32,90 @@ class HomePageActionBar extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: SpacingValues.medium),
       color: this.backgroundColor,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: SpacingValues.xxLarge),
+        padding: EdgeInsets.symmetric(
+          horizontal: SpacingValues.mediumLarge,
+        ),
         height: 64.0,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Pressable(
-                  onPressed: () {
-                    if (this.currentTab != HomePageTab.ACTIVE) {
-                      this.onTabPressed(HomePageTab.ACTIVE);
-                    }
-                  },
-                  width: 44.0,
-                  height: 44.0,
-                  showInkwell: false,
-                  child: Opacity(
-                    opacity: this.currentTab == HomePageTab.ACTIVE ? 1.0 : 0.4,
-                    child: SvgPicture.asset('assets/svg/chat-icon.svg'),
-                  ),
-                ),
-                SizedBox(width: SpacingValues.medium),
-                Pressable(
-                  onPressed: () {
-                    if (this.currentTab != HomePageTab.ARCHIVED) {
-                      this.onTabPressed(HomePageTab.ARCHIVED);
-                    }
-                  },
-                  width: 44.0,
-                  height: 44.0,
-                  showInkwell: false,
-                  child: Opacity(
-                    opacity:
-                        this.currentTab == HomePageTab.ARCHIVED ? 1.0 : 0.4,
-                    child: SvgPicture.asset('assets/svg/archive-icon.svg',
-                        height: 40.0, color: Colors.white),
-                  ),
-                ),
-                SizedBox(width: SpacingValues.medium),
-                Pressable(
-                  onPressed: () {
-                    if (this.currentTab != HomePageTab.TRASHED) {
-                      this.onTabPressed(HomePageTab.TRASHED);
-                    }
-                  },
-                  width: 34.0,
-                  height: 44.0,
-                  showInkwell: false,
-                  child: Opacity(
-                    opacity: this.currentTab == HomePageTab.TRASHED ? 1.0 : 0.4,
-                    child: SvgPicture.asset('assets/svg/trash.svg',
-                        height: 35.0, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                  width: 40.0,
-                  child: RaisedButton(
-                    padding: EdgeInsets.symmetric(horizontal: 5.0),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0)),
-                    color: Color.fromRGBO(247, 247, 255, 1.0),
-                    child: Icon(
-                      Icons.add,
-                      color: Colors.black,
-                      semanticLabel: "Add a discussion",
+            Expanded(
+              flex: 3,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  HomePageActionBarItem(
+                    icon: SvgPicture.asset(
+                      'assets/svg/chat-icon.svg',
+                      width: 26,
+                      height: 26,
                     ),
-                    onPressed: this.onNewChatPressed,
+                    title: "Active",
+                    onPressed: () {
+                      if (this.currentTab != HomePageTab.ACTIVE) {
+                        this.onTabPressed(HomePageTab.ACTIVE);
+                      }
+                    },
+                    active: this.currentTab == HomePageTab.ACTIVE,
                   ),
-                ),
-                SizedBox(width: SpacingValues.extraSmall),
-                HeaderOptionsButton(
-                  diameter: 44.0,
-                  isVertical: true,
-                  onPressed: this.onOptionSelected,
-                ),
-              ],
+                  HomePageActionBarItem(
+                    icon: Icon(
+                      Icons.archive,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    title: "Archived",
+                    onPressed: () {
+                      if (this.currentTab != HomePageTab.ARCHIVED) {
+                        this.onTabPressed(HomePageTab.ARCHIVED);
+                      }
+                    },
+                    active: this.currentTab == HomePageTab.ARCHIVED,
+                  ),
+                  HomePageActionBarItem(
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    title: "Deleted",
+                    onPressed: () {
+                      if (this.currentTab != HomePageTab.TRASHED) {
+                        this.onTabPressed(HomePageTab.TRASHED);
+                      }
+                    },
+                    active: this.currentTab == HomePageTab.TRASHED,
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: RaisedButton(
+                      padding: EdgeInsets.symmetric(horizontal: 5.0),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0)),
+                      color: Color.fromRGBO(247, 247, 255, 1.0),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.black,
+                        semanticLabel: "Add a discussion",
+                      ),
+                      onPressed: this.onNewChatPressed,
+                    ),
+                  ),
+                  HeaderOptionsButton(
+                    diameter: 38.0,
+                    isVertical: true,
+                    onPressed: this.onOptionSelected,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -10,6 +10,7 @@ import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -26,6 +27,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_segment/flutter_segment.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:uni_links/uni_links.dart';
 
 import 'bloc/auth/auth_bloc.dart';
@@ -219,8 +221,8 @@ class ChathamAppState extends State<ChathamApp>
               BlocListener<DiscussionListBloc, DiscussionListState>(
                   listener: (context, state) {
                 if (state is DiscussionListLoaded) {
-                  BlocProvider.of<MentionBloc>(context).add(
-                      AddMentionDataEvent(discussions: state.discussionList));
+                  BlocProvider.of<MentionBloc>(context).add(AddMentionDataEvent(
+                      discussions: state.activeDiscussions));
                 }
               }),
               BlocListener<LinkBloc, LinkState>(listener: (context, state) {
@@ -314,12 +316,16 @@ class ChathamAppState extends State<ChathamApp>
                               );
                             }
                           },
-                          child: HomePageScreen(
-                            key: this._homePageKey,
-                            discussionRepository:
-                                RepositoryProvider.of<DiscussionRepository>(
-                                    context),
-                            routeObserver: this._routeObserver,
+                          child: ChangeNotifierProvider<HomePageTabNotifier>(
+                            create: (context) =>
+                                HomePageTabNotifier(HomePageTab.ACTIVE),
+                            child: HomePageScreen(
+                              key: this._homePageKey,
+                              discussionRepository:
+                                  RepositoryProvider.of<DiscussionRepository>(
+                                      context),
+                              routeObserver: this._routeObserver,
+                            ),
                           ),
                         ),
                       ),

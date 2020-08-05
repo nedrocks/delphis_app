@@ -9,9 +9,9 @@ abstract class DiscussionListState extends Equatable {
 
   @override
   List<Object> get props => [
-        activeDiscussions,
-        archivedDiscussions,
-        deletedDiscussions,
+        activeDiscussions.map((d) => d.id).toList(),
+        archivedDiscussions.map((d) => d.id).toList(),
+        deletedDiscussions.map((d) => d.id).toList(),
       ];
 }
 
@@ -38,9 +38,9 @@ class DiscussionListError extends DiscussionListHasTimestamp {
 
   @override
   List<Object> get props => [
-        this.activeDiscussions,
-        this.archivedDiscussions,
-        this.deletedDiscussions,
+        this.activeDiscussions.map((d) => d.id).toList(),
+        this.archivedDiscussions.map((d) => d.id).toList(),
+        this.deletedDiscussions.map((d) => d.id).toList(),
         this.error,
         this.timestamp,
       ];
@@ -61,9 +61,9 @@ class DiscussionListLoading extends DiscussionListHasTimestamp {
 
   @override
   List<Object> get props => [
-        this.activeDiscussions,
-        this.archivedDiscussions,
-        this.deletedDiscussions,
+        this.activeDiscussions.map((d) => d.id).toList(),
+        this.archivedDiscussions.map((d) => d.id).toList(),
+        this.deletedDiscussions.map((d) => d.id).toList(),
         this.timestamp,
       ];
 }
@@ -83,9 +83,9 @@ class DiscussionListLoaded extends DiscussionListHasTimestamp {
 
   @override
   List<Object> get props => [
-        this.activeDiscussions,
-        this.archivedDiscussions,
-        this.deletedDiscussions,
+        this.activeDiscussions.map((d) => d.id).toList(),
+        this.archivedDiscussions.map((d) => d.id).toList(),
+        this.deletedDiscussions.map((d) => d.id).toList(),
         this.timestamp,
       ];
 }

@@ -47,6 +47,17 @@ class SingleChatJoined extends StatelessWidget {
       );
     }
 
+    Widget mutedIcon = Icon(
+      Icons.volume_off,
+      size: 20,
+      color: Colors.white,
+    );
+    if (!this.discussion.isMuted) {
+      mutedIcon = SizedBox(
+        width: 20,
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -85,6 +96,8 @@ class SingleChatJoined extends StatelessWidget {
                     this.discussion.moderator.userProfile.profileImageURL,
               ),
               SizedBox(width: SpacingValues.medium),
+              mutedIcon,
+              SizedBox(width: SpacingValues.small),
               SvgPicture.asset(
                 'assets/svg/forward_chevron.svg',
                 color: Color.fromRGBO(81, 82, 88, 1.0),

@@ -33,6 +33,7 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
         ? null
         : Participant.fromJson(json['inviter'] as Map<String, dynamic>),
     isBanned: json['isBanned'] as bool,
+    anonDisplayName: json['anonDisplayName'] as String,
   );
 }
 
@@ -50,4 +51,5 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
       'hasJoined': instance.hasJoined,
       'userProfile': instance.userProfile,
       'inviter': instance.inviter,
+      'anonDisplayName': instance.anonDisplayName,
     };

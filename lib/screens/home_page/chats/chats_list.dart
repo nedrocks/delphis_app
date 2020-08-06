@@ -165,8 +165,8 @@ class ChatsList extends StatelessWidget {
                             var count = me.pendingDiscussionInvites.length;
                             return GestureDetector(
                               onTap: () {
-                                print("Heya");
-                                // TODO: Navigate to invite list
+                                Navigator.of(context)
+                                    .pushNamed('/Home/InviteList');
                               },
                               child: Container(
                                 padding: EdgeInsets.symmetric(

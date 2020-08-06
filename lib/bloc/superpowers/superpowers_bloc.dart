@@ -96,11 +96,47 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
       }
     } else if (event is MuteParticipantEvent) {
       if (this.state is ReadyState) {
-        // TODO: Hook this up to some backend mutation
+        yield LoadingState();
+        try {
+          var mutedParticipants = await participantRepository.muteParticipants(
+            event.discussion,
+            event.participants,
+            event.muteForSeconds,
+          );
+          yield MuteUnmuteParticipantSuccessState(
+            message: Intl.message(
+                "These participants have been successfully muted!"),
+            participants: mutedParticipants,
+          );
+        } catch (error) {
+          if (error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          } else {
+            yield ErrorState(message: error.toString());
+          }
+        }
       }
     } else if (event is UnmuteParticipantEvent) {
       if (this.state is ReadyState) {
-        // TODO: Hook this up to some backend mutation
+        yield LoadingState();
+        try {
+          var unmutedParticipants =
+              await participantRepository.unmuteParticipants(
+            event.discussion,
+            event.participants,
+          );
+          yield MuteUnmuteParticipantSuccessState(
+            message: Intl.message(
+                "These participants have been successfully unmuted!"),
+            participants: unmutedParticipants,
+          );
+        } catch (error) {
+          if (error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          } else {
+            yield ErrorState(message: error.toString());
+          }
+        }
       }
     }
   }

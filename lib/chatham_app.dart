@@ -527,8 +527,20 @@ class ChathamAppState extends State<ChathamApp>
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
                           ),
-                          child: SuperpowersPopupScreen(
-                            arguments: arguments,
+                          child:
+                              BlocListener<SuperpowersBloc, SuperpowersState>(
+                            listener: (context, state) {
+                              if (state is MuteUnmuteParticipantSuccessState) {
+                                BlocProvider.of<DiscussionBloc>(context).add(
+                                  DiscussionRefreshLocalParticipantsEvent(
+                                    participants: state.participants,
+                                  ),
+                                );
+                              }
+                            },
+                            child: SuperpowersPopupScreen(
+                              arguments: arguments,
+                            ),
                           ),
                         );
                       },

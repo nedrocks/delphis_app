@@ -314,7 +314,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
               BlocProvider.of<SuperpowersBloc>(context).add(
                 MuteParticipantEvent(
                   discussion: this.widget.arguments.discussion,
-                  participant: this.widget.arguments.participant,
+                  participants: [this.widget.arguments.participant],
                   muteForSeconds: Duration(hours: hours).inSeconds,
                 ),
               );
@@ -348,7 +348,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
             BlocProvider.of<SuperpowersBloc>(context).add(
               UnmuteParticipantEvent(
                 discussion: this.widget.arguments.discussion,
-                participant: this.widget.arguments.participant,
+                participants: [this.widget.arguments.participant],
               ),
             );
           },

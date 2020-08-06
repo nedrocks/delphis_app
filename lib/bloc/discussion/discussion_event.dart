@@ -252,3 +252,14 @@ class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {
   @override
   List<Object> get props => [this.nonce];
 }
+
+class DiscussionRefreshLocalParticipantsEvent extends DiscussionEvent {
+  final List<Participant> participants;
+
+  DiscussionRefreshLocalParticipantsEvent({
+    @required this.participants,
+  }) : super();
+
+  @override
+  List<Object> get props => [this.participants];
+}

@@ -72,7 +72,6 @@ class ParticipantListScreen extends StatelessWidget {
                                 state.discussion.participants[index];
                             var isModerator = participant.userProfile.id ==
                                 moderator.userProfile.id;
-                            print("$index $isModerator");
                             return ParticipantSnippet(
                               height: 50,
                               moderator: moderator,

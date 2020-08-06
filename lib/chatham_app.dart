@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:async';
-import 'dart:math';
 
 import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
@@ -17,6 +16,7 @@ import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/participant_list/participant_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
+import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/util/link.dart';
@@ -482,6 +482,52 @@ class ChathamAppState extends State<ChathamApp>
                                 BlocProvider.of<NotificationBloc>(context),
                           ),
                           child: SuperpowersScreen(
+                            arguments: arguments,
+                          ),
+                        );
+                      },
+                    );
+                    break;
+                  case '/Discussion/SuperpowersPopup':
+                    SuperpowersArguments arguments =
+                        settings.arguments as SuperpowersArguments;
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(0.0, 1.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return BlocProvider<SuperpowersBloc>(
+                          create: (context) => SuperpowersBloc(
+                            discussionRepository:
+                                RepositoryProvider.of<DiscussionRepository>(
+                                    context),
+                            participantRepository:
+                                RepositoryProvider.of<ParticipantRepository>(
+                                    context),
+                            notificationBloc:
+                                BlocProvider.of<NotificationBloc>(context),
+                          ),
+                          child: SuperpowersPopupScreen(
                             arguments: arguments,
                           ),
                         );

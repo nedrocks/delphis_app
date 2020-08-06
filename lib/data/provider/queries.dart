@@ -26,6 +26,7 @@ const ParticipantInfoFragment = """
       source
     }
     hasJoined
+    mutedForSeconds
     userProfile{
       ...ParticipantUserProfileFragment
     }

@@ -142,3 +142,29 @@ Map<String, dynamic> _$DiscussionLinkAccessToJson(
       'updatedAt': instance.updatedAt,
       'isDeleted': instance.isDeleted,
     };
+
+CanJoinDiscussionResponse _$CanJoinDiscussionResponseFromJson(
+    Map<String, dynamic> json) {
+  return CanJoinDiscussionResponse(
+    response: _$enumDecodeNullable(
+        _$DiscussionJoinabilityResponseEnumMap, json['response']),
+    reason: json['reason'] as String,
+    reasonCode: json['reasonCode'] as int,
+  );
+}
+
+Map<String, dynamic> _$CanJoinDiscussionResponseToJson(
+        CanJoinDiscussionResponse instance) =>
+    <String, dynamic>{
+      'response': _$DiscussionJoinabilityResponseEnumMap[instance.response],
+      'reason': instance.reason,
+      'reasonCode': instance.reasonCode,
+    };
+
+const _$DiscussionJoinabilityResponseEnumMap = {
+  DiscussionJoinabilityResponse.ALREADY_JOINED: 'ALREADY_JOINED',
+  DiscussionJoinabilityResponse.APPROVED_NOT_JOINED: 'APPROVED_NOT_JOINED',
+  DiscussionJoinabilityResponse.AWAITING_APPROVAL: 'AWAITING_APPROVAL',
+  DiscussionJoinabilityResponse.APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
+  DiscussionJoinabilityResponse.DENIED: 'DENIED',
+};

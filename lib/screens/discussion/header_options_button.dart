@@ -40,21 +40,7 @@ class HeaderOptionsButton extends StatelessWidget {
         ),
       ),
       onSelected: this.onPressed,
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<HeaderOption>>[
-        PopupMenuItem<HeaderOption>(
-          value: HeaderOption.logout,
-          child: Row(
-            children: <Widget>[
-              Text(
-                Intl.message('Logout'),
-              ),
-              Expanded(
-                child: Icon(Icons.exit_to_app),
-              ),
-            ],
-          ),
-        ),
-      ],
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<HeaderOption>>[],
     );
   }
 }

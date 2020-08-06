@@ -24,7 +24,6 @@ class _ChathamRouteObserver extends RouteObserver {
       return;
     }
 
-    print("I'm saving");
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(LAST_ROUTE_PREFERENCES_KEY, lastRoute.settings.name);
     if (lastRoute.settings.arguments != null) {

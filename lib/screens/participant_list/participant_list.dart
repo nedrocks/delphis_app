@@ -2,6 +2,7 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/participant_list/participant_snippet.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -80,7 +81,13 @@ class ParticipantListScreen extends StatelessWidget {
                                   state.discussion.isMeDiscussionModerator() &&
                                       !isModerator,
                               onOptionsTap: () {
-                                // TODO: Navigate to superpowers panel
+                                Navigator.of(context).pushNamed(
+                                  '/Discussion/SuperpowersPopup',
+                                  arguments: SuperpowersArguments(
+                                    discussion: state.discussion,
+                                    participant: participant,
+                                  ),
+                                );
                               },
                             );
                           },

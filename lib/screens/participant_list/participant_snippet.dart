@@ -42,6 +42,17 @@ class ParticipantSnippet extends StatelessWidget {
           isAnonymous: this.participant.isAnonymous);
     }
 
+    Widget mutedIcon = Icon(
+      Icons.volume_off,
+      size: height / 2.4,
+      color: Colors.white,
+    );
+    if (!this.participant.isMuted) {
+      mutedIcon = SizedBox(
+        width: height / 2.4,
+      );
+    }
+
     return Container(
       height: this.height,
       padding: EdgeInsets.all(SpacingValues.small),
@@ -54,23 +65,28 @@ class ParticipantSnippet extends StatelessWidget {
               children: <Widget>[
                 profileImage,
                 SizedBox(width: SpacingValues.mediumLarge),
-                PostTitle(
-                  moderator: this.moderator,
-                  participant: this.participant,
-                  height: height / 2,
-                  isModeratorAuthor: isModeratorAuthor,
-                  isParticipantNameColored: false,
+                Expanded(
+                  child: PostTitle(
+                    moderator: this.moderator,
+                    participant: this.participant,
+                    height: height / 2,
+                    isModeratorAuthor: isModeratorAuthor,
+                    isParticipantNameColored: false,
+                  ),
                 ),
               ],
             ),
           ),
+          mutedIcon,
           showOptions
               ? ParticipantsButton(
                   diameter: height / 1.6,
                   onPressed: onOptionsTap,
                   isVertical: true,
                 )
-              : Container(),
+              : Container(
+                  width: height / 1.6,
+                ),
         ],
       ),
     );

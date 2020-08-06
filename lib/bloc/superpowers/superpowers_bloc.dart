@@ -94,6 +94,14 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         )));
         yield ReadyState();
       }
+    } else if (event is MuteParticipantEvent) {
+      if (this.state is ReadyState) {
+        // TODO: Hook this up to some backend mutation
+      }
+    } else if (event is UnmuteParticipantEvent) {
+      if (this.state is ReadyState) {
+        // TODO: Hook this up to some backend mutation
+      }
     }
   }
 }

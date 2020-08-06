@@ -4,6 +4,7 @@ import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers_popup/mute_confirmation_dialog.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup_option.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
@@ -167,6 +168,19 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
     );
   }
 
+  Future<void> showMuteConfirmationDialog(
+      BuildContext context, Function(int) onConfirm) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return MuteConfirmationDialog(
+          onConfirm: onConfirm,
+        );
+      },
+    );
+  }
+
   Future<void> showConfirmationDialog(
       BuildContext context, VoidCallback onConfirm) {
     return showDialog<void>(
@@ -243,9 +257,8 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
 
     /* Ban participant feature */
     if (this.widget.arguments.participant != null &&
-        this.widget.arguments.post != null &&
         isMeDiscussionModerator() &&
-        !isMePostAuthor()) {
+        !isParticipantModerator()) {
       list.add(
         SuperpowersPopupOption(
           child: Container(
@@ -259,19 +272,86 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
           ),
           title: Intl.message("Kick Participant"),
           description: Intl.message(
-              "Ban the author of the selected post from the discussion and delete every post they authored."),
+              "Ban the selected participant from the discussion and delete every post they authored."),
           onTap: () => showConfirmationDialog(
             context,
             () {
               BlocProvider.of<SuperpowersBloc>(context).add(
                 BanParticipantEvent(
                   discussion: this.widget.arguments.discussion,
-                  participant: this.widget.arguments.post.participant,
+                  participant: this.widget.arguments.participant,
                 ),
               );
               return true;
             },
           ),
+        ),
+      );
+    }
+
+    /* Mute participant feature */
+    if (this.widget.arguments.participant != null &&
+        !this.widget.arguments.participant.isMuted &&
+        isMeDiscussionModerator() &&
+        !isParticipantModerator()) {
+      list.add(
+        SuperpowersPopupOption(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(SpacingValues.medium),
+                color: Colors.black),
+            clipBehavior: Clip.antiAlias,
+            child: Icon(Icons.volume_off, size: 36),
+          ),
+          title: Intl.message("Mute Participant"),
+          description: Intl.message(
+              "Mute the selected participant so that they are will not be able to post in this discussion for a while."),
+          onTap: () => showMuteConfirmationDialog(
+            context,
+            (hours) {
+              BlocProvider.of<SuperpowersBloc>(context).add(
+                MuteParticipantEvent(
+                  discussion: this.widget.arguments.discussion,
+                  participant: this.widget.arguments.participant,
+                  muteForSeconds: Duration(hours: hours).inSeconds,
+                ),
+              );
+              return true;
+            },
+          ),
+        ),
+      );
+    }
+
+    /* Unmute participant feature */
+    if (this.widget.arguments.participant != null &&
+        this.widget.arguments.participant.isMuted &&
+        isMeDiscussionModerator() &&
+        !isParticipantModerator()) {
+      list.add(
+        SuperpowersPopupOption(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(SpacingValues.medium),
+                color: Colors.black),
+            clipBehavior: Clip.antiAlias,
+            child: Icon(Icons.volume_up, size: 36),
+          ),
+          title: Intl.message("Unmute Participant"),
+          description: Intl.message(
+              "Unmute the selected participant and allow them to post in this discussion again."),
+          onTap: () {
+            BlocProvider.of<SuperpowersBloc>(context).add(
+              UnmuteParticipantEvent(
+                discussion: this.widget.arguments.discussion,
+                participant: this.widget.arguments.participant,
+              ),
+            );
+          },
         ),
       );
     }
@@ -292,6 +372,12 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
 
   bool isMeDiscussionModerator() {
     return this.widget.arguments?.discussion?.isMeDiscussionModerator() ??
+        false;
+  }
+
+  bool isParticipantModerator() {
+    return this.widget.arguments.participant?.userProfile?.id ==
+            this.widget.arguments.discussion?.moderator?.userProfile?.id ??
         false;
   }
 

@@ -259,4 +259,11 @@ class TextThemes {
       conciergeOptionUnSelectedText.copyWith(
     color: Color.fromRGBO(22, 23, 27, 1.0),
   );
+
+  static final participantListScreenTitle = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.41,
+  );
 }

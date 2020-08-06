@@ -1,6 +1,6 @@
 class HeightValues {
   static const appBarHeight = 40.0;
-  static const appBarItemsHeight = 26.0;
+  static const appBarItemsHeight = 32.0;
 }
 
 class SpacingValues {

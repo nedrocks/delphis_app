@@ -1,16 +1,14 @@
-
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:recase/recase.dart';
 
 class DisplayNames {
-
-  static String formatParticipant(Moderator moderator, Participant participant) {
-    if(participant == null)
-      return "Unavailable";
+  static String formatParticipant(
+      Moderator moderator, Participant participant) {
+    if (participant == null) return "Unavailable";
     var name = '${participant.gradientColor} #${participant.participantID}';
-    if (participant.participantID == 0) {
+    if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
@@ -19,11 +17,12 @@ class DisplayNames {
     return name.titleCase;
   }
 
-  static String formatParticipantUnique(Moderator moderator, Participant participant) {
-    if(participant == null)
-      return "Unavailable";
-    var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
-    if (participant.participantID == 0) {
+  static String formatParticipantUnique(
+      Moderator moderator, Participant participant) {
+    if (participant == null) return "Unavailable";
+    var name =
+        '${participant.gradientColor.toLowerCase()}${participant.participantID}';
+    if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
@@ -45,5 +44,4 @@ class DisplayNames {
     name = name.replaceAll("#", "").toLowerCase();
     return name;
   }
-  
 }

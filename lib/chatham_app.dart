@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:math';
 
 import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/screens/participant_list/participant_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
@@ -483,6 +485,38 @@ class ChathamAppState extends State<ChathamApp>
                             arguments: arguments,
                           ),
                         );
+                      },
+                    );
+                    break;
+                  case '/Discussion/ParticipantList':
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      barrierColor: Colors.black.withOpacity(0.6),
+                      barrierDismissible: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return ParticipantListScreen();
                       },
                     );
                     break;

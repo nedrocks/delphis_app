@@ -279,6 +279,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                     break;
                 }
               },
+              onParticipantsButtonPressed: () {
+                this.showParticipantListScreen(context);
+              },
             ),
             expandedConversationView,
             DelphisInputContainer(
@@ -367,6 +370,19 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
         focusScope.unfocus();
       }
       this._superpowersPopupArguments = arguments;
+    });
+  }
+
+  void showParticipantListScreen(BuildContext context) {
+    setState(() {
+      var focusScope = FocusScope.of(context);
+      if (focusScope.hasFocus) {
+        this._lastFocusedNode = focusScope.focusedChild;
+        focusScope.unfocus();
+      }
+      Navigator.of(context).pushNamed(
+        '/Discussion/ParticipantList',
+      );
     });
   }
 

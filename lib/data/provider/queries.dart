@@ -262,6 +262,11 @@ const DiscussionListFragment = """
     participants {
       ...ParticipantInfoFragment
     }
+    meCanJoinDiscussion {
+      response
+      reason
+      reasonCode
+    }
     anonymityType
     iconURL
     discussionJoinability

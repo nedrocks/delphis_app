@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -31,140 +33,183 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SuperpowersBloc, SuperpowersState>(
-      builder: (context, state) {
-        /* Format error messages */
-        Widget bottomWidget = Container();
-        if (state is ErrorState) {
-          bottomWidget = Column(
-            children: [
-              Text(
-                state.message,
-                style: TextThemes.goIncognitoButton.copyWith(color: Colors.red),
-                textAlign: TextAlign.center,
+    return BlocListener<SuperpowersBloc, SuperpowersState>(
+      listener: (context, state) {
+        // Update local copies of discussion data
+        if (state is MuteUnmuteParticipantSuccessState) {
+          BlocProvider.of<DiscussionBloc>(context).add(
+            DiscussionRefreshLocalParticipantsEvent(
+              mapping: (p) {
+                for (var participant in state.participants) {
+                  if (p.id == participant.id) {
+                    return participant;
+                  }
+                }
+                return p;
+              },
+            ),
+          );
+        } else if (state is BanParticipantSuccessState) {
+          BlocProvider.of<DiscussionBloc>(context)
+            ..add(
+              DiscussionRefreshLocalParticipantsEvent(
+                filter: (p) => p.id != state.participant.id,
               ),
-              SizedBox(height: SpacingValues.medium),
-            ],
+            )
+            ..add(
+              DiscussionRefreshLocalPostsCacheEvent(
+                mapping: (Post post) {
+                  if (post.participant.id == state.participant.id)
+                    return post.copyWith(
+                        isDeleted: true,
+                        deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
+                  return post;
+                },
+              ),
+            );
+        } else if (state is DeletePostSuccessState) {
+          BlocProvider.of<DiscussionBloc>(context).add(
+            DiscussionRefreshLocalPostsCacheEvent(
+                filter: (p) => p.id != state.post.id),
           );
         }
-
-        /* Format operation success messages */
-        if (state is SuccessState) {
-          /* Dismiss the popup if the result is successful */
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            Navigator.of(context).pop();
-          });
-        }
-
-        /* Format loading status */
-        if (state is LoadingState) {
-          bottomWidget = Column(
-            children: [
-              CupertinoActivityIndicator(),
-              SizedBox(height: SpacingValues.medium),
-            ],
-          );
-        }
-
-        var toRender;
-        if (panelToShow != null) {
-          toRender = panelToShow;
-        } else {
-          toRender = Container(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
+      },
+      child: BlocBuilder<SuperpowersBloc, SuperpowersState>(
+        builder: (context, state) {
+          /* Format error messages */
+          Widget bottomWidget = Container();
+          if (state is ErrorState) {
+            bottomWidget = Column(
+              children: [
                 Text(
-                  Intl.message("Post Actions"),
-                  style: TextThemes.goIncognitoHeader,
+                  state.message,
+                  style:
+                      TextThemes.goIncognitoButton.copyWith(color: Colors.red),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: SpacingValues.medium),
-                Container(
-                    height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                SizedBox(height: SpacingValues.small),
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: 300,
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: buildOptionList(context),
-                    ),
-                  ),
-                ),
-                SizedBox(height: SpacingValues.small),
-                AnimatedSizeContainer(
-                  builder: (context) {
-                    return bottomWidget;
-                  },
-                ),
-                Container(
-                    height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: SpacingValues.xxLarge,
-                        vertical: SpacingValues.mediumLarge),
-                    child: Text(
-                      Intl.message('Close'),
-                      style: TextThemes.backButton,
-                    ),
-                  ),
-                ),
               ],
-            ),
-          );
-        }
+            );
+          }
 
-        /* Render popup */
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Container(
-              child: ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                  child: Container(
-                    alignment: Alignment.bottomCenter,
-                    child: Card(
-                      margin: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom),
-                      elevation: 50.0,
+          /* Format operation success messages */
+          if (state is SuccessState) {
+            /* Dismiss the popup if the result is successful */
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pop();
+            });
+          }
+
+          /* Format loading status */
+          if (state is LoadingState) {
+            bottomWidget = Column(
+              children: [
+                CupertinoActivityIndicator(),
+                SizedBox(height: SpacingValues.medium),
+              ],
+            );
+          }
+
+          var toRender;
+          if (panelToShow != null) {
+            toRender = panelToShow;
+          } else {
+            toRender = Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    Intl.message("Post Actions"),
+                    style: TextThemes.goIncognitoHeader,
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: SpacingValues.medium),
+                  Container(
+                      height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                  SizedBox(height: SpacingValues.small),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxHeight: 300,
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: buildOptionList(context),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: SpacingValues.small),
+                  AnimatedSizeContainer(
+                    builder: (context) {
+                      return bottomWidget;
+                    },
+                  ),
+                  Container(
+                      height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Container(
                       color: Colors.transparent,
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          left: SpacingValues.extraLarge,
-                          right: SpacingValues.extraLarge,
-                          top: SpacingValues.mediumLarge,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Color.fromRGBO(34, 35, 40, 1.0),
-                              width: 1.5),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(36.0),
-                            topRight: Radius.circular(36.0),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: SpacingValues.xxLarge,
+                          vertical: SpacingValues.mediumLarge),
+                      child: Text(
+                        Intl.message('Close'),
+                        style: TextThemes.backButton,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          /* Render popup */
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              child: Container(
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+                    child: Container(
+                      alignment: Alignment.bottomCenter,
+                      child: Card(
+                        margin: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom),
+                        elevation: 50.0,
+                        color: Colors.transparent,
+                        child: Container(
+                          padding: EdgeInsets.only(
+                            left: SpacingValues.extraLarge,
+                            right: SpacingValues.extraLarge,
+                            top: SpacingValues.mediumLarge,
                           ),
-                          color: Color.fromRGBO(22, 23, 28, 1.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Color.fromRGBO(34, 35, 40, 1.0),
+                                width: 1.5),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(36.0),
+                              topRight: Radius.circular(36.0),
+                            ),
+                            color: Color.fromRGBO(22, 23, 28, 1.0),
+                          ),
+                          child: toRender,
                         ),
-                        child: toRender,
                       ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

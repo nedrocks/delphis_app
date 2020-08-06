@@ -253,13 +253,34 @@ class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {
   List<Object> get props => [this.nonce];
 }
 
+/* Used to transform the local copy of discussion participants */
 class DiscussionRefreshLocalParticipantsEvent extends DiscussionEvent {
-  final List<Participant> participants;
+  final Participant Function(Participant) mapping;
+  final bool Function(Participant) filter;
 
   DiscussionRefreshLocalParticipantsEvent({
-    @required this.participants,
-  }) : super();
+    this.mapping,
+    this.filter,
+  }) : super() {
+    assert(mapping != null || filter != null);
+  }
 
   @override
-  List<Object> get props => [this.participants];
+  List<Object> get props => [this.mapping, this.filter];
+}
+
+/* Used to transform the local copy of discussion posts */
+class DiscussionRefreshLocalPostsCacheEvent extends DiscussionEvent {
+  final Post Function(Post) mapping;
+  final bool Function(Post) filter;
+
+  DiscussionRefreshLocalPostsCacheEvent({
+    this.mapping,
+    this.filter,
+  }) : super() {
+    assert(mapping != null || filter != null);
+  }
+
+  @override
+  List<Object> get props => [this.mapping, this.filter];
 }

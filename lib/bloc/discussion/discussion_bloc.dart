@@ -444,17 +444,25 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
       var localParticipants = currentState.getDiscussion().participants;
-      var updatedLocalParticipants = localParticipants.map((p) {
-        for (var participant in event.participants) {
-          if (p.id == participant.id) {
-            return participant;
-          }
-        }
-        return p;
-      }).toList();
+      var updatedLocalParticipants = localParticipants
+          .where(event.filter ?? (e) => true)
+          .map(event.mapping ?? (e) => e)
+          .toList();
       var updatedDiscussion = currentState
           .getDiscussion()
           .copyWith(participants: updatedLocalParticipants);
+      yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionRefreshLocalPostsCacheEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      var localPostsCache = currentState.getDiscussion().postsCache;
+      var updatedLocalPostsCache = localPostsCache
+          .where(event.filter ?? (e) => true)
+          .map(event.mapping ?? (e) => e)
+          .toList();
+      var updatedDiscussion = currentState
+          .getDiscussion()
+          .copyWith(postsCache: updatedLocalPostsCache);
       yield currentState.update(discussion: updatedDiscussion);
     }
   }

@@ -12,6 +12,20 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const ViewerInfoFragment = """
+  fragment ViewerInfoFragment on Viewer {
+    id
+    discussion {
+      id
+    }
+    lastViewed
+    lastViewedPost {
+      id
+      createdAt
+    }
+  }
+""";
+
 const ParticipantInfoFragment = """
   fragment ParticipantInfoFragment on Participant {
     id
@@ -19,6 +33,7 @@ const ParticipantInfoFragment = """
     isAnonymous
     isBanned
     gradientColor
+    anonDisplayName
     flair {
       id
       displayName
@@ -262,12 +277,20 @@ const DiscussionListFragment = """
     participants {
       ...ParticipantInfoFragment
     }
+    meCanJoinDiscussion {
+      response
+      reason
+      reasonCode
+    meViewer {
+      ...ViewerInfoFragment
+    }
     anonymityType
     iconURL
     discussionJoinability
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment
+  $ViewerInfoFragment
 """;
 
 const DiscussionFragmentFull = """
@@ -315,16 +338,17 @@ const DiscussionInviteFragment = """
   fragment DiscussionInviteFragment on DiscussionInvite {
     id
     discussion {
-      id
+      ...DiscussionListFragment
     }
     invitingParticipant {
-      id
+      ...ParticipantInfoFragment
     }
     createdAt
     updatedAt
     isDeleted
     status
   }
+  $DiscussionListFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -350,8 +374,12 @@ class MeGQLQuery extends GQLQuery<User> {
           imageURL
           source
         }
+        pendingDiscussionInvites: discussionInvites(status:PENDING) {
+          ...DiscussionInviteFragment
+        }
       }
     }
+  $DiscussionInviteFragment
   """;
 
   const MeGQLQuery() : super();

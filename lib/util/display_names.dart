@@ -1,15 +1,13 @@
-
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/moderator.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:recase/recase.dart';
 
 class DisplayNames {
-
-  static String formatParticipant(Moderator moderator, Participant participant) {
-    if(participant == null)
-      return "Unavailable";
-    var name = '${participant.gradientColor} #${participant.participantID}';
+  static String formatParticipant(
+      Moderator moderator, Participant participant) {
+    if (participant == null) return "Unavailable";
+    var name = participant.anonDisplayName;
     if (participant.participantID == 0) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
@@ -19,10 +17,12 @@ class DisplayNames {
     return name.titleCase;
   }
 
-  static String formatParticipantUnique(Moderator moderator, Participant participant) {
-    if(participant == null)
+  static String formatParticipantUnique(
+      Moderator moderator, Participant participant) {
+    if (participant == null) {
       return "Unavailable";
-    var name = '${participant.gradientColor.toLowerCase()}${participant.participantID}';
+    }
+    var name = participant.anonDisplayName;
     if (participant.participantID == 0) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
@@ -45,5 +45,4 @@ class DisplayNames {
     name = name.replaceAll("#", "").toLowerCase();
     return name;
   }
-  
 }

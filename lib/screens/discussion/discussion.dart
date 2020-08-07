@@ -12,6 +12,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/media/media_preview.dart';
+import 'package:delphis_app/screens/discussion_join/discussion_join.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/input/delphis_input_container.dart';
 import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
@@ -323,6 +324,13 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
           mediaPreview = mediaToShow;
         }
 
+        Widget joinScreen = Container();
+        if (state.getDiscussion() != null &&
+            state.getDiscussion().meCanJoinDiscussion.response !=
+                DiscussionJoinabilityResponse.ALREADY_JOINED &&
+            state.getDiscussion().meParticipant == null) {
+          joinScreen = DiscussionJoinScreen();
+        }
         return Stack(
           children: [
             toRender,
@@ -336,7 +344,10 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                     return ScaleTransition(child: child, scale: animation);
                   },
                   child: mediaPreview),
-            )
+            ),
+            Center(
+              child: joinScreen,
+            ),
           ],
         );
       },

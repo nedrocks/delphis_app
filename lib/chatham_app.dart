@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
+import 'package:delphis_app/bloc/discussion_viewer/discussion_viewer_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
@@ -10,9 +11,11 @@ import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/screens/home_invite_list/home_invite_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
@@ -331,6 +334,14 @@ class ChathamAppState extends State<ChathamApp>
                       ),
                     );
                     break;
+                  case '/Home/InviteList':
+                    return MaterialPageRoute(
+                      settings: settings,
+                      builder: (context) {
+                        return HomeInviteListScreen();
+                      },
+                    );
+                    break;
                   case '/Discussion':
                     DiscussionArguments arguments =
                         settings.arguments as DiscussionArguments;
@@ -347,6 +358,14 @@ class ChathamAppState extends State<ChathamApp>
                                     discussionBloc:
                                         BlocProvider.of<DiscussionBloc>(
                                             context)),
+                              ),
+                              BlocProvider<DiscussionViewerBloc>(
+                                lazy: true,
+                                create: (context) => DiscussionViewerBloc(
+                                  viewerRepository:
+                                      RepositoryProvider.of<ViewerRepository>(
+                                          context),
+                                ),
                               ),
                               BlocProvider<SuperpowersBloc>(
                                 create: (context) => SuperpowersBloc(
@@ -378,6 +397,26 @@ class ChathamAppState extends State<ChathamApp>
                                     BlocProvider.of<MentionBloc>(context).add(
                                         AddMentionDataEvent(
                                             discussion: state.getDiscussion()));
+                                    if (state.getDiscussion()?.meViewer !=
+                                        null) {
+                                      BlocProvider.of<DiscussionViewerBloc>(
+                                              context)
+                                          .add(
+                                        DiscussionViewerLoadedEvent(
+                                          viewer:
+                                              state.getDiscussion().meViewer,
+                                        ),
+                                      );
+                                      BlocProvider.of<DiscussionViewerBloc>(
+                                              context)
+                                          .add(
+                                        DiscussionViewerSetLastPostViewedEvent(
+                                            post: state
+                                                .getDiscussion()
+                                                ?.postsCache
+                                                ?.last),
+                                      );
+                                    }
                                   }
                                 }),
                                 BlocListener<AppBloc, AppState>(

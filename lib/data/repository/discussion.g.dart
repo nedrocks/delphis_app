@@ -53,6 +53,13 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     mutedUntil: json['mutedUntil'] == null
         ? null
         : DateTime.parse(json['mutedUntil'] as String),
+    meCanJoinDiscussion: json['meCanJoinDiscussion'] == null
+        ? null
+        : CanJoinDiscussionResponse.fromJson(
+            json['meCanJoinDiscussion'] as Map<String, dynamic>),
+    meViewer: json['meViewer'] == null
+        ? null
+        : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
   );
 }
 
@@ -76,6 +83,8 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
       'mutedUntil': instance.mutedUntil?.toIso8601String(),
+      'meCanJoinDiscussion': instance.meCanJoinDiscussion,
+      'meViewer': instance.meViewer,
     };
 
 T _$enumDecode<T>(
@@ -170,3 +179,29 @@ Map<String, dynamic> _$DiscussionLinkAccessToJson(
       'updatedAt': instance.updatedAt,
       'isDeleted': instance.isDeleted,
     };
+
+CanJoinDiscussionResponse _$CanJoinDiscussionResponseFromJson(
+    Map<String, dynamic> json) {
+  return CanJoinDiscussionResponse(
+    response: _$enumDecodeNullable(
+        _$DiscussionJoinabilityResponseEnumMap, json['response']),
+    reason: json['reason'] as String,
+    reasonCode: json['reasonCode'] as int,
+  );
+}
+
+Map<String, dynamic> _$CanJoinDiscussionResponseToJson(
+        CanJoinDiscussionResponse instance) =>
+    <String, dynamic>{
+      'response': _$DiscussionJoinabilityResponseEnumMap[instance.response],
+      'reason': instance.reason,
+      'reasonCode': instance.reasonCode,
+    };
+
+const _$DiscussionJoinabilityResponseEnumMap = {
+  DiscussionJoinabilityResponse.ALREADY_JOINED: 'ALREADY_JOINED',
+  DiscussionJoinabilityResponse.APPROVED_NOT_JOINED: 'APPROVED_NOT_JOINED',
+  DiscussionJoinabilityResponse.AWAITING_APPROVAL: 'AWAITING_APPROVAL',
+  DiscussionJoinabilityResponse.APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
+  DiscussionJoinabilityResponse.DENIED: 'DENIED',
+};

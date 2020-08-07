@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
@@ -64,15 +65,32 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
-      builder: (context, state) {
-        return TabBarView(
-            physics: NeverScrollableScrollPhysics(),
-            controller: tabController,
-            children: UpsertDiscussionScreen.pageFlowOrder
-                .map((page) => mapPageToWidget(context, state.info, page))
-                .toList());
+    return BlocListener<UpsertDiscussionBloc, UpsertDiscussionState>(
+      listenWhen: (prev, curr) {
+        return prev is UpsertDiscussionLoadingState &&
+            curr is UpsertDiscussionReadyState;
       },
+      listener: (context, state) {
+        if (state is UpsertDiscussionReadyState &&
+            this.widget.arguments.isUpdateMode) {
+          BlocProvider.of<DiscussionBloc>(context).add(
+            RefreshPostsEvent(
+              discussionID: this.widget.arguments.discussion.id,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      },
+      child: BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
+        builder: (context, state) {
+          return TabBarView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: tabController,
+              children: UpsertDiscussionScreen.pageFlowOrder
+                  .map((page) => mapPageToWidget(context, state.info, page))
+                  .toList());
+        },
+      ),
     );
   }
 

@@ -334,12 +334,12 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
               "Mute the selected participant so that they are will not be able to post in this discussion for a while."),
           onTap: () => showMuteConfirmationDialog(
             context,
-            (hours) {
+            (seconds) {
               BlocProvider.of<SuperpowersBloc>(context).add(
                 MuteParticipantEvent(
                   discussion: this.widget.arguments.discussion,
                   participants: [this.widget.arguments.participant],
-                  muteForSeconds: Duration(hours: hours).inSeconds,
+                  muteForSeconds: seconds,
                 ),
               );
               return true;

@@ -7,6 +7,7 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -45,6 +46,33 @@ class AddPostGQLMutation extends GQLMutation<Post> {
 
   Post parseResult(dynamic data) {
     return Post.fromJson(data["addPost"]);
+  }
+}
+
+class SetLastPostViewedMutation extends GQLMutation<Viewer> {
+  final String viewerID;
+  final String postID;
+
+  final String _mutation = """
+    mutation setLastPostViewed(\$viewerID: ID!, \$postID: ID!) {
+      setLastPostViewed(viewerID: \$viewerID, postID: \$postID) {
+        ...ViewerInfoFragment
+      }
+    }
+    $ViewerInfoFragment
+  """;
+
+  const SetLastPostViewedMutation({
+    @required this.viewerID,
+    @required this.postID,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Viewer parseResult(dynamic data) {
+    return Viewer.fromJson(data["setLastPostViewed"]);
   }
 }
 

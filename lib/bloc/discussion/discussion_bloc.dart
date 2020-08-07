@@ -424,15 +424,17 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       final loadingState = currentState.update(isLoading: true);
       yield loadingState;
       try {
-        final updatedDiscussion = await this
-            .discussionRepository
-            .updateDiscussion(
-                event.discussionID,
-                event.title,
-                event.description,
-                event.selectedEmoji == null
-                    ? null
-                    : "emoji://${event.selectedEmoji}");
+        final updatedDiscussion =
+            await this.discussionRepository.updateDiscussion(
+                  event.discussionID,
+                  DiscussionInput(
+                    title: event.title,
+                    description: event.description,
+                    iconURL: event.selectedEmoji == null
+                        ? null
+                        : "emoji://${event.selectedEmoji}",
+                  ),
+                );
         yield loadingState.update(
           isLoading: false,
           discussion: updatedDiscussion,

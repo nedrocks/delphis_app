@@ -1,7 +1,9 @@
+import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/home_page/home_page_topbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class BasePageWidget extends StatelessWidget {
@@ -76,21 +78,34 @@ class BasePageWidget extends StatelessWidget {
                       ),
                 this.nextDisable
                     ? Container()
-                    : RaisedButton(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: SpacingValues.xxLarge,
-                          vertical: SpacingValues.medium,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                        ),
-                        color: this.nextColor ??
-                            Color.fromRGBO(247, 247, 255, 1.0),
-                        child: this.nextButtonChild,
-                        onPressed: this.onNext,
-                        splashColor: Colors.grey.withOpacity(0.8),
-                        animationDuration: Duration(milliseconds: 100),
-                      ),
+                    : BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
+                        builder: (context, state) {
+                          var doNext = this.onNext;
+                          var opacity = 1.0;
+                          if (state is UpsertDiscussionLoadingState) {
+                            doNext = null;
+                            opacity = 0.5;
+                          }
+                          return Opacity(
+                            opacity: opacity,
+                            child: RaisedButton(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: SpacingValues.xxLarge,
+                                vertical: SpacingValues.medium,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              color: this.nextColor ??
+                                  Color.fromRGBO(247, 247, 255, 1.0),
+                              child: this.nextButtonChild,
+                              onPressed: doNext,
+                              splashColor: Colors.grey.withOpacity(0.8),
+                              animationDuration: Duration(milliseconds: 100),
+                            ),
+                          );
+                        },
+                      )
               ],
             ),
           ],

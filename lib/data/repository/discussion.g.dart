@@ -130,6 +130,34 @@ const _$DiscussionJoinabilitySettingEnumMap = {
   DiscussionJoinabilitySetting.ALL_REQUIRE_APPROVAL: 'ALL_REQUIRE_APPROVAL',
 };
 
+DiscussionInput _$DiscussionInputFromJson(Map<String, dynamic> json) {
+  return DiscussionInput(
+    title: json['title'] as String,
+    description: json['description'] as String,
+    iconURL: json['iconURL'] as String,
+    anonymityType:
+        _$enumDecodeNullable(_$AnonymityTypeEnumMap, json['anonymityType']),
+    autoPost: json['autoPost'] as bool,
+    idleMinutes: json['idleMinutes'] as int,
+    publicAccess: json['publicAccess'] as bool,
+    discussionJoinability: _$enumDecodeNullable(
+        _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
+  );
+}
+
+Map<String, dynamic> _$DiscussionInputToJson(DiscussionInput instance) =>
+    <String, dynamic>{
+      'title': instance.title,
+      'description': instance.description,
+      'iconURL': instance.iconURL,
+      'anonymityType': _$AnonymityTypeEnumMap[instance.anonymityType],
+      'autoPost': instance.autoPost,
+      'idleMinutes': instance.idleMinutes,
+      'publicAccess': instance.publicAccess,
+      'discussionJoinability':
+          _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
+    };
+
 DiscussionLinkAccess _$DiscussionLinkAccessFromJson(Map<String, dynamic> json) {
   return DiscussionLinkAccess(
     discussionID: json['discussionID'] as String,

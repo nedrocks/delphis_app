@@ -37,6 +37,17 @@ class UpsertDiscussionCreateDiscussionEvent extends UpsertDiscussionEvent {
   List<Object> get props => [timestamp];
 }
 
+/* Whenever a the user wants to finalize a new discussion creation
+   with the current BLoC state configuration */
+class UpsertDiscussionUpdateDiscussionEvent extends UpsertDiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+
+  UpsertDiscussionUpdateDiscussionEvent();
+
+  @override
+  List<Object> get props => [timestamp];
+}
+
 /* Whenever a user wants to set some data fields of the fields in the current
    editing/creation state. */
 class UpsertDiscussionSetTitleDescriptionEvent extends UpsertDiscussionEvent {

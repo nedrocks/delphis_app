@@ -10,6 +10,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 class TitleDescriptionPage extends StatefulWidget {
+  final bool isUpdate;
   final String initialTitle;
   final String initialDescription;
   final String nextButtonText;
@@ -23,6 +24,7 @@ class TitleDescriptionPage extends StatefulWidget {
     @required this.prevButtonText,
     @required this.onBack,
     @required this.onNext,
+    this.isUpdate = false,
     this.initialTitle,
     this.initialDescription,
   }) : super(key: key);
@@ -62,7 +64,9 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
       body: Container(
         color: Colors.black,
         child: BasePageWidget(
-          title: "New Discussion",
+          title: this.widget.isUpdate
+              ? Intl.message("Edit Discussion")
+              : Intl.message("New Discussion"),
           nextButtonChild: Text(
             this.widget.nextButtonText,
             style: TextThemes.joinButtonTextChatTab,
@@ -96,8 +100,11 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                     height: SpacingValues.xxLarge,
                   ),
                   Text(
-                    Intl.message(
-                        'This lets you create a new conversation for which you will be the moderator.'),
+                    this.widget.isUpdate
+                        ? Intl.message(
+                            'This lets you update title and description of your conversation.')
+                        : Intl.message(
+                            'This lets you create a new conversation for which you will be the moderator.'),
                     style: TextThemes.onboardHeading,
                     textAlign: TextAlign.center,
                   ),
@@ -105,8 +112,10 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                     height: SpacingValues.smallMedium,
                   ),
                   Text(
-                    Intl.message(
-                        'Your identity will be visible to everyone but all participants will be anonymous to each other (and you).'),
+                    this.widget.isUpdate
+                        ? Intl.message('Compile the fields below.')
+                        : Intl.message(
+                            'Your identity will be visible to everyone but all participants will be anonymous to each other (and you).'),
                     style: TextThemes.onboardBody,
                     textAlign: TextAlign.center,
                   ),
@@ -135,6 +144,38 @@ class _TitleDescriptionPageState extends State<TitleDescriptionPage> {
                         );
                       }
                       return Container();
+                    },
+                  ),
+                  AnimatedSizeContainer(
+                    builder: (context) {
+                      return BlocBuilder<UpsertDiscussionBloc,
+                          UpsertDiscussionState>(
+                        builder: (context, state) {
+                          if (state is UpsertDiscussionLoadingState) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          if (state is UpsertDiscussionErrorState) {
+                            return Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(
+                                      top: SpacingValues.medium),
+                                  child: Text(
+                                    state.error.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextThemes.discussionPostText
+                                        .copyWith(color: Colors.red),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: SpacingValues.medium,
+                                ),
+                              ],
+                            );
+                          }
+                          return Container();
+                        },
+                      );
                     },
                   ),
                   SizedBox(

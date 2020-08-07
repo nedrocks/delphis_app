@@ -518,8 +518,18 @@ class ChathamAppState extends State<ChathamApp>
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
                           ),
-                          child: SuperpowersScreen(
-                            arguments: arguments,
+                          child: BlocBuilder<DiscussionBloc, DiscussionState>(
+                            builder: (context, state) {
+                              var discussion = state.getDiscussion();
+                              if (discussion != null) {
+                                arguments =
+                                    arguments.copyWith(discussion: discussion);
+                              }
+                              return SuperpowersScreen(
+                                key: GlobalKey(),
+                                arguments: arguments,
+                              );
+                            },
                           ),
                         );
                       },

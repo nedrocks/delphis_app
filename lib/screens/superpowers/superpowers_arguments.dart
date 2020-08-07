@@ -12,4 +12,16 @@ class SuperpowersArguments {
     this.discussion,
     this.participant,
   });
+
+  SuperpowersArguments copyWith({
+    Post post,
+    Discussion discussion,
+    Participant participant,
+  }) {
+    return SuperpowersArguments(
+      post: post ?? this.post,
+      discussion: discussion ?? this.discussion,
+      participant: participant ?? this.participant,
+    );
+  }
 }

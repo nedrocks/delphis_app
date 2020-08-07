@@ -128,17 +128,7 @@ class DiscussionJoinScreen extends StatelessWidget {
                                         // TODO: Send access request
                                       },
                                       onJoinPressed: () {
-                                        BlocProvider.of<ParticipantBloc>(
-                                                context)
-                                            .add(
-                                          ParticipantEventAddParticipant(
-                                            discussionID: discussion.id,
-                                            isAnonymous: true,
-                                            userID: user.id,
-                                            gradientName:
-                                                randomAnonymousGradient(),
-                                          ),
-                                        );
+                                        // TODO: Call join mutation
                                       },
                                     );
                                   }

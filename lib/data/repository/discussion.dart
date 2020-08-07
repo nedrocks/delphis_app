@@ -194,20 +194,49 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<DiscussionLinkAccess> getDiscussionLinkAccess(String discussionID,
+  Future<Discussion> getDiscussionFromSlug(String slug,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionLinkAccess(discussionID, attempt: attempt + 1);
+        return getDiscussionFromSlug(slug, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = DiscussionLinkAccessGQLQuery(discussionID: discussionID);
+    final query = DiscussionFromDiscussionSlugQuery(slug: slug);
+
+    final QueryResult result = await client.query(QueryOptions(
+      documentNode: gql(query.query()),
+      variables: {
+        'slug': slug,
+      },
+      fetchPolicy: FetchPolicy.noCache,
+    ));
+    // Handle exceptions
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return query.parseResult(result.data);
+  }
+
+  Future<DiscussionAccessLink> getDiscussionAccessLink(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getDiscussionAccessLink(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final query = DiscussionAccessLinkGQLQuery(discussionID: discussionID);
 
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
@@ -500,7 +529,7 @@ class Discussion extends Equatable implements Entity {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
-  final DiscussionLinkAccess discussionLinksAccess;
+  final DiscussionAccessLink discussionAccessLink;
   final String description;
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
@@ -558,7 +587,7 @@ class Discussion extends Equatable implements Entity {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-    this.discussionLinksAccess,
+    this.discussionAccessLink,
     this.description,
     this.titleHistory,
     this.descriptionHistory,
@@ -651,7 +680,7 @@ class Discussion extends Equatable implements Entity {
     Participant meParticipant,
     List<Participant> meAvailableParticipants,
     String iconURL,
-    DiscussionLinkAccess discussionLinksAccess,
+    DiscussionAccessLink discussionAccessLink,
     String description,
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
@@ -677,8 +706,7 @@ class Discussion extends Equatable implements Entity {
       meAvailableParticipants:
           meAvailableParticipants ?? this.meAvailableParticipants,
       iconURL: iconURL ?? this.iconURL,
-      discussionLinksAccess:
-          discussionLinksAccess ?? this.discussionLinksAccess,
+      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
       description: description ?? this.description,
       titleHistory: titleHistory ?? this.titleHistory,
       descriptionHistory: descriptionHistory ?? this.descriptionHistory,
@@ -738,34 +766,33 @@ class DiscussionInput extends Equatable {
 }
 
 @JsonAnnotation.JsonSerializable()
-class DiscussionLinkAccess extends Equatable {
-  final String discussionID;
-  final String inviteLinkURL;
-  final String vipInviteLinkURL;
+class DiscussionAccessLink extends Equatable {
+  final Discussion discussion;
+  final String url;
+  final String linkSlug;
   final String createdAt;
   final String updatedAt;
   final bool isDeleted;
 
-  const DiscussionLinkAccess(
-      {this.discussionID,
-      this.inviteLinkURL,
-      this.vipInviteLinkURL,
-      this.createdAt,
-      this.updatedAt,
-      this.isDeleted});
+  const DiscussionAccessLink({
+    this.discussion,
+    this.url,
+    this.linkSlug,
+    this.createdAt,
+    this.updatedAt,
+    this.isDeleted,
+  });
 
   @override
   List<Object> get props => [
-        discussionID,
-        inviteLinkURL,
-        vipInviteLinkURL,
-        createdAt,
-        updatedAt,
-        isDeleted
+        this.discussion?.id,
+        this.url,
+        this.linkSlug,
+        this.isDeleted,
       ];
 
-  factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
-      _$DiscussionLinkAccessFromJson(json);
+  factory DiscussionAccessLink.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionAccessLinkFromJson(json);
 }
 
 @JsonAnnotation.JsonSerializable()

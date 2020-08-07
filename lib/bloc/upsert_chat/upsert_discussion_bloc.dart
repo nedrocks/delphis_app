@@ -67,7 +67,7 @@ class UpsertDiscussionBloc
         yield UpsertDiscussionReadyState(info.copyWith(
           discussion: discussion,
           isNewDiscussion: false,
-          inviteLink: discussion.discussionLinksAccess.inviteLinkURL,
+          inviteLink: discussion.discussionAccessLink.url,
         ));
       } catch (error) {
         yield UpsertDiscussionErrorState(this.state.info, error);

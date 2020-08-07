@@ -121,13 +121,13 @@ class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
     mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!, \$discussionSettings: DiscussionCreationSettings!) {
       createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description, discussionSettings : \$discussionSettings) {
         ...DiscussionFragmentFull
-        discussionLinksAccess {
-          ...DiscussionLinkAccessFragment
+        discussionAccessLink {
+          ...DiscussionAccessLinkFragment
         }
       }
     }
     $DiscussionFragmentFull
-    $DiscussionLinkAccessFragment
+    $DiscussionAccessLinkFragment
   """;
 
   Map<String, dynamic> createInputObject() {

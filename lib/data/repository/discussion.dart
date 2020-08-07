@@ -514,6 +514,7 @@ class Discussion extends Equatable implements Entity {
   final List<HistoricalString> descriptionHistory;
   final DiscussionJoinabilitySetting discussionJoinability;
   final DateTime mutedUntil;
+  final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
 
   @JsonAnnotation.JsonKey(ignore: true)
@@ -549,6 +550,7 @@ class Discussion extends Equatable implements Entity {
         isDeletedLocally,
         isActivatedLocally,
         isArchivedLocally,
+        meCanJoinDiscussion,
         meViewer.id,
       ];
 
@@ -570,6 +572,7 @@ class Discussion extends Equatable implements Entity {
     this.descriptionHistory,
     this.discussionJoinability,
     this.mutedUntil,
+    this.meCanJoinDiscussion,
     postsCache,
     this.isDeletedLocally = false,
     this.isActivatedLocally = false,
@@ -662,6 +665,7 @@ class Discussion extends Equatable implements Entity {
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
     DateTime mutedUntil,
+    CanJoinDiscussionResponse meCanJoinDiscussion,
     List<Post> postsCache,
     bool isActivatedLocally,
     bool isDeletedLocally,
@@ -689,6 +693,7 @@ class Discussion extends Equatable implements Entity {
       discussionJoinability:
           discussionJoinability ?? this.discussionJoinability,
       mutedUntil: mutedUntil ?? this.mutedUntil,
+      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
       postsCache: postsCache ?? this.postsCache,
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
@@ -729,7 +734,46 @@ class DiscussionLinkAccess extends Equatable {
       _$DiscussionLinkAccessFromJson(json);
 }
 
+@JsonAnnotation.JsonSerializable()
+class CanJoinDiscussionResponse extends Equatable {
+  final DiscussionJoinabilityResponse response;
+  final String reason;
+  final int reasonCode;
+
+  CanJoinDiscussionResponse({
+    this.response,
+    this.reason,
+    this.reasonCode,
+  });
+
+  @override
+  List<Object> get props => [response, reason, reasonCode];
+
+  CanJoinDiscussionResponse copyWith({
+    DiscussionJoinabilityResponse response,
+    String reason,
+    int reasonCode,
+  }) {
+    return CanJoinDiscussionResponse(
+      response: response ?? this.response,
+      reason: reason ?? this.reason,
+      reasonCode: reasonCode ?? this.reasonCode,
+    );
+  }
+
+  factory CanJoinDiscussionResponse.fromJson(Map<String, dynamic> json) =>
+      _$CanJoinDiscussionResponseFromJson(json);
+}
+
 enum DiscussionJoinabilitySetting {
   ALLOW_TWITTER_FRIENDS,
   ALL_REQUIRE_APPROVAL
+}
+
+enum DiscussionJoinabilityResponse {
+  ALREADY_JOINED,
+  APPROVED_NOT_JOINED,
+  AWAITING_APPROVAL,
+  APPROVAL_REQUIRED,
+  DENIED,
 }

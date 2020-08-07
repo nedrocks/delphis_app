@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
+import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -111,48 +113,98 @@ class ChatsList extends StatelessWidget {
                   .add(DiscussionListFetchEvent());
             }
 
-            return SmartRefresher(
-              enablePullDown: true,
-              enablePullUp: false,
-              header: CustomHeader(
-                builder: (context, status) {
-                  Widget body;
-                  if (status == RefreshStatus.idle) {
-                    body = CupertinoActivityIndicator();
-                  } else if (status == RefreshStatus.refreshing) {
-                    body = CupertinoActivityIndicator();
-                  } else if (status == RefreshStatus.failed) {
-                    body = Text(Intl.message("Refresh failed..."));
-                  } else if (status == RefreshStatus.canRefresh) {
-                    body = CupertinoActivityIndicator();
-                  } else {
-                    body = Container(width: 0, height: 0);
-                  }
-                  return Container(
-                    height: 55.0,
-                    child: Center(
-                      child: body,
-                    ),
-                  );
-                },
-              ),
-              footer: Container(),
-              controller: this.refreshController,
-              onRefresh: () async {
-                BlocProvider.of<DiscussionListBloc>(context)
-                    .add(DiscussionListFetchEvent());
-              },
-              onLoading: () {},
-              child: AnimatedSizeContainer(
-                builder: (context) {
-                  return ListView.builder(
+            return AnimatedSizeContainer(
+              builder: (context) {
+                return SmartRefresher(
+                  enablePullDown: true,
+                  enablePullUp: false,
+                  header: CustomHeader(
+                    builder: (context, status) {
+                      Widget body;
+                      if (status == RefreshStatus.idle) {
+                        body = CupertinoActivityIndicator();
+                      } else if (status == RefreshStatus.refreshing) {
+                        body = CupertinoActivityIndicator();
+                      } else if (status == RefreshStatus.failed) {
+                        body = Text(Intl.message("Refresh failed..."));
+                      } else if (status == RefreshStatus.canRefresh) {
+                        body = CupertinoActivityIndicator();
+                      } else {
+                        body = Container(width: 0, height: 0);
+                      }
+                      return Container(
+                        height: 55.0,
+                        child: Center(
+                          child: body,
+                        ),
+                      );
+                    },
+                  ),
+                  footer: Container(),
+                  controller: this.refreshController,
+                  onRefresh: () async {
+                    BlocProvider.of<DiscussionListBloc>(context)
+                        .add(DiscussionListFetchEvent());
+                  },
+                  onLoading: () {},
+                  child: ListView.builder(
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    itemCount: showedDiscussions.length + 1,
+                    itemCount: showedDiscussions.length + 2,
                     itemBuilder: (context, index) {
-                      if (index == 0) return errorWidget;
-                      index--;
+                      if (index-- == 0) return errorWidget;
+                      if (index-- == 0)
+                        return BlocBuilder<MeBloc, MeState>(
+                          builder: (context, meState) {
+                            var me = MeBloc.extractMe(meState);
+                            if (me == null) return SizedBox(height: 0);
+                            if (me.pendingDiscussionInvites == null ||
+                                me.pendingDiscussionInvites.length == 0)
+                              return SizedBox(height: 0);
+                            var count = me.pendingDiscussionInvites.length;
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.of(context)
+                                    .pushNamed('/Home/InviteList');
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: SpacingValues.medium,
+                                    vertical: SpacingValues.mediumLarge),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(colors: [
+                                    Color.fromRGBO(114, 30, 248, 1.0),
+                                    Color.fromRGBO(177, 79, 186, 1.0),
+                                  ]),
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: SpacingValues.medium,
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          count > 1
+                                              ? Intl.message(
+                                                  "You have $count pending invites...")
+                                              : Intl.message(
+                                                  "You have $count pending invite..."),
+                                        ),
+                                      ),
+                                      SvgPicture.asset(
+                                        'assets/svg/forward_chevron.svg',
+                                        color: Colors.white,
+                                        height: 16.0,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
                       var discussionElem = showedDiscussions[index];
                       return SingleChat(
                         discussion: discussionElem,
@@ -181,9 +233,9 @@ class ChatsList extends StatelessWidget {
                         },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             );
           },
         );

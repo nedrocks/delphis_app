@@ -277,6 +277,10 @@ const DiscussionListFragment = """
     participants {
       ...ParticipantInfoFragment
     }
+    meCanJoinDiscussion {
+      response
+      reason
+      reasonCode
     meViewer {
       ...ViewerInfoFragment
     }
@@ -334,16 +338,17 @@ const DiscussionInviteFragment = """
   fragment DiscussionInviteFragment on DiscussionInvite {
     id
     discussion {
-      id
+      ...DiscussionListFragment
     }
     invitingParticipant {
-      id
+      ...ParticipantInfoFragment
     }
     createdAt
     updatedAt
     isDeleted
     status
   }
+  $DiscussionListFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -369,8 +374,12 @@ class MeGQLQuery extends GQLQuery<User> {
           imageURL
           source
         }
+        pendingDiscussionInvites: discussionInvites(status:PENDING) {
+          ...DiscussionInviteFragment
+        }
       }
     }
+  $DiscussionInviteFragment
   """;
 
   const MeGQLQuery() : super();

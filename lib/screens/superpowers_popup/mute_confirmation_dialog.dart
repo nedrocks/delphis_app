@@ -27,6 +27,15 @@ class _MuteConfirmationDialogState extends State<MuteConfirmationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final values = {
+      "30 Minutes": Duration(minutes: 30).inSeconds,
+      "1 Hour": Duration(hours: 1).inSeconds,
+      "2 Hours": Duration(hours: 2).inSeconds,
+      "6 Hours": Duration(hours: 6).inSeconds,
+      "12 Hours": Duration(hours: 12).inSeconds,
+      "1 Day": Duration(days: 1).inSeconds,
+    };
+    final keys = values.keys.toList();
     return CupertinoAlertDialog(
       insetAnimationCurve: Curves.easeInOut,
       insetAnimationDuration: Duration(milliseconds: 200),
@@ -41,19 +50,24 @@ class _MuteConfirmationDialogState extends State<MuteConfirmationDialog> {
             "Please choose for how many hours you prefer this participant to stay muted.",
             style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25),
           ),
-          Material(
-            color: Colors.transparent,
-            child: Slider(
-              value: _currentValue.toDouble(),
-              min: 1,
-              max: 24,
-              divisions: 6,
-              label: _currentValue.round().toString(),
-              onChanged: (double value) {
-                setState(
-                  () {
-                    _currentValue = value.round();
-                  },
+          SizedBox(height: SpacingValues.mediumLarge),
+          CupertinoPicker(
+            itemExtent: 48,
+            onSelectedItemChanged: (int index) {
+              setState(() {
+                _currentValue = values[keys[index]];
+              });
+            },
+            children: List<Widget>.generate(
+              keys.length,
+              (int index) {
+                return Center(
+                  child: Text(
+                    keys[index],
+                    style: TextThemes.discussionPostText.copyWith(
+                      color: Colors.blue,
+                    ),
+                  ),
                 );
               },
             ),

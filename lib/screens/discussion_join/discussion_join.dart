@@ -123,7 +123,9 @@ class DiscussionJoinScreen extends StatelessWidget {
                                       onBackPressed: () {
                                         Navigator.of(context).pop();
                                       },
-                                      onAccessRequestPressed: () {},
+                                      onAccessRequestPressed: () {
+                                        // TODO: Fire the mutation
+                                      },
                                       onJoinPressed: () {
                                         BlocProvider.of<ParticipantBloc>(
                                                 context)

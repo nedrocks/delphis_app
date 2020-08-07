@@ -248,11 +248,15 @@ class ChathamAppState extends State<ChathamApp>
                       RepositoryProvider.of<DiscussionRepository>(context)
                           .getDiscussionFromSlug(linkArgs.discussionSlug)
                           .then((disc) {
+                        if (disc == null) {
+                          // Nothing to do here so just return.
+                          return;
+                        }
                         navKey.currentState.pushNamed(
                           '/Discussion',
                           arguments: DiscussionArguments(
                             discussionID: disc.id,
-                            isStartJoinFlow: disc.meParticipant == null,
+                            isStartJoinFlow: false,
                           ),
                         );
                       });

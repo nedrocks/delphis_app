@@ -262,6 +262,40 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
           }));
     }
 
+    /* Modify discussion's invite mode */
+    if (isMeDiscussionModerator()) {
+      list.add(SuperpowersOption(
+          child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                margin: EdgeInsets.all(24),
+                child: SvgPicture.asset(
+                  'assets/svg/paper_airplane.svg',
+                  width: 32,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("Invitation Mode"),
+          description: Intl.message(
+              "Manage the preferences of this discussion. Choose how you prefer to manage invitations."),
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/Discussion/Upsert',
+              arguments: UpsertDiscussionArguments(
+                discussion: this.widget.arguments.discussion,
+                firstPage: UpsertDiscussionScreenPage.INVITATION_MODE,
+                isUpdateMode: true,
+              ),
+            );
+          }));
+    }
+
     // /* Invite user from Twitter handle */
     // if (isMeDiscussionModerator()) {
     //   list.add(ModeratorPopupOption(

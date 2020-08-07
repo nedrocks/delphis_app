@@ -12,6 +12,22 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const DiscussionAccessRequestFragment = """
+  fragment DiscussionAccessRequestFragment on DiscussionAccessRequest {
+    id
+    user {
+      id
+    }
+    discussion {
+      id
+    }
+    createdAt
+    updatedAt
+    isDeleted
+    status
+  }
+""";
+
 const ViewerInfoFragment = """
   fragment ViewerInfoFragment on Viewer {
     id

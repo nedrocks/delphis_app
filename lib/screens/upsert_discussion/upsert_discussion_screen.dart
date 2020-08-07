@@ -87,10 +87,13 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
             ? info.description
             : null;
         return TitleDescriptionPage(
+          key: GlobalKey(),
+          isUpdate: isUpdate,
           onBack: () => this.onBack(context, info, page),
           onNext: () => this.onNext(context, info, page),
           prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Continue"),
+          nextButtonText:
+              isUpdate ? Intl.message("Update") : Intl.message("Continue"),
           initialTitle: title,
           initialDescription: description,
         );
@@ -113,10 +116,12 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         return InviteModePage(
+          key: GlobalKey(),
           onBack: () => this.onBack(context, info, page),
           onNext: () => this.onNext(context, info, page),
           prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Create"),
+          nextButtonText:
+              isUpdate ? Intl.message("Update") : Intl.message("Create"),
           isUpdateMode: this.widget.arguments.isUpdateMode,
         );
       case UpsertDiscussionScreenPage.CREATION_LOADING:
@@ -153,6 +158,10 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   void onBack(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
+    if (this.widget.arguments.isUpdateMode) {
+      Navigator.of(context).pop();
+      return;
+    }
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         Navigator.of(context).pop();
@@ -186,8 +195,11 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   void onNext(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
-    FocusScope.of(context).unfocus();
-    // TODO: Handle Update case when we need to show only one page
+    if (this.widget.arguments.isUpdateMode) {
+      BlocProvider.of<UpsertDiscussionBloc>(context)
+          .add(UpsertDiscussionUpdateDiscussionEvent());
+      return;
+    }
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         setState(() {

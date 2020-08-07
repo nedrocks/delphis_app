@@ -415,21 +415,14 @@ class DiscussionRepository {
 
   Future<Discussion> updateDiscussion(
     String discussionID,
-    String title,
-    String description,
-    String iconURL, {
+    DiscussionInput input, {
     int attempt = 1,
   }) async {
-    if (title == null || title.length == 0) {
-      return null;
-    }
-
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return updateDiscussion(discussionID, title, description, iconURL,
-            attempt: attempt + 1);
+        return updateDiscussion(discussionID, input, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
@@ -437,10 +430,9 @@ class DiscussionRepository {
     }
 
     final mutation = UpdateDiscussionMutation(
-        discussionID: discussionID,
-        title: title,
-        description: description,
-        iconURL: iconURL);
+      discussionID: discussionID,
+      input: input,
+    );
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -689,6 +681,48 @@ class Discussion extends Equatable implements Entity {
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
     );
+  }
+}
+
+@JsonAnnotation.JsonSerializable()
+class DiscussionInput extends Equatable {
+  final String title;
+  final String description;
+  final String iconURL;
+  final AnonymityType anonymityType;
+  final bool autoPost;
+  final int idleMinutes;
+  final bool publicAccess;
+  final DiscussionJoinabilitySetting discussionJoinability;
+
+  const DiscussionInput({
+    this.title,
+    this.description,
+    this.iconURL,
+    this.anonymityType,
+    this.autoPost,
+    this.idleMinutes,
+    this.publicAccess,
+    this.discussionJoinability,
+  });
+
+  @override
+  List<Object> get props => [
+        title,
+        description,
+        iconURL,
+        anonymityType,
+        autoPost,
+        idleMinutes,
+        publicAccess,
+        discussionJoinability,
+      ];
+
+  factory DiscussionInput.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionInputFromJson(json);
+
+  Map<String, dynamic> toJSON() {
+    return _$DiscussionInputToJson(this);
   }
 }
 

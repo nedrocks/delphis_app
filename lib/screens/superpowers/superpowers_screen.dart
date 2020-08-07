@@ -7,6 +7,8 @@ import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/overlay/overlay_alert_dialog.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
+import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
+import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -226,7 +228,7 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
           }));
     }
 
-    /* Modify discussion's information */
+    /* Modify discussion's title and description */
     if (isMeDiscussionModerator()) {
       list.add(SuperpowersOption(
           child: Container(
@@ -244,11 +246,19 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
                   color: Colors.white,
                 ),
               )),
-          title: Intl.message("Chat Settings"),
+          title: Intl.message("Title and Description"),
           description: Intl.message(
-              "Manage the preferences of this discussion including its title, description, and invitation mode."),
+              "Manage the preferences of this discussion. View and modify the title and description."),
           onTap: () {
-            // TODO: Hook this up to something
+            Navigator.pushNamed(
+              context,
+              '/Discussion/Upsert',
+              arguments: UpsertDiscussionArguments(
+                discussion: this.widget.arguments.discussion,
+                firstPage: UpsertDiscussionScreenPage.TITLE_DESCRIPTION,
+                isUpdateMode: true,
+              ),
+            );
           }));
     }
 

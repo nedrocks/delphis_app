@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
-import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -38,39 +37,19 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
         // Update local copies of discussion data
         if (state is MuteUnmuteParticipantSuccessState) {
           BlocProvider.of<DiscussionBloc>(context).add(
-            DiscussionRefreshLocalParticipantsEvent(
-              mapping: (p) {
-                for (var participant in state.participants) {
-                  if (p.id == participant.id) {
-                    return participant;
-                  }
-                }
-                return p;
-              },
-            ),
+            DiscussionMuteUnmuteParticipantsRefreshEvent(state.participants),
           );
         } else if (state is BanParticipantSuccessState) {
           BlocProvider.of<DiscussionBloc>(context)
             ..add(
-              DiscussionRefreshLocalParticipantsEvent(
-                filter: (p) => p.id != state.participant.id,
-              ),
+              DiscussionDeleteParticipantRefreshEvent(state.participant),
             )
             ..add(
-              DiscussionRefreshLocalPostsCacheEvent(
-                mapping: (Post post) {
-                  if (post.participant.id == state.participant.id)
-                    return post.copyWith(
-                        isDeleted: true,
-                        deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
-                  return post;
-                },
-              ),
+              DiscussionDeleteParticipantPostsRefreshEvent(state.participant),
             );
         } else if (state is DeletePostSuccessState) {
           BlocProvider.of<DiscussionBloc>(context).add(
-            DiscussionRefreshLocalPostsCacheEvent(
-                filter: (p) => p.id != state.post.id),
+            DiscussionDeletePostRefreshEvent(state.post),
           );
         }
       },

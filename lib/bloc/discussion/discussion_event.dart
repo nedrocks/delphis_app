@@ -6,6 +6,39 @@ abstract class DiscussionEvent extends Equatable {
   List<Object> get props => [];
 }
 
+/* Used to transform the local copy of discussion participants */
+abstract class _DiscussionRefreshLocalParticipantsEvent
+    extends DiscussionEvent {
+  final Participant Function(Participant) mapping;
+  final bool Function(Participant) filter;
+
+  _DiscussionRefreshLocalParticipantsEvent({
+    this.mapping,
+    this.filter,
+  }) : super() {
+    assert(mapping != null || filter != null);
+  }
+
+  @override
+  List<Object> get props => [this.mapping, this.filter];
+}
+
+/* Used to transform the local copy of discussion posts */
+abstract class _DiscussionRefreshLocalPostsCacheEvent extends DiscussionEvent {
+  final Post Function(Post) mapping;
+  final bool Function(Post) filter;
+
+  _DiscussionRefreshLocalPostsCacheEvent({
+    this.mapping,
+    this.filter,
+  }) : super() {
+    assert(mapping != null || filter != null);
+  }
+
+  @override
+  List<Object> get props => [this.mapping, this.filter];
+}
+
 class DiscussionQueryEvent extends DiscussionEvent {
   final String discussionID;
   final DateTime nonce;
@@ -253,34 +286,63 @@ class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {
   List<Object> get props => [this.nonce];
 }
 
-/* Used to transform the local copy of discussion participants */
-class DiscussionRefreshLocalParticipantsEvent extends DiscussionEvent {
-  final Participant Function(Participant) mapping;
-  final bool Function(Participant) filter;
+class DiscussionMuteUnmuteParticipantsRefreshEvent
+    extends _DiscussionRefreshLocalParticipantsEvent {
+  final DateTime nonce = DateTime.now();
+  final List<Participant> participants;
 
-  DiscussionRefreshLocalParticipantsEvent({
-    this.mapping,
-    this.filter,
-  }) : super() {
-    assert(mapping != null || filter != null);
-  }
+  DiscussionMuteUnmuteParticipantsRefreshEvent(this.participants)
+      : super(
+          mapping: (p) {
+            for (var participant in participants) {
+              if (p.id == participant.id) {
+                return participant;
+              }
+            }
+            return p;
+          },
+        );
 
-  @override
-  List<Object> get props => [this.mapping, this.filter];
+  List<Object> get props => [this.nonce, participants];
 }
 
-/* Used to transform the local copy of discussion posts */
-class DiscussionRefreshLocalPostsCacheEvent extends DiscussionEvent {
-  final Post Function(Post) mapping;
-  final bool Function(Post) filter;
+class DiscussionDeleteParticipantRefreshEvent
+    extends _DiscussionRefreshLocalParticipantsEvent {
+  final DateTime nonce = DateTime.now();
+  final Participant participant;
 
-  DiscussionRefreshLocalPostsCacheEvent({
-    this.mapping,
-    this.filter,
-  }) : super() {
-    assert(mapping != null || filter != null);
-  }
+  DiscussionDeleteParticipantRefreshEvent(this.participant)
+      : super(filter: (p) => p.id != participant.id);
 
-  @override
-  List<Object> get props => [this.mapping, this.filter];
+  List<Object> get props => [this.nonce, participant];
+}
+
+class DiscussionDeleteParticipantPostsRefreshEvent
+    extends _DiscussionRefreshLocalPostsCacheEvent {
+  final DateTime nonce = DateTime.now();
+  final Participant participant;
+
+  DiscussionDeleteParticipantPostsRefreshEvent(this.participant)
+      : super(
+          mapping: (Post post) {
+            if (post.participant.id == participant.id)
+              return post.copyWith(
+                  isDeleted: true,
+                  deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
+            return post;
+          },
+        );
+
+  List<Object> get props => [this.nonce, participant];
+}
+
+class DiscussionDeletePostRefreshEvent
+    extends _DiscussionRefreshLocalPostsCacheEvent {
+  final DateTime nonce = DateTime.now();
+  final Post post;
+
+  DiscussionDeletePostRefreshEvent(this.post)
+      : super(filter: (p) => p.id != post.id);
+
+  List<Object> get props => [this.nonce, post];
 }

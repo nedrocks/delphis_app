@@ -440,7 +440,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       } catch (err) {
         yield loadingState.update(isLoading: false);
       }
-    } else if (event is DiscussionRefreshLocalParticipantsEvent &&
+    } else if (event is _DiscussionRefreshLocalParticipantsEvent &&
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
       var localParticipants = currentState.getDiscussion().participants;
@@ -452,7 +452,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           .getDiscussion()
           .copyWith(participants: updatedLocalParticipants);
       yield currentState.update(discussion: updatedDiscussion);
-    } else if (event is DiscussionRefreshLocalPostsCacheEvent &&
+    } else if (event is _DiscussionRefreshLocalPostsCacheEvent &&
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
       var localPostsCache = currentState.getDiscussion().postsCache;

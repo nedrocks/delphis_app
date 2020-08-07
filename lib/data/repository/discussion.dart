@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -514,6 +515,7 @@ class Discussion extends Equatable implements Entity {
   final DiscussionJoinabilitySetting discussionJoinability;
   final DateTime mutedUntil;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
+  final Viewer meViewer;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -549,6 +551,7 @@ class Discussion extends Equatable implements Entity {
         isActivatedLocally,
         isArchivedLocally,
         meCanJoinDiscussion,
+        meViewer.id,
       ];
 
   Discussion({
@@ -574,6 +577,7 @@ class Discussion extends Equatable implements Entity {
     this.isDeletedLocally = false,
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
+    this.meViewer,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -666,6 +670,7 @@ class Discussion extends Equatable implements Entity {
     bool isActivatedLocally,
     bool isDeletedLocally,
     bool isArchivedLocally,
+    Viewer meViewer,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -693,6 +698,7 @@ class Discussion extends Equatable implements Entity {
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+      meViewer: meViewer ?? this.meViewer,
     );
   }
 }

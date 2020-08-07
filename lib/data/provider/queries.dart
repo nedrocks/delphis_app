@@ -12,6 +12,20 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const ViewerInfoFragment = """
+  fragment ViewerInfoFragment on Viewer {
+    id
+    discussion {
+      id
+    }
+    lastViewed
+    lastViewedPost {
+      id
+      createdAt
+    }
+  }
+""";
+
 const ParticipantInfoFragment = """
   fragment ParticipantInfoFragment on Participant {
     id
@@ -19,6 +33,7 @@ const ParticipantInfoFragment = """
     isAnonymous
     isBanned
     gradientColor
+    anonDisplayName
     flair {
       id
       displayName
@@ -266,6 +281,8 @@ const DiscussionListFragment = """
       response
       reason
       reasonCode
+    meViewer {
+      ...ViewerInfoFragment
     }
     anonymityType
     iconURL
@@ -273,6 +290,7 @@ const DiscussionListFragment = """
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment
+  $ViewerInfoFragment
 """;
 
 const DiscussionFragmentFull = """

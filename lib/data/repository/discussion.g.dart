@@ -57,6 +57,9 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ? null
         : CanJoinDiscussionResponse.fromJson(
             json['meCanJoinDiscussion'] as Map<String, dynamic>),
+    meViewer: json['meViewer'] == null
+        ? null
+        : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
   );
 }
 
@@ -81,6 +84,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
       'mutedUntil': instance.mutedUntil?.toIso8601String(),
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
+      'meViewer': instance.meViewer,
     };
 
 T _$enumDecode<T>(

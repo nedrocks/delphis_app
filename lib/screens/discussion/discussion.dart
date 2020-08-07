@@ -325,9 +325,11 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
         }
 
         Widget joinScreen = Container();
-        if (state.getDiscussion() != null &&
-            state.getDiscussion().meCanJoinDiscussion.response !=
-                DiscussionJoinabilityResponse.ALREADY_JOINED) {
+        if (state.getDiscussion() != null
+            // state.getDiscussion().meCanJoinDiscussion.response !=
+            //     DiscussionJoinabilityResponse.ALREADY_JOINED &&
+            // state.getDiscussion().meParticipant == null
+            ) {
           joinScreen = DiscussionJoinScreen();
         }
         return Stack(

@@ -32,7 +32,7 @@ class InviteEntry extends StatelessWidget {
             );
           },
           onDeletePressed: () {
-            // TODO: Put it in delete tab. Also handle archive case
+            // Nothing to do here
           },
           onPressed: null,
         ),

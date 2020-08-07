@@ -266,4 +266,17 @@ class TextThemes {
     color: Color.fromRGBO(255, 255, 255, 1.0),
     letterSpacing: 0.41,
   );
+
+  static final discussionJoinScreenSubtitle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    fontStyle: FontStyle.italic,
+  );
+
+  static final discussionJoinModeratorInfo = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w300,
+    color: Colors.grey,
+  );
 }

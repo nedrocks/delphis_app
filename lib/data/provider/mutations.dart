@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/flair.dart';
@@ -387,6 +388,32 @@ class BanParticipantMutation extends GQLMutation<Participant> {
 
   Participant parseResult(dynamic data) {
     return Participant.fromJson(data["banParticipant"]);
+  }
+}
+
+class RequestDiscussionAccessMutation
+    extends GQLMutation<DiscussionAccessRequest> {
+  final String discussionID;
+
+  final String _mutation = """
+   mutation RequestAccessToDiscussion(\$discussionID: ID!) {
+     requestAccessToDiscussion(discussionID: \$discussionID) {
+       ...DiscussionAccessRequestFragment
+     }
+   }
+   $DiscussionAccessRequestFragment
+  """;
+
+  const RequestDiscussionAccessMutation({
+    @required this.discussionID,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  DiscussionAccessRequest parseResult(dynamic data) {
+    return DiscussionAccessRequest.fromJson(data["requestAccessToDiscussion"]);
   }
 }
 

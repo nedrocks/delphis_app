@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
-import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -125,10 +124,21 @@ class DiscussionJoinScreen extends StatelessWidget {
                                         Navigator.of(context).pop();
                                       },
                                       onAccessRequestPressed: () {
-                                        // TODO: Send access request
+                                        // TODO: Fire the mutation
                                       },
                                       onJoinPressed: () {
-                                        // TODO: Call join mutation
+                                        BlocProvider.of<ParticipantBloc>(
+                                                context)
+                                            .add(
+                                          ParticipantEventAddParticipant(
+                                            discussionID: discussion.id,
+                                            userID: user.id,
+                                            gradientName: GradientName.CERULEAN,
+                                            flairID: null,
+                                            isAnonymous: true,
+                                            hasJoined: false,
+                                          ),
+                                        );
                                       },
                                     );
                                   }

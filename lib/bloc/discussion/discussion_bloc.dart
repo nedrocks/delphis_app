@@ -440,30 +440,23 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       } catch (err) {
         yield loadingState.update(isLoading: false);
       }
-    } else if (event is _DiscussionRefreshLocalParticipantsEvent &&
-        currentState is DiscussionLoadedState &&
-        currentState.getDiscussion() != null) {
-      var localParticipants = currentState.getDiscussion().participants;
-      var updatedLocalParticipants = localParticipants
-          .where(event.filter ?? (e) => true)
-          .map(event.mapping ?? (e) => e)
-          .toList();
-      var updatedDiscussion = currentState
-          .getDiscussion()
-          .copyWith(participants: updatedLocalParticipants);
-      yield currentState.update(discussion: updatedDiscussion);
-    } else if (event is _DiscussionRefreshLocalPostsCacheEvent &&
-        currentState is DiscussionLoadedState &&
-        currentState.getDiscussion() != null) {
-      var localPostsCache = currentState.getDiscussion().postsCache;
-      var updatedLocalPostsCache = localPostsCache
-          .where(event.filter ?? (e) => true)
-          .map(event.mapping ?? (e) => e)
-          .toList();
-      var updatedDiscussion = currentState
-          .getDiscussion()
-          .copyWith(postsCache: updatedLocalPostsCache);
-      yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionParticipantsMutedUnmutedEvent &&
+        currentState is DiscussionLoadedState) {
+      final discussion = currentState.getDiscussion();
+      if (discussion != null) {
+        var newParticipants = discussion.participants.map((p) {
+          for (var participant in event.participants) {
+            if (p.id == participant.id) {
+              return participant;
+            }
+          }
+          return p;
+        }).toList();
+        var updatedDiscussion = currentState
+            .getDiscussion()
+            .copyWith(participants: newParticipants);
+        yield currentState.update(discussion: updatedDiscussion);
+      }
     }
   }
 

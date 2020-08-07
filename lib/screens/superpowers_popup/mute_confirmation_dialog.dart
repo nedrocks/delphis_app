@@ -18,24 +18,25 @@ class MuteConfirmationDialog extends StatefulWidget {
 
 class _MuteConfirmationDialogState extends State<MuteConfirmationDialog> {
   int _currentValue;
+  final values = {
+    Intl.message("30 Minutes"): Duration(minutes: 30).inSeconds,
+    Intl.message("1 Hour"): Duration(hours: 1).inSeconds,
+    Intl.message("2 Hours"): Duration(hours: 2).inSeconds,
+    Intl.message("6 Hours"): Duration(hours: 6).inSeconds,
+    Intl.message("12 Hours"): Duration(hours: 12).inSeconds,
+    Intl.message("1 Day"): Duration(days: 1).inSeconds,
+  };
+  List<String> keys;
 
   @override
   void initState() {
-    _currentValue = 1;
+    keys = values.keys.toList();
+    _currentValue = _currentValue = values[keys[0]];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final values = {
-      "30 Minutes": Duration(minutes: 30).inSeconds,
-      "1 Hour": Duration(hours: 1).inSeconds,
-      "2 Hours": Duration(hours: 2).inSeconds,
-      "6 Hours": Duration(hours: 6).inSeconds,
-      "12 Hours": Duration(hours: 12).inSeconds,
-      "1 Day": Duration(days: 1).inSeconds,
-    };
-    final keys = values.keys.toList();
     return CupertinoAlertDialog(
       insetAnimationCurve: Curves.easeInOut,
       insetAnimationDuration: Duration(milliseconds: 200),

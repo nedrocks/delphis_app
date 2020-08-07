@@ -35,21 +35,19 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
     return BlocListener<SuperpowersBloc, SuperpowersState>(
       listener: (context, state) {
         // Update local copies of discussion data
-        if (state is MuteUnmuteParticipantSuccessState) {
+        if (state is MuteUnmuteParticipantsSuccessState) {
           BlocProvider.of<DiscussionBloc>(context).add(
-            DiscussionMuteUnmuteParticipantsRefreshEvent(state.participants),
+            DiscussionParticipantsMutedUnmutedEvent(
+              participants: state.participants,
+            ),
           );
         } else if (state is BanParticipantSuccessState) {
-          BlocProvider.of<DiscussionBloc>(context)
-            ..add(
-              DiscussionDeleteParticipantRefreshEvent(state.participant),
-            )
-            ..add(
-              DiscussionDeleteParticipantPostsRefreshEvent(state.participant),
-            );
+          BlocProvider.of<DiscussionBloc>(context).add(
+            DiscussionParticipantBannedEvent(participant: state.participant),
+          );
         } else if (state is DeletePostSuccessState) {
           BlocProvider.of<DiscussionBloc>(context).add(
-            DiscussionDeletePostRefreshEvent(state.post),
+            DiscussionPostDeletedEvent(post: state.post),
           );
         }
       },

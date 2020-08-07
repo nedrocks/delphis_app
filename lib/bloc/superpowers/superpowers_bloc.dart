@@ -93,7 +93,7 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
             event.participants,
             event.muteForSeconds,
           );
-          yield MuteUnmuteParticipantSuccessState(
+          yield MuteUnmuteParticipantsSuccessState(
             message: Intl.message(
                 "These participants have been successfully muted!"),
             participants: mutedParticipants,
@@ -115,9 +115,9 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
             event.discussion,
             event.participants,
           );
-          yield MuteUnmuteParticipantSuccessState(
+          yield MuteUnmuteParticipantsSuccessState(
             message: Intl.message(
-                "These participants have been successfully unmuted!"),
+                "These participants have been successfully muted!"),
             participants: unmutedParticipants,
           );
         } catch (error) {

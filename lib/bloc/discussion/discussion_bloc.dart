@@ -87,10 +87,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             await discussionRepository.getDiscussion(event.discussionID);
         int conciergeStep = getConciergeStep(discussion);
         if (discussion.isMeDiscussionModerator()) {
-          final discussionLinkAccess = await discussionRepository
-              .getDiscussionLinkAccess(event.discussionID);
+          final discussionAccessLink = await discussionRepository
+              .getDiscussionAccessLink(event.discussionID);
           discussion =
-              discussion.copyWith(discussionLinksAccess: discussionLinkAccess);
+              discussion.copyWith(discussionAccessLink: discussionAccessLink);
         }
         yield DiscussionLoadedState(
           discussion: discussion,

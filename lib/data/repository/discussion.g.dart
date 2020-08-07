@@ -33,10 +33,10 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
             e == null ? null : Participant.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     iconURL: json['iconURL'] as String,
-    discussionLinksAccess: json['discussionLinksAccess'] == null
+    discussionAccessLink: json['discussionAccessLink'] == null
         ? null
-        : DiscussionLinkAccess.fromJson(
-            json['discussionLinksAccess'] as Map<String, dynamic>),
+        : DiscussionAccessLink.fromJson(
+            json['discussionAccessLink'] as Map<String, dynamic>),
     description: json['description'] as String,
     titleHistory: (json['titleHistory'] as List)
         ?.map((e) => e == null
@@ -76,7 +76,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meParticipant': instance.meParticipant,
       'meAvailableParticipants': instance.meAvailableParticipants,
       'iconURL': instance.iconURL,
-      'discussionLinksAccess': instance.discussionLinksAccess,
+      'discussionAccessLink': instance.discussionAccessLink,
       'description': instance.description,
       'titleHistory': instance.titleHistory,
       'descriptionHistory': instance.descriptionHistory,
@@ -158,23 +158,25 @@ Map<String, dynamic> _$DiscussionInputToJson(DiscussionInput instance) =>
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
     };
 
-DiscussionLinkAccess _$DiscussionLinkAccessFromJson(Map<String, dynamic> json) {
-  return DiscussionLinkAccess(
-    discussionID: json['discussionID'] as String,
-    inviteLinkURL: json['inviteLinkURL'] as String,
-    vipInviteLinkURL: json['vipInviteLinkURL'] as String,
+DiscussionAccessLink _$DiscussionAccessLinkFromJson(Map<String, dynamic> json) {
+  return DiscussionAccessLink(
+    discussion: json['discussion'] == null
+        ? null
+        : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
+    url: json['url'] as String,
+    linkSlug: json['linkSlug'] as String,
     createdAt: json['createdAt'] as String,
     updatedAt: json['updatedAt'] as String,
     isDeleted: json['isDeleted'] as bool,
   );
 }
 
-Map<String, dynamic> _$DiscussionLinkAccessToJson(
-        DiscussionLinkAccess instance) =>
+Map<String, dynamic> _$DiscussionAccessLinkToJson(
+        DiscussionAccessLink instance) =>
     <String, dynamic>{
-      'discussionID': instance.discussionID,
-      'inviteLinkURL': instance.inviteLinkURL,
-      'vipInviteLinkURL': instance.vipInviteLinkURL,
+      'discussion': instance.discussion,
+      'url': instance.url,
+      'linkSlug': instance.linkSlug,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,
       'isDeleted': instance.isDeleted,

@@ -244,44 +244,23 @@ class ChathamAppState extends State<ChathamApp>
                     if (linkArgs == null) {
                       return;
                     }
-                    if (linkArgs.isVipLink) {
-                      // We need to join the discussion and then show it.
-                      try {
-                        RepositoryProvider.of<DiscussionRepository>(context)
-                            .joinDiscussionWithVIPLink(
-                          discussionID: linkArgs.discussionID,
-                          vipToken: linkArgs.vipLinkToken,
-                        )
-                            .then((disc) {
-                          navKey.currentState.pushNamed('/Discussion',
-                              arguments: DiscussionArguments(
-                                discussionID: linkArgs.discussionID,
-                                isStartJoinFlow: disc.meParticipant == null,
-                              ));
-                        }).catchError((err) {
-                          BlocProvider.of<NotificationBloc>(context).add(
-                            NewNotificationEvent(
-                              notification: OverlayTopMessage(
-                                child: IncognitoModeTextOverlay(
-                                  hasGoneIncognito: false,
-                                  textOverride: "Failed to join discussion.",
-                                ),
-                                onDismiss: () {
-                                  BlocProvider.of<NotificationBloc>(context)
-                                      .add(DismissNotification());
-                                },
-                              ),
-                            ),
-                          );
-                        });
-                      } catch (err) {}
-                    } else {
-                      navKey.currentState.pushNamed('/Discussion',
+                    try {
+                      RepositoryProvider.of<DiscussionRepository>(context)
+                          .getDiscussionFromSlug(linkArgs.discussionSlug)
+                          .then((disc) {
+                        if (disc == null) {
+                          // Nothing to do here so just return.
+                          return;
+                        }
+                        navKey.currentState.pushNamed(
+                          '/Discussion',
                           arguments: DiscussionArguments(
-                            discussionID: linkArgs.discussionID,
+                            discussionID: disc.id,
                             isStartJoinFlow: false,
-                          ));
-                    }
+                          ),
+                        );
+                      });
+                    } catch (err) {}
                   }
                 }
               }),

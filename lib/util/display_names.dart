@@ -6,7 +6,9 @@ import 'package:recase/recase.dart';
 class DisplayNames {
   static String formatParticipant(
       Moderator moderator, Participant participant) {
-    if (participant == null) return "Unavailable";
+    if (participant == null) {
+      return "Unavailable";
+    }
     var name = participant.anonDisplayName;
     if (participant.participantID == 0) {
       name = moderator.userProfile.displayName;

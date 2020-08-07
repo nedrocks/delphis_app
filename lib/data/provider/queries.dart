@@ -329,11 +329,13 @@ const DiscussionFragmentFull = """
   $PostsConnectionFragment
 """;
 
-const DiscussionLinkAccessFragment = """
-  fragment DiscussionLinkAccessFragment on DiscussionLinkAccess {
-    discussionID
-    inviteLinkURL
-    vipInviteLinkURL
+const DiscussionAccessLinkFragment = """
+  fragment DiscussionAccessLinkFragment on DiscussionAccessLink {
+    discussion {
+      id
+    }
+    url
+    linkSlug
     createdAt
     updatedAt
     isDeleted
@@ -489,20 +491,44 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 }
 
-class DiscussionLinkAccessGQLQuery extends GQLQuery<DiscussionLinkAccess> {
+class DiscussionFromDiscussionSlugQuery extends GQLQuery<Discussion> {
+  final String slug;
+  final String _query = """
+    query DiscussionByLinkSlug(\$slug: String!) {
+      discussionByLinkSlug(slug: \$slug){
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  const DiscussionFromDiscussionSlugQuery({
+    this.slug,
+  });
+
+  String query() {
+    return this._query;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["discussionByLinkSlug"]);
+  }
+}
+
+class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
   final String discussionID;
   final String _query = """
-    query DiscussionLinkAccess(\$id: ID!) {
+    query DiscussionAccessLink(\$id: ID!) {
       discussion(id: \$id){
-        discussionLinksAccess {
-          ...DiscussionLinkAccessFragment
+        discussionAccessLink {
+          ...DiscussionAccessLinkFragment
         }
       }
     }
-    $DiscussionLinkAccessFragment
+    $DiscussionAccessLinkFragment
   """;
 
-  const DiscussionLinkAccessGQLQuery({
+  const DiscussionAccessLinkGQLQuery({
     this.discussionID,
   }) : super();
 
@@ -510,9 +536,9 @@ class DiscussionLinkAccessGQLQuery extends GQLQuery<DiscussionLinkAccess> {
     return this._query;
   }
 
-  DiscussionLinkAccess parseResult(dynamic data) {
-    return DiscussionLinkAccess.fromJson(
-        data["discussion"]["discussionLinksAccess"]);
+  DiscussionAccessLink parseResult(dynamic data) {
+    return DiscussionAccessLink.fromJson(
+        data["discussion"]["discussionAccessLink"]);
   }
 }
 

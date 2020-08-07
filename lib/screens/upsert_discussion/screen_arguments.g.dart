@@ -62,5 +62,6 @@ const _$UpsertDiscussionScreenPageEnumMap = {
   UpsertDiscussionScreenPage.TITLE_DESCRIPTION: 'TITLE_DESCRIPTION',
   UpsertDiscussionScreenPage.TWITTER_AUTH: 'TWITTER_AUTH',
   UpsertDiscussionScreenPage.INVITATION_MODE: 'INVITATION_MODE',
+  UpsertDiscussionScreenPage.CREATION_LOADING: 'CREATION_LOADING',
   UpsertDiscussionScreenPage.CONFIRMATION: 'CONFIRMATION',
 };

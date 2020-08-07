@@ -12,6 +12,20 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const ViewerInfoFragment = """
+  fragment ViewerInfoFragment on Viewer {
+    id
+    discussion {
+      id
+    }
+    lastViewed
+    lastViewedPost {
+      id
+      createdAt
+    }
+  }
+""";
+
 const ParticipantInfoFragment = """
   fragment ParticipantInfoFragment on Participant {
     id
@@ -262,12 +276,16 @@ const DiscussionListFragment = """
     participants {
       ...ParticipantInfoFragment
     }
+    meViewer {
+      ...ViewerInfoFragment
+    }
     anonymityType
     iconURL
     discussionJoinability
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment
+  $ViewerInfoFragment
 """;
 
 const DiscussionFragmentFull = """

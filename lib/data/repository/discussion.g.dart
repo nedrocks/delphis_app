@@ -50,6 +50,12 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ?.toList(),
     discussionJoinability: _$enumDecodeNullable(
         _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
+    mutedUntil: json['mutedUntil'] == null
+        ? null
+        : DateTime.parse(json['mutedUntil'] as String),
+    meViewer: json['meViewer'] == null
+        ? null
+        : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
   );
 }
 
@@ -72,6 +78,8 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'descriptionHistory': instance.descriptionHistory,
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
+      'mutedUntil': instance.mutedUntil?.toIso8601String(),
+      'meViewer': instance.meViewer,
     };
 
 T _$enumDecode<T>(

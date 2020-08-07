@@ -297,6 +297,7 @@ const DiscussionListFragment = """
       response
       reason
       reasonCode
+    }
     meViewer {
       ...ViewerInfoFragment
     }

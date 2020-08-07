@@ -543,7 +543,7 @@ class Discussion extends Equatable implements Entity {
         isActivatedLocally,
         isArchivedLocally,
         meCanJoinDiscussion,
-        meViewer.id,
+        meViewer?.id,
       ];
 
   Discussion({

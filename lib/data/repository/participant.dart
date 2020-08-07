@@ -199,7 +199,8 @@ class ParticipantRepository {
     return mutation.parseResult(result.data);
   }
 
-  Future<Participant> banParticipant(Discussion discussion, Participant participant,
+  Future<Participant> banParticipant(
+      Discussion discussion, Participant participant,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
@@ -213,9 +214,7 @@ class ParticipantRepository {
     }
 
     final mutation = BanParticipantMutation(
-      discussionID: discussion.id,
-      participantID: participant.id
-    );
+        discussionID: discussion.id, participantID: participant.id);
     final QueryResult result = await client.mutate(
       MutationOptions(
         documentNode: gql(mutation.mutation()),
@@ -247,9 +246,17 @@ class Participant extends Equatable implements Entity {
   final bool hasJoined;
   final UserProfile userProfile;
   final Participant inviter;
+  final String anonDisplayName;
 
-  List<Object> get props =>
-      [participantID, discussion, viewer, posts, flair, hasJoined];
+  List<Object> get props => [
+        participantID,
+        discussion,
+        viewer,
+        posts,
+        flair,
+        hasJoined,
+        anonDisplayName
+      ];
 
   const Participant({
     this.id,
@@ -263,14 +270,14 @@ class Participant extends Equatable implements Entity {
     this.hasJoined,
     this.userProfile,
     this.inviter,
-    this.isBanned
+    this.isBanned,
+    this.anonDisplayName,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) =>
       _$ParticipantFromJson(json);
-  
+
   Map<String, dynamic> toJSON() {
     return _$ParticipantToJson(this);
   }
-
 }

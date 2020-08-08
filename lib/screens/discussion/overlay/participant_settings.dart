@@ -81,7 +81,9 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     switch (this._settingsState) {
       case _SettingsState.ANONYMITY_SELECT:
         bool actionButtonEnabled = _didChange;
-        Color actionButtonColor = _didChange ? Color.fromRGBO(247, 247, 255, 0.2) : Color.fromRGBO(247, 247, 255, 1.0);
+        Color actionButtonColor = _didChange
+            ? Color.fromRGBO(247, 247, 255, 0.2)
+            : Color.fromRGBO(247, 247, 255, 1.0);
         Widget actionButtonText = Text(
           Intl.message('Update'),
           style: TextThemes.goIncognitoButton,
@@ -107,13 +109,15 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
           color: actionButtonColor,
           child: actionButtonText,
-          onPressed: !actionButtonEnabled ? null : () {
-            if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
-              this.joinDiscussion();
-            } else {
-              this.updateExistingParticipant();
-            }
-          },
+          onPressed: !actionButtonEnabled
+              ? null
+              : () {
+                  if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+                    this.joinDiscussion();
+                  } else {
+                    this.updateExistingParticipant();
+                  }
+                },
         );
 
         child = Column(
@@ -126,10 +130,9 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             SizedBox(height: SpacingValues.mediumLarge),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             ListView(
-              padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
-              shrinkWrap: true,
-              children: buildSettingsList()
-            ),
+                padding: EdgeInsets.symmetric(vertical: SpacingValues.small),
+                shrinkWrap: true,
+                children: buildSettingsList()),
             Container(height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: SpacingValues.medium),
@@ -226,24 +229,26 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   void updateExistingParticipant() {
-    var didUpdate = (this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous;
+    var didUpdate =
+        (this._selectedIdx == 1) != this.widget.meParticipant.isAnonymous;
     final notifBloc = BlocProvider.of<NotificationBloc>(context);
-    var onSuccess = !didUpdate ? () {} : () {
-      notifBloc.add(
-        NewNotificationEvent(
-          notification: OverlayTopMessage(
-            showForMs: 2000,
-            child: IncognitoModeTextOverlay(
-              hasGoneIncognito: _selectedIdx == 1,
-            ),
-            onDismiss: () {
-              notifBloc
-                .add(DismissNotification());
-            },
-          ),
-        ),
-      );
-    };
+    var onSuccess = !didUpdate
+        ? () {}
+        : () {
+            notifBloc.add(
+              NewNotificationEvent(
+                notification: OverlayTopMessage(
+                  showForMs: 2000,
+                  child: IncognitoModeTextOverlay(
+                    hasGoneIncognito: _selectedIdx == 1,
+                  ),
+                  onDismiss: () {
+                    notifBloc.add(DismissNotification());
+                  },
+                ),
+              ),
+            );
+          };
     var onError = (error) {
       notifBloc.add(
         NewNotificationEvent(
@@ -254,8 +259,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
               textOverride: error.toString(),
             ),
             onDismiss: () {
-              notifBloc
-                .add(DismissNotification());
+              notifBloc.add(DismissNotification());
             },
           ),
         ),
@@ -264,16 +268,15 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
 
     (this.widget.participantBloc ?? BlocProvider.of<ParticipantBloc>(context))
         .add(ParticipantEventUpdateParticipant(
-      participantID: this.widget.meParticipant.id,
-      isAnonymous: this._selectedIdx == 1,
-      gradientName: this._selectedGradient,
-      flair: this.widget.me.flairs.firstWhere(
-          (flair) => flair.id == this._selectedFlairID,
-          orElse: () => null),
-      isUnsetFlairID: this._selectedFlairID == null,
-      onSuccess: onSuccess,
-      onError: onError
-    ));
+            participantID: this.widget.meParticipant.id,
+            isAnonymous: this._selectedIdx == 1,
+            gradientName: this._selectedGradient,
+            flair: this.widget.me.flairs.firstWhere(
+                (flair) => flair.id == this._selectedFlairID,
+                orElse: () => null),
+            isUnsetFlairID: this._selectedFlairID == null,
+            onSuccess: onSuccess,
+            onError: onError));
     this.widget.onClose(didUpdate);
   }
 
@@ -306,7 +309,10 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
 
   List<Widget> buildSettingsList() {
     List<Widget> list = [];
-    if(this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT || this.widget.discussion.isMeDiscussionModerator()) {
+    if ((this.widget.meParticipant != null &&
+            this.widget.meParticipant.isAnonymous) ||
+        this.widget.settingsFlow == SettingsFlow.JOIN_CHAT ||
+        this.widget.discussion.isMeDiscussionModerator()) {
       list.add(ParticipantAnonymitySettingOption(
         height: 40.0,
         user: this.widget.me,
@@ -326,19 +332,22 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this._settingsState = _SettingsState.FLAIR_SELECT;
           });
         },
-        showEditButton: this.widget.me.flairs != null && this.widget.me.flairs.length > 0,
+        showEditButton:
+            this.widget.me.flairs != null && this.widget.me.flairs.length > 0,
       ));
     }
-    
-    if((!this.widget.meParticipant.isAnonymous || this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) && !this.widget.discussion.isMeDiscussionModerator()) {
+
+    if ((!this.widget.meParticipant.isAnonymous ||
+            this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) &&
+        !this.widget.discussion.isMeDiscussionModerator()) {
       var onEdit = () {
         this.setState(() {
           this._settingsState = _SettingsState.FLAIR_SELECT;
         });
       };
-      if(this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
+      if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
         onEdit = () {
-            this.setState(() {
+          this.setState(() {
             this._settingsState = _SettingsState.GRADIENT_SELECT;
           });
         };
@@ -358,8 +367,8 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           });
         },
         onEdit: onEdit,
-        showEditButton: this.widget.settingsFlow == SettingsFlow.JOIN_CHAT
-            || (this.widget.me.flairs != null && this.widget.me.flairs.length > 0),
+        showEditButton: this.widget.settingsFlow == SettingsFlow.JOIN_CHAT ||
+            (this.widget.me.flairs != null && this.widget.me.flairs.length > 0),
       ));
     }
 
@@ -367,32 +376,34 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
   }
 
   Widget buildTitle() {
-    if(this.widget.discussion.isMeDiscussionModerator()) {
+    if (this.widget.discussion.isMeDiscussionModerator()) {
       return Text(
         this.widget.settingsFlow == SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
-          ? Intl.message('Settings')
-          : Intl.message('How would you like to join?'),
+            ? Intl.message('Settings')
+            : Intl.message('How would you like to join?'),
         style: TextThemes.goIncognitoHeader,
         textAlign: TextAlign.center,
       );
     }
     return Text(
       this.widget.settingsFlow == SettingsFlow.PARTICIPANT_SETTINGS_IN_CHAT
-        ? (this.widget.meParticipant.isAnonymous ? Intl.message("Go Public?") : Intl.message('Go Incognito?'))
-        : Intl.message('How would you like to join?'),
+          ? (this.widget.meParticipant.isAnonymous
+              ? Intl.message("Go Public?")
+              : Intl.message('Go Incognito?'))
+          : Intl.message('How would you like to join?'),
       style: TextThemes.goIncognitoHeader,
       textAlign: TextAlign.center,
     );
   }
 
   Widget buildSubTitle() {
-    var displayName = DisplayNames.formatParticipant(this.widget.discussion.moderator, this.widget.meParticipant);
+    var displayName = DisplayNames.formatParticipant(
+        this.widget.discussion.moderator, this.widget.meParticipant);
     var profileImage = ProfileImage(
-      height: TextThemes.goIncognitoSubheader.fontSize * 1.3,
-      width: TextThemes.goIncognitoSubheader.fontSize * 1.3,
-      profileImageURL: this.widget.meParticipant.userProfile?.profileImageURL,
-      isAnonymous: this.widget.meParticipant.isAnonymous
-    );
+        height: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+        width: TextThemes.goIncognitoSubheader.fontSize * 1.3,
+        profileImageURL: this.widget.meParticipant.userProfile?.profileImageURL,
+        isAnonymous: this.widget.meParticipant.isAnonymous);
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
@@ -401,16 +412,14 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           TextSpan(text: Intl.message('You are currently posting as:\n')),
           WidgetSpan(child: profileImage),
           TextSpan(
-            text: ' $displayName',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.blue
-            )
-          ),
-          TextSpan(text: Intl.message('.\nPick how you want your avatar to display.')),
+              text: ' $displayName',
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+          TextSpan(
+              text:
+                  Intl.message('.\nPick how you want your avatar to display.')),
         ],
       ),
     );
   }
-
 }

@@ -12,6 +12,25 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const DiscussionUserAccessFragment = """
+  fragment DiscussionUserAccessFragment on DiscussionUserAccess {
+    discussion {
+      id
+    }
+    user {
+      id
+    }
+    state
+    createdAt
+    updatedAt
+    isDeleted
+    request {
+      ...DiscussionAccessRequestFragment
+    }
+  }
+  $DiscussionAccessRequestFragment
+""";
+
 const DiscussionAccessRequestFragment = """
   fragment DiscussionAccessRequestFragment on DiscussionAccessRequest {
     id

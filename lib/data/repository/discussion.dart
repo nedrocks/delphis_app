@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -192,6 +193,45 @@ class DiscussionRepository {
       throw result.exception;
     }
     return query.parseResult(result.data);
+  }
+
+  Future<DiscussionUserAccess> updateDiscussionUserSettings(
+      String discussionID,
+      DiscussionUserAccessState accessState,
+      DiscussionUserNotificationSetting setting,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return updateDiscussionUserSettings(discussionID, accessState, setting,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final mutation = UpdateDiscussionUserSettingsMutation(
+        discussionID: discussionID, state: accessState, notifSetting: setting);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'settings': mutation.createInputObject()
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+    // Handle exceptions
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
   }
 
   Future<Discussion> getDiscussionFromSlug(String slug,

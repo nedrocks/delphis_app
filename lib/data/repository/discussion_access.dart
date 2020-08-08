@@ -7,6 +7,8 @@ import 'discussion.dart';
 part 'discussion_access.g.dart';
 
 enum InviteRequestStatus { ACCEPTED, REJECTED, INVITED, CANCELLED }
+enum DiscussionUserAccessState { ACTIVE, ARCHIVED, DELETED }
+enum DiscussionUserNotificationSetting { NONE, MENTIONS, EVERYTHING }
 
 @JsonSerializable()
 class DiscussionAccessRequest extends Equatable {
@@ -40,4 +42,36 @@ class DiscussionAccessRequest extends Equatable {
 
   factory DiscussionAccessRequest.fromJson(Map<String, dynamic> json) =>
       _$DiscussionAccessRequestFromJson(json);
+}
+
+@JsonSerializable()
+class DiscussionUserAccess extends Equatable {
+  final Discussion discussion;
+  final User user;
+  final DiscussionUserAccessState state;
+  final String createdAt;
+  final String updatedAt;
+  final bool isDeleted;
+  final DiscussionAccessRequest request;
+
+  const DiscussionUserAccess({
+    this.discussion,
+    this.user,
+    this.state,
+    this.createdAt,
+    this.updatedAt,
+    this.isDeleted,
+    this.request,
+  });
+
+  List<Object> get props => [
+        this.discussion?.id,
+        this.user?.id,
+        this.state,
+        this.isDeleted,
+        this.request,
+      ];
+
+  factory DiscussionUserAccess.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionUserAccessFromJson(json);
 }

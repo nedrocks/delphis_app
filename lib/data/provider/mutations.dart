@@ -104,6 +104,45 @@ class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
   }
 }
 
+class UpdateDiscussionUserSettingsMutation
+    extends GQLMutation<DiscussionUserAccess> {
+  final String discussionID;
+  final DiscussionUserAccessState state;
+  final DiscussionUserNotificationSetting notifSetting;
+
+  const UpdateDiscussionUserSettingsMutation({
+    @required this.discussionID,
+    this.state,
+    this.notifSetting,
+  });
+
+  final String _mutation = """
+    mutation UpdateDiscussionUserSettings(\$discussionID: ID!, \$settings: DiscussionUserSettings!) {
+      updateDiscussionUserSettings(discussionID: \$discussionID, settings: \$settings) {
+        ...DiscussionUserAccessFragment
+      }
+    }
+    $DiscussionUserAccessFragment
+  """;
+
+  Map<String, dynamic> createInputObject() {
+    final stateString = this.state?.toString()?.split('.');
+    final notifString = this.notifSetting?.toString()?.split('.');
+    return {
+      'state': stateString == null ? null : stateString[1],
+      'notifSetting': notifString == null ? null : notifString[1],
+    };
+  }
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  DiscussionUserAccess parseResult(dynamic data) {
+    return DiscussionUserAccess.fromJson(data['updateDiscussionUserSettings']);
+  }
+}
+
 class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
   final String description;

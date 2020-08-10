@@ -62,7 +62,7 @@ class DiscussionViewerBloc
       // A few other checks here:
       if (event.post == null ||
           (currentState.viewer.lastViewedPost != null &&
-              event.post.createdAtAsDateTime().isAfter(
+              event.post.createdAtAsDateTime().isBefore(
                   currentState.viewer.lastViewedPost.createdAtAsDateTime()))) {
         // In either of these cases we want to not send any information!
         return;

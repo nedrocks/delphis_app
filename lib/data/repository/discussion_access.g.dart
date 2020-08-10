@@ -73,3 +73,41 @@ const _$InviteRequestStatusEnumMap = {
   InviteRequestStatus.INVITED: 'INVITED',
   InviteRequestStatus.CANCELLED: 'CANCELLED',
 };
+
+DiscussionUserAccess _$DiscussionUserAccessFromJson(Map<String, dynamic> json) {
+  return DiscussionUserAccess(
+    discussion: json['discussion'] == null
+        ? null
+        : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
+    user: json['user'] == null
+        ? null
+        : User.fromJson(json['user'] as Map<String, dynamic>),
+    state:
+        _$enumDecodeNullable(_$DiscussionUserAccessStateEnumMap, json['state']),
+    createdAt: json['createdAt'] as String,
+    updatedAt: json['updatedAt'] as String,
+    isDeleted: json['isDeleted'] as bool,
+    request: json['request'] == null
+        ? null
+        : DiscussionAccessRequest.fromJson(
+            json['request'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$DiscussionUserAccessToJson(
+        DiscussionUserAccess instance) =>
+    <String, dynamic>{
+      'discussion': instance.discussion,
+      'user': instance.user,
+      'state': _$DiscussionUserAccessStateEnumMap[instance.state],
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
+      'isDeleted': instance.isDeleted,
+      'request': instance.request,
+    };
+
+const _$DiscussionUserAccessStateEnumMap = {
+  DiscussionUserAccessState.ACTIVE: 'ACTIVE',
+  DiscussionUserAccessState.ARCHIVED: 'ARCHIVED',
+  DiscussionUserAccessState.DELETED: 'DELETED',
+};

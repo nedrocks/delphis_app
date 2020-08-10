@@ -71,8 +71,9 @@ class ParticipantListScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             var participant =
                                 state.discussion.participants[index];
-                            var isModerator = participant.userProfile.id ==
-                                moderator.userProfile.id;
+                            var isModerator = (participant.userProfile?.id ==
+                                    moderator.userProfile.id) ??
+                                false;
                             return ParticipantSnippet(
                               height: 50,
                               moderator: moderator,

@@ -28,9 +28,13 @@ class UpsertDiscussionBloc
     } else if (event is UpsertDiscussionMeUserChangeEvent) {
       final updated = this.state.info.copyWith(meUser: event.me);
       yield UpsertDiscussionReadyState(updated);
-    } else if (event is UpsertDiscussionSelectDiscussionEvent) {
+    } else if (event is UpsertDiscussionSelectDiscussionEvent &&
+        event.discussion != null) {
       final updated = this.state.info.copyWith(
             discussion: event.discussion,
+            title: event.discussion.title,
+            description: event.discussion.description,
+            inviteMode: event.discussion.discussionJoinability,
             isNewDiscussion: false,
           );
       yield UpsertDiscussionReadyState(updated);
@@ -63,7 +67,31 @@ class UpsertDiscussionBloc
         yield UpsertDiscussionReadyState(info.copyWith(
           discussion: discussion,
           isNewDiscussion: false,
-          inviteLink: discussion.discussionLinksAccess.inviteLinkURL,
+          inviteLink: discussion.discussionAccessLink.url,
+        ));
+      } catch (error) {
+        yield UpsertDiscussionErrorState(this.state.info, error);
+      }
+    } else if (event is UpsertDiscussionUpdateDiscussionEvent) {
+      final info = this.state.info;
+      yield UpsertDiscussionCreateLoadingState(info);
+      try {
+        if (((info.title?.length ?? 0) == 0) || info.inviteMode == null) {
+          throw Intl.message("You didn't insert all the required fields");
+        }
+
+        final discussion = await this.discussionRepository.updateDiscussion(
+              this.state.info.discussion.id,
+              DiscussionInput(
+                title: info.title,
+                description: info.description,
+                discussionJoinability: info.inviteMode,
+              ),
+            );
+
+        yield UpsertDiscussionReadyState(info.copyWith(
+          discussion: discussion,
+          isNewDiscussion: false,
         ));
       } catch (error) {
         yield UpsertDiscussionErrorState(this.state.info, error);

@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -193,20 +194,49 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<DiscussionLinkAccess> getDiscussionLinkAccess(String discussionID,
+  Future<Discussion> getDiscussionFromSlug(String slug,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionLinkAccess(discussionID, attempt: attempt + 1);
+        return getDiscussionFromSlug(slug, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = DiscussionLinkAccessGQLQuery(discussionID: discussionID);
+    final query = DiscussionFromDiscussionSlugQuery(slug: slug);
+
+    final QueryResult result = await client.query(QueryOptions(
+      documentNode: gql(query.query()),
+      variables: {
+        'slug': slug,
+      },
+      fetchPolicy: FetchPolicy.noCache,
+    ));
+    // Handle exceptions
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return query.parseResult(result.data);
+  }
+
+  Future<DiscussionAccessLink> getDiscussionAccessLink(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return getDiscussionAccessLink(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final query = DiscussionAccessLinkGQLQuery(discussionID: discussionID);
 
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
@@ -415,21 +445,14 @@ class DiscussionRepository {
 
   Future<Discussion> updateDiscussion(
     String discussionID,
-    String title,
-    String description,
-    String iconURL, {
+    DiscussionInput input, {
     int attempt = 1,
   }) async {
-    if (title == null || title.length == 0) {
-      return null;
-    }
-
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return updateDiscussion(discussionID, title, description, iconURL,
-            attempt: attempt + 1);
+        return updateDiscussion(discussionID, input, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
@@ -437,10 +460,9 @@ class DiscussionRepository {
     }
 
     final mutation = UpdateDiscussionMutation(
-        discussionID: discussionID,
-        title: title,
-        description: description,
-        iconURL: iconURL);
+      discussionID: discussionID,
+      input: input,
+    );
 
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -507,12 +529,14 @@ class Discussion extends Equatable implements Entity {
   final Participant meParticipant;
   final List<Participant> meAvailableParticipants;
   final String iconURL;
-  final DiscussionLinkAccess discussionLinksAccess;
+  final DiscussionAccessLink discussionAccessLink;
   final String description;
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
   final DiscussionJoinabilitySetting discussionJoinability;
   final DateTime mutedUntil;
+  final CanJoinDiscussionResponse meCanJoinDiscussion;
+  final Viewer meViewer;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -547,6 +571,8 @@ class Discussion extends Equatable implements Entity {
         isDeletedLocally,
         isActivatedLocally,
         isArchivedLocally,
+        meCanJoinDiscussion,
+        meViewer?.id,
       ];
 
   Discussion({
@@ -561,16 +587,18 @@ class Discussion extends Equatable implements Entity {
     this.meParticipant,
     this.meAvailableParticipants,
     this.iconURL,
-    this.discussionLinksAccess,
+    this.discussionAccessLink,
     this.description,
     this.titleHistory,
     this.descriptionHistory,
     this.discussionJoinability,
     this.mutedUntil,
+    this.meCanJoinDiscussion,
     postsCache,
     this.isDeletedLocally = false,
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
+    this.meViewer,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -652,16 +680,18 @@ class Discussion extends Equatable implements Entity {
     Participant meParticipant,
     List<Participant> meAvailableParticipants,
     String iconURL,
-    DiscussionLinkAccess discussionLinksAccess,
+    DiscussionAccessLink discussionAccessLink,
     String description,
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
     DateTime mutedUntil,
+    CanJoinDiscussionResponse meCanJoinDiscussion,
     List<Post> postsCache,
     bool isActivatedLocally,
     bool isDeletedLocally,
     bool isArchivedLocally,
+    Viewer meViewer,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -676,54 +706,135 @@ class Discussion extends Equatable implements Entity {
       meAvailableParticipants:
           meAvailableParticipants ?? this.meAvailableParticipants,
       iconURL: iconURL ?? this.iconURL,
-      discussionLinksAccess:
-          discussionLinksAccess ?? this.discussionLinksAccess,
+      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
       description: description ?? this.description,
       titleHistory: titleHistory ?? this.titleHistory,
       descriptionHistory: descriptionHistory ?? this.descriptionHistory,
       discussionJoinability:
           discussionJoinability ?? this.discussionJoinability,
       mutedUntil: mutedUntil ?? this.mutedUntil,
+      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
       postsCache: postsCache ?? this.postsCache,
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+      meViewer: meViewer ?? this.meViewer,
     );
   }
 }
 
 @JsonAnnotation.JsonSerializable()
-class DiscussionLinkAccess extends Equatable {
-  final String discussionID;
-  final String inviteLinkURL;
-  final String vipInviteLinkURL;
+class DiscussionInput extends Equatable {
+  final String title;
+  final String description;
+  final String iconURL;
+  final AnonymityType anonymityType;
+  final bool autoPost;
+  final int idleMinutes;
+  final bool publicAccess;
+  final DiscussionJoinabilitySetting discussionJoinability;
+
+  const DiscussionInput({
+    this.title,
+    this.description,
+    this.iconURL,
+    this.anonymityType,
+    this.autoPost,
+    this.idleMinutes,
+    this.publicAccess,
+    this.discussionJoinability,
+  });
+
+  @override
+  List<Object> get props => [
+        title,
+        description,
+        iconURL,
+        anonymityType,
+        autoPost,
+        idleMinutes,
+        publicAccess,
+        discussionJoinability,
+      ];
+
+  factory DiscussionInput.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionInputFromJson(json);
+
+  Map<String, dynamic> toJSON() {
+    return _$DiscussionInputToJson(this);
+  }
+}
+
+@JsonAnnotation.JsonSerializable()
+class DiscussionAccessLink extends Equatable {
+  final Discussion discussion;
+  final String url;
+  final String linkSlug;
   final String createdAt;
   final String updatedAt;
   final bool isDeleted;
 
-  const DiscussionLinkAccess(
-      {this.discussionID,
-      this.inviteLinkURL,
-      this.vipInviteLinkURL,
-      this.createdAt,
-      this.updatedAt,
-      this.isDeleted});
+  const DiscussionAccessLink({
+    this.discussion,
+    this.url,
+    this.linkSlug,
+    this.createdAt,
+    this.updatedAt,
+    this.isDeleted,
+  });
 
   @override
   List<Object> get props => [
-        discussionID,
-        inviteLinkURL,
-        vipInviteLinkURL,
-        createdAt,
-        updatedAt,
-        isDeleted
+        this.discussion?.id,
+        this.url,
+        this.linkSlug,
+        this.isDeleted,
       ];
 
-  factory DiscussionLinkAccess.fromJson(Map<String, dynamic> json) =>
-      _$DiscussionLinkAccessFromJson(json);
+  factory DiscussionAccessLink.fromJson(Map<String, dynamic> json) =>
+      _$DiscussionAccessLinkFromJson(json);
+}
+
+@JsonAnnotation.JsonSerializable()
+class CanJoinDiscussionResponse extends Equatable {
+  final DiscussionJoinabilityResponse response;
+  final String reason;
+  final int reasonCode;
+
+  CanJoinDiscussionResponse({
+    this.response,
+    this.reason,
+    this.reasonCode,
+  });
+
+  @override
+  List<Object> get props => [response, reason, reasonCode];
+
+  CanJoinDiscussionResponse copyWith({
+    DiscussionJoinabilityResponse response,
+    String reason,
+    int reasonCode,
+  }) {
+    return CanJoinDiscussionResponse(
+      response: response ?? this.response,
+      reason: reason ?? this.reason,
+      reasonCode: reasonCode ?? this.reasonCode,
+    );
+  }
+
+  factory CanJoinDiscussionResponse.fromJson(Map<String, dynamic> json) =>
+      _$CanJoinDiscussionResponseFromJson(json);
 }
 
 enum DiscussionJoinabilitySetting {
   ALLOW_TWITTER_FRIENDS,
   ALL_REQUIRE_APPROVAL
+}
+
+enum DiscussionJoinabilityResponse {
+  ALREADY_JOINED,
+  APPROVED_NOT_JOINED,
+  AWAITING_APPROVAL,
+  APPROVAL_REQUIRED,
+  DENIED,
 }

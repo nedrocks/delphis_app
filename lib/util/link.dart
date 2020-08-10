@@ -1,10 +1,7 @@
 class ChathamDiscussionLinkParams {
-  final String discussionID;
-  final String vipLinkToken;
+  final String discussionSlug;
 
-  const ChathamDiscussionLinkParams(this.discussionID, this.vipLinkToken);
-
-  bool get isVipLink => vipLinkToken != null;
+  const ChathamDiscussionLinkParams(this.discussionSlug);
 }
 
 class ChathamLinkParser {
@@ -12,10 +9,7 @@ class ChathamLinkParser {
     try {
       if (link.path.startsWith('/d')) {
         if (link.pathSegments.length == 2) {
-          return ChathamDiscussionLinkParams(link.pathSegments[1], null);
-        } else if (link.pathSegments.length == 3) {
-          return ChathamDiscussionLinkParams(
-              link.pathSegments[1], link.pathSegments[2]);
+          return ChathamDiscussionLinkParams(link.pathSegments[1]);
         } else {
           return null;
         }

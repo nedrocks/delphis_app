@@ -1,29 +1,38 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'screen_arguments.dart';
+part of 'discussion_access.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-UpsertDiscussionArguments _$UpsertDiscussionArgumentsFromJson(
+DiscussionAccessRequest _$DiscussionAccessRequestFromJson(
     Map<String, dynamic> json) {
-  return UpsertDiscussionArguments(
+  return DiscussionAccessRequest(
+    id: json['id'] as String,
+    user: json['user'] == null
+        ? null
+        : User.fromJson(json['user'] as Map<String, dynamic>),
     discussion: json['discussion'] == null
         ? null
         : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
-    firstPage: _$enumDecodeNullable(
-        _$UpsertDiscussionScreenPageEnumMap, json['firstPage']),
-    isUpdateMode: json['isUpdateMode'] as bool,
+    createdAt: json['createdAt'] as String,
+    updatedAt: json['updatedAt'] as String,
+    isDeleted: json['isDeleted'] as bool,
+    status: _$enumDecodeNullable(_$InviteRequestStatusEnumMap, json['status']),
   );
 }
 
-Map<String, dynamic> _$UpsertDiscussionArgumentsToJson(
-        UpsertDiscussionArguments instance) =>
+Map<String, dynamic> _$DiscussionAccessRequestToJson(
+        DiscussionAccessRequest instance) =>
     <String, dynamic>{
+      'id': instance.id,
+      'user': instance.user,
       'discussion': instance.discussion,
-      'firstPage': _$UpsertDiscussionScreenPageEnumMap[instance.firstPage],
-      'isUpdateMode': instance.isUpdateMode,
+      'createdAt': instance.createdAt,
+      'updatedAt': instance.updatedAt,
+      'isDeleted': instance.isDeleted,
+      'status': _$InviteRequestStatusEnumMap[instance.status],
     };
 
 T _$enumDecode<T>(
@@ -58,10 +67,9 @@ T _$enumDecodeNullable<T>(
   return _$enumDecode<T>(enumValues, source, unknownValue: unknownValue);
 }
 
-const _$UpsertDiscussionScreenPageEnumMap = {
-  UpsertDiscussionScreenPage.TITLE_DESCRIPTION: 'TITLE_DESCRIPTION',
-  UpsertDiscussionScreenPage.TWITTER_AUTH: 'TWITTER_AUTH',
-  UpsertDiscussionScreenPage.INVITATION_MODE: 'INVITATION_MODE',
-  UpsertDiscussionScreenPage.CREATION_LOADING: 'CREATION_LOADING',
-  UpsertDiscussionScreenPage.CONFIRMATION: 'CONFIRMATION',
+const _$InviteRequestStatusEnumMap = {
+  InviteRequestStatus.ACCEPTED: 'ACCEPTED',
+  InviteRequestStatus.REJECTED: 'REJECTED',
+  InviteRequestStatus.INVITED: 'INVITED',
+  InviteRequestStatus.CANCELLED: 'CANCELLED',
 };

@@ -68,6 +68,8 @@ dependencies:
 
   characters: ^1.0.0
 
+  rxdart: ^0.24.1
+
 dev_dependencies:
   # TODO: We need to update image_test_utils to depend on the later version of mockito
   # (^4.0.0) so we can use the newer version of mockito

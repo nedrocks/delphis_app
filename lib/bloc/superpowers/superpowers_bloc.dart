@@ -67,10 +67,7 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
       }
     } else if (event is CopyDiscussionLinkEvent) {
       if (this.state is ReadyState) {
-        var link = event.discussion.discussionLinksAccess.inviteLinkURL;
-        if (event.isVip) {
-          link = event.discussion.discussionLinksAccess.vipInviteLinkURL;
-        }
+        var link = event.discussion.discussionAccessLink.url;
         Clipboard.setData(ClipboardData(text: link));
         notificationBloc.add(NewNotificationEvent(
             notification: OverlayTopMessage(

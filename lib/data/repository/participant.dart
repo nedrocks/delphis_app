@@ -320,6 +320,7 @@ class Participant extends Equatable implements Entity {
   final UserProfile userProfile;
   final Participant inviter;
   final DateTime mutedUntil;
+  final String anonDisplayName;
 
   List<Object> get props => [
         participantID,
@@ -328,6 +329,7 @@ class Participant extends Equatable implements Entity {
         posts,
         flair,
         hasJoined,
+        anonDisplayName
       ];
 
   const Participant({
@@ -343,6 +345,7 @@ class Participant extends Equatable implements Entity {
     this.userProfile,
     this.inviter,
     this.isBanned,
+    this.anonDisplayName,
     this.mutedUntil,
   });
 
@@ -374,6 +377,7 @@ class Participant extends Equatable implements Entity {
     bool hasJoined,
     UserProfile userProfile,
     Participant inviter,
+    String anonDisplayName,
     DateTime mutedUntil,
   }) {
     return Participant(
@@ -389,6 +393,7 @@ class Participant extends Equatable implements Entity {
       hasJoined: hasJoined ?? this.hasJoined,
       userProfile: userProfile ?? this.userProfile,
       inviter: inviter ?? this.inviter,
+      anonDisplayName: anonDisplayName ?? this.anonDisplayName,
       mutedUntil: mutedUntil ?? this.mutedUntil,
     );
   }

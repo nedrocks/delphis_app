@@ -166,6 +166,39 @@ class _InviteModePageState extends State<InviteModePage> {
                             ),
                           ),
                         ],
+                      ),
+                      BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
+                        builder: (context, state) {
+                          if (state is UpsertDiscussionLoadingState) {
+                            return Container(
+                              margin:
+                                  EdgeInsets.only(top: SpacingValues.medium),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                          if (state is UpsertDiscussionErrorState) {
+                            return Column(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.only(
+                                      top: SpacingValues.medium),
+                                  child: Text(
+                                    state.error.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextThemes.discussionPostText
+                                        .copyWith(color: Colors.red),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: SpacingValues.medium,
+                                ),
+                              ],
+                            );
+                          }
+                          return Container();
+                        },
                       )
                     ],
                   ),

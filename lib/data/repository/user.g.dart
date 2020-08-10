@@ -28,6 +28,11 @@ User _$UserFromJson(Map<String, dynamic> json) {
         ?.map((e) =>
             e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    pendingDiscussionInvites: (json['pendingDiscussionInvites'] as List)
+        ?.map((e) => e == null
+            ? null
+            : DiscussionInvite.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
   );
 }
 
@@ -38,4 +43,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'profile': instance.profile,
       'flairs': instance.flairs,
       'discussions': instance.discussions,
+      'pendingDiscussionInvites': instance.pendingDiscussionInvites,
     };

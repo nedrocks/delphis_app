@@ -1,5 +1,6 @@
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_invite.dart';
 import 'package:delphis_app/data/repository/flair.dart';
@@ -7,6 +8,7 @@ import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -45,6 +47,33 @@ class AddPostGQLMutation extends GQLMutation<Post> {
 
   Post parseResult(dynamic data) {
     return Post.fromJson(data["addPost"]);
+  }
+}
+
+class SetLastPostViewedMutation extends GQLMutation<Viewer> {
+  final String viewerID;
+  final String postID;
+
+  final String _mutation = """
+    mutation setLastPostViewed(\$viewerID: ID!, \$postID: ID!) {
+      setLastPostViewed(viewerID: \$viewerID, postID: \$postID) {
+        ...ViewerInfoFragment
+      }
+    }
+    $ViewerInfoFragment
+  """;
+
+  const SetLastPostViewedMutation({
+    @required this.viewerID,
+    @required this.postID,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Viewer parseResult(dynamic data) {
+    return Viewer.fromJson(data["setLastPostViewed"]);
   }
 }
 
@@ -92,13 +121,13 @@ class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
     mutation CreateDiscussion(\$anonymityType: AnonymityType!, \$title: String!, \$description: String!, \$discussionSettings: DiscussionCreationSettings!) {
       createDiscussion(anonymityType: \$anonymityType, title: \$title, description: \$description, discussionSettings : \$discussionSettings) {
         ...DiscussionFragmentFull
-        discussionLinksAccess {
-          ...DiscussionLinkAccessFragment
+        discussionAccessLink {
+          ...DiscussionAccessLinkFragment
         }
       }
     }
     $DiscussionFragmentFull
-    $DiscussionLinkAccessFragment
+    $DiscussionAccessLinkFragment
   """;
 
   Map<String, dynamic> createInputObject() {
@@ -219,9 +248,7 @@ class ConciergeOptionMutation extends GQLMutation<Post> {
 
 class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   final String discussionID;
-  final String title;
-  final String description;
-  final String iconURL;
+  final DiscussionInput input;
 
   final String _mutation = """
     mutation UpdateDiscussion(\$discussionID: ID!, \$input: DiscussionInput!) {
@@ -234,17 +261,11 @@ class UpdateDiscussionMutation extends GQLMutation<Discussion> {
 
   const UpdateDiscussionMutation({
     @required this.discussionID,
-    this.title,
-    this.description,
-    this.iconURL,
+    @required this.input,
   }) : super();
 
   Map<String, dynamic> createInputObject() {
-    return {
-      'title': this.title,
-      'description': this.description,
-      'iconURL': this.iconURL,
-    };
+    return input.toJSON();
   }
 
   String mutation() {
@@ -427,6 +448,32 @@ class UnmuteParticipantsMutation extends GQLMutation<List<Participant>> {
     return (data["unmuteParticipants"] as List<dynamic>)
         .map((elem) => Participant.fromJson(elem))
         .toList();
+  }
+}
+
+class RequestDiscussionAccessMutation
+    extends GQLMutation<DiscussionAccessRequest> {
+  final String discussionID;
+
+  final String _mutation = """
+   mutation RequestAccessToDiscussion(\$discussionID: ID!) {
+     requestAccessToDiscussion(discussionID: \$discussionID) {
+       ...DiscussionAccessRequestFragment
+     }
+   }
+   $DiscussionAccessRequestFragment
+  """;
+
+  const RequestDiscussionAccessMutation({
+    @required this.discussionID,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  DiscussionAccessRequest parseResult(dynamic data) {
+    return DiscussionAccessRequest.fromJson(data["requestAccessToDiscussion"]);
   }
 }
 

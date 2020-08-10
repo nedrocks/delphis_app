@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_info.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
@@ -64,15 +65,32 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
-      builder: (context, state) {
-        return TabBarView(
-            physics: NeverScrollableScrollPhysics(),
-            controller: tabController,
-            children: UpsertDiscussionScreen.pageFlowOrder
-                .map((page) => mapPageToWidget(context, state.info, page))
-                .toList());
+    return BlocListener<UpsertDiscussionBloc, UpsertDiscussionState>(
+      listenWhen: (prev, curr) {
+        return prev is UpsertDiscussionLoadingState &&
+            curr is UpsertDiscussionReadyState;
       },
+      listener: (context, state) {
+        if (state is UpsertDiscussionReadyState &&
+            this.widget.arguments.isUpdateMode) {
+          BlocProvider.of<DiscussionBloc>(context).add(
+            RefreshPostsEvent(
+              discussionID: this.widget.arguments.discussion.id,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      },
+      child: BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
+        builder: (context, state) {
+          return TabBarView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: tabController,
+              children: UpsertDiscussionScreen.pageFlowOrder
+                  .map((page) => mapPageToWidget(context, state.info, page))
+                  .toList());
+        },
+      ),
     );
   }
 
@@ -87,10 +105,13 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
             ? info.description
             : null;
         return TitleDescriptionPage(
+          key: GlobalKey(),
+          isUpdate: isUpdate,
           onBack: () => this.onBack(context, info, page),
           onNext: () => this.onNext(context, info, page),
           prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Continue"),
+          nextButtonText:
+              isUpdate ? Intl.message("Update") : Intl.message("Continue"),
           initialTitle: title,
           initialDescription: description,
         );
@@ -113,10 +134,12 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
         break;
       case UpsertDiscussionScreenPage.INVITATION_MODE:
         return InviteModePage(
+          key: GlobalKey(),
           onBack: () => this.onBack(context, info, page),
           onNext: () => this.onNext(context, info, page),
           prevButtonText: Intl.message("Back"),
-          nextButtonText: Intl.message("Create"),
+          nextButtonText:
+              isUpdate ? Intl.message("Update") : Intl.message("Create"),
           isUpdateMode: this.widget.arguments.isUpdateMode,
         );
       case UpsertDiscussionScreenPage.CREATION_LOADING:
@@ -153,6 +176,10 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   void onBack(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
+    if (this.widget.arguments.isUpdateMode) {
+      Navigator.of(context).pop();
+      return;
+    }
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         Navigator.of(context).pop();
@@ -186,8 +213,11 @@ class _UpsertDiscussionScreenState extends State<UpsertDiscussionScreen>
 
   void onNext(BuildContext context, UpsertDiscussionInfo info,
       UpsertDiscussionScreenPage page) {
-    FocusScope.of(context).unfocus();
-    // TODO: Handle Update case when we need to show only one page
+    if (this.widget.arguments.isUpdateMode) {
+      BlocProvider.of<UpsertDiscussionBloc>(context)
+          .add(UpsertDiscussionUpdateDiscussionEvent());
+      return;
+    }
     switch (page) {
       case UpsertDiscussionScreenPage.TITLE_DESCRIPTION:
         setState(() {

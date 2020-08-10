@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:delphis_app/bloc/app/app_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
+import 'package:delphis_app/bloc/discussion_viewer/discussion_viewer_bloc.dart';
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
@@ -10,10 +11,12 @@ import 'package:delphis_app/bloc/upsert_chat/upsert_discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/participant_list/participant_list.dart';
+import 'package:delphis_app/screens/home_invite_list/home_invite_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
@@ -21,8 +24,6 @@ import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
-import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
-import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -243,44 +244,23 @@ class ChathamAppState extends State<ChathamApp>
                     if (linkArgs == null) {
                       return;
                     }
-                    if (linkArgs.isVipLink) {
-                      // We need to join the discussion and then show it.
-                      try {
-                        RepositoryProvider.of<DiscussionRepository>(context)
-                            .joinDiscussionWithVIPLink(
-                          discussionID: linkArgs.discussionID,
-                          vipToken: linkArgs.vipLinkToken,
-                        )
-                            .then((disc) {
-                          navKey.currentState.pushNamed('/Discussion',
-                              arguments: DiscussionArguments(
-                                discussionID: linkArgs.discussionID,
-                                isStartJoinFlow: true,
-                              ));
-                        }).catchError((err) {
-                          BlocProvider.of<NotificationBloc>(context).add(
-                            NewNotificationEvent(
-                              notification: OverlayTopMessage(
-                                child: IncognitoModeTextOverlay(
-                                  hasGoneIncognito: false,
-                                  textOverride: "Failed to join discussion.",
-                                ),
-                                onDismiss: () {
-                                  BlocProvider.of<NotificationBloc>(context)
-                                      .add(DismissNotification());
-                                },
-                              ),
-                            ),
-                          );
-                        });
-                      } catch (err) {}
-                    } else {
-                      navKey.currentState.pushNamed('/Discussion',
+                    try {
+                      RepositoryProvider.of<DiscussionRepository>(context)
+                          .getDiscussionFromSlug(linkArgs.discussionSlug)
+                          .then((disc) {
+                        if (disc == null) {
+                          // Nothing to do here so just return.
+                          return;
+                        }
+                        navKey.currentState.pushNamed(
+                          '/Discussion',
                           arguments: DiscussionArguments(
-                            discussionID: linkArgs.discussionID,
+                            discussionID: disc.id,
                             isStartJoinFlow: false,
-                          ));
-                    }
+                          ),
+                        );
+                      });
+                    } catch (err) {}
                   }
                 }
               }),
@@ -333,6 +313,14 @@ class ChathamAppState extends State<ChathamApp>
                       ),
                     );
                     break;
+                  case '/Home/InviteList':
+                    return MaterialPageRoute(
+                      settings: settings,
+                      builder: (context) {
+                        return HomeInviteListScreen();
+                      },
+                    );
+                    break;
                   case '/Discussion':
                     DiscussionArguments arguments =
                         settings.arguments as DiscussionArguments;
@@ -349,6 +337,14 @@ class ChathamAppState extends State<ChathamApp>
                                     discussionBloc:
                                         BlocProvider.of<DiscussionBloc>(
                                             context)),
+                              ),
+                              BlocProvider<DiscussionViewerBloc>(
+                                lazy: true,
+                                create: (context) => DiscussionViewerBloc(
+                                  viewerRepository:
+                                      RepositoryProvider.of<ViewerRepository>(
+                                          context),
+                                ),
                               ),
                               BlocProvider<SuperpowersBloc>(
                                 create: (context) => SuperpowersBloc(
@@ -380,6 +376,26 @@ class ChathamAppState extends State<ChathamApp>
                                     BlocProvider.of<MentionBloc>(context).add(
                                         AddMentionDataEvent(
                                             discussion: state.getDiscussion()));
+                                    if (state.getDiscussion()?.meViewer !=
+                                        null) {
+                                      BlocProvider.of<DiscussionViewerBloc>(
+                                              context)
+                                          .add(
+                                        DiscussionViewerLoadedEvent(
+                                          viewer:
+                                              state.getDiscussion().meViewer,
+                                        ),
+                                      );
+                                      BlocProvider.of<DiscussionViewerBloc>(
+                                              context)
+                                          .add(
+                                        DiscussionViewerSetLastPostViewedEvent(
+                                            post: state
+                                                .getDiscussion()
+                                                ?.postsCache
+                                                ?.last),
+                                      );
+                                    }
                                   }
                                 }),
                                 BlocListener<AppBloc, AppState>(
@@ -481,8 +497,18 @@ class ChathamAppState extends State<ChathamApp>
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
                           ),
-                          child: SuperpowersScreen(
-                            arguments: arguments,
+                          child: BlocBuilder<DiscussionBloc, DiscussionState>(
+                            builder: (context, state) {
+                              var discussion = state.getDiscussion();
+                              if (discussion != null) {
+                                arguments =
+                                    arguments.copyWith(discussion: discussion);
+                              }
+                              return SuperpowersScreen(
+                                key: GlobalKey(),
+                                arguments: arguments,
+                              );
+                            },
                           ),
                         );
                       },

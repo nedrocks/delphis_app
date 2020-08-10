@@ -12,6 +12,36 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const DiscussionAccessRequestFragment = """
+  fragment DiscussionAccessRequestFragment on DiscussionAccessRequest {
+    id
+    user {
+      id
+    }
+    discussion {
+      id
+    }
+    createdAt
+    updatedAt
+    isDeleted
+    status
+  }
+""";
+
+const ViewerInfoFragment = """
+  fragment ViewerInfoFragment on Viewer {
+    id
+    discussion {
+      id
+    }
+    lastViewed
+    lastViewedPost {
+      id
+      createdAt
+    }
+  }
+""";
+
 const ParticipantInfoFragment = """
   fragment ParticipantInfoFragment on Participant {
     id
@@ -19,6 +49,7 @@ const ParticipantInfoFragment = """
     isAnonymous
     isBanned
     gradientColor
+    anonDisplayName
     flair {
       id
       displayName
@@ -263,12 +294,21 @@ const DiscussionListFragment = """
     participants {
       ...ParticipantInfoFragment
     }
+    meCanJoinDiscussion {
+      response
+      reason
+      reasonCode
+    }
+    meViewer {
+      ...ViewerInfoFragment
+    }
     anonymityType
     iconURL
     discussionJoinability
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment
+  $ViewerInfoFragment
 """;
 
 const DiscussionFragmentFull = """
@@ -290,11 +330,13 @@ const DiscussionFragmentFull = """
   $PostsConnectionFragment
 """;
 
-const DiscussionLinkAccessFragment = """
-  fragment DiscussionLinkAccessFragment on DiscussionLinkAccess {
-    discussionID
-    inviteLinkURL
-    vipInviteLinkURL
+const DiscussionAccessLinkFragment = """
+  fragment DiscussionAccessLinkFragment on DiscussionAccessLink {
+    discussion {
+      id
+    }
+    url
+    linkSlug
     createdAt
     updatedAt
     isDeleted
@@ -316,16 +358,17 @@ const DiscussionInviteFragment = """
   fragment DiscussionInviteFragment on DiscussionInvite {
     id
     discussion {
-      id
+      ...DiscussionListFragment
     }
     invitingParticipant {
-      id
+      ...ParticipantInfoFragment
     }
     createdAt
     updatedAt
     isDeleted
     status
   }
+  $DiscussionListFragment
 """;
 
 abstract class GQLQuery<T> {
@@ -351,8 +394,12 @@ class MeGQLQuery extends GQLQuery<User> {
           imageURL
           source
         }
+        pendingDiscussionInvites: discussionInvites(status:PENDING) {
+          ...DiscussionInviteFragment
+        }
       }
     }
+  $DiscussionInviteFragment
   """;
 
   const MeGQLQuery() : super();
@@ -445,20 +492,44 @@ class SingleDiscussionGQLQuery extends GQLQuery<Discussion> {
   }
 }
 
-class DiscussionLinkAccessGQLQuery extends GQLQuery<DiscussionLinkAccess> {
+class DiscussionFromDiscussionSlugQuery extends GQLQuery<Discussion> {
+  final String slug;
+  final String _query = """
+    query DiscussionByLinkSlug(\$slug: String!) {
+      discussionByLinkSlug(slug: \$slug){
+        ...DiscussionFragmentFull
+      }
+    }
+    $DiscussionFragmentFull
+  """;
+
+  const DiscussionFromDiscussionSlugQuery({
+    this.slug,
+  });
+
+  String query() {
+    return this._query;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["discussionByLinkSlug"]);
+  }
+}
+
+class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
   final String discussionID;
   final String _query = """
-    query DiscussionLinkAccess(\$id: ID!) {
+    query DiscussionAccessLink(\$id: ID!) {
       discussion(id: \$id){
-        discussionLinksAccess {
-          ...DiscussionLinkAccessFragment
+        discussionAccessLink {
+          ...DiscussionAccessLinkFragment
         }
       }
     }
-    $DiscussionLinkAccessFragment
+    $DiscussionAccessLinkFragment
   """;
 
-  const DiscussionLinkAccessGQLQuery({
+  const DiscussionAccessLinkGQLQuery({
     this.discussionID,
   }) : super();
 
@@ -466,9 +537,9 @@ class DiscussionLinkAccessGQLQuery extends GQLQuery<DiscussionLinkAccess> {
     return this._query;
   }
 
-  DiscussionLinkAccess parseResult(dynamic data) {
-    return DiscussionLinkAccess.fromJson(
-        data["discussion"]["discussionLinksAccess"]);
+  DiscussionAccessLink parseResult(dynamic data) {
+    return DiscussionAccessLink.fromJson(
+        data["discussion"]["discussionAccessLink"]);
   }
 }
 

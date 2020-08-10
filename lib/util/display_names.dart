@@ -6,8 +6,10 @@ import 'package:recase/recase.dart';
 class DisplayNames {
   static String formatParticipant(
       Moderator moderator, Participant participant) {
-    if (participant == null) return "Unavailable";
-    var name = '${participant.gradientColor} #${participant.participantID}';
+    if (participant == null) {
+      return "Unavailable";
+    }
+    var name = participant.anonDisplayName;
     if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
@@ -19,9 +21,10 @@ class DisplayNames {
 
   static String formatParticipantUnique(
       Moderator moderator, Participant participant) {
-    if (participant == null) return "Unavailable";
-    var name =
-        '${participant.gradientColor.toLowerCase()}${participant.participantID}';
+    if (participant == null) {
+      return "Unavailable";
+    }
+    var name = participant.anonDisplayName;
     if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&

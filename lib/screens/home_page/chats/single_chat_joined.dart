@@ -1,6 +1,4 @@
 import 'package:delphis_app/data/repository/discussion.dart';
-import 'package:delphis_app/data/repository/participant.dart';
-import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/widgets/discussion_header/participant_images.dart';

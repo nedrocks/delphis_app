@@ -36,7 +36,7 @@ class SingleChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget contents;
-    if (this.discussion.meParticipant?.hasJoined ?? false) {
+    if (!this.discussion.isPendingAccess) {
       contents = SingleChatJoined(
         discussion: this.discussion,
         onPressed: this.onPressed,
@@ -78,7 +78,8 @@ class SingleChat extends StatelessWidget {
             break;
           case HomePageTab.ACTIVE:
             isHidden = this.discussion.isDeletedLocally ||
-                this.discussion.isArchivedLocally;
+                this.discussion.isArchivedLocally ||
+                this.discussion.isPendingAccess;
             actions = [
               IconSlideAction(
                 caption: 'Delete',

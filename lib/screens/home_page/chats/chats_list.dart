@@ -1,10 +1,10 @@
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
-import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
+import 'package:delphis_app/screens/home_invite_list/pending_invite_snippet.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
@@ -12,7 +12,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -154,57 +153,7 @@ class ChatsList extends StatelessWidget {
                     itemCount: showedDiscussions.length + 2,
                     itemBuilder: (context, index) {
                       if (index-- == 0) return errorWidget;
-                      if (index-- == 0)
-                        return BlocBuilder<MeBloc, MeState>(
-                          builder: (context, meState) {
-                            var me = MeBloc.extractMe(meState);
-                            if (me == null) return SizedBox(height: 0);
-                            if (me.pendingDiscussionInvites == null ||
-                                me.pendingDiscussionInvites.length == 0)
-                              return SizedBox(height: 0);
-                            var count = me.pendingDiscussionInvites.length;
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.of(context)
-                                    .pushNamed('/Home/InviteList');
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: SpacingValues.medium,
-                                    vertical: SpacingValues.mediumLarge),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(colors: [
-                                    Color.fromRGBO(114, 30, 248, 1.0),
-                                    Color.fromRGBO(177, 79, 186, 1.0),
-                                  ]),
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    children: <Widget>[
-                                      SizedBox(
-                                        width: SpacingValues.medium,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          count > 1
-                                              ? Intl.message(
-                                                  "You have $count pending invites...")
-                                              : Intl.message(
-                                                  "You have $count pending invite..."),
-                                        ),
-                                      ),
-                                      SvgPicture.asset(
-                                        'assets/svg/forward_chevron.svg',
-                                        color: Colors.white,
-                                        height: 16.0,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                      if (index-- == 0) return PendingInviteSnippet();
                       var discussionElem = showedDiscussions[index];
                       return SingleChat(
                         discussion: discussionElem,

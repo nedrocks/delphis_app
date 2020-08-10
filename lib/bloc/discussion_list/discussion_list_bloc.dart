@@ -113,16 +113,12 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          // await Future.delayed(Duration(seconds: 2));
-          // if (Random().nextInt(2) == 0) {
-          //   throw "some random error";
-          // }
-          // var updatedDiscussion = event.discussion;
-          await this.repository.updateDiscussionUserSettings(
+          final userAccess = await this.repository.updateDiscussionUserSettings(
               event.discussion.id, DiscussionUserAccessState.DELETED, null);
-          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
+          final updatedDiscussion = event.discussion.copyWith(
+            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+          );
+          this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
           this.add(
               _DiscussionListDeleteAsyncErrorEvent(event.discussion, error));
@@ -171,8 +167,6 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
           await this.repository.updateDiscussionUserSettings(
               event.discussion.id, DiscussionUserAccessState.ARCHIVED, null);
           this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
@@ -226,23 +220,14 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          // await Future.delayed(Duration(seconds: 2));
-          // if (Random().nextInt(2) == 0) {
-          //   throw "some random error";
-          // }
-          // var updatedDiscussion = event.discussion.copyWith(
-          //   mutedUntil: DateTime.now().add(
-          //     Duration(seconds: event.mutedForSeconds),
-          //   ),
-          // );
-          // this.add(_DiscussionListMuteAsyncSuccessEvent(updatedDiscussion));
-          await this.repository.updateDiscussionUserSettings(
+          final userAccess = await this.repository.updateDiscussionUserSettings(
               event.discussion.id,
               null,
               DiscussionUserNotificationSetting.NONE);
-          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
+          final updatedDiscussion = event.discussion.copyWith(
+            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+          );
+          this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
           this.add(_DiscussionListMuteAsyncErrorEvent(event.discussion, error));
         }

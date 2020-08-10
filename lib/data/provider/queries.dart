@@ -16,6 +16,7 @@ const DiscussionUserAccessFragment = """
   fragment DiscussionUserAccessFragment on DiscussionUserAccess {
     discussion {
       id
+      meNotificationSettings
     }
     user {
       id
@@ -323,6 +324,7 @@ const DiscussionListFragment = """
     anonymityType
     iconURL
     discussionJoinability
+    meNotificationSettings
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment

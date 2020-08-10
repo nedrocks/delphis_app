@@ -25,7 +25,7 @@ void main() {
       statusBarBrightness: Brightness.dark,
     ),
   );
-  Constants.setEnvironment(Environment.DEV);
+  Constants.setEnvironment(Environment.STAGING);
   Bloc.observer = ChathamBlocObserver();
 
   var appKey = GlobalKey();
@@ -57,5 +57,5 @@ void main() {
         RepositoryProvider<TwitterUserRepository>(
             create: (context) => TwitterUserRepository(
                 clientBloc: BlocProvider.of<GqlClientBloc>(context)))
-      ], child: ChathamApp(key: appKey, env: Environment.DEV))));
+      ], child: ChathamApp(key: appKey, env: Environment.STAGING))));
 }

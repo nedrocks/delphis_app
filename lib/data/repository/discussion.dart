@@ -577,6 +577,7 @@ class Discussion extends Equatable implements Entity {
   final DateTime mutedUntil;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
+  final DiscussionUserNotificationSetting meNotificationSetting;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -613,6 +614,7 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
+        meNotificationSetting,
       ];
 
   Discussion({
@@ -639,6 +641,7 @@ class Discussion extends Equatable implements Entity {
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
     this.meViewer,
+    this.meNotificationSetting,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -732,34 +735,36 @@ class Discussion extends Equatable implements Entity {
     bool isDeletedLocally,
     bool isArchivedLocally,
     Viewer meViewer,
+    DiscussionUserNotificationSetting meNotificationSetting,
   }) {
     return Discussion(
-      id: id ?? this.id,
-      moderator: moderator ?? this.moderator,
-      anonymityType: anonymityType ?? this.anonymityType,
-      postsConnection: postsConnection ?? this.postsConnection,
-      participants: participants ?? this.participants,
-      title: title ?? this.title,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      meParticipant: meParticipant ?? this.meParticipant,
-      meAvailableParticipants:
-          meAvailableParticipants ?? this.meAvailableParticipants,
-      iconURL: iconURL ?? this.iconURL,
-      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
-      description: description ?? this.description,
-      titleHistory: titleHistory ?? this.titleHistory,
-      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
-      discussionJoinability:
-          discussionJoinability ?? this.discussionJoinability,
-      mutedUntil: mutedUntil ?? this.mutedUntil,
-      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
-      postsCache: postsCache ?? this.postsCache,
-      isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
-      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
-      isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
-      meViewer: meViewer ?? this.meViewer,
-    );
+        id: id ?? this.id,
+        moderator: moderator ?? this.moderator,
+        anonymityType: anonymityType ?? this.anonymityType,
+        postsConnection: postsConnection ?? this.postsConnection,
+        participants: participants ?? this.participants,
+        title: title ?? this.title,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        meParticipant: meParticipant ?? this.meParticipant,
+        meAvailableParticipants:
+            meAvailableParticipants ?? this.meAvailableParticipants,
+        iconURL: iconURL ?? this.iconURL,
+        discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
+        description: description ?? this.description,
+        titleHistory: titleHistory ?? this.titleHistory,
+        descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+        discussionJoinability:
+            discussionJoinability ?? this.discussionJoinability,
+        mutedUntil: mutedUntil ?? this.mutedUntil,
+        meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+        postsCache: postsCache ?? this.postsCache,
+        isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
+        isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+        isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+        meViewer: meViewer ?? this.meViewer,
+        meNotificationSetting:
+            meNotificationSetting ?? this.meNotificationSetting);
   }
 }
 

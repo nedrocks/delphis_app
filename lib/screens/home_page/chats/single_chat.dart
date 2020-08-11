@@ -36,7 +36,7 @@ class SingleChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget contents;
-    if (this.discussion.meParticipant?.hasJoined ?? false) {
+    if (!this.discussion.isPendingAccess) {
       contents = SingleChatJoined(
         discussion: this.discussion,
         onPressed: this.onPressed,

@@ -16,7 +16,7 @@ class DisplayNames {
         participant.userProfile != null) {
       name = participant.userProfile.displayName;
     }
-    return name.titleCase;
+    return name?.titleCase ?? "Unavailable";
   }
 
   static String formatParticipantUnique(

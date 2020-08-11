@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
@@ -192,6 +193,45 @@ class DiscussionRepository {
       throw result.exception;
     }
     return query.parseResult(result.data);
+  }
+
+  Future<DiscussionUserAccess> updateDiscussionUserSettings(
+      String discussionID,
+      DiscussionUserAccessState accessState,
+      DiscussionUserNotificationSetting setting,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return updateDiscussionUserSettings(discussionID, accessState, setting,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to get discussion because backend connection is severed");
+    }
+
+    final mutation = UpdateDiscussionUserSettingsMutation(
+        discussionID: discussionID, state: accessState, notifSetting: setting);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'settings': mutation.createInputObject()
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+    // Handle exceptions
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
   }
 
   Future<Discussion> getDiscussionFromSlug(String slug,
@@ -537,6 +577,7 @@ class Discussion extends Equatable implements Entity {
   final DateTime mutedUntil;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
+  final DiscussionUserNotificationSetting meNotificationSetting;
 
   @JsonAnnotation.JsonKey(ignore: true)
   List<Post> postsCache;
@@ -573,6 +614,7 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
+        meNotificationSetting,
       ];
 
   Discussion({
@@ -599,6 +641,7 @@ class Discussion extends Equatable implements Entity {
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
     this.meViewer,
+    this.meNotificationSetting,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -700,34 +743,36 @@ class Discussion extends Equatable implements Entity {
     bool isDeletedLocally,
     bool isArchivedLocally,
     Viewer meViewer,
+    DiscussionUserNotificationSetting meNotificationSetting,
   }) {
     return Discussion(
-      id: id ?? this.id,
-      moderator: moderator ?? this.moderator,
-      anonymityType: anonymityType ?? this.anonymityType,
-      postsConnection: postsConnection ?? this.postsConnection,
-      participants: participants ?? this.participants,
-      title: title ?? this.title,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      meParticipant: meParticipant ?? this.meParticipant,
-      meAvailableParticipants:
-          meAvailableParticipants ?? this.meAvailableParticipants,
-      iconURL: iconURL ?? this.iconURL,
-      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
-      description: description ?? this.description,
-      titleHistory: titleHistory ?? this.titleHistory,
-      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
-      discussionJoinability:
-          discussionJoinability ?? this.discussionJoinability,
-      mutedUntil: mutedUntil ?? this.mutedUntil,
-      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
-      postsCache: postsCache ?? this.postsCache,
-      isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
-      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
-      isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
-      meViewer: meViewer ?? this.meViewer,
-    );
+        id: id ?? this.id,
+        moderator: moderator ?? this.moderator,
+        anonymityType: anonymityType ?? this.anonymityType,
+        postsConnection: postsConnection ?? this.postsConnection,
+        participants: participants ?? this.participants,
+        title: title ?? this.title,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        meParticipant: meParticipant ?? this.meParticipant,
+        meAvailableParticipants:
+            meAvailableParticipants ?? this.meAvailableParticipants,
+        iconURL: iconURL ?? this.iconURL,
+        discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
+        description: description ?? this.description,
+        titleHistory: titleHistory ?? this.titleHistory,
+        descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+        discussionJoinability:
+            discussionJoinability ?? this.discussionJoinability,
+        mutedUntil: mutedUntil ?? this.mutedUntil,
+        meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+        postsCache: postsCache ?? this.postsCache,
+        isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
+        isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+        isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+        meViewer: meViewer ?? this.meViewer,
+        meNotificationSetting:
+            meNotificationSetting ?? this.meNotificationSetting);
   }
 }
 

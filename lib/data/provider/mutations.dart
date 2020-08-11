@@ -104,6 +104,45 @@ class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
   }
 }
 
+class UpdateDiscussionUserSettingsMutation
+    extends GQLMutation<DiscussionUserAccess> {
+  final String discussionID;
+  final DiscussionUserAccessState state;
+  final DiscussionUserNotificationSetting notifSetting;
+
+  const UpdateDiscussionUserSettingsMutation({
+    @required this.discussionID,
+    this.state,
+    this.notifSetting,
+  });
+
+  final String _mutation = """
+    mutation UpdateDiscussionUserSettings(\$discussionID: ID!, \$settings: DiscussionUserSettings!) {
+      updateDiscussionUserSettings(discussionID: \$discussionID, settings: \$settings) {
+        ...DiscussionUserAccessFragment
+      }
+    }
+    $DiscussionUserAccessFragment
+  """;
+
+  Map<String, dynamic> createInputObject() {
+    final stateString = this.state?.toString()?.split('.');
+    final notifString = this.notifSetting?.toString()?.split('.');
+    return {
+      'state': stateString == null ? null : stateString[1],
+      'notifSetting': notifString == null ? null : notifString[1],
+    };
+  }
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  DiscussionUserAccess parseResult(dynamic data) {
+    return DiscussionUserAccess.fromJson(data['updateDiscussionUserSettings']);
+  }
+}
+
 class CreateDiscussionGQLMutation extends GQLMutation<Discussion> {
   final String title;
   final String description;
@@ -388,6 +427,66 @@ class BanParticipantMutation extends GQLMutation<Participant> {
 
   Participant parseResult(dynamic data) {
     return Participant.fromJson(data["banParticipant"]);
+  }
+}
+
+class MuteParticipantsMutation extends GQLMutation<List<Participant>> {
+  final String discussionID;
+  final List<String> participantIDs;
+  final int muteForSeconds;
+
+  final String _mutation = """
+    mutation MuteParticipants(\$discussionID: ID!, \$participantIDs: [ID!]!, \$mutedForSeconds: Int!) {
+      muteParticipants(discussionID: \$discussionID, participantIDs: \$participantIDs, mutedForSeconds: \$mutedForSeconds) {
+        ...ParticipantInfoFragment
+      }
+    }
+    $ParticipantInfoFragment
+  """;
+
+  const MuteParticipantsMutation({
+    @required this.discussionID,
+    @required this.participantIDs,
+    @required this.muteForSeconds,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  List<Participant> parseResult(dynamic data) {
+    return (data["muteParticipants"] as List<dynamic>)
+        .map((elem) => Participant.fromJson(elem))
+        .toList();
+  }
+}
+
+class UnmuteParticipantsMutation extends GQLMutation<List<Participant>> {
+  final String discussionID;
+  final List<String> participantIDs;
+
+  final String _mutation = """
+    mutation UnmuteParticipants(\$discussionID: ID!, \$participantIDs: [ID!]!) {
+      unmuteParticipants(discussionID: \$discussionID, participantIDs: \$participantIDs) {
+        ...ParticipantInfoFragment
+      }
+    }
+    $ParticipantInfoFragment
+  """;
+
+  const UnmuteParticipantsMutation({
+    @required this.discussionID,
+    @required this.participantIDs,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  List<Participant> parseResult(dynamic data) {
+    return (data["unmuteParticipants"] as List<dynamic>)
+        .map((elem) => Participant.fromJson(elem))
+        .toList();
   }
 }
 

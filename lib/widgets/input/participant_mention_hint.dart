@@ -14,35 +14,34 @@ class ParticipantMentionHintWidget extends StatelessWidget {
   ParticipantMentionHintWidget({
     @required this.participant,
     @required this.moderator,
-    this.onTap
+    this.onTap,
   });
-  
+
   @override
   Widget build(BuildContext context) {
-    final isModeratorAuthor = this.participant?.participantID == 0 ?? false;
+    final isModeratorAuthor =
+        participant?.userProfile?.id == moderator?.userProfile?.id ?? false;
     Widget profileImage;
-    
-    if(isModeratorAuthor ) {
+
+    if (isModeratorAuthor) {
       profileImage = ModeratorProfileImage(
-        starTopLeftMargin: 21,
-        starSize: 12,
-        diameter: 32.0,
-        profileImageURL: this.moderator.userProfile.profileImageURL);
-    }
-    else {
+          starTopLeftMargin: 21,
+          starSize: 12,
+          diameter: 32.0,
+          profileImageURL: this.moderator.userProfile.profileImageURL);
+    } else {
       profileImage = ProfileImage(
-        height: 32,
-        width: 32,
-        profileImageURL: this.participant.userProfile?.profileImageURL,
-        isAnonymous: this.participant.isAnonymous);
+          height: 32,
+          width: 32,
+          profileImageURL: this.participant.userProfile?.profileImageURL,
+          isAnonymous: this.participant.isAnonymous);
     }
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          if(this.onTap != null)
-            this.onTap();
+          if (this.onTap != null) this.onTap();
           return true;
         },
         child: Container(

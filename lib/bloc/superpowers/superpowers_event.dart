@@ -30,6 +30,34 @@ class BanParticipantEvent extends SuperpowersEvent {
   List<Object> get props => [discussion, participant];
 }
 
+class MuteParticipantEvent extends SuperpowersEvent {
+  final Discussion discussion;
+  final List<Participant> participants;
+  final int muteForSeconds;
+
+  const MuteParticipantEvent({
+    @required this.discussion,
+    @required this.participants,
+    @required this.muteForSeconds,
+  });
+
+  @override
+  List<Object> get props => [discussion, participants];
+}
+
+class UnmuteParticipantEvent extends SuperpowersEvent {
+  final Discussion discussion;
+  final List<Participant> participants;
+
+  const UnmuteParticipantEvent({
+    @required this.discussion,
+    @required this.participants,
+  });
+
+  @override
+  List<Object> get props => [discussion, participants];
+}
+
 class CopyDiscussionLinkEvent extends SuperpowersEvent {
   final Discussion discussion;
   final bool isVip;

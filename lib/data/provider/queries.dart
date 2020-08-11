@@ -12,6 +12,26 @@ const InviterParticipantInfoFragment = """
   }
 """;
 
+const DiscussionUserAccessFragment = """
+  fragment DiscussionUserAccessFragment on DiscussionUserAccess {
+    discussion {
+      id
+      meNotificationSettings
+    }
+    user {
+      id
+    }
+    state
+    createdAt
+    updatedAt
+    isDeleted
+    request {
+      ...DiscussionAccessRequestFragment
+    }
+  }
+  $DiscussionAccessRequestFragment
+""";
+
 const DiscussionAccessRequestFragment = """
   fragment DiscussionAccessRequestFragment on DiscussionAccessRequest {
     id
@@ -57,6 +77,7 @@ const ParticipantInfoFragment = """
       source
     }
     hasJoined
+    mutedForSeconds
     userProfile{
       ...ParticipantUserProfileFragment
     }
@@ -304,6 +325,7 @@ const DiscussionListFragment = """
     anonymityType
     iconURL
     discussionJoinability
+    meNotificationSettings
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment

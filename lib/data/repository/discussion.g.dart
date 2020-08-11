@@ -60,6 +60,9 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meViewer: json['meViewer'] == null
         ? null
         : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
+    meNotificationSetting: _$enumDecodeNullable(
+        _$DiscussionUserNotificationSettingEnumMap,
+        json['meNotificationSetting']),
   );
 }
 
@@ -85,6 +88,8 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'mutedUntil': instance.mutedUntil?.toIso8601String(),
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
+      'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[
+          instance.meNotificationSetting],
     };
 
 T _$enumDecode<T>(
@@ -128,6 +133,12 @@ const _$AnonymityTypeEnumMap = {
 const _$DiscussionJoinabilitySettingEnumMap = {
   DiscussionJoinabilitySetting.ALLOW_TWITTER_FRIENDS: 'ALLOW_TWITTER_FRIENDS',
   DiscussionJoinabilitySetting.ALL_REQUIRE_APPROVAL: 'ALL_REQUIRE_APPROVAL',
+};
+
+const _$DiscussionUserNotificationSettingEnumMap = {
+  DiscussionUserNotificationSetting.NONE: 'NONE',
+  DiscussionUserNotificationSetting.MENTIONS: 'MENTIONS',
+  DiscussionUserNotificationSetting.EVERYTHING: 'EVERYTHING',
 };
 
 DiscussionInput _$DiscussionInputFromJson(Map<String, dynamic> json) {

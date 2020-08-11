@@ -1,10 +1,8 @@
 import 'dart:ui';
 
-import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/discussion/overlay/overlay_alert_dialog.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
@@ -32,23 +30,6 @@ class SuperpowersScreen extends StatefulWidget {
 class _SuperpowersScreenState extends State<SuperpowersScreen> {
   Widget panelToShow;
   OverlayEntry lastOverlayEntry;
-
-  @override
-  void initState() {
-    super.initState();
-    BackButtonInterceptor.add(this.androidBackbuttonInterceptor);
-  }
-
-  @override
-  void dispose() {
-    BackButtonInterceptor.remove(this.androidBackbuttonInterceptor);
-    super.dispose();
-  }
-
-  bool androidBackbuttonInterceptor(bool value) {
-    removeConfirmationDialog();
-    return value;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,45 +142,41 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
     );
   }
 
-  /* This is overlay-safe */
-  void showConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
-    OverlayEntry overlayEntry;
-    overlayEntry = OverlayAlertDialog(
-      title: Container(
-        margin: EdgeInsets.only(bottom: SpacingValues.smallMedium),
-        child: Text(Intl.message("Are you sure?"),
-            style: TextThemes.goIncognitoHeader),
-      ),
-      content: Text(
-        "This action will have irreversible effects, do you still desire to proceed?",
-        style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25),
-      ),
-      actions: [
-        CupertinoDialogAction(
-            child: Text(Intl.message("Cancel")),
-            onPressed: removeConfirmationDialog),
-        CupertinoDialogAction(
-          child: Text(Intl.message("Continue")),
-          onPressed: () {
-            removeConfirmationDialog();
-            onConfirm();
-          },
-        )
-      ],
+  Future<void> showConfirmationDialog(
+      BuildContext context, VoidCallback onConfirm) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          insetAnimationCurve: Curves.easeInOut,
+          insetAnimationDuration: Duration(milliseconds: 200),
+          title: Container(
+            margin: EdgeInsets.only(bottom: SpacingValues.smallMedium),
+            child: Text(Intl.message("Are you sure?"),
+                style: TextThemes.goIncognitoHeader),
+          ),
+          content: Text(
+            "This action will have irreversible effects, do you still desire to proceed?",
+            style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25),
+          ),
+          actions: <Widget>[
+            CupertinoDialogAction(
+                child: Text(Intl.message("Cancel")),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                }),
+            CupertinoDialogAction(
+              child: Text(Intl.message("Continue")),
+              onPressed: () {
+                onConfirm();
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
-    Overlay.of(context).insert(overlayEntry);
-    setState(() {
-      lastOverlayEntry = overlayEntry;
-    });
-  }
-
-  void removeConfirmationDialog() {
-    lastOverlayEntry?.remove();
-    if (mounted) {
-      setState(() {
-        lastOverlayEntry = null;
-      });
-    }
   }
 
   List<Widget> buildOptionList(BuildContext context) {
@@ -207,7 +184,8 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
 
     /* Copy inviting link to clipboard */
     if (isMeDiscussionModerator()) {
-      list.add(SuperpowersOption(
+      list.add(
+        SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -222,10 +200,14 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
               "Create an invitation link and copy it to the clipboard so that you can share it with other people."),
           onTap: () {
             BlocProvider.of<SuperpowersBloc>(context).add(
-                CopyDiscussionLinkEvent(
-                    discussion: this.widget.arguments.discussion,
-                    isVip: false));
-          }));
+              CopyDiscussionLinkEvent(
+                discussion: this.widget.arguments.discussion,
+                isVip: false,
+              ),
+            );
+          },
+        ),
+      );
     }
 
     /* Modify discussion's title and description */
@@ -341,8 +323,10 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
       list.add(Container(
         height: 80,
         child: Center(
-          child: Text(Intl.message("There are no actions available."),
-              style: TextThemes.goIncognitoOptionName),
+          child: Text(
+            Intl.message("There are no actions available."),
+            style: TextThemes.goIncognitoOptionName,
+          ),
         ),
       ));
     }

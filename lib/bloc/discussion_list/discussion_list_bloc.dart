@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
@@ -112,13 +113,11 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(2) == 0) {
-            throw "some random error";
-          }
-          var updatedDiscussion = event.discussion;
+          final userAccess = await this.repository.updateDiscussionUserSettings(
+              event.discussion.id, DiscussionUserAccessState.DELETED, null);
+          final updatedDiscussion = event.discussion.copyWith(
+            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+          );
           this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
           this.add(
@@ -168,14 +167,9 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(2) == 0) {
-            throw "some random error";
-          }
-          var updatedDiscussion = event.discussion;
-          this.add(_DiscussionListArchiveAsyncSuccessEvent(updatedDiscussion));
+          await this.repository.updateDiscussionUserSettings(
+              event.discussion.id, DiscussionUserAccessState.ARCHIVED, null);
+          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
         } catch (error) {
           this.add(
               _DiscussionListArchiveAsyncErrorEvent(event.discussion, error));
@@ -226,18 +220,14 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(2) == 0) {
-            throw "some random error";
-          }
-          var updatedDiscussion = event.discussion.copyWith(
-            mutedUntil: DateTime.now().add(
-              Duration(seconds: event.mutedForSeconds),
-            ),
+          final userAccess = await this.repository.updateDiscussionUserSettings(
+              event.discussion.id,
+              null,
+              DiscussionUserNotificationSetting.NONE);
+          final updatedDiscussion = event.discussion.copyWith(
+            meNotificationSetting: userAccess.discussion.meNotificationSetting,
           );
-          this.add(_DiscussionListMuteAsyncSuccessEvent(updatedDiscussion));
+          this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
           this.add(_DiscussionListMuteAsyncErrorEvent(event.discussion, error));
         }
@@ -358,12 +348,9 @@ class DiscussionListBloc
         try {
           /* TODO: This is mocked behavior for UI testing. We need to hook this
            up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(2) == 0) {
-            throw "some random error";
-          }
-          var updatedDiscussion = event.discussion;
-          this.add(_DiscussionListActivateAsyncSuccessEvent(updatedDiscussion));
+          await this.repository.updateDiscussionUserSettings(
+              event.discussion.id, DiscussionUserAccessState.ACTIVE, null);
+          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
         } catch (error) {
           this.add(
               _DiscussionListActivateAsyncErrorEvent(event.discussion, error));

@@ -252,3 +252,15 @@ class NextDiscussionOnboardingConciergeStep extends DiscussionEvent {
   @override
   List<Object> get props => [this.nonce];
 }
+
+class DiscussionParticipantsMutedUnmutedEvent extends DiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final List<Participant> participants;
+
+  DiscussionParticipantsMutedUnmutedEvent({
+    @required this.participants,
+  });
+
+  @override
+  List<Object> get props => [this.participants, timestamp];
+}

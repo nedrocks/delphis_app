@@ -34,24 +34,28 @@ class DiscussionRepository {
     @required this.clientBloc,
   });
 
-  Future<List<Discussion>> getDiscussionList({int attempt = 1}) async {
+  Future<List<Discussion>> getDiscussionList(
+      {DiscussionUserAccessState state, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionList(attempt: attempt + 1);
+        return getDiscussionList(state: state, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           'Failed to list discussions because connection is severed');
     }
 
-    final query = ListDiscussionsGQLQuery();
+    state = state ?? DiscussionUserAccessState.ACTIVE;
+    final query = ListDiscussionsGQLQuery(state);
 
     final QueryResult result = await client.query(
       QueryOptions(
         documentNode: gql(query.query()),
-        variables: {},
+        variables: {
+          'state': query.state.toString().split(".")[1],
+        },
         fetchPolicy: FetchPolicy.noCache,
       ),
     );
@@ -574,7 +578,6 @@ class Discussion extends Equatable implements Entity {
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
   final DiscussionJoinabilitySetting discussionJoinability;
-  final DateTime mutedUntil;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
   final DiscussionUserNotificationSetting meNotificationSetting;
@@ -608,7 +611,6 @@ class Discussion extends Equatable implements Entity {
         titleHistory,
         descriptionHistory,
         discussionJoinability,
-        mutedUntil,
         isDeletedLocally,
         isActivatedLocally,
         isArchivedLocally,
@@ -634,7 +636,6 @@ class Discussion extends Equatable implements Entity {
     this.titleHistory,
     this.descriptionHistory,
     this.discussionJoinability,
-    this.mutedUntil,
     this.meCanJoinDiscussion,
     postsCache,
     this.isDeletedLocally = false,
@@ -646,14 +647,7 @@ class Discussion extends Equatable implements Entity {
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
-    var parsed = _$DiscussionFromJson(json);
-    if (json['mutedForSeconds'] != null) {
-      var seconds = json['mutedForSeconds'] as int;
-      return parsed.copyWith(
-        mutedUntil: DateTime.now().add(Duration(seconds: seconds)),
-      );
-    }
-    return parsed;
+    return _$DiscussionFromJson(json);
   }
 
   Map<String, dynamic> toJSON() {
@@ -708,7 +702,9 @@ class Discussion extends Equatable implements Entity {
   }
 
   bool get isMuted {
-    return mutedUntil != null && mutedUntil.isAfter(DateTime.now());
+    return this.meNotificationSetting != null &&
+        this.meNotificationSetting !=
+            DiscussionUserNotificationSetting.EVERYTHING;
   }
 
   Discussion copyWith({
@@ -728,7 +724,6 @@ class Discussion extends Equatable implements Entity {
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
-    DateTime mutedUntil,
     CanJoinDiscussionResponse meCanJoinDiscussion,
     List<Post> postsCache,
     bool isActivatedLocally,
@@ -756,7 +751,6 @@ class Discussion extends Equatable implements Entity {
         descriptionHistory: descriptionHistory ?? this.descriptionHistory,
         discussionJoinability:
             discussionJoinability ?? this.discussionJoinability,
-        mutedUntil: mutedUntil ?? this.mutedUntil,
         meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
         postsCache: postsCache ?? this.postsCache,
         isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,

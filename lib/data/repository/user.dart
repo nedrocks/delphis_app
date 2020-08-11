@@ -55,6 +55,7 @@ class User extends Equatable {
   final UserProfile profile;
   final List<Flair> flairs;
   final List<Discussion> discussions;
+  final List<DiscussionInvite> pendingDiscussionInvites;
 
   List<Object> get props => [id, participants, viewers, profile];
 
@@ -68,6 +69,7 @@ class User extends Equatable {
     this.profile,
     this.flairs,
     this.discussions,
+    this.pendingDiscussionInvites,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

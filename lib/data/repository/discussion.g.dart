@@ -50,9 +50,6 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ?.toList(),
     discussionJoinability: _$enumDecodeNullable(
         _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
-    mutedUntil: json['mutedUntil'] == null
-        ? null
-        : DateTime.parse(json['mutedUntil'] as String),
     meCanJoinDiscussion: json['meCanJoinDiscussion'] == null
         ? null
         : CanJoinDiscussionResponse.fromJson(
@@ -85,7 +82,6 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'descriptionHistory': instance.descriptionHistory,
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
-      'mutedUntil': instance.mutedUntil?.toIso8601String(),
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
       'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[

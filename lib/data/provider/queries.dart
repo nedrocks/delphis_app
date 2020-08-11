@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
@@ -555,16 +556,17 @@ class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
 }
 
 class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
+  final DiscussionUserAccessState state;
   final String _query = """
-    query Discussions() {
-      listDiscussions {
+    query Discussions (\$state: DiscussionUserAccessState!) {
+      listDiscussions (state: \$state) {
         ...DiscussionListFragment
       }
     }
     $DiscussionListFragment
   """;
 
-  const ListDiscussionsGQLQuery() : super();
+  const ListDiscussionsGQLQuery(this.state) : super();
 
   String query() {
     return this._query;

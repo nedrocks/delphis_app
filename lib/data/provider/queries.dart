@@ -415,12 +415,8 @@ class MeGQLQuery extends GQLQuery<User> {
           imageURL
           source
         }
-        pendingDiscussionInvites: discussionInvites(status:PENDING) {
-          ...DiscussionInviteFragment
-        }
       }
     }
-  $DiscussionInviteFragment
   """;
 
   const MeGQLQuery() : super();

@@ -16,7 +16,6 @@ import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/participant_list/participant_list.dart';
-import 'package:delphis_app/screens/home_invite_list/home_invite_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
@@ -311,14 +310,6 @@ class ChathamAppState extends State<ChathamApp>
                           ),
                         ),
                       ),
-                    );
-                    break;
-                  case '/Home/InviteList':
-                    return MaterialPageRoute(
-                      settings: settings,
-                      builder: (context) {
-                        return HomeInviteListScreen();
-                      },
                     );
                     break;
                   case '/Discussion':

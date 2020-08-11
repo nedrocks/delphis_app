@@ -711,6 +711,14 @@ class Discussion extends Equatable implements Entity {
     return mutedUntil != null && mutedUntil.isAfter(DateTime.now());
   }
 
+  bool get isPendingAccess {
+    return this.meCanJoinDiscussion == null ||
+        this.meCanJoinDiscussion.response ==
+            DiscussionJoinabilityResponse.APPROVED_NOT_JOINED ||
+        this.meCanJoinDiscussion.response ==
+            DiscussionJoinabilityResponse.AWAITING_APPROVAL;
+  }
+
   Discussion copyWith({
     String id,
     Moderator moderator,

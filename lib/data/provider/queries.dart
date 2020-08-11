@@ -408,19 +408,9 @@ class MeGQLQuery extends GQLQuery<User> {
           id
           displayName
           profileImageURL
-        }
-        flairs{
-          id
-          displayName
-          imageURL
-          source
-        }
-        pendingDiscussionInvites: discussionInvites(status:PENDING) {
-          ...DiscussionInviteFragment
-        }
+        }      
       }
     }
-  $DiscussionInviteFragment
   """;
 
   const MeGQLQuery() : super();

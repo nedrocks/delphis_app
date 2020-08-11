@@ -4,7 +4,6 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
-import 'package:delphis_app/screens/home_invite_list/pending_invite_snippet.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
@@ -150,10 +149,9 @@ class ChatsList extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    itemCount: showedDiscussions.length + 2,
+                    itemCount: showedDiscussions.length + 1,
                     itemBuilder: (context, index) {
                       if (index-- == 0) return errorWidget;
-                      if (index-- == 0) return PendingInviteSnippet();
                       var discussionElem = showedDiscussions[index];
                       return SingleChat(
                         discussion: discussionElem,

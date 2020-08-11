@@ -78,8 +78,7 @@ class SingleChat extends StatelessWidget {
             break;
           case HomePageTab.ACTIVE:
             isHidden = this.discussion.isDeletedLocally ||
-                this.discussion.isArchivedLocally ||
-                this.discussion.isPendingAccess;
+                this.discussion.isArchivedLocally;
             actions = [
               IconSlideAction(
                 caption: 'Delete',

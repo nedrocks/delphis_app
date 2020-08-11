@@ -59,3 +59,19 @@ class BanParticipantSuccessState extends SuccessState {
   @override
   List<Object> get props => [this.timestamp, this.message, this.participant];
 }
+
+class MuteUnmuteParticipantsSuccessState extends SuccessState {
+  final List<Participant> participants;
+
+  MuteUnmuteParticipantsSuccessState({
+    @required message,
+    @required this.participants,
+  }) : super(message: message);
+
+  @override
+  List<Object> get props => [
+        this.timestamp,
+        this.message,
+        this.participants,
+      ];
+}

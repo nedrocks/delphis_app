@@ -7,6 +7,7 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/util/text.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/input/buttons/discussion_submit_button.dart';
@@ -130,6 +131,19 @@ class DelphisInputState extends State<DelphisInput> {
 
   List<Widget> buildNonInputRowElems(BuildContext context, MeState state,
       User me, bool isModerator, Widget textInput) {
+    if (this.widget.discussion.meParticipant.isMuted) {
+      var until = this.widget.discussion.meParticipant.mutedUntil;
+      var untilText = Intl.message(
+          "${DateFormat.yMd().format(until)} at ${DateFormat.Hm().format(until)}");
+      textInput = Flexible(
+        child: Text(
+          Intl.message(
+              "You have been muted by the moderator and will not be able to post until $untilText."),
+          textAlign: TextAlign.center,
+          style: TextThemes.discussionPostInput,
+        ),
+      );
+    }
     final rowElems = <Widget>[
       AnimatedSizeContainer(builder: (context) {
         return BlocBuilder<ParticipantBloc, ParticipantState>(
@@ -187,6 +201,15 @@ class DelphisInputState extends State<DelphisInput> {
 
   Widget buildInput(BuildContext context, MeState state, User me,
       bool isModerator, Widget textInput) {
+    if (this.widget.discussion.meParticipant.isMuted) {
+      return Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children:
+              buildNonInputRowElems(context, state, me, isModerator, textInput),
+        ),
+      );
+    }
     final actionIconSize = 36.0;
     return Container(
       child: Column(

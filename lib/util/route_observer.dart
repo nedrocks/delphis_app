@@ -1,5 +1,4 @@
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
-import 'package:delphis_app/screens/discussion/screen_args/discussion_naming.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,15 +14,16 @@ class _ChathamRouteObserver extends RouteObserver {
   bool hasLoadedApp = false;
 
   void saveLastRoute(Route lastRoute) async {
+    final allowedRouteNames = ["/Discussion"];
     if (this.hasLoadedApp ||
         lastRoute == null ||
         lastRoute.settings == null ||
         lastRoute.settings.name == null ||
-        lastRoute.settings.name == '/Intro' ||
-        lastRoute.settings.name.startsWith('/Auth')) {
+        !allowedRouteNames.contains(lastRoute.settings.name)) {
       // Don't save the intro or auth flow.
       return;
     }
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString(LAST_ROUTE_PREFERENCES_KEY, lastRoute.settings.name);
     if (lastRoute.settings.arguments != null) {
@@ -34,11 +34,6 @@ class _ChathamRouteObserver extends RouteObserver {
           encodedArgs = (lastRoute.settings.arguments as DiscussionArguments)
               .toJsonString();
           argsType = 'DiscussionArguments';
-          break;
-        case DiscussionNamingArguments:
-          encodedArgs = (lastRoute.settings.arguments as DiscussionNamingArguments)
-              .toJsonString();
-          argsType = 'DiscussionNamingArguments';
           break;
         default:
           break;
@@ -62,8 +57,6 @@ class _ChathamRouteObserver extends RouteObserver {
     switch (type) {
       case 'DiscussionArguments':
         return DiscussionArguments.fromJsonString(args);
-      case 'DiscussionNamingArguments':
-        return DiscussionNamingArguments.fromJsonString(args);
       default:
         break;
     }

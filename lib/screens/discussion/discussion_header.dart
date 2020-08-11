@@ -1,9 +1,8 @@
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
-import 'package:delphis_app/widgets/discussion_header/participant_images.dart';
+import 'package:delphis_app/screens/discussion/participants_button.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
-import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -11,11 +10,13 @@ class DiscussionHeader extends StatefulWidget {
   final Discussion discussion;
   final HeaderOptionsCallback onHeaderOptionSelected;
   final VoidCallback onBackButtonPressed;
+  final VoidCallback onParticipantsButtonPressed;
 
   const DiscussionHeader({
     @required this.discussion,
     @required this.onHeaderOptionSelected,
     @required this.onBackButtonPressed,
+    @required this.onParticipantsButtonPressed,
   }) : super();
 
   @override
@@ -107,28 +108,10 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
             ),
             Row(
               children: <Widget>[
-                ParticipantImages(
-                  moderator: this.widget.discussion.moderator,
-                  height: HeightValues.appBarItemsHeight,
-                  participants: this.widget.discussion.participants,
-                ),
-                SizedBox(width: SpacingValues.small),
-                ModeratorProfileImage(
-                  starTopLeftMargin: 16.5,
-                  starSize: 10,
-                  outerBorderWidth: 1.0,
-                  diameter: HeightValues.appBarItemsHeight,
-                  profileImageURL: this
-                      .widget
-                      .discussion
-                      .moderator
-                      .userProfile
-                      .profileImageURL,
-                ),
                 SizedBox(width: SpacingValues.medium),
-                HeaderOptionsButton(
+                ParticipantsButton(
                   diameter: HeightValues.appBarItemsHeight,
-                  onPressed: this.widget.onHeaderOptionSelected,
+                  onPressed: this.widget.onParticipantsButtonPressed,
                 ),
               ],
             ),

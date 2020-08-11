@@ -10,7 +10,7 @@ class DisplayNames {
       return "Unavailable";
     }
     var name = participant.anonDisplayName;
-    if (participant.participantID == 0) {
+    if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {
@@ -25,7 +25,7 @@ class DisplayNames {
       return "Unavailable";
     }
     var name = participant.anonDisplayName;
-    if (participant.participantID == 0) {
+    if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {
       name = moderator.userProfile.displayName;
     } else if (!(participant.isAnonymous ?? true) &&
         participant.userProfile != null) {

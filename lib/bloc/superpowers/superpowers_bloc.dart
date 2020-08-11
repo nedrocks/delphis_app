@@ -35,10 +35,6 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         try {
           var deletedPost = await discussionRepository.deletePost(
               event.discussion, event.post);
-          event.discussion.postsCache = event.discussion.postsCache.map((p) {
-            if (p.id == event.post.id) return deletedPost;
-            return p;
-          }).toList();
           yield DeletePostSuccessState(
               message: Intl.message("The post has been successfully deleted!"),
               post: deletedPost);
@@ -56,17 +52,11 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
         try {
           var bannedParticipant = await participantRepository.banParticipant(
               event.discussion, event.participant);
-          event.discussion.postsCache = event.discussion.postsCache.map((p) {
-            if (p.participant.id == event.participant.id)
-              return p.copyWith(
-                  isDeleted: true,
-                  deletedReasonCode: PostDeletedReason.MODERATOR_REMOVED);
-            return p;
-          }).toList();
           yield BanParticipantSuccessState(
-              message:
-                  Intl.message("The participant has been successfully banned!"),
-              participant: bannedParticipant);
+            message:
+                Intl.message("The participant has been successfully banned!"),
+            participant: bannedParticipant,
+          );
         } catch (error) {
           if (error is OperationException) {
             yield ErrorState(message: error.graphqlErrors[0].message);
@@ -90,6 +80,50 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
           },
         )));
         yield ReadyState();
+      }
+    } else if (event is MuteParticipantEvent) {
+      if (this.state is ReadyState) {
+        yield LoadingState();
+        try {
+          var mutedParticipants = await participantRepository.muteParticipants(
+            event.discussion,
+            event.participants,
+            event.muteForSeconds,
+          );
+          yield MuteUnmuteParticipantsSuccessState(
+            message: Intl.message(
+                "These participants have been successfully muted!"),
+            participants: mutedParticipants,
+          );
+        } catch (error) {
+          if (error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          } else {
+            yield ErrorState(message: error.toString());
+          }
+        }
+      }
+    } else if (event is UnmuteParticipantEvent) {
+      if (this.state is ReadyState) {
+        yield LoadingState();
+        try {
+          var unmutedParticipants =
+              await participantRepository.unmuteParticipants(
+            event.discussion,
+            event.participants,
+          );
+          yield MuteUnmuteParticipantsSuccessState(
+            message: Intl.message(
+                "These participants have been successfully muted!"),
+            participants: unmutedParticipants,
+          );
+        } catch (error) {
+          if (error is OperationException) {
+            yield ErrorState(message: error.graphqlErrors[0].message);
+          } else {
+            yield ErrorState(message: error.toString());
+          }
+        }
       }
     }
   }

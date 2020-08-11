@@ -60,8 +60,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
 
   Widget mediaToShow;
 
-  SuperpowersArguments _superpowersPopupArguments;
-
   @override
   void initState() {
     super.initState();
@@ -251,13 +249,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
             onSuperpowersButtonPressed: (arguments) {
               showSuperpowersPopup(context, arguments);
             },
-            onModeratorOverlayClose: () {
-              this.setState(() {
-                this._superpowersPopupArguments = null;
-                _restoreFocusAndDismissOverlay();
-              });
-            },
-            superpowersArguments: this._superpowersPopupArguments,
           ),
         );
         final me = MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state);
@@ -279,6 +270,9 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                   default:
                     break;
                 }
+              },
+              onParticipantsButtonPressed: () {
+                this.showParticipantListScreen(context);
               },
             ),
             expandedConversationView,
@@ -377,7 +371,23 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
         this._lastFocusedNode = focusScope.focusedChild;
         focusScope.unfocus();
       }
-      this._superpowersPopupArguments = arguments;
+      Navigator.of(context).pushNamed(
+        '/Discussion/SuperpowersPopup',
+        arguments: arguments,
+      );
+    });
+  }
+
+  void showParticipantListScreen(BuildContext context) {
+    setState(() {
+      var focusScope = FocusScope.of(context);
+      if (focusScope.hasFocus) {
+        this._lastFocusedNode = focusScope.focusedChild;
+        focusScope.unfocus();
+      }
+      Navigator.of(context).pushNamed(
+        '/Discussion/ParticipantList',
+      );
     });
   }
 
@@ -429,7 +439,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
 
   void _dismissOverlay() {
     BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
-    this._superpowersPopupArguments = null;
     this._isShowParticipantSettings = false;
     if (this._contentOverlayEntry != null) {
       this._contentOverlayEntry.remove();

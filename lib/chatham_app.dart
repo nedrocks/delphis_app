@@ -15,15 +15,15 @@ import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
+import 'package:delphis_app/screens/participant_list/participant_list.dart';
 import 'package:delphis_app/screens/home_invite_list/home_invite_list.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
+import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
-import 'package:delphis_app/widgets/overlay/overlay_top_message.dart';
-import 'package:delphis_app/widgets/text_overlay_notification/incognito_mode_overlay.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -511,6 +511,84 @@ class ChathamAppState extends State<ChathamApp>
                             },
                           ),
                         );
+                      },
+                    );
+                    break;
+                  case '/Discussion/SuperpowersPopup':
+                    SuperpowersArguments arguments =
+                        settings.arguments as SuperpowersArguments;
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(0.0, 1.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return BlocProvider<SuperpowersBloc>(
+                          create: (context) => SuperpowersBloc(
+                            discussionRepository:
+                                RepositoryProvider.of<DiscussionRepository>(
+                                    context),
+                            participantRepository:
+                                RepositoryProvider.of<ParticipantRepository>(
+                                    context),
+                            notificationBloc:
+                                BlocProvider.of<NotificationBloc>(context),
+                          ),
+                          child: SuperpowersPopupScreen(
+                            arguments: arguments,
+                          ),
+                        );
+                      },
+                    );
+                    break;
+                  case '/Discussion/ParticipantList':
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      barrierColor: Colors.black.withOpacity(0.6),
+                      barrierDismissible: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return ParticipantListScreen();
                       },
                     );
                     break;

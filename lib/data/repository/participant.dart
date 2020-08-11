@@ -1,18 +1,19 @@
-import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
-import 'package:delphis_app/data/provider/mutations.dart';
-import 'package:delphis_app/data/provider/queries.dart';
-import 'package:delphis_app/data/repository/user_profile.dart';
-import 'package:delphis_app/design/colors.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:json_annotation/json_annotation.dart' as JsonAnnotation;
 
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
+import 'package:delphis_app/data/provider/mutations.dart';
+import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/repository/user_profile.dart';
+import 'package:delphis_app/design/colors.dart';
+
 import 'discussion.dart';
+import 'entity.dart';
 import 'flair.dart';
 import 'post.dart';
 import 'viewer.dart';
-import 'entity.dart';
 
 part 'participant.g.dart';
 
@@ -210,7 +211,7 @@ class ParticipantRepository {
       });
     } else if (client == null) {
       throw Exception(
-          "Failed to benParticipant to discussion because backend connection is severed");
+          "Failed to banParticipant to discussion because backend connection is severed");
     }
 
     final mutation = BanParticipantMutation(
@@ -221,6 +222,78 @@ class ParticipantRepository {
         variables: {
           'discussionID': discussion.id,
           'participantID': participant.id,
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
+
+  Future<List<Participant>> muteParticipants(
+      Discussion discussion, List<Participant> participants, int muteForSeconds,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return muteParticipants(discussion, participants, muteForSeconds,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to muteParticipants to discussion because backend connection is severed");
+    }
+
+    var idList = participants.map((e) => e.id).toList();
+    final mutation = MuteParticipantsMutation(
+      discussionID: discussion.id,
+      participantIDs: idList,
+      muteForSeconds: muteForSeconds,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussion.id,
+          'participantIDs': idList,
+          'mutedForSeconds': muteForSeconds,
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
+
+  Future<List<Participant>> unmuteParticipants(
+      Discussion discussion, List<Participant> participants,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return unmuteParticipants(discussion, participants,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          "Failed to unmuteParticipants to discussion because backend connection is severed");
+    }
+
+    var idList = participants.map((e) => e.id).toList();
+    final mutation = UnmuteParticipantsMutation(
+        discussionID: discussion.id, participantIDs: idList);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussion.id,
+          'participantIDs': idList,
         },
       ),
     );
@@ -246,6 +319,7 @@ class Participant extends Equatable implements Entity {
   final bool hasJoined;
   final UserProfile userProfile;
   final Participant inviter;
+  final DateTime mutedUntil;
   final String anonDisplayName;
 
   List<Object> get props => [
@@ -272,12 +346,57 @@ class Participant extends Equatable implements Entity {
     this.inviter,
     this.isBanned,
     this.anonDisplayName,
+    this.mutedUntil,
   });
 
-  factory Participant.fromJson(Map<String, dynamic> json) =>
-      _$ParticipantFromJson(json);
+  factory Participant.fromJson(Map<String, dynamic> json) {
+    var parsed = _$ParticipantFromJson(json);
+    if (json['mutedForSeconds'] != null) {
+      var seconds = json['mutedForSeconds'] as int;
+      return parsed.copyWith(
+        mutedUntil: DateTime.now().add(Duration(seconds: seconds)),
+      );
+    }
+    return parsed;
+  }
 
   Map<String, dynamic> toJSON() {
     return _$ParticipantToJson(this);
   }
+
+  Participant copyWith({
+    String id,
+    int participantID,
+    Discussion discussion,
+    Viewer viewer,
+    List<Post> posts,
+    bool isAnonymous,
+    bool isBanned,
+    String gradientColor,
+    Flair flair,
+    bool hasJoined,
+    UserProfile userProfile,
+    Participant inviter,
+    String anonDisplayName,
+    DateTime mutedUntil,
+  }) {
+    return Participant(
+      id: id ?? this.id,
+      participantID: participantID ?? this.participantID,
+      discussion: discussion ?? this.discussion,
+      viewer: viewer ?? this.viewer,
+      posts: posts ?? this.posts,
+      isAnonymous: isAnonymous ?? this.isAnonymous,
+      isBanned: isBanned ?? this.isBanned,
+      gradientColor: gradientColor ?? this.gradientColor,
+      flair: flair ?? this.flair,
+      hasJoined: hasJoined ?? this.hasJoined,
+      userProfile: userProfile ?? this.userProfile,
+      inviter: inviter ?? this.inviter,
+      anonDisplayName: anonDisplayName ?? this.anonDisplayName,
+      mutedUntil: mutedUntil ?? this.mutedUntil,
+    );
+  }
+
+  bool get isMuted => mutedUntil != null && mutedUntil.isAfter(DateTime.now());
 }

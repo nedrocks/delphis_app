@@ -10,7 +10,6 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
-import 'package:delphis_app/screens/discussion/overlay/superpowers/superpowers_popup.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:flutter/material.dart';
@@ -41,10 +40,6 @@ class DiscussionContent extends StatelessWidget {
   final Function(File, MediaContentType) onMediaTap;
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
 
-  final SuperpowersArguments superpowersArguments;
-
-  final VoidCallback onModeratorOverlayClose;
-
   const DiscussionContent({
     @required key,
     @required this.scrollController,
@@ -61,8 +56,6 @@ class DiscussionContent extends StatelessWidget {
     @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
-    @required this.onModeratorOverlayClose,
-    @required this.superpowersArguments,
   }) : super(key: key);
 
   @override
@@ -131,38 +124,7 @@ class DiscussionContent extends StatelessWidget {
       );
 
       this.onOverlayOpen(overlayEntry);
-    } else if (this.superpowersArguments != null) {
-      final overlayEntry = OverlayEntry(
-          builder: (overlayContext) => MultiRepositoryProvider(
-                providers: [
-                  RepositoryProvider<TwitterUserRepository>.value(
-                      value: RepositoryProvider.of<TwitterUserRepository>(
-                          context)),
-                ],
-                child: MultiBlocProvider(
-                  providers: [
-                    // This is needed because the overlay will have a different BuildContext
-                    BlocProvider<SuperpowersBloc>.value(
-                        value: BlocProvider.of<SuperpowersBloc>(context)),
-                    BlocProvider<MeBloc>.value(
-                        value: BlocProvider.of<MeBloc>(context)),
-                  ],
-                  child: AnimatedDiscussionPopup(
-                    child: Container(width: 0, height: 0),
-                    popup: DiscussionPopup(
-                      contents: SuperpowersPopup(
-                        arguments: this.superpowersArguments,
-                        onCancel: this.onModeratorOverlayClose,
-                      ),
-                    ),
-                    animationMillis: this.isAnimationEnabled ? 200 : 0,
-                  ),
-                ),
-              ));
-
-      this.onOverlayOpen(overlayEntry);
     }
-
     return postListView;
   }
 }

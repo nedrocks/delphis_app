@@ -442,6 +442,23 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       } catch (err) {
         yield loadingState.update(isLoading: false);
       }
+    } else if (event is DiscussionParticipantsMutedUnmutedEvent &&
+        currentState is DiscussionLoadedState) {
+      final discussion = currentState.getDiscussion();
+      if (discussion != null) {
+        var newParticipants = discussion.participants.map((p) {
+          for (var participant in event.participants) {
+            if (p.id == participant.id) {
+              return participant;
+            }
+          }
+          return p;
+        }).toList();
+        var updatedDiscussion = currentState
+            .getDiscussion()
+            .copyWith(participants: newParticipants);
+        yield currentState.update(discussion: updatedDiscussion);
+      }
     }
   }
 

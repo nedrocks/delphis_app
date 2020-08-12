@@ -79,36 +79,34 @@ class HomePageScreen extends StatelessWidget {
                   currentUser: currentUser,
                 ),
               ),
-              currentUser == null || !currentUser.isTwitterAuth
-                  ? Container(width: 0, height: 0)
-                  : Consumer<HomePageTabNotifier>(
-                      builder: (context, currentTab, child) {
-                        return HomePageActionBar(
-                          currentTab: currentTab.value,
-                          backgroundColor: ChathamColors.topBarBackgroundColor,
-                          onNewChatPressed: () {
-                            Navigator.pushNamed(context, '/Discussion/Upsert',
-                                arguments: UpsertDiscussionArguments());
-                          },
-                          onTabPressed: (HomePageTab tab) {
-                            Provider.of<HomePageTabNotifier>(
-                              context,
-                              listen: false,
-                            ).value = tab;
-                          },
-                          onOptionSelected: (HeaderOption option) {
-                            switch (option) {
-                              case HeaderOption.logout:
-                                BlocProvider.of<AuthBloc>(context)
-                                    .add(LogoutAuthEvent());
-                                break;
-                              default:
-                                break;
-                            }
-                          },
-                        );
-                      },
-                    ),
+              Consumer<HomePageTabNotifier>(
+                builder: (context, currentTab, child) {
+                  return HomePageActionBar(
+                    currentTab: currentTab.value,
+                    backgroundColor: ChathamColors.topBarBackgroundColor,
+                    onNewChatPressed: () {
+                      Navigator.pushNamed(context, '/Discussion/Upsert',
+                          arguments: UpsertDiscussionArguments());
+                    },
+                    onTabPressed: (HomePageTab tab) {
+                      Provider.of<HomePageTabNotifier>(
+                        context,
+                        listen: false,
+                      ).value = tab;
+                    },
+                    onOptionSelected: (HeaderOption option) {
+                      switch (option) {
+                        case HeaderOption.logout:
+                          BlocProvider.of<AuthBloc>(context)
+                              .add(LogoutAuthEvent());
+                          break;
+                        default:
+                          break;
+                      }
+                    },
+                  );
+                },
+              ),
             ],
           ),
         );

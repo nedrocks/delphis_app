@@ -193,9 +193,9 @@ class ChatsList extends StatelessWidget {
   Widget getEmptyLisWidget(HomePageTab value) {
     switch (value) {
       case HomePageTab.ACTIVE:
-        // TODO: create ad-hoc widget for checking twitter auth and welcome user
         return Text(
-          Intl.message("You have no active chats."),
+          Intl.message(
+              "Looks like you haven’t been invited to any discussions."),
           style: TextThemes.onboardHeading,
           textAlign: TextAlign.center,
         );

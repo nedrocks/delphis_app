@@ -4,6 +4,7 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/discussion/screen_args/discussion.dart';
 import 'package:delphis_app/screens/home_page/chats/chats_list.dart';
+import 'package:delphis_app/screens/home_page/chats/home_page_twitter_login.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,6 +63,10 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
+    if (this.widget.currentUser == null ||
+        !this.widget.currentUser.isTwitterAuth) {
+      return HomePageTwitterLogin();
+    }
     return Consumer<HomePageTabNotifier>(
       builder: (context, currentTab, _) {
         return ChatsList(

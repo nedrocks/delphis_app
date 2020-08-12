@@ -213,6 +213,26 @@ class ChathamAppState extends State<ChathamApp>
                       null);
                 }
               }),
+              /* Clears the current discussion list when user logs out. This is
+                 wanted as we don't want discussion from an account to be
+                 visible is user changes account. */
+              BlocListener<AuthBloc, AuthState>(
+                  listener: (context, AuthState state) {
+                if (state is LoggedOutAuthState) {
+                  BlocProvider.of<DiscussionListBloc>(context)
+                      .add(DiscussionListClearEvent());
+                }
+              }),
+              /* Forces refresh of discussions list when user logs out and then
+                 logs in with another accout. */
+              BlocListener<GqlClientBloc, GqlClientState>(
+                  listenWhen: (prev, curr) {
+                return prev is GqlClientConnectingState &&
+                    curr is GqlClientConnectedState;
+              }, listener: (context, state) {
+                BlocProvider.of<DiscussionListBloc>(context)
+                    .add(DiscussionListFetchEvent());
+              }),
               BlocListener<MeBloc, MeState>(listener: (context, MeState state) {
                 if (state is LoadedMeState) {
                   this.sendDeviceToServer(

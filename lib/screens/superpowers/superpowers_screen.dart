@@ -72,6 +72,7 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
         if (panelToShow != null) {
           toRender = panelToShow;
         } else {
+          var options = buildOptionList(context);
           toRender = Container(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -90,14 +91,17 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
                     height: 1.0, color: Color.fromRGBO(110, 111, 121, 0.6)),
                 SizedBox(height: SpacingValues.small),
                 Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: Container(
-                      margin: EdgeInsets.all(SpacingValues.medium),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: buildOptionList(context),
-                      ),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SpacingValues.medium,
+                        vertical: SpacingValues.small),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: BouncingScrollPhysics(),
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        return options[index];
+                      },
                     ),
                   ),
                 ),

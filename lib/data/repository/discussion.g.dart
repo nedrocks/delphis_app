@@ -214,3 +214,29 @@ const _$DiscussionJoinabilityResponseEnumMap = {
   DiscussionJoinabilityResponse.APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
   DiscussionJoinabilityResponse.DENIED: 'DENIED',
 };
+
+ListDiscussionsResponse _$ListDiscussionsResponseFromJson(
+    Map<String, dynamic> json) {
+  return ListDiscussionsResponse(
+    activeDiscussions: (json['activeDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    archivedDiscussions: (json['archivedDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    deletedDiscussions: (json['deletedDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+  );
+}
+
+Map<String, dynamic> _$ListDiscussionsResponseToJson(
+        ListDiscussionsResponse instance) =>
+    <String, dynamic>{
+      'activeDiscussions': instance.activeDiscussions,
+      'archivedDiscussions': instance.archivedDiscussions,
+      'deletedDiscussions': instance.deletedDiscussions,
+    };

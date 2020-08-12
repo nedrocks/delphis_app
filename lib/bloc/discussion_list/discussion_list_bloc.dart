@@ -36,19 +36,11 @@ class DiscussionListBloc
         timestamp: DateTime.now(),
       );
       try {
-        var activeList = await this
-            .repository
-            .getDiscussionList(state: DiscussionUserAccessState.ACTIVE);
-        var archivedList = await this
-            .repository
-            .getDiscussionList(state: DiscussionUserAccessState.ARCHIVED);
-        var deletedList = await this
-            .repository
-            .getDiscussionList(state: DiscussionUserAccessState.DELETED);
+        var discussions = await this.repository.getDiscussionList();
         yield DiscussionListLoaded(
-          activeDiscussions: activeList,
-          archivedDiscussions: archivedList,
-          deletedDiscussions: deletedList,
+          activeDiscussions: discussions.activeDiscussions,
+          archivedDiscussions: discussions.archivedDiscussions,
+          deletedDiscussions: discussions.deletedDiscussions,
           timestamp: DateTime.now(),
         );
       } catch (error) {

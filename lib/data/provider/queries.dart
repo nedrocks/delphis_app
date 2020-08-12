@@ -555,27 +555,30 @@ class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
   }
 }
 
-class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
-  final DiscussionUserAccessState state;
+class ListDiscussionsGQLQuery extends GQLQuery<ListDiscussionsResponse> {
   final String _query = """
-    query Discussions (\$state: DiscussionUserAccessState!) {
-      listDiscussions (state: \$state) {
+    query Discussions () {
+      activeDiscussions: listDiscussions (state: ACTIVE) {
+        ...DiscussionListFragment
+      }
+      archivedDiscussions: listDiscussions (state: ARCHIVED) {
+        ...DiscussionListFragment
+      }
+      deletedDiscussions: listDiscussions (state: DELETED) {
         ...DiscussionListFragment
       }
     }
     $DiscussionListFragment
   """;
 
-  const ListDiscussionsGQLQuery(this.state) : super();
+  const ListDiscussionsGQLQuery() : super();
 
   String query() {
     return this._query;
   }
 
-  List<Discussion> parseResult(dynamic data) {
-    return (data["listDiscussions"] as List<dynamic>)
-        .map((elem) => Discussion.fromJson(elem))
-        .toList();
+  ListDiscussionsResponse parseResult(dynamic data) {
+    return ListDiscussionsResponse.fromJson(data);
   }
 }
 

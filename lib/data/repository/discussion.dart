@@ -1,5 +1,3 @@
-import 'package:delphis_app/data/repository/discussion_access.dart';
-import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -10,9 +8,11 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:delphis_app/data/repository/historical_string.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 
 import 'entity.dart';
 import 'moderator.dart';
@@ -34,28 +34,24 @@ class DiscussionRepository {
     @required this.clientBloc,
   });
 
-  Future<List<Discussion>> getDiscussionList(
-      {DiscussionUserAccessState state, int attempt = 1}) async {
+  Future<ListDiscussionsResponse> getDiscussionList({int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionList(state: state, attempt: attempt + 1);
+        return getDiscussionList(attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           'Failed to list discussions because connection is severed');
     }
 
-    state = state ?? DiscussionUserAccessState.ACTIVE;
-    final query = ListDiscussionsGQLQuery(state);
+    final query = ListDiscussionsGQLQuery();
 
     final QueryResult result = await client.query(
       QueryOptions(
         documentNode: gql(query.query()),
-        variables: {
-          'state': query.state.toString().split(".")[1],
-        },
+        variables: {},
         fetchPolicy: FetchPolicy.noCache,
       ),
     );
@@ -583,16 +579,16 @@ class Discussion extends Equatable implements Entity {
   final DiscussionUserNotificationSetting meNotificationSetting;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  List<Post> postsCache;
+  final List<Post> postsCache;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isActivatedLocally;
+  final bool isActivatedLocally;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isDeletedLocally;
+  final bool isDeletedLocally;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isArchivedLocally;
+  final bool isArchivedLocally;
 
   @override
   List<Object> get props => [
@@ -871,6 +867,38 @@ class CanJoinDiscussionResponse extends Equatable {
 
   factory CanJoinDiscussionResponse.fromJson(Map<String, dynamic> json) =>
       _$CanJoinDiscussionResponseFromJson(json);
+}
+
+@JsonAnnotation.JsonSerializable()
+class ListDiscussionsResponse extends Equatable {
+  final List<Discussion> activeDiscussions;
+  final List<Discussion> archivedDiscussions;
+  final List<Discussion> deletedDiscussions;
+
+  @override
+  List<Object> get props =>
+      [activeDiscussions, archivedDiscussions, deletedDiscussions];
+
+  const ListDiscussionsResponse({
+    this.activeDiscussions,
+    this.archivedDiscussions,
+    this.deletedDiscussions,
+  });
+
+  ListDiscussionsResponse copyWith({
+    List<Discussion> activeDiscussions,
+    List<Discussion> archivedDiscussions,
+    List<Discussion> deletedDiscussions,
+  }) {
+    return ListDiscussionsResponse(
+      activeDiscussions: activeDiscussions ?? this.activeDiscussions,
+      archivedDiscussions: archivedDiscussions ?? this.archivedDiscussions,
+      deletedDiscussions: deletedDiscussions ?? this.deletedDiscussions,
+    );
+  }
+
+  factory ListDiscussionsResponse.fromJson(Map<String, dynamic> json) =>
+      _$ListDiscussionsResponseFromJson(json);
 }
 
 enum DiscussionJoinabilitySetting {

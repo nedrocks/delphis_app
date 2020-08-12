@@ -114,7 +114,8 @@ class DiscussionListBloc
           final userAccess = await this.repository.updateDiscussionUserSettings(
               event.discussion.id, DiscussionUserAccessState.DELETED, null);
           final updatedDiscussion = event.discussion.copyWith(
-            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+            meNotificationSettings:
+                userAccess.discussion.meNotificationSettings,
           );
           this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
@@ -202,7 +203,7 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-              meNotificationSetting: DiscussionUserNotificationSetting.NONE);
+              meNotificationSettings: DiscussionUserNotificationSetting.NONE);
         }
         return e;
       };
@@ -220,7 +221,8 @@ class DiscussionListBloc
               null,
               DiscussionUserNotificationSetting.NONE);
           final updatedDiscussion = event.discussion.copyWith(
-            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+            meNotificationSettings:
+                userAccess.discussion.meNotificationSettings,
           );
           this.add(_DiscussionListMuteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
@@ -231,7 +233,7 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-              meNotificationSetting:
+              meNotificationSettings:
                   DiscussionUserNotificationSetting.EVERYTHING);
         }
         return e;
@@ -261,7 +263,7 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-              meNotificationSetting:
+              meNotificationSettings:
                   DiscussionUserNotificationSetting.EVERYTHING);
         }
         return e;
@@ -280,7 +282,8 @@ class DiscussionListBloc
               null,
               DiscussionUserNotificationSetting.EVERYTHING);
           final updatedDiscussion = event.discussion.copyWith(
-            meNotificationSetting: userAccess.discussion.meNotificationSetting,
+            meNotificationSettings:
+                userAccess.discussion.meNotificationSettings,
           );
           this.add(_DiscussionListUnMuteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
@@ -292,7 +295,7 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-              meNotificationSetting: DiscussionUserNotificationSetting.NONE);
+              meNotificationSettings: DiscussionUserNotificationSetting.NONE);
         }
         return e;
       };

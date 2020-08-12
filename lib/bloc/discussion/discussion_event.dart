@@ -264,3 +264,17 @@ class DiscussionParticipantsMutedUnmutedEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.participants, timestamp];
 }
+
+class DiscussionMuteEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool isMute;
+  final DateTime timestamp;
+
+  DiscussionMuteEvent({
+    @required this.discussionID,
+    @required this.isMute,
+  }) : this.timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [this.discussionID, this.isMute, timestamp];
+}

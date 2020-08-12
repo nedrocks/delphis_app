@@ -386,7 +386,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
         focusScope.unfocus();
       }
       Navigator.of(context).pushNamed(
-        '/Discussion/ParticipantList',
+        '/Discussion/Options',
       );
     });
   }

@@ -63,8 +63,11 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    if (this.widget.currentUser == null ||
-        !this.widget.currentUser.isTwitterAuth) {
+    if (this.widget.currentUser == null) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (!this.widget.currentUser.isTwitterAuth) {
       return HomePageTwitterLogin();
     }
     return Consumer<HomePageTabNotifier>(

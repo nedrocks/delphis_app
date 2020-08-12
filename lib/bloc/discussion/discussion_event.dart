@@ -264,3 +264,15 @@ class DiscussionParticipantsMutedUnmutedEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.participants, timestamp];
 }
+
+class RequestDiscussionAccessEvent extends DiscussionEvent {
+  final String discussionID;
+  final DateTime timestamp;
+
+  RequestDiscussionAccessEvent({
+    @required this.discussionID,
+  }) : this.timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [this.discussionID, this.timestamp];
+}

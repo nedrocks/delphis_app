@@ -70,7 +70,7 @@ T _$enumDecodeNullable<T>(
 const _$InviteRequestStatusEnumMap = {
   InviteRequestStatus.ACCEPTED: 'ACCEPTED',
   InviteRequestStatus.REJECTED: 'REJECTED',
-  InviteRequestStatus.INVITED: 'INVITED',
+  InviteRequestStatus.PENDING: 'PENDING',
   InviteRequestStatus.CANCELLED: 'CANCELLED',
 };
 

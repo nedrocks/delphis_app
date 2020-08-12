@@ -124,7 +124,9 @@ class DiscussionJoinScreen extends StatelessWidget {
                                         Navigator.of(context).pop();
                                       },
                                       onAccessRequestPressed: () {
-                                        // TODO: Fire the mutation
+                                        BlocProvider.of<DiscussionBloc>(context)
+                                            .add(RequestDiscussionAccessEvent(
+                                                discussionID: discussion.id));
                                       },
                                       onJoinPressed: () {
                                         BlocProvider.of<ParticipantBloc>(

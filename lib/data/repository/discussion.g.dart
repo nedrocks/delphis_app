@@ -50,9 +50,6 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         ?.toList(),
     discussionJoinability: _$enumDecodeNullable(
         _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
-    mutedUntil: json['mutedUntil'] == null
-        ? null
-        : DateTime.parse(json['mutedUntil'] as String),
     meCanJoinDiscussion: json['meCanJoinDiscussion'] == null
         ? null
         : CanJoinDiscussionResponse.fromJson(
@@ -85,7 +82,6 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'descriptionHistory': instance.descriptionHistory,
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
-      'mutedUntil': instance.mutedUntil?.toIso8601String(),
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
       'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[
@@ -218,3 +214,29 @@ const _$DiscussionJoinabilityResponseEnumMap = {
   DiscussionJoinabilityResponse.APPROVAL_REQUIRED: 'APPROVAL_REQUIRED',
   DiscussionJoinabilityResponse.DENIED: 'DENIED',
 };
+
+ListDiscussionsResponse _$ListDiscussionsResponseFromJson(
+    Map<String, dynamic> json) {
+  return ListDiscussionsResponse(
+    activeDiscussions: (json['activeDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    archivedDiscussions: (json['archivedDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+    deletedDiscussions: (json['deletedDiscussions'] as List)
+        ?.map((e) =>
+            e == null ? null : Discussion.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
+  );
+}
+
+Map<String, dynamic> _$ListDiscussionsResponseToJson(
+        ListDiscussionsResponse instance) =>
+    <String, dynamic>{
+      'activeDiscussions': instance.activeDiscussions,
+      'archivedDiscussions': instance.archivedDiscussions,
+      'deletedDiscussions': instance.deletedDiscussions,
+    };

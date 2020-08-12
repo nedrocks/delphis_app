@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
@@ -408,13 +409,7 @@ class MeGQLQuery extends GQLQuery<User> {
           id
           displayName
           profileImageURL
-        }
-        flairs{
-          id
-          displayName
-          imageURL
-          source
-        }
+        }      
       }
     }
   """;
@@ -560,10 +555,16 @@ class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
   }
 }
 
-class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
+class ListDiscussionsGQLQuery extends GQLQuery<ListDiscussionsResponse> {
   final String _query = """
-    query Discussions() {
-      listDiscussions {
+    query Discussions () {
+      activeDiscussions: listDiscussions (state: ACTIVE) {
+        ...DiscussionListFragment
+      }
+      archivedDiscussions: listDiscussions (state: ARCHIVED) {
+        ...DiscussionListFragment
+      }
+      deletedDiscussions: listDiscussions (state: DELETED) {
         ...DiscussionListFragment
       }
     }
@@ -576,10 +577,8 @@ class ListDiscussionsGQLQuery extends GQLQuery<List<Discussion>> {
     return this._query;
   }
 
-  List<Discussion> parseResult(dynamic data) {
-    return (data["listDiscussions"] as List<dynamic>)
-        .map((elem) => Discussion.fromJson(elem))
-        .toList();
+  ListDiscussionsResponse parseResult(dynamic data) {
+    return ListDiscussionsResponse.fromJson(data);
   }
 }
 

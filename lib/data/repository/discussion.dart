@@ -1,5 +1,3 @@
-import 'package:delphis_app/data/repository/discussion_access.dart';
-import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -10,9 +8,11 @@ import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/mutations.dart';
 import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/provider/subscriptions.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
 import 'package:delphis_app/data/repository/discussion_subscription.dart';
 import 'package:delphis_app/data/repository/historical_string.dart';
+import 'package:delphis_app/data/repository/viewer.dart';
 
 import 'entity.dart';
 import 'moderator.dart';
@@ -34,7 +34,7 @@ class DiscussionRepository {
     @required this.clientBloc,
   });
 
-  Future<List<Discussion>> getDiscussionList({int attempt = 1}) async {
+  Future<ListDiscussionsResponse> getDiscussionList({int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
@@ -574,22 +574,21 @@ class Discussion extends Equatable implements Entity {
   final List<HistoricalString> titleHistory;
   final List<HistoricalString> descriptionHistory;
   final DiscussionJoinabilitySetting discussionJoinability;
-  final DateTime mutedUntil;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
   final DiscussionUserNotificationSetting meNotificationSetting;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  List<Post> postsCache;
+  final List<Post> postsCache;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isActivatedLocally;
+  final bool isActivatedLocally;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isDeletedLocally;
+  final bool isDeletedLocally;
 
   @JsonAnnotation.JsonKey(ignore: true)
-  bool isArchivedLocally;
+  final bool isArchivedLocally;
 
   @override
   List<Object> get props => [
@@ -608,7 +607,6 @@ class Discussion extends Equatable implements Entity {
         titleHistory,
         descriptionHistory,
         discussionJoinability,
-        mutedUntil,
         isDeletedLocally,
         isActivatedLocally,
         isArchivedLocally,
@@ -634,7 +632,6 @@ class Discussion extends Equatable implements Entity {
     this.titleHistory,
     this.descriptionHistory,
     this.discussionJoinability,
-    this.mutedUntil,
     this.meCanJoinDiscussion,
     postsCache,
     this.isDeletedLocally = false,
@@ -646,14 +643,7 @@ class Discussion extends Equatable implements Entity {
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
-    var parsed = _$DiscussionFromJson(json);
-    if (json['mutedForSeconds'] != null) {
-      var seconds = json['mutedForSeconds'] as int;
-      return parsed.copyWith(
-        mutedUntil: DateTime.now().add(Duration(seconds: seconds)),
-      );
-    }
-    return parsed;
+    return _$DiscussionFromJson(json);
   }
 
   Map<String, dynamic> toJSON() {
@@ -708,7 +698,9 @@ class Discussion extends Equatable implements Entity {
   }
 
   bool get isMuted {
-    return mutedUntil != null && mutedUntil.isAfter(DateTime.now());
+    return this.meNotificationSetting != null &&
+        this.meNotificationSetting !=
+            DiscussionUserNotificationSetting.EVERYTHING;
   }
 
   bool get isPendingAccess {
@@ -736,7 +728,6 @@ class Discussion extends Equatable implements Entity {
     List<HistoricalString> titleHistory,
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
-    DateTime mutedUntil,
     CanJoinDiscussionResponse meCanJoinDiscussion,
     List<Post> postsCache,
     bool isActivatedLocally,
@@ -764,7 +755,6 @@ class Discussion extends Equatable implements Entity {
         descriptionHistory: descriptionHistory ?? this.descriptionHistory,
         discussionJoinability:
             discussionJoinability ?? this.discussionJoinability,
-        mutedUntil: mutedUntil ?? this.mutedUntil,
         meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
         postsCache: postsCache ?? this.postsCache,
         isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
@@ -877,6 +867,38 @@ class CanJoinDiscussionResponse extends Equatable {
 
   factory CanJoinDiscussionResponse.fromJson(Map<String, dynamic> json) =>
       _$CanJoinDiscussionResponseFromJson(json);
+}
+
+@JsonAnnotation.JsonSerializable()
+class ListDiscussionsResponse extends Equatable {
+  final List<Discussion> activeDiscussions;
+  final List<Discussion> archivedDiscussions;
+  final List<Discussion> deletedDiscussions;
+
+  @override
+  List<Object> get props =>
+      [activeDiscussions, archivedDiscussions, deletedDiscussions];
+
+  const ListDiscussionsResponse({
+    this.activeDiscussions,
+    this.archivedDiscussions,
+    this.deletedDiscussions,
+  });
+
+  ListDiscussionsResponse copyWith({
+    List<Discussion> activeDiscussions,
+    List<Discussion> archivedDiscussions,
+    List<Discussion> deletedDiscussions,
+  }) {
+    return ListDiscussionsResponse(
+      activeDiscussions: activeDiscussions ?? this.activeDiscussions,
+      archivedDiscussions: archivedDiscussions ?? this.archivedDiscussions,
+      deletedDiscussions: deletedDiscussions ?? this.deletedDiscussions,
+    );
+  }
+
+  factory ListDiscussionsResponse.fromJson(Map<String, dynamic> json) =>
+      _$ListDiscussionsResponseFromJson(json);
 }
 
 enum DiscussionJoinabilitySetting {

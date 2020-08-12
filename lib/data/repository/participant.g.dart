@@ -34,6 +34,9 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
         : Participant.fromJson(json['inviter'] as Map<String, dynamic>),
     isBanned: json['isBanned'] as bool,
     anonDisplayName: json['anonDisplayName'] as String,
+    mutedUntil: json['mutedUntil'] == null
+        ? null
+        : DateTime.parse(json['mutedUntil'] as String),
   );
 }
 
@@ -51,5 +54,6 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
       'hasJoined': instance.hasJoined,
       'userProfile': instance.userProfile,
       'inviter': instance.inviter,
+      'mutedUntil': instance.mutedUntil?.toIso8601String(),
       'anonDisplayName': instance.anonDisplayName,
     };

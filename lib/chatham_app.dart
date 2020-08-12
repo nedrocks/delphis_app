@@ -438,10 +438,10 @@ class ChathamAppState extends State<ChathamApp>
                   case '/Discussion/Upsert':
                     UpsertDiscussionArguments arguments =
                         settings.arguments as UpsertDiscussionArguments;
-                    return PageTransition(
-                        settings: settings,
-                        type: PageTransitionType.rightToLeft,
-                        child: BlocProvider<UpsertDiscussionBloc>(
+                    return MaterialPageRoute(
+                      settings: settings,
+                      builder: (BuildContext context) {
+                        return BlocProvider<UpsertDiscussionBloc>(
                           create: (context) => UpsertDiscussionBloc(
                               RepositoryProvider.of<DiscussionRepository>(
                                   context))
@@ -469,7 +469,9 @@ class ChathamAppState extends State<ChathamApp>
                                   UpsertDiscussionScreen(arguments: arguments),
                             ),
                           ),
-                        ));
+                        );
+                      },
+                    );
                     break;
                   case '/Discussion/Superpowers':
                     SuperpowersArguments arguments =

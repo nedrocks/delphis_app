@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
@@ -37,12 +36,11 @@ class DiscussionListBloc
         timestamp: DateTime.now(),
       );
       try {
-        // TODO: Fetch 3 different lists
-        var newList = await this.repository.getDiscussionList();
+        var discussions = await this.repository.getDiscussionList();
         yield DiscussionListLoaded(
-          activeDiscussions: newList,
-          archivedDiscussions: [],
-          deletedDiscussions: [],
+          activeDiscussions: discussions.activeDiscussions,
+          archivedDiscussions: discussions.archivedDiscussions,
+          deletedDiscussions: discussions.deletedDiscussions,
           timestamp: DateTime.now(),
         );
       } catch (error) {
@@ -169,7 +167,7 @@ class DiscussionListBloc
         try {
           await this.repository.updateDiscussionUserSettings(
               event.discussion.id, DiscussionUserAccessState.ARCHIVED, null);
-          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
+          this.add(_DiscussionListArchiveAsyncSuccessEvent(event.discussion));
         } catch (error) {
           this.add(
               _DiscussionListArchiveAsyncErrorEvent(event.discussion, error));
@@ -204,10 +202,7 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-            mutedUntil: DateTime.now().add(
-              Duration(seconds: event.mutedForSeconds),
-            ),
-          );
+              meNotificationSetting: DiscussionUserNotificationSetting.NONE);
         }
         return e;
       };
@@ -227,7 +222,7 @@ class DiscussionListBloc
           final updatedDiscussion = event.discussion.copyWith(
             meNotificationSetting: userAccess.discussion.meNotificationSetting,
           );
-          this.add(_DiscussionListDeleteAsyncSuccessEvent(updatedDiscussion));
+          this.add(_DiscussionListMuteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
           this.add(_DiscussionListMuteAsyncErrorEvent(event.discussion, error));
         }
@@ -236,11 +231,8 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-            mutedUntil: event.discussion.mutedUntil ??
-                DateTime.now().subtract(
-                  Duration(minutes: 1),
-                ),
-          );
+              meNotificationSetting:
+                  DiscussionUserNotificationSetting.EVERYTHING);
         }
         return e;
       };
@@ -269,10 +261,8 @@ class DiscussionListBloc
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
           return e.copyWith(
-            mutedUntil: DateTime.now().subtract(
-              Duration(minutes: 1),
-            ),
-          );
+              meNotificationSetting:
+                  DiscussionUserNotificationSetting.EVERYTHING);
         }
         return e;
       };
@@ -285,16 +275,12 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
-          await Future.delayed(Duration(seconds: 2));
-          if (Random().nextInt(2) == 0) {
-            throw "some random error";
-          }
-          var updatedDiscussion = event.discussion.copyWith(
-            mutedUntil: DateTime.now().subtract(
-              Duration(minutes: 1),
-            ),
+          final userAccess = await this.repository.updateDiscussionUserSettings(
+              event.discussion.id,
+              null,
+              DiscussionUserNotificationSetting.EVERYTHING);
+          final updatedDiscussion = event.discussion.copyWith(
+            meNotificationSetting: userAccess.discussion.meNotificationSetting,
           );
           this.add(_DiscussionListUnMuteAsyncSuccessEvent(updatedDiscussion));
         } catch (error) {
@@ -305,7 +291,8 @@ class DiscussionListBloc
     } else if (event is _DiscussionListUnMuteAsyncErrorEvent) {
       var transform = (Discussion e) {
         if (e.id == event.discussion.id) {
-          return e.copyWith(mutedUntil: event.discussion.mutedUntil);
+          return e.copyWith(
+              meNotificationSetting: DiscussionUserNotificationSetting.NONE);
         }
         return e;
       };
@@ -346,11 +333,9 @@ class DiscussionListBloc
       );
       () async {
         try {
-          /* TODO: This is mocked behavior for UI testing. We need to hook this
-           up with repositories and real backend mutations. */
           await this.repository.updateDiscussionUserSettings(
               event.discussion.id, DiscussionUserAccessState.ACTIVE, null);
-          this.add(_DiscussionListDeleteAsyncSuccessEvent(event.discussion));
+          this.add(_DiscussionListActivateAsyncSuccessEvent(event.discussion));
         } catch (error) {
           this.add(
               _DiscussionListActivateAsyncErrorEvent(event.discussion, error));

@@ -271,7 +271,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             participantID: this.widget.meParticipant.id,
             isAnonymous: this._selectedIdx == 1,
             gradientName: this._selectedGradient,
-            flair: this.widget.me.flairs.firstWhere(
+            flair: this.widget.me.flairs?.firstWhere(
                 (flair) => flair.id == this._selectedFlairID,
                 orElse: () => null),
             isUnsetFlairID: this._selectedFlairID == null,

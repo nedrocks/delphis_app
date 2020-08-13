@@ -1,6 +1,7 @@
-import 'package:delphis_app/data/repository/user.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'package:delphis_app/data/repository/user.dart';
 
 import 'discussion.dart';
 
@@ -20,6 +21,9 @@ class DiscussionAccessRequest extends Equatable {
   final bool isDeleted;
   final InviteRequestStatus status;
 
+  @JsonKey(ignore: true)
+  final bool isLoadingLocally;
+
   List<Object> get props => [
         this.id,
         this.user?.id,
@@ -38,10 +42,33 @@ class DiscussionAccessRequest extends Equatable {
     this.updatedAt,
     this.isDeleted,
     this.status,
+    this.isLoadingLocally = false,
   });
 
   factory DiscussionAccessRequest.fromJson(Map<String, dynamic> json) =>
       _$DiscussionAccessRequestFromJson(json);
+
+  DiscussionAccessRequest copyWith({
+    String id,
+    User user,
+    Discussion discussion,
+    String createdAt,
+    String updatedAt,
+    bool isDeleted,
+    InviteRequestStatus status,
+    bool isLoadingLocally,
+  }) {
+    return DiscussionAccessRequest(
+      id: id ?? this.id,
+      user: user ?? this.user,
+      discussion: discussion ?? this.discussion,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      status: status ?? this.status,
+      isLoadingLocally: isLoadingLocally ?? this.isLoadingLocally,
+    );
+  }
 }
 
 @JsonSerializable()

@@ -18,6 +18,11 @@ class AccessRequestEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool hasActions = true;
+    if (accessRequest.isLoadingLocally ||
+        accessRequest.status != InviteRequestStatus.PENDING) {
+      hasActions = false;
+    }
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -32,22 +37,26 @@ class AccessRequestEntry extends StatelessWidget {
         actionExtentRatio: 0.25,
         controller: this.slidableController ?? SlidableController(),
         closeOnScroll: true,
-        actions: <Widget>[
-          IconSlideAction(
-            caption: 'Reject',
-            color: Colors.red,
-            icon: Icons.block,
-            onTap: this.onReject,
-          ),
-        ],
-        secondaryActions: [
-          IconSlideAction(
-            caption: 'Accept',
-            color: Colors.green,
-            icon: Icons.check,
-            onTap: this.onAccept,
-          ),
-        ],
+        actions: hasActions
+            ? []
+            : [
+                IconSlideAction(
+                  caption: 'Reject',
+                  color: Colors.red,
+                  icon: Icons.block,
+                  onTap: this.onReject,
+                ),
+              ],
+        secondaryActions: !hasActions
+            ? []
+            : [
+                IconSlideAction(
+                  caption: 'Accept',
+                  color: Colors.green,
+                  icon: Icons.check,
+                  onTap: this.onAccept,
+                ),
+              ],
         child: Container(
           color: Colors.blue,
           height: 70,

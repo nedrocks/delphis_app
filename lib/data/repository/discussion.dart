@@ -554,6 +554,45 @@ class DiscussionRepository {
       return subscription.parseResult(res.data);
     });
   }
+
+  Future<DiscussionAccessRequest> respondToAccessRequest(
+      String requestID, InviteRequestStatus status,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return respondToAccessRequest(requestID, status, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to respondToAccessRequest because backend connection is severed');
+    }
+
+    final mutation = RespondToDiscussionAccessRequestMutation(
+      requestID: requestID,
+      response: status,
+    );
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'requestID': requestID,
+          'response': status.toString().split(".")[1],
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
 }
 
 @JsonAnnotation.JsonSerializable()

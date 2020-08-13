@@ -1,4 +1,5 @@
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/access_request_list/access_request.dart';
@@ -86,10 +87,20 @@ class AccessRequestListScreen extends StatelessWidget {
                                 slidableController: slidableController,
                                 accessRequest: request,
                                 onAccept: () {
-                                  //TODO: Hook this up with BLoC
+                                  BlocProvider.of<DiscussionBloc>(context).add(
+                                    DiscussionRespondToAccessRequestEvent(
+                                      requestID: request.id,
+                                      status: InviteRequestStatus.ACCEPTED,
+                                    ),
+                                  );
                                 },
                                 onReject: () {
-                                  //TODO: Hook this up with BLoC
+                                  BlocProvider.of<DiscussionBloc>(context).add(
+                                    DiscussionRespondToAccessRequestEvent(
+                                      requestID: request.id,
+                                      status: InviteRequestStatus.REJECTED,
+                                    ),
+                                  );
                                 },
                               );
                             },

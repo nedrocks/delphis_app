@@ -400,7 +400,28 @@ class ChathamAppState extends State<ChathamApp>
                                             discussionID:
                                                 arguments.discussionID));
                                   }
-                                })
+                                }),
+                                /* This triggers an initial refresh when the user first
+                                   joins the discussion. It causes posts to reload,
+                                   the input to show, and the subscription to initialize. */
+                                BlocListener<DiscussionBloc, DiscussionState>(
+                                  listenWhen: (prev, curr) {
+                                    return prev is DiscussionLoadedState &&
+                                        curr is DiscussionLoadedState &&
+                                        prev.getDiscussion()?.meParticipant ==
+                                            null &&
+                                        curr.getDiscussion()?.meParticipant !=
+                                            null;
+                                  },
+                                  listener: (context, state) {
+                                    BlocProvider.of<DiscussionBloc>(context)
+                                        .add(
+                                      RefreshPostsEvent(
+                                        discussionID: arguments.discussionID,
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                               child: DelphisDiscussion(
                                 key: Key(

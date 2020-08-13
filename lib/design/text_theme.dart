@@ -286,4 +286,10 @@ class TextThemes {
     fontWeight: FontWeight.w300,
     color: Colors.grey,
   );
+
+  static final discussionHeaderNotification = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w800,
+    color: Colors.red,
+  );
 }

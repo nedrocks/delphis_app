@@ -607,8 +607,13 @@ class Discussion extends Equatable implements Entity {
   final DiscussionJoinabilitySetting discussionJoinability;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
+<<<<<<< Updated upstream
   final DiscussionUserNotificationSetting meNotificationSettings;
   final DiscussionUserAccessState meDiscussionStatus;
+=======
+  final DiscussionUserNotificationSetting meNotificationSetting;
+  final int secondsUntilShuffle;
+>>>>>>> Stashed changes
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -621,6 +626,9 @@ class Discussion extends Equatable implements Entity {
 
   @JsonAnnotation.JsonKey(ignore: true)
   final bool isArchivedLocally;
+
+  @JsonAnnotation.JsonKey(ignore: true)
+  final DateTime nextShuffleTime;
 
   @override
   List<Object> get props => [
@@ -644,6 +652,7 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
+<<<<<<< Updated upstream
         meNotificationSettings,
         meDiscussionStatus,
       ];
@@ -675,6 +684,43 @@ class Discussion extends Equatable implements Entity {
     this.meDiscussionStatus,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
+=======
+        meNotificationSetting,
+        secondsUntilShuffle,
+      ];
+
+  Discussion(
+      {this.id,
+      this.moderator,
+      this.anonymityType,
+      this.postsConnection,
+      this.participants,
+      this.title,
+      this.createdAt,
+      this.updatedAt,
+      this.meParticipant,
+      this.meAvailableParticipants,
+      this.iconURL,
+      this.discussionAccessLink,
+      this.description,
+      this.titleHistory,
+      this.descriptionHistory,
+      this.discussionJoinability,
+      this.meCanJoinDiscussion,
+      postsCache,
+      this.isDeletedLocally = false,
+      this.isActivatedLocally = false,
+      this.isArchivedLocally = false,
+      this.meViewer,
+      this.meNotificationSetting,
+      this.secondsUntilShuffle,
+      nextShuffleTime})
+      : this.postsCache =
+            postsCache ?? (postsConnection?.asPostList() ?? List()),
+        this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
+            ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
+            : null;
+>>>>>>> Stashed changes
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
     return _$DiscussionFromJson(json);
@@ -772,6 +818,7 @@ class Discussion extends Equatable implements Entity {
     bool isDeletedLocally,
     bool isArchivedLocally,
     Viewer meViewer,
+<<<<<<< Updated upstream
     DiscussionUserNotificationSetting meNotificationSettings,
     DiscussionUserAccessState meDiscussionStatus,
   }) {
@@ -803,6 +850,42 @@ class Discussion extends Equatable implements Entity {
         meNotificationSettings:
             meNotificationSettings ?? this.meNotificationSettings,
         meDiscussionStatus: meDiscussionStatus ?? this.meDiscussionStatus);
+=======
+    DiscussionUserNotificationSetting meNotificationSetting,
+    int secondsUntilShuffle,
+    DateTime nextShuffleTime,
+  }) {
+    return Discussion(
+      id: id ?? this.id,
+      moderator: moderator ?? this.moderator,
+      anonymityType: anonymityType ?? this.anonymityType,
+      postsConnection: postsConnection ?? this.postsConnection,
+      participants: participants ?? this.participants,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      meParticipant: meParticipant ?? this.meParticipant,
+      meAvailableParticipants:
+          meAvailableParticipants ?? this.meAvailableParticipants,
+      iconURL: iconURL ?? this.iconURL,
+      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
+      description: description ?? this.description,
+      titleHistory: titleHistory ?? this.titleHistory,
+      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+      discussionJoinability:
+          discussionJoinability ?? this.discussionJoinability,
+      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+      postsCache: postsCache ?? this.postsCache,
+      isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
+      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+      isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+      meViewer: meViewer ?? this.meViewer,
+      meNotificationSetting:
+          meNotificationSetting ?? this.meNotificationSetting,
+      secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
+      nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
+    );
+>>>>>>> Stashed changes
   }
 }
 

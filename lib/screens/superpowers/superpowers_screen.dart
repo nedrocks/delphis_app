@@ -282,6 +282,33 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
           }));
     }
 
+    if (isMeDiscussionModerator()) {
+      list.add(SuperpowersOption(
+          child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                child: Icon(
+                  Icons.assignment,
+                  size: 36,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("Access Requests"),
+          description: Intl.message(
+              "Manage users that requested access to this chat. View all the pending requests and accept or reject them."),
+          onTap: () {
+            Navigator.pushNamed(
+              context,
+              '/Discussion/AccessRequestList',
+            );
+          }));
+    }
+
     // /* Invite user from Twitter handle */
     // if (isMeDiscussionModerator()) {
     //   list.add(ModeratorPopupOption(

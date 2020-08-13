@@ -36,7 +36,7 @@ class AccessRequestEntry extends StatelessWidget {
           IconSlideAction(
             caption: 'Reject',
             color: Colors.red,
-            icon: Icons.delete,
+            icon: Icons.block,
             onTap: this.onReject,
           ),
         ],
@@ -44,13 +44,13 @@ class AccessRequestEntry extends StatelessWidget {
           IconSlideAction(
             caption: 'Accept',
             color: Colors.green,
-            icon: Icons.delete,
+            icon: Icons.check,
             onTap: this.onAccept,
           ),
         ],
         child: Container(
           color: Colors.blue,
-          height: 60,
+          height: 70,
         ),
       ),
     );

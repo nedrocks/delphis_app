@@ -277,6 +277,7 @@ class DiscussionMuteEvent extends DiscussionEvent {
 
   @override
   List<Object> get props => [this.discussionID, this.isMute, timestamp];
+}
 
 class RequestDiscussionAccessEvent extends DiscussionEvent {
   final String discussionID;

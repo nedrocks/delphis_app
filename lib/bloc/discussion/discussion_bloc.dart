@@ -482,6 +482,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         // In the error case we need to roll back the discussion notification
         // status and post an error to the user.
         yield currentState;
+      }
     } else if (event is RequestDiscussionAccessEvent &&
         currentState is DiscussionLoadedState) {
       try {

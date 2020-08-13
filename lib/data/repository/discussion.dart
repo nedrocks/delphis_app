@@ -607,7 +607,8 @@ class Discussion extends Equatable implements Entity {
   final DiscussionJoinabilitySetting discussionJoinability;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
-  final DiscussionUserNotificationSetting meNotificationSetting;
+  final DiscussionUserNotificationSetting meNotificationSettings;
+  final DiscussionUserAccessState meDiscussionStatus;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -643,7 +644,8 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
-        meNotificationSetting,
+        meNotificationSettings,
+        meDiscussionStatus,
       ];
 
   Discussion({
@@ -669,7 +671,8 @@ class Discussion extends Equatable implements Entity {
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
     this.meViewer,
-    this.meNotificationSetting,
+    this.meNotificationSettings,
+    this.meDiscussionStatus,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -720,6 +723,10 @@ class Discussion extends Equatable implements Entity {
     return participant;
   }
 
+  bool get isActive {
+    return this.meDiscussionStatus == DiscussionUserAccessState.ACTIVE;
+  }
+
   bool isMeDiscussionModerator() {
     return this
             .meAvailableParticipants
@@ -729,8 +736,8 @@ class Discussion extends Equatable implements Entity {
   }
 
   bool get isMuted {
-    return this.meNotificationSetting != null &&
-        this.meNotificationSetting !=
+    return this.meNotificationSettings != null &&
+        this.meNotificationSettings !=
             DiscussionUserNotificationSetting.EVERYTHING;
   }
 
@@ -765,7 +772,8 @@ class Discussion extends Equatable implements Entity {
     bool isDeletedLocally,
     bool isArchivedLocally,
     Viewer meViewer,
-    DiscussionUserNotificationSetting meNotificationSetting,
+    DiscussionUserNotificationSetting meNotificationSettings,
+    DiscussionUserAccessState meDiscussionStatus,
   }) {
     return Discussion(
         id: id ?? this.id,
@@ -792,8 +800,9 @@ class Discussion extends Equatable implements Entity {
         isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
         isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
         meViewer: meViewer ?? this.meViewer,
-        meNotificationSetting:
-            meNotificationSetting ?? this.meNotificationSetting);
+        meNotificationSettings:
+            meNotificationSettings ?? this.meNotificationSettings,
+        meDiscussionStatus: meDiscussionStatus ?? this.meDiscussionStatus);
   }
 }
 

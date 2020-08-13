@@ -60,6 +60,11 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meNotificationSetting: _$enumDecodeNullable(
         _$DiscussionUserNotificationSettingEnumMap,
         json['meNotificationSetting']),
+    accessRequests: (json['accessRequests'] as List)
+        ?.map((e) => e == null
+            ? null
+            : DiscussionAccessRequest.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
   );
 }
 
@@ -86,6 +91,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meViewer': instance.meViewer,
       'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[
           instance.meNotificationSetting],
+      'accessRequests': instance.accessRequests,
     };
 
 T _$enumDecode<T>(

@@ -263,20 +263,20 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<DiscussionAccessLink> getDiscussionAccessLink(String discussionID,
+  Future<Discussion> getDiscussionModOnlyFields(String discussionID,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionAccessLink(discussionID, attempt: attempt + 1);
+        return getDiscussionModOnlyFields(discussionID, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = DiscussionAccessLinkGQLQuery(discussionID: discussionID);
+    final query = DiscussionModOnlyFieldsGQLQuery(discussionID: discussionID);
 
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
@@ -577,6 +577,7 @@ class Discussion extends Equatable implements Entity {
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
   final DiscussionUserNotificationSetting meNotificationSetting;
+  final List<DiscussionAccessRequest> accessRequests;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -613,6 +614,7 @@ class Discussion extends Equatable implements Entity {
         meCanJoinDiscussion,
         meViewer?.id,
         meNotificationSetting,
+        accessRequests,
       ];
 
   Discussion({
@@ -639,6 +641,7 @@ class Discussion extends Equatable implements Entity {
     this.isArchivedLocally = false,
     this.meViewer,
     this.meNotificationSetting,
+    this.accessRequests,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -735,34 +738,37 @@ class Discussion extends Equatable implements Entity {
     bool isArchivedLocally,
     Viewer meViewer,
     DiscussionUserNotificationSetting meNotificationSetting,
+    List<DiscussionAccessRequest> accessRequests,
   }) {
     return Discussion(
-        id: id ?? this.id,
-        moderator: moderator ?? this.moderator,
-        anonymityType: anonymityType ?? this.anonymityType,
-        postsConnection: postsConnection ?? this.postsConnection,
-        participants: participants ?? this.participants,
-        title: title ?? this.title,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        meParticipant: meParticipant ?? this.meParticipant,
-        meAvailableParticipants:
-            meAvailableParticipants ?? this.meAvailableParticipants,
-        iconURL: iconURL ?? this.iconURL,
-        discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
-        description: description ?? this.description,
-        titleHistory: titleHistory ?? this.titleHistory,
-        descriptionHistory: descriptionHistory ?? this.descriptionHistory,
-        discussionJoinability:
-            discussionJoinability ?? this.discussionJoinability,
-        meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
-        postsCache: postsCache ?? this.postsCache,
-        isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
-        isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
-        isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
-        meViewer: meViewer ?? this.meViewer,
-        meNotificationSetting:
-            meNotificationSetting ?? this.meNotificationSetting);
+      id: id ?? this.id,
+      moderator: moderator ?? this.moderator,
+      anonymityType: anonymityType ?? this.anonymityType,
+      postsConnection: postsConnection ?? this.postsConnection,
+      participants: participants ?? this.participants,
+      title: title ?? this.title,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      meParticipant: meParticipant ?? this.meParticipant,
+      meAvailableParticipants:
+          meAvailableParticipants ?? this.meAvailableParticipants,
+      iconURL: iconURL ?? this.iconURL,
+      discussionAccessLink: discussionAccessLink ?? this.discussionAccessLink,
+      description: description ?? this.description,
+      titleHistory: titleHistory ?? this.titleHistory,
+      descriptionHistory: descriptionHistory ?? this.descriptionHistory,
+      discussionJoinability:
+          discussionJoinability ?? this.discussionJoinability,
+      meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+      postsCache: postsCache ?? this.postsCache,
+      isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
+      isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
+      isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+      meViewer: meViewer ?? this.meViewer,
+      meNotificationSetting:
+          meNotificationSetting ?? this.meNotificationSetting,
+      accessRequests: accessRequests ?? this.accessRequests,
+    );
   }
 }
 

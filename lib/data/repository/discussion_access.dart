@@ -6,7 +6,7 @@ import 'discussion.dart';
 
 part 'discussion_access.g.dart';
 
-enum InviteRequestStatus { ACCEPTED, REJECTED, INVITED, CANCELLED }
+enum InviteRequestStatus { ACCEPTED, REJECTED, PENDING, CANCELLED }
 enum DiscussionUserAccessState { ACTIVE, ARCHIVED, DELETED }
 enum DiscussionUserNotificationSetting { NONE, MENTIONS, EVERYTHING }
 

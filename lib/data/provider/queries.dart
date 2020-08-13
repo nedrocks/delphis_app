@@ -1,4 +1,3 @@
-import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/twitter_user.dart';
@@ -36,9 +35,6 @@ const DiscussionUserAccessFragment = """
 const DiscussionAccessRequestFragment = """
   fragment DiscussionAccessRequestFragment on DiscussionAccessRequest {
     id
-    user {
-      id
-    }
     discussion {
       id
     }
@@ -528,20 +524,24 @@ class DiscussionFromDiscussionSlugQuery extends GQLQuery<Discussion> {
   }
 }
 
-class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
+class DiscussionModOnlyFieldsGQLQuery extends GQLQuery<Discussion> {
   final String discussionID;
   final String _query = """
-    query DiscussionAccessLink(\$id: ID!) {
+    query DiscussionModOnlyFields(\$id: ID!) {
       discussion(id: \$id){
         discussionAccessLink {
           ...DiscussionAccessLinkFragment
         }
+        accessRequests {
+          ...DiscussionAccessRequestFragment
+        }
       }
     }
+    $DiscussionAccessRequestFragment
     $DiscussionAccessLinkFragment
   """;
 
-  const DiscussionAccessLinkGQLQuery({
+  const DiscussionModOnlyFieldsGQLQuery({
     this.discussionID,
   }) : super();
 
@@ -549,9 +549,8 @@ class DiscussionAccessLinkGQLQuery extends GQLQuery<DiscussionAccessLink> {
     return this._query;
   }
 
-  DiscussionAccessLink parseResult(dynamic data) {
-    return DiscussionAccessLink.fromJson(
-        data["discussion"]["discussionAccessLink"]);
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["discussion"]);
   }
 }
 

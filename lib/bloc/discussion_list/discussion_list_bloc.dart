@@ -52,6 +52,13 @@ class DiscussionListBloc
           timestamp: DateTime.now(),
         );
       }
+    } else if (event is DiscussionListClearEvent) {
+      yield DiscussionListLoaded(
+        activeDiscussions: [],
+        archivedDiscussions: [],
+        deletedDiscussions: [],
+        timestamp: DateTime.now(),
+      );
     }
 
     /* From this point on, events related to mute/unmute/archive/restore/delete 

@@ -15,6 +15,17 @@ class DiscussionListFetchEvent extends DiscussionListEvent {
   List<Object> get props => [this.now];
 }
 
+class DiscussionListClearEvent extends DiscussionListEvent {
+  final DateTime now;
+
+  DiscussionListClearEvent()
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now];
+}
+
 class DiscussionListDeleteEvent extends DiscussionListEvent {
   final DateTime now;
   final Discussion discussion;

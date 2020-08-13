@@ -62,6 +62,37 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<DiscussionAccessRequest> requestDiscussionAccess(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return requestDiscussionAccess(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to request discussion access because connection is severed');
+    }
+
+    final mutation =
+        RequestDiscussionAccessMutation(discussionID: discussionID);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
+
   Future<List<Discussion>> getMyDiscussionList({int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 

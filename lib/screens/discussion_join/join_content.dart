@@ -25,7 +25,23 @@ class JoinContent extends StatelessWidget {
     return BlocBuilder<ParticipantBloc, ParticipantState>(
       builder: (context, state) {
         if (state is ParticipantLoaded && state.isUpdating) {
-          return CircularProgressIndicator();
+          return Column(
+            children: <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(
+                height: SpacingValues.extraLarge,
+              ),
+              JoinActionButton(
+                padding: EdgeInsets.all(SpacingValues.mediumLarge),
+                onPressed: this.onBackPressed,
+                child: Text(
+                  Intl.message("Go back"),
+                  style: TextThemes.goIncognitoButton
+                      .copyWith(color: Colors.black),
+                ),
+              )
+            ],
+          );
         }
         if (joinability == DiscussionJoinabilityResponse.DENIED) {
           return Container(

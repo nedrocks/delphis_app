@@ -4,6 +4,7 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
+import 'package:delphis_app/screens/discussion_join/button.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
@@ -83,7 +84,7 @@ class ChatsList extends StatelessWidget {
               return Center(
                 child: Container(
                   margin: EdgeInsets.all(SpacingValues.large),
-                  child: getEmptyLisWidget(currentTab.value),
+                  child: getEmptyLisWidget(context, currentTab.value),
                 ),
               );
             }
@@ -190,15 +191,36 @@ class ChatsList extends StatelessWidget {
     );
   }
 
-  Widget getEmptyLisWidget(HomePageTab value) {
+  Widget getEmptyLisWidget(BuildContext context, HomePageTab value) {
     switch (value) {
       case HomePageTab.ACTIVE:
-        // TODO: create ad-hoc widget for checking twitter auth and welcome user
-        return Text(
-          Intl.message("You have no active chats."),
-          style: TextThemes.onboardHeading,
-          textAlign: TextAlign.center,
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              Intl.message(
+                  "Looks like you haven’t been invited to any discussions."),
+              style: TextThemes.onboardHeading,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(
+              height: SpacingValues.mediumLarge,
+            ),
+            JoinActionButton(
+              padding: EdgeInsets.all(SpacingValues.mediumLarge),
+              onPressed: () {
+                BlocProvider.of<DiscussionListBloc>(context)
+                    .add(DiscussionListFetchEvent());
+              },
+              child: Text(
+                Intl.message("Try to reload"),
+                style:
+                    TextThemes.goIncognitoButton.copyWith(color: Colors.black),
+              ),
+            )
+          ],
         );
+
       case HomePageTab.ARCHIVED:
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,

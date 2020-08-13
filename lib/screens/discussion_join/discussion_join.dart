@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
+import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
@@ -69,7 +70,7 @@ class DiscussionJoinScreen extends StatelessWidget {
                                           top: SpacingValues.small,
                                         ),
                                         child: Text(
-                                          discussion.title,
+                                          discussion.description,
                                           style: TextThemes
                                               .discussionJoinScreenSubtitle,
                                           textAlign: TextAlign.center,
@@ -124,7 +125,9 @@ class DiscussionJoinScreen extends StatelessWidget {
                                         Navigator.of(context).pop();
                                       },
                                       onAccessRequestPressed: () {
-                                        // TODO: Fire the mutation
+                                        BlocProvider.of<DiscussionBloc>(context)
+                                            .add(RequestDiscussionAccessEvent(
+                                                discussionID: discussion.id));
                                       },
                                       onJoinPressed: () {
                                         BlocProvider.of<ParticipantBloc>(
@@ -133,7 +136,8 @@ class DiscussionJoinScreen extends StatelessWidget {
                                           ParticipantEventAddParticipant(
                                             discussionID: discussion.id,
                                             userID: user.id,
-                                            gradientName: GradientName.CERULEAN,
+                                            gradientName:
+                                                randomAnonymousGradient(),
                                             flairID: null,
                                             isAnonymous: true,
                                             hasJoined: false,

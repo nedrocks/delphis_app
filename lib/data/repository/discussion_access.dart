@@ -3,10 +3,10 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'discussion.dart';
+import 'discussion_invite.dart';
 
 part 'discussion_access.g.dart';
 
-enum InviteRequestStatus { ACCEPTED, REJECTED, INVITED, CANCELLED }
 enum DiscussionUserAccessState { ACTIVE, ARCHIVED, DELETED }
 enum DiscussionUserNotificationSetting { NONE, MENTIONS, EVERYTHING }
 

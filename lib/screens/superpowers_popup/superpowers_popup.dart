@@ -5,8 +5,8 @@ import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers_popup/mute_confirmation_dialog.dart';
-import 'package:delphis_app/screens/superpowers_popup/superpowers_popup_option.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +91,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
           if (panelToShow != null) {
             toRender = panelToShow;
           } else {
+            var options = buildOptionList(context);
             toRender = Container(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -107,14 +108,14 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
                   SizedBox(height: SpacingValues.small),
                   Container(
                     constraints: BoxConstraints(
-                      maxHeight: 300,
+                      maxHeight: 280,
                     ),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: buildOptionList(context),
-                      ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: options.length,
+                      itemBuilder: (context, index) {
+                        return options[index];
+                      },
                     ),
                   ),
                   SizedBox(height: SpacingValues.small),
@@ -248,7 +249,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
         !this.widget.arguments.post.isDeleted &&
         (isMeDiscussionModerator() || isMePostAuthor())) {
       list.add(
-        SuperpowersPopupOption(
+        SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -282,7 +283,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
         isMeDiscussionModerator() &&
         !isParticipantModerator()) {
       list.add(
-        SuperpowersPopupOption(
+        SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -317,7 +318,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
         isMeDiscussionModerator() &&
         !isParticipantModerator()) {
       list.add(
-        SuperpowersPopupOption(
+        SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,
@@ -353,7 +354,7 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
         isMeDiscussionModerator() &&
         !isParticipantModerator()) {
       list.add(
-        SuperpowersPopupOption(
+        SuperpowersOption(
           child: Container(
             width: double.infinity,
             height: double.infinity,

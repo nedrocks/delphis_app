@@ -19,7 +19,6 @@ class SuperpowersOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 105,
       margin: EdgeInsets.all(SpacingValues.small),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -34,18 +33,16 @@ class SuperpowersOption extends StatelessWidget {
           child: Container(
             margin: EdgeInsets.all(SpacingValues.medium),
             child: Row(
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Container(
-                      width: constraints.maxHeight,
-                      height: constraints.maxHeight,
-                      child: child,
-                    );
-                  },
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: 80,
+                    maxWidth: 80,
+                  ),
+                  child: this.child,
                 ),
                 Flexible(
                   child: Container(
@@ -56,9 +53,9 @@ class SuperpowersOption extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
+                      mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Expanded(
+                        Flexible(
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -70,16 +67,16 @@ class SuperpowersOption extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Expanded(
-                          flex: 2,
+                        SizedBox(
+                          height: SpacingValues.extraSmall,
+                        ),
+                        Flexible(
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               description,
                               style: TextThemes.superpowerOptionDescription,
                               textAlign: TextAlign.left,
-                              maxLines: 4,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         )

@@ -459,6 +459,20 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             .copyWith(participants: newParticipants);
         yield currentState.update(discussion: updatedDiscussion);
       }
+    } else if (event is RequestDiscussionAccessEvent &&
+        currentState is DiscussionLoadedState) {
+      try {
+        await this
+            .discussionRepository
+            .requestDiscussionAccess(currentState.discussion.id);
+        final updatedDiscussion = currentState.discussion.copyWith(
+          meCanJoinDiscussion: CanJoinDiscussionResponse(
+              response: DiscussionJoinabilityResponse.AWAITING_APPROVAL),
+        );
+        yield currentState.update(discussion: updatedDiscussion);
+      } catch (err) {
+        print('error: $err');
+      }
     }
   }
 

@@ -286,4 +286,38 @@ class TextThemes {
     fontWeight: FontWeight.w300,
     color: Colors.grey,
   );
+
+  static final chatInfoListTitle = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.41,
+  );
+
+  static final chatInfoListDescription = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.41,
+  );
+
+  static final chatInfoListParticipants = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.41,
+  );
+
+  static final historyTitle = TextStyle(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.22,
+  );
+  static final historyContent = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    color: Color.fromRGBO(255, 255, 255, 1.0),
+    letterSpacing: 0.22,
+  );
 }

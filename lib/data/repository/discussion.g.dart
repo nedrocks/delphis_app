@@ -59,14 +59,10 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
     meNotificationSettings: _$enumDecodeNullable(
         _$DiscussionUserNotificationSettingEnumMap,
-<<<<<<< Updated upstream
         json['meNotificationSettings']),
     meDiscussionStatus: _$enumDecodeNullable(
         _$DiscussionUserAccessStateEnumMap, json['meDiscussionStatus']),
-=======
-        json['meNotificationSetting']),
     secondsUntilShuffle: json['secondsUntilShuffle'] as int,
->>>>>>> Stashed changes
   );
 }
 
@@ -91,16 +87,11 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
-<<<<<<< Updated upstream
       'meNotificationSettings': _$DiscussionUserNotificationSettingEnumMap[
           instance.meNotificationSettings],
       'meDiscussionStatus':
           _$DiscussionUserAccessStateEnumMap[instance.meDiscussionStatus],
-=======
-      'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[
-          instance.meNotificationSetting],
       'secondsUntilShuffle': instance.secondsUntilShuffle,
->>>>>>> Stashed changes
     };
 
 T _$enumDecode<T>(

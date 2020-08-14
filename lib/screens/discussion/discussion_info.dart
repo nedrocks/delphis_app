@@ -90,7 +90,8 @@ class DiscussionInfo extends StatelessWidget {
                                   )
                                 ],
                               ),
-                              state.discussion.description != null
+                              state.discussion.description != null &&
+                                      state.discussion.description.length > 0
                                   ? Row(children: [
                                       Text(
                                         state.discussion.description,

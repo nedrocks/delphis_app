@@ -101,6 +101,7 @@ class DiscussionHistoryView extends StatelessWidget {
                                 )),
                             Expanded(
                               child: ListView.builder(
+                                  reverse: true,
                                   padding: EdgeInsets.zero,
                                   itemCount: historyObj.length,
                                   itemBuilder: (context, index) {

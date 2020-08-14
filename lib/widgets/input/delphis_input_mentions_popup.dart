@@ -332,7 +332,7 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     newText += text.substring(offset);
 
     this.textController.setStyleOperator(
-        "$hintWithSymbol",
+        "$hintWithSymbol".replaceAll("(", "\(").replaceAll(")", "\)"),
         (s) =>
             s.copyWith(color: Colors.lightBlue, fontWeight: FontWeight.bold));
     this.textController.text = newText;

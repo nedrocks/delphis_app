@@ -14,6 +14,9 @@ import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
+import 'package:delphis_app/screens/discussion/discussion_history_arguments.dart';
+import 'package:delphis_app/screens/discussion/discussion_info.dart';
+import 'package:delphis_app/screens/discussion/history_view.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/discussion/options/discussion_options.dart';
 import 'package:delphis_app/screens/participant_list/participant_list.dart';
@@ -624,6 +627,74 @@ class ChathamAppState extends State<ChathamApp>
                       },
                       pageBuilder: (context, _, __) {
                         return DiscussionOptionsScreen();
+                      },
+                    );
+                    break;
+                  case '/Discussion/Info':
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      barrierColor: Colors.black.withOpacity(0.6),
+                      barrierDismissible: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return DiscussionInfo();
+                      },
+                    );
+                    break;
+                  case '/Discussion/HistoryView':
+                    DiscussionHistoryViewArguments arguments =
+                        settings.arguments as DiscussionHistoryViewArguments;
+                    return PageRouteBuilder(
+                      opaque: false,
+                      maintainState: true,
+                      barrierColor: Colors.black.withOpacity(0.6),
+                      barrierDismissible: true,
+                      transitionDuration: Duration(milliseconds: 200),
+                      transitionsBuilder: (
+                        context,
+                        Animation<double> animation,
+                        ____,
+                        Widget child,
+                      ) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: Offset(1.0, 0.0),
+                            end: Offset(0.0, 0.0),
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                              reverseCurve: Curves.easeInOut,
+                            ),
+                          ),
+                          child: child,
+                        );
+                      },
+                      pageBuilder: (context, _, __) {
+                        return DiscussionHistoryView(
+                          historyType: arguments.viewType,
+                        );
                       },
                     );
                     break;

@@ -222,6 +222,8 @@ class ChathamAppState extends State<ChathamApp>
                 if (state is LoggedOutAuthState) {
                   BlocProvider.of<DiscussionListBloc>(context)
                       .add(DiscussionListClearEvent());
+                  BlocProvider.of<DiscussionBloc>(context)
+                      .add(DiscussionClearEvent());
                 }
               }),
               /* Forces refresh of discussions list when user logs out and then

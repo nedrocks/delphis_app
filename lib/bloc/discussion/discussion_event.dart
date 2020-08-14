@@ -290,3 +290,14 @@ class RequestDiscussionAccessEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.discussionID, this.timestamp];
 }
+
+class DiscussionClearEvent extends DiscussionEvent {
+  final DateTime now;
+
+  DiscussionClearEvent()
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now];
+}

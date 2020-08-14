@@ -2,7 +2,7 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
-import 'package:delphis_app/screens/access_request_list/access_request.dart';
+import 'package:delphis_app/screens/access_request_list/access_request_entry.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -107,12 +107,15 @@ class AccessRequestListScreen extends StatelessWidget {
                           );
                         }
                       }
-                      return Center(
-                        child: Text(
-                          Intl.message(
-                              "Looks like you have no pending access requests for this chat."),
-                          style: TextThemes.onboardBody,
-                          textAlign: TextAlign.center,
+                      return Container(
+                        margin: EdgeInsets.all(SpacingValues.large),
+                        child: Center(
+                          child: Text(
+                            Intl.message(
+                                "Looks like you have no pending access requests for this chat."),
+                            style: TextThemes.onboardBody,
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       );
                     },

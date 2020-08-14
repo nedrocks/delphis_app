@@ -1,3 +1,4 @@
+import 'package:delphis_app/data/repository/user_profile.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -14,7 +15,7 @@ enum DiscussionUserNotificationSetting { NONE, MENTIONS, EVERYTHING }
 @JsonSerializable()
 class DiscussionAccessRequest extends Equatable {
   final String id;
-  final User user;
+  final UserProfile userProfile;
   final Discussion discussion;
   final String createdAt;
   final String updatedAt;
@@ -26,7 +27,7 @@ class DiscussionAccessRequest extends Equatable {
 
   List<Object> get props => [
         this.id,
-        this.user?.id,
+        this.userProfile?.id,
         this.discussion?.id,
         this.createdAt,
         this.updatedAt,
@@ -36,7 +37,7 @@ class DiscussionAccessRequest extends Equatable {
 
   const DiscussionAccessRequest({
     this.id,
-    this.user,
+    this.userProfile,
     this.discussion,
     this.createdAt,
     this.updatedAt,
@@ -50,7 +51,7 @@ class DiscussionAccessRequest extends Equatable {
 
   DiscussionAccessRequest copyWith({
     String id,
-    User user,
+    UserProfile userProfile,
     Discussion discussion,
     String createdAt,
     String updatedAt,
@@ -60,7 +61,7 @@ class DiscussionAccessRequest extends Equatable {
   }) {
     return DiscussionAccessRequest(
       id: id ?? this.id,
-      user: user ?? this.user,
+      userProfile: userProfile ?? this.userProfile,
       discussion: discussion ?? this.discussion,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

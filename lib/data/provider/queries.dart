@@ -38,6 +38,11 @@ const DiscussionAccessRequestFragment = """
     discussion {
       id
     }
+    userProfile {
+      id
+      displayName
+      profileImageURL
+    }
     createdAt
     updatedAt
     isDeleted

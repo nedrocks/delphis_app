@@ -62,6 +62,7 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
         json['meNotificationSettings']),
     meDiscussionStatus: _$enumDecodeNullable(
         _$DiscussionUserAccessStateEnumMap, json['meDiscussionStatus']),
+    secondsUntilShuffle: json['secondsUntilShuffle'] as int,
   );
 }
 
@@ -90,6 +91,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
           instance.meNotificationSettings],
       'meDiscussionStatus':
           _$DiscussionUserAccessStateEnumMap[instance.meDiscussionStatus],
+      'secondsUntilShuffle': instance.secondsUntilShuffle,
     };
 
 T _$enumDecode<T>(

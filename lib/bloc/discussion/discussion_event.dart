@@ -290,3 +290,29 @@ class _DiscussionRespondToAccessRequestAsyncEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.timestamp, this.request, this.error];
 }
+
+class DiscussionMuteEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool isMute;
+  final DateTime timestamp;
+
+  DiscussionMuteEvent({
+    @required this.discussionID,
+    @required this.isMute,
+  }) : this.timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [this.discussionID, this.isMute, timestamp];
+}
+
+class RequestDiscussionAccessEvent extends DiscussionEvent {
+  final String discussionID;
+  final DateTime timestamp;
+
+  RequestDiscussionAccessEvent({
+    @required this.discussionID,
+  }) : this.timestamp = DateTime.now();
+
+  @override
+  List<Object> get props => [this.discussionID, this.timestamp];
+}

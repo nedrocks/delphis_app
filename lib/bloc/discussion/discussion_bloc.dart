@@ -506,6 +506,41 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         return e;
       }).toList());
       yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionMuteEvent &&
+        currentState is DiscussionLoadedState) {
+      if (currentState.discussion.id != event.discussionID) {
+        return;
+      }
+      final localUpdatedDiscussion = currentState.discussion.copyWith(
+        meNotificationSettings: event.isMute
+            ? DiscussionUserNotificationSetting.NONE
+            : DiscussionUserNotificationSetting.EVERYTHING,
+      );
+      yield currentState.update(discussion: localUpdatedDiscussion);
+      try {
+        await this.discussionRepository.updateDiscussionUserSettings(
+            event.discussionID,
+            null,
+            event.isMute
+                ? DiscussionUserNotificationSetting.NONE
+                : DiscussionUserNotificationSetting.EVERYTHING);
+      } catch (err) {
+        // In the error case we need to roll back the discussion notification
+        // status and post an error to the user.
+        yield currentState;
+      }
+    } else if (event is RequestDiscussionAccessEvent &&
+        currentState is DiscussionLoadedState) {
+      try {
+        await this
+            .discussionRepository
+            .requestDiscussionAccess(currentState.discussion.id);
+        final updatedDiscussion = currentState.discussion.copyWith(
+          meCanJoinDiscussion: CanJoinDiscussionResponse(
+              response: DiscussionJoinabilityResponse.AWAITING_APPROVAL),
+        );
+        yield currentState.update(discussion: updatedDiscussion);
+      } catch (err) {}
     }
   }
 

@@ -323,6 +323,7 @@ const DiscussionListFragment = """
     iconURL
     discussionJoinability
     meNotificationSettings
+    meDiscussionStatus
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment

@@ -57,14 +57,16 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meViewer: json['meViewer'] == null
         ? null
         : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
-    meNotificationSetting: _$enumDecodeNullable(
-        _$DiscussionUserNotificationSettingEnumMap,
-        json['meNotificationSetting']),
     accessRequests: (json['accessRequests'] as List)
         ?.map((e) => e == null
             ? null
             : DiscussionAccessRequest.fromJson(e as Map<String, dynamic>))
         ?.toList(),
+    meNotificationSettings: _$enumDecodeNullable(
+        _$DiscussionUserNotificationSettingEnumMap,
+        json['meNotificationSettings']),
+    meDiscussionStatus: _$enumDecodeNullable(
+        _$DiscussionUserAccessStateEnumMap, json['meDiscussionStatus']),
   );
 }
 
@@ -89,9 +91,11 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
-      'meNotificationSetting': _$DiscussionUserNotificationSettingEnumMap[
-          instance.meNotificationSetting],
       'accessRequests': instance.accessRequests,
+      'meNotificationSettings': _$DiscussionUserNotificationSettingEnumMap[
+          instance.meNotificationSettings],
+      'meDiscussionStatus':
+          _$DiscussionUserAccessStateEnumMap[instance.meDiscussionStatus],
     };
 
 T _$enumDecode<T>(
@@ -141,6 +145,12 @@ const _$DiscussionUserNotificationSettingEnumMap = {
   DiscussionUserNotificationSetting.NONE: 'NONE',
   DiscussionUserNotificationSetting.MENTIONS: 'MENTIONS',
   DiscussionUserNotificationSetting.EVERYTHING: 'EVERYTHING',
+};
+
+const _$DiscussionUserAccessStateEnumMap = {
+  DiscussionUserAccessState.ACTIVE: 'ACTIVE',
+  DiscussionUserAccessState.ARCHIVED: 'ARCHIVED',
+  DiscussionUserAccessState.DELETED: 'DELETED',
 };
 
 DiscussionInput _$DiscussionInputFromJson(Map<String, dynamic> json) {

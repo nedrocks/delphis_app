@@ -62,6 +62,37 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
+  Future<DiscussionAccessRequest> requestDiscussionAccess(String discussionID,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return requestDiscussionAccess(discussionID, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to request discussion access because connection is severed');
+    }
+
+    final mutation =
+        RequestDiscussionAccessMutation(discussionID: discussionID);
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+    return mutation.parseResult(result.data);
+  }
+
   Future<List<Discussion>> getMyDiscussionList({int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
@@ -615,8 +646,9 @@ class Discussion extends Equatable implements Entity {
   final DiscussionJoinabilitySetting discussionJoinability;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
-  final DiscussionUserNotificationSetting meNotificationSetting;
   final List<DiscussionAccessRequest> accessRequests;
+  final DiscussionUserNotificationSetting meNotificationSettings;
+  final DiscussionUserAccessState meDiscussionStatus;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -652,8 +684,9 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
-        meNotificationSetting,
         accessRequests,
+        meNotificationSettings,
+        meDiscussionStatus,
       ];
 
   Discussion({
@@ -679,8 +712,9 @@ class Discussion extends Equatable implements Entity {
     this.isActivatedLocally = false,
     this.isArchivedLocally = false,
     this.meViewer,
-    this.meNotificationSetting,
     this.accessRequests,
+    this.meNotificationSettings,
+    this.meDiscussionStatus,
   }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List());
 
@@ -731,6 +765,10 @@ class Discussion extends Equatable implements Entity {
     return participant;
   }
 
+  bool get isActive {
+    return this.meDiscussionStatus == DiscussionUserAccessState.ACTIVE;
+  }
+
   bool isMeDiscussionModerator() {
     return this
             .meAvailableParticipants
@@ -740,8 +778,8 @@ class Discussion extends Equatable implements Entity {
   }
 
   bool get isMuted {
-    return this.meNotificationSetting != null &&
-        this.meNotificationSetting !=
+    return this.meNotificationSettings != null &&
+        this.meNotificationSettings !=
             DiscussionUserNotificationSetting.EVERYTHING;
   }
 
@@ -771,13 +809,14 @@ class Discussion extends Equatable implements Entity {
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
     CanJoinDiscussionResponse meCanJoinDiscussion,
+    Viewer meViewer,
+    List<DiscussionAccessRequest> accessRequests,
+    DiscussionUserNotificationSetting meNotificationSettings,
+    DiscussionUserAccessState meDiscussionStatus,
     List<Post> postsCache,
     bool isActivatedLocally,
     bool isDeletedLocally,
     bool isArchivedLocally,
-    Viewer meViewer,
-    DiscussionUserNotificationSetting meNotificationSetting,
-    List<DiscussionAccessRequest> accessRequests,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -799,14 +838,15 @@ class Discussion extends Equatable implements Entity {
       discussionJoinability:
           discussionJoinability ?? this.discussionJoinability,
       meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+      meViewer: meViewer ?? this.meViewer,
+      accessRequests: accessRequests ?? this.accessRequests,
+      meNotificationSettings:
+          meNotificationSettings ?? this.meNotificationSettings,
+      meDiscussionStatus: meDiscussionStatus ?? this.meDiscussionStatus,
       postsCache: postsCache ?? this.postsCache,
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
-      meViewer: meViewer ?? this.meViewer,
-      meNotificationSetting:
-          meNotificationSetting ?? this.meNotificationSetting,
-      accessRequests: accessRequests ?? this.accessRequests,
     );
   }
 }

@@ -348,6 +348,7 @@ const DiscussionFragmentFull = """
       value
       createdAt
     }
+    secondsUntilShuffle
   }
   $DiscussionListFragment
   $PostsConnectionFragment

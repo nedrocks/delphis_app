@@ -320,4 +320,10 @@ class TextThemes {
     color: Color.fromRGBO(255, 255, 255, 1.0),
     letterSpacing: 0.22,
   );
+
+  static final discussionHeaderNotification = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w800,
+    color: Colors.red,
+  );
 }

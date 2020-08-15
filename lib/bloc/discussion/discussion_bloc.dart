@@ -80,7 +80,9 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   @override
   Stream<DiscussionState> mapEventToState(DiscussionEvent event) async* {
     var currentState = this.state;
-    if (event is DiscussionQueryEvent &&
+    if (event is DiscussionClearEvent) {
+      yield DiscussionUninitializedState();
+    } else if (event is DiscussionQueryEvent &&
         !(currentState is DiscussionLoadingState)) {
       try {
         yield DiscussionLoadingState();

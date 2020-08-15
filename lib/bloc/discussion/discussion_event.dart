@@ -249,6 +249,32 @@ class DiscussionParticipantsMutedUnmutedEvent extends DiscussionEvent {
   List<Object> get props => [this.participants, timestamp];
 }
 
+class DiscussionRespondToAccessRequestEvent extends DiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final String requestID;
+  final InviteRequestStatus status;
+
+  DiscussionRespondToAccessRequestEvent({
+    @required this.requestID,
+    @required this.status,
+  });
+
+  @override
+  List<Object> get props => [this.requestID, this.status, timestamp];
+}
+
+class _DiscussionRespondToAccessRequestAsyncEvent extends DiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final DiscussionAccessRequest request;
+  final error;
+
+  _DiscussionRespondToAccessRequestAsyncEvent(this.request, this.error)
+      : super();
+
+  @override
+  List<Object> get props => [this.timestamp, this.request, this.error];
+}
+
 class DiscussionMuteEvent extends DiscussionEvent {
   final String discussionID;
   final bool isMute;
@@ -273,4 +299,15 @@ class RequestDiscussionAccessEvent extends DiscussionEvent {
 
   @override
   List<Object> get props => [this.discussionID, this.timestamp];
+}
+
+class DiscussionClearEvent extends DiscussionEvent {
+  final DateTime now;
+
+  DiscussionClearEvent()
+      : this.now = DateTime.now(),
+        super();
+
+  @override
+  List<Object> get props => [this.now];
 }

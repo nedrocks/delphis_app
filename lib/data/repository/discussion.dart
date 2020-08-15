@@ -252,20 +252,20 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<DiscussionAccessLink> getDiscussionAccessLink(String discussionID,
+  Future<Discussion> getDiscussionModOnlyFields(String discussionID,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return getDiscussionAccessLink(discussionID, attempt: attempt + 1);
+        return getDiscussionModOnlyFields(discussionID, attempt: attempt + 1);
       });
     } else if (client == null) {
       throw Exception(
           "Failed to get discussion because backend connection is severed");
     }
 
-    final query = DiscussionAccessLinkGQLQuery(discussionID: discussionID);
+    final query = DiscussionModOnlyFieldsGQLQuery(discussionID: discussionID);
 
     final QueryResult result = await client.query(QueryOptions(
       documentNode: gql(query.query()),
@@ -501,6 +501,45 @@ class DiscussionRepository {
       return subscription.parseResult(res.data);
     });
   }
+
+  Future<DiscussionAccessRequest> respondToAccessRequest(
+      String requestID, InviteRequestStatus status,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return respondToAccessRequest(requestID, status, attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to respondToAccessRequest because backend connection is severed');
+    }
+
+    final mutation = RespondToDiscussionAccessRequestMutation(
+      requestID: requestID,
+      response: status,
+    );
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'requestID': requestID,
+          'response': status.toString().split(".")[1],
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
 }
 
 @JsonAnnotation.JsonSerializable()
@@ -523,6 +562,7 @@ class Discussion extends Equatable implements Entity {
   final DiscussionJoinabilitySetting discussionJoinability;
   final CanJoinDiscussionResponse meCanJoinDiscussion;
   final Viewer meViewer;
+  final List<DiscussionAccessRequest> accessRequests;
   final DiscussionUserNotificationSetting meNotificationSettings;
   final DiscussionUserAccessState meDiscussionStatus;
   final int secondsUntilShuffle;
@@ -564,43 +604,45 @@ class Discussion extends Equatable implements Entity {
         isArchivedLocally,
         meCanJoinDiscussion,
         meViewer?.id,
+        accessRequests,
         meNotificationSettings,
         meDiscussionStatus,
         nextShuffleTime,
       ];
 
-  Discussion(
-      {this.id,
-      this.moderator,
-      this.anonymityType,
-      this.postsConnection,
-      this.participants,
-      this.title,
-      this.createdAt,
-      this.updatedAt,
-      this.meParticipant,
-      this.meAvailableParticipants,
-      this.iconURL,
-      this.discussionAccessLink,
-      this.description,
-      this.titleHistory,
-      this.descriptionHistory,
-      this.discussionJoinability,
-      this.meCanJoinDiscussion,
-      postsCache,
-      this.isDeletedLocally = false,
-      this.isActivatedLocally = false,
-      this.isArchivedLocally = false,
-      this.meViewer,
-      this.meNotificationSettings,
-      this.meDiscussionStatus,
-      this.secondsUntilShuffle,
-      nextShuffleTime})
-      : this.postsCache =
+  Discussion({
+    this.id,
+    this.moderator,
+    this.anonymityType,
+    this.postsConnection,
+    this.participants,
+    this.title,
+    this.createdAt,
+    this.updatedAt,
+    this.meParticipant,
+    this.meAvailableParticipants,
+    this.iconURL,
+    this.discussionAccessLink,
+    this.description,
+    this.titleHistory,
+    this.descriptionHistory,
+    this.discussionJoinability,
+    this.meCanJoinDiscussion,
+    postsCache,
+    this.isDeletedLocally = false,
+    this.isActivatedLocally = false,
+    this.isArchivedLocally = false,
+    this.meViewer,
+    this.accessRequests,
+    this.meNotificationSettings,
+    this.meDiscussionStatus,
+    this.secondsUntilShuffle,
+     nextShuffleTime
+  }) : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List()),
-        this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
-            ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
-            : null;
+            this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
+              ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
+              : null;
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
     return _$DiscussionFromJson(json);
@@ -693,6 +735,10 @@ class Discussion extends Equatable implements Entity {
     List<HistoricalString> descriptionHistory,
     DiscussionJoinabilitySetting discussionJoinability,
     CanJoinDiscussionResponse meCanJoinDiscussion,
+    Viewer meViewer,
+    List<DiscussionAccessRequest> accessRequests,
+    DiscussionUserNotificationSetting meNotificationSettings,
+    DiscussionUserAccessState meDiscussionStatus,
     List<Post> postsCache,
     bool isActivatedLocally,
     bool isDeletedLocally,
@@ -723,14 +769,15 @@ class Discussion extends Equatable implements Entity {
       discussionJoinability:
           discussionJoinability ?? this.discussionJoinability,
       meCanJoinDiscussion: meCanJoinDiscussion ?? this.meCanJoinDiscussion,
+      meViewer: meViewer ?? this.meViewer,
+      accessRequests: accessRequests ?? this.accessRequests,
+      meNotificationSettings:
+          meNotificationSettings ?? this.meNotificationSettings,
+      meDiscussionStatus: meDiscussionStatus ?? this.meDiscussionStatus,
       postsCache: postsCache ?? this.postsCache,
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
-      meViewer: meViewer ?? this.meViewer,
-      meNotificationSettings:
-          meNotificationSettings ?? this.meNotificationSettings,
-      meDiscussionStatus: meDiscussionStatus ?? this.meDiscussionStatus,
       secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
       nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
     );

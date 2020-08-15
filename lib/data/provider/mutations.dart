@@ -443,3 +443,31 @@ class RequestDiscussionAccessMutation
     return DiscussionAccessRequest.fromJson(data["requestAccessToDiscussion"]);
   }
 }
+
+class RespondToDiscussionAccessRequestMutation
+    extends GQLMutation<DiscussionAccessRequest> {
+  final String requestID;
+  final InviteRequestStatus response;
+
+  final String _mutation = """
+    mutation RespondToRequestAccess(\$requestID: ID!, \$response: InviteRequestStatus!) {
+      respondToRequestAccess(requestID: \$requestID, response: \$response) {
+        ...DiscussionAccessRequestFragment
+      }
+    }
+    $DiscussionAccessRequestFragment
+  """;
+
+  const RespondToDiscussionAccessRequestMutation({
+    @required this.requestID,
+    @required this.response,
+  }) : super();
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  DiscussionAccessRequest parseResult(dynamic data) {
+    return DiscussionAccessRequest.fromJson(data["respondToRequestAccess"]);
+  }
+}

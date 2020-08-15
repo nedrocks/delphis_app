@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
-import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
-import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/screens/discussion/discussion_post.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -34,9 +32,6 @@ class DiscussionContent extends StatelessWidget {
   final OverlayEntryCallback onOverlayOpen;
   final RefreshController refreshController;
 
-  final int onboardingConciergeStep;
-  final ConciergePostOptionPressed onConciergeOptionPressed;
-
   final Function(File, MediaContentType) onMediaTap;
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
 
@@ -52,8 +47,6 @@ class DiscussionContent extends StatelessWidget {
     @required this.onSettingsOverlayClose,
     @required this.onOverlayOpen,
     @required this.refreshController,
-    @required this.onboardingConciergeStep,
-    @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
   }) : super(key: key);
@@ -67,8 +60,6 @@ class DiscussionContent extends StatelessWidget {
       scrollController: this.scrollController,
       isVisible: true,
       refreshController: this.refreshController,
-      onboardingConciergeStep: this.onboardingConciergeStep,
-      onConciergeOptionPressed: this.onConciergeOptionPressed,
       onMediaTap: this.onMediaTap,
       onSuperpowersButtonPressed: this.onSuperpowersButtonPressed,
     );
@@ -88,7 +79,6 @@ class DiscussionContent extends StatelessWidget {
                   isAnonymous: true,
                   gradientColor:
                       gradientColorFromGradientName(randomAnonymousGradient()),
-                  flair: null,
                 ),
                 me: MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state),
                 onClose: this.onJoinFlowClose,

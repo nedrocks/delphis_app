@@ -22,9 +22,6 @@ Participant _$ParticipantFromJson(Map<String, dynamic> json) {
         ?.toList(),
     isAnonymous: json['isAnonymous'] as bool,
     gradientColor: json['gradientColor'] as String,
-    flair: json['flair'] == null
-        ? null
-        : Flair.fromJson(json['flair'] as Map<String, dynamic>),
     hasJoined: json['hasJoined'] as bool,
     userProfile: json['userProfile'] == null
         ? null
@@ -50,7 +47,6 @@ Map<String, dynamic> _$ParticipantToJson(Participant instance) =>
       'isAnonymous': instance.isAnonymous,
       'isBanned': instance.isBanned,
       'gradientColor': instance.gradientColor,
-      'flair': instance.flair,
       'hasJoined': instance.hasJoined,
       'userProfile': instance.userProfile,
       'inviter': instance.inviter,

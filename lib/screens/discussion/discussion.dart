@@ -143,13 +143,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
           default:
             break;
         }
-      } else if (content.mutationID != null) {
-        BlocProvider.of<DiscussionBloc>(context).add(
-          DiscussionConciergeOptionSelectedEvent(
-              discussionID: discussion.id,
-              mutationID: content.mutationID,
-              selectedOptionIDs: [option.value]),
-        );
       }
     }
   }
@@ -199,8 +192,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
             isAnonymous: false,
             gradientName: gradientNameFromString(
                 discussionObj.meParticipant.gradientColor),
-            flair: discussionObj.meParticipant.flair,
-            isUnsetFlairID: discussionObj.meParticipant.flair == null,
           ));
         }
 
@@ -237,13 +228,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
             },
             onOverlayOpen: (OverlayEntry entry) {
               this._onOverlayEntry(context, entry);
-            },
-            onboardingConciergeStep:
-                (state as DiscussionLoadedState).onboardingConciergeStep,
-            onConciergeOptionPressed:
-                (Post post, ConciergeContent content, ConciergeOption option) {
-              this.handleConciergePostOptionPressed(
-                  discussionObj, post, content, option);
             },
             onMediaTap: (media, type) => this.onMediaTap(context, media, type),
             onSuperpowersButtonPressed: (arguments) {

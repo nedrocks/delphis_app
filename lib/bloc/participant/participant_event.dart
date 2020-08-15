@@ -20,31 +20,25 @@ class ParticipantEventUpdateParticipant extends ParticipantEvent {
   // for two separate participants.
   final String participantID;
   final GradientName gradientName;
-  final Flair flair;
   final bool isAnonymous;
-  final bool isUnsetFlairID;
   final bool isUnsetGradient;
   final VoidCallback onSuccess;
   final Function(dynamic) onError;
-  
-  const ParticipantEventUpdateParticipant({
-    @required this.participantID,
-    this.gradientName,
-    this.flair,
-    this.isAnonymous,
-    this.isUnsetFlairID,
-    this.isUnsetGradient,
-    this.onSuccess,
-    this.onError
-  }) : super();
+
+  const ParticipantEventUpdateParticipant(
+      {@required this.participantID,
+      this.gradientName,
+      this.isAnonymous,
+      this.isUnsetGradient,
+      this.onSuccess,
+      this.onError})
+      : super();
 
   @override
   List<Object> get props => [
         this.participantID,
         this.gradientName,
-        this.flair,
         this.isAnonymous,
-        this.isUnsetFlairID,
         this.isUnsetGradient
       ];
 }

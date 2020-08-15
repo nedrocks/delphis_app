@@ -26,10 +26,6 @@ class DiscussionPostListView extends StatelessWidget {
   final RefreshController refreshController;
   final bool isRefreshEnabled;
 
-  final int onboardingConciergeStep;
-
-  final ConciergePostOptionPressed onConciergeOptionPressed;
-
   final Function(File, MediaContentType) onMediaTap;
 
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
@@ -40,8 +36,6 @@ class DiscussionPostListView extends StatelessWidget {
     @required this.discussion,
     @required this.refreshController,
     @required this.isRefreshEnabled,
-    @required this.onboardingConciergeStep,
-    @required this.onConciergeOptionPressed,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
     this.isVisible = true,
@@ -50,9 +44,6 @@ class DiscussionPostListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
-    final numConciergePosts = (this.discussion.postsCache ?? []).where((post) {
-      return post.postType == PostType.CONCIERGE;
-    }).length;
 
     return Container(
       decoration: BoxDecoration(
@@ -173,11 +164,6 @@ class DiscussionPostListView extends StatelessWidget {
           itemBuilder: (context, index) {
             final post = DiscussionPost(
               key: UniqueKey(),
-              onConciergeOptionPressed: this.onConciergeOptionPressed,
-              // I think this will break due to paging.
-              conciergeIndex: max(
-                  numConciergePosts - this.numConciergePostsUpTo(index) - 1, 0),
-              onboardingConciergeStep: this.onboardingConciergeStep,
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),

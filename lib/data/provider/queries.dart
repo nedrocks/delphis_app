@@ -71,12 +71,6 @@ const ParticipantInfoFragment = """
     isBanned
     gradientColor
     anonDisplayName
-    flair {
-      id
-      displayName
-      imageURL
-      source
-    }
     hasJoined
     mutedForSeconds
     userProfile{
@@ -116,15 +110,6 @@ const QuotedPostInfoFragment = """
       }
     }
     postType
-    conciergeContent{
-      appActionID
-      mutationID
-      options{
-        text
-        value
-        selected
-      }
-    }
   }
 """;
 
@@ -155,15 +140,6 @@ const PostInfoFragment = """
       ...QuotedPostInfoFragment
     }
     postType
-    conciergeContent{
-      appActionID
-      mutationID
-      options{
-        text
-        value
-        selected
-      }
-    }
     media {
       id
       createdAt

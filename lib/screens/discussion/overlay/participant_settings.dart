@@ -25,7 +25,6 @@ typedef void GradientCallback(GradientName gradientName);
 
 enum _SettingsState {
   ANONYMITY_SELECT,
-  FLAIR_SELECT,
   GRADIENT_SELECT,
 }
 
@@ -71,7 +70,6 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     this._settingsState = _SettingsState.ANONYMITY_SELECT;
     this._selectedGradient =
         gradientNameFromString(this.widget.meParticipant?.gradientColor);
-    this._selectedFlairID = this.widget.meParticipant?.flair?.id;
     this._showLoading = false;
   }
 
@@ -155,25 +153,6 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
                   ),
                 ])),
           ],
-        );
-        break;
-      case _SettingsState.FLAIR_SELECT:
-        //child = SlideInTransition(
-        child = ParticipantFlairSettings(
-          user: this.widget.me,
-          selectedFlairID: this.widget.meParticipant.flair?.id,
-          onSave: (String id) {
-            this.setState(() {
-              this._selectedFlairID = id;
-              this._settingsState = _SettingsState.ANONYMITY_SELECT;
-              this._didChange = true;
-            });
-          },
-          onCancel: () {
-            this.setState(() {
-              this._settingsState = _SettingsState.ANONYMITY_SELECT;
-            });
-          },
         );
         break;
       case _SettingsState.GRADIENT_SELECT:
@@ -271,10 +250,6 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             participantID: this.widget.meParticipant.id,
             isAnonymous: this._selectedIdx == 1,
             gradientName: this._selectedGradient,
-            flair: this.widget.me.flairs?.firstWhere(
-                (flair) => flair.id == this._selectedFlairID,
-                orElse: () => null),
-            isUnsetFlairID: this._selectedFlairID == null,
             onSuccess: onSuccess,
             onError: onError));
     this.widget.onClose(didUpdate);
@@ -327,11 +302,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
             this._didChange = true;
           });
         },
-        onEdit: () {
-          this.setState(() {
-            this._settingsState = _SettingsState.FLAIR_SELECT;
-          });
-        },
+        onEdit: () {},
         showEditButton:
             this.widget.me.flairs != null && this.widget.me.flairs.length > 0,
       ));
@@ -340,11 +311,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
     if ((!this.widget.meParticipant.isAnonymous ||
             this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) &&
         !this.widget.discussion.isMeDiscussionModerator()) {
-      var onEdit = () {
-        this.setState(() {
-          this._settingsState = _SettingsState.FLAIR_SELECT;
-        });
-      };
+      var onEdit = () {};
       if (this.widget.settingsFlow == SettingsFlow.JOIN_CHAT) {
         onEdit = () {
           this.setState(() {
@@ -367,8 +334,7 @@ class _ParticipantSettingsState extends State<ParticipantSettings> {
           });
         },
         onEdit: onEdit,
-        showEditButton: this.widget.settingsFlow == SettingsFlow.JOIN_CHAT ||
-            (this.widget.me.flairs != null && this.widget.me.flairs.length > 0),
+        showEditButton: this.widget.settingsFlow == SettingsFlow.JOIN_CHAT,
       ));
     }
 

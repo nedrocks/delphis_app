@@ -57,9 +57,7 @@ class ParticipantRepository {
       {@required String discussionID,
       @required String participantID,
       GradientName gradientName,
-      Flair flair,
       bool isAnonymous = false,
-      bool isUnsetFlairID = false,
       bool isUnsetGradient = false,
       int attempt = 1}) async {
     final client = this.clientBloc.getClient();
@@ -70,9 +68,7 @@ class ParticipantRepository {
             discussionID: discussionID,
             participantID: participantID,
             gradientName: gradientName,
-            flair: flair,
             isAnonymous: isAnonymous,
-            isUnsetFlairID: isUnsetFlairID,
             isUnsetGradient: isUnsetGradient,
             attempt: attempt + 1);
       });
@@ -85,9 +81,7 @@ class ParticipantRepository {
         discussionID: discussionID,
         participantID: participantID,
         gradientName: gradientName,
-        flair: flair,
         isAnonymous: isAnonymous,
-        isUnsetFlairID: isUnsetFlairID,
         isUnsetGradient: isUnsetGradient);
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -152,20 +146,15 @@ class ParticipantRepository {
     return mutation.parseResult(result.data);
   }
 
-  Future<Participant> addDiscussionParticipant(
-      String discussionID,
-      String userID,
-      String gradientColor,
-      String flairID,
-      bool hasJoined,
-      bool isAnonymous,
+  Future<Participant> addDiscussionParticipant(String discussionID,
+      String userID, String gradientColor, bool hasJoined, bool isAnonymous,
       {int attempt = 1}) async {
     final client = this.clientBloc.getClient();
 
     if (client == null && attempt <= MAX_ATTEMPTS) {
       return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return addDiscussionParticipant(discussionID, userID, gradientColor,
-            flairID, hasJoined, isAnonymous,
+        return addDiscussionParticipant(
+            discussionID, userID, gradientColor, hasJoined, isAnonymous,
             attempt: attempt + 1);
       });
     } else if (client == null) {
@@ -176,7 +165,6 @@ class ParticipantRepository {
       discussionID: discussionID,
       userID: userID,
       gradientColor: gradientColor,
-      flairID: flairID,
       hasJoined: hasJoined,
       isAnonymous: isAnonymous,
     );
@@ -315,22 +303,14 @@ class Participant extends Equatable implements Entity {
   final bool isAnonymous;
   final bool isBanned;
   final String gradientColor;
-  final Flair flair;
   final bool hasJoined;
   final UserProfile userProfile;
   final Participant inviter;
   final DateTime mutedUntil;
   final String anonDisplayName;
 
-  List<Object> get props => [
-        participantID,
-        discussion,
-        viewer,
-        posts,
-        flair,
-        hasJoined,
-        anonDisplayName
-      ];
+  List<Object> get props =>
+      [participantID, discussion, viewer, posts, hasJoined, anonDisplayName];
 
   const Participant({
     this.id,
@@ -340,7 +320,6 @@ class Participant extends Equatable implements Entity {
     this.posts,
     this.isAnonymous,
     this.gradientColor,
-    this.flair,
     this.hasJoined,
     this.userProfile,
     this.inviter,
@@ -373,7 +352,6 @@ class Participant extends Equatable implements Entity {
     bool isAnonymous,
     bool isBanned,
     String gradientColor,
-    Flair flair,
     bool hasJoined,
     UserProfile userProfile,
     Participant inviter,
@@ -389,7 +367,6 @@ class Participant extends Equatable implements Entity {
       isAnonymous: isAnonymous ?? this.isAnonymous,
       isBanned: isBanned ?? this.isBanned,
       gradientColor: gradientColor ?? this.gradientColor,
-      flair: flair ?? this.flair,
       hasJoined: hasJoined ?? this.hasJoined,
       userProfile: userProfile ?? this.userProfile,
       inviter: inviter ?? this.inviter,

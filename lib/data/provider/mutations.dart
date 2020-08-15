@@ -2,11 +2,8 @@ import 'package:delphis_app/data/provider/queries.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:delphis_app/data/repository/discussion_creation_settings.dart';
-import 'package:delphis_app/data/repository/discussion_invite.dart';
-import 'package:delphis_app/data/repository/flair.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
-import 'package:delphis_app/data/repository/twitter_user.dart';
 import 'package:delphis_app/data/repository/user_device.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/design/colors.dart';
@@ -74,33 +71,6 @@ class SetLastPostViewedMutation extends GQLMutation<Viewer> {
 
   Viewer parseResult(dynamic data) {
     return Viewer.fromJson(data["setLastPostViewed"]);
-  }
-}
-
-class JoinDiscussionWithVIPLinkMutation extends GQLMutation<Discussion> {
-  final String discussionID;
-  final String vipToken;
-
-  final String _mutation = """
-    mutation JoinDiscussionWithVIPToken(\$discussionID: ID!, \$vipToken: ID!) {
-      joinDiscussionWithVIPToken(discussionID: \$discussionID, vipToken: \$vipToken) {
-        ...DiscussionFragmentFull
-      }
-    }
-    $DiscussionFragmentFull
-  """;
-
-  const JoinDiscussionWithVIPLinkMutation({
-    @required this.discussionID,
-    @required this.vipToken,
-  });
-
-  String mutation() {
-    return this._mutation;
-  }
-
-  Discussion parseResult(dynamic data) {
-    return Discussion.fromJson(data["joinDiscussionWithVIPToken"]);
   }
 }
 
@@ -186,7 +156,6 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
   final String discussionID;
   final String userID;
   final String gradientColor;
-  final String flairID;
   final bool isAnonymous;
   final bool hasJoined;
 
@@ -194,7 +163,6 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
     @required this.discussionID,
     @required this.userID,
     @required this.gradientColor,
-    @required this.flairID,
     @required this.isAnonymous,
     this.hasJoined = false,
   });
@@ -212,7 +180,6 @@ class AddDiscussionParticipantGQLMutation extends GQLMutation<Participant> {
     return {
       'isAnonymous': this.isAnonymous,
       'gradientColor': this.gradientColor,
-      'flairID': this.flairID,
       'hasJoined': this.hasJoined,
     };
   }
@@ -256,35 +223,6 @@ class UpdateUserDeviceGQLMutation extends GQLMutation<UserDevice> {
   }
 }
 
-class ConciergeOptionMutation extends GQLMutation<Post> {
-  final String discussionID;
-  final String mutationID;
-  final List<String> selectedOptionIDs;
-
-  final String _mutation = """
-    mutation ConciergeMutation(\$discussionID: ID!, \$mutationID: ID!, \$selectedOptions: [String!]) {
-      conciergeMutation(discussionID: \$discussionID, mutationID: \$mutationID, selectedOptions: \$selectedOptions) {
-        ...PostInfoFragment
-      }
-    }
-    $PostInfoFragment
-  """;
-
-  const ConciergeOptionMutation({
-    @required this.discussionID,
-    @required this.mutationID,
-    @required this.selectedOptionIDs,
-  }) : super();
-
-  String mutation() {
-    return this._mutation;
-  }
-
-  Post parseResult(dynamic data) {
-    return Post.fromJson(data["conciergeMutation"]);
-  }
-}
-
 class UpdateDiscussionMutation extends GQLMutation<Discussion> {
   final String discussionID;
   final DiscussionInput input;
@@ -320,9 +258,7 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
   final String participantID;
   final String discussionID;
   final GradientName gradientName;
-  final Flair flair;
   final bool isAnonymous;
-  final bool isUnsetFlairID;
   final bool isUnsetGradient;
   final bool hasJoined;
 
@@ -339,22 +275,14 @@ class UpdateParticipantGQLMutation extends GQLMutation<Participant> {
     @required this.participantID,
     @required this.discussionID,
     this.gradientName,
-    this.flair,
     this.isAnonymous,
-    this.isUnsetFlairID = false,
     this.isUnsetGradient = false,
     this.hasJoined = true,
-  })  : assert(!isUnsetFlairID || flair == null,
-            'Cannot unset flair ID and pass non-null flair'),
-        assert(!isUnsetGradient || gradientName == null,
-            'Cannot unset gradient andp ass non-null gradient'),
-        super();
+  });
 
   Map<String, dynamic> createInputObject() {
-    var inputObj = {
-      'flairID': this.flair == null ? null : this.flair.id,
+    Map<String, dynamic> inputObj = {
       'isAnonymous': this.isAnonymous,
-      'isUnsetFlairID': this.isUnsetFlairID,
       'isUnsetGradient': this.isUnsetGradient,
       'gradientColor': null,
       'hasJoined': this.hasJoined,
@@ -513,37 +441,5 @@ class RequestDiscussionAccessMutation
 
   DiscussionAccessRequest parseResult(dynamic data) {
     return DiscussionAccessRequest.fromJson(data["requestAccessToDiscussion"]);
-  }
-}
-
-class InviteTwitterUsersToDiscussionMutation
-    extends GQLMutation<List<DiscussionInvite>> {
-  final String discussionID;
-  final String invitingParticipantID;
-  final List<TwitterUserInput> twitterUsers;
-
-  final String _mutation = """
-    mutation InviteTwitterUsersToDiscussion(\$discussionID: ID!, \$invitingParticipantID: ID!, \$twitterUsersInput: [TwitterUserInput!]) {
-      inviteTwitterUsersToDiscussion(discussionID: \$discussionID, invitingParticipantID: \$invitingParticipantID, twitterUsers: \$twitterUsersInput) {
-        ...DiscussionInviteFragment
-      }
-    }
-    $DiscussionInviteFragment
-  """;
-
-  const InviteTwitterUsersToDiscussionMutation({
-    @required this.discussionID,
-    @required this.invitingParticipantID,
-    @required this.twitterUsers,
-  }) : super();
-
-  String mutation() {
-    return this._mutation;
-  }
-
-  List<DiscussionInvite> parseResult(dynamic data) {
-    return (data["inviteTwitterUsersToDiscussion"] as List<dynamic>)
-        .map((elem) => DiscussionInvite.fromJson(elem))
-        .toList();
   }
 }

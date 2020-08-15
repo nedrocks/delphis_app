@@ -38,11 +38,6 @@ class DiscussionPost extends StatefulWidget {
   final Moderator moderator;
   final Discussion discussion;
 
-  final int conciergeIndex;
-  final int onboardingConciergeStep;
-
-  final ConciergePostOptionPressed onConciergeOptionPressed;
-
   final Function(File, MediaContentType) onMediaTap;
 
   final Function(SuperpowersArguments) onModeratorButtonPressed;
@@ -53,9 +48,6 @@ class DiscussionPost extends StatefulWidget {
       @required this.post,
       @required this.moderator,
       @required this.discussion,
-      @required this.conciergeIndex,
-      @required this.onboardingConciergeStep,
-      @required this.onConciergeOptionPressed,
       @required this.onModeratorButtonPressed,
       @required this.onMediaTap})
       : super(key: key);
@@ -137,13 +129,6 @@ class _DiscussionPostState extends State<DiscussionPost>
       }
       return s.copyWith(color: color, fontWeight: FontWeight.bold);
     });
-    //textWidget.addOnMatchTapHandler(MentionState.encodedMentionRegexPattern, (s) => print(s)); // POC
-
-    if (this.widget.post.postType == PostType.CONCIERGE &&
-        (this.widget.onboardingConciergeStep == null ||
-            this.widget.conciergeIndex > this.widget.onboardingConciergeStep)) {
-      return Container(width: 0, height: 0);
-    }
 
     Color postBackgroundColor = Colors.transparent;
     if (this.widget.post.postType == PostType.ALERT) {
@@ -196,12 +181,6 @@ class _DiscussionPostState extends State<DiscussionPost>
                             child: textWidget,
                           ),
                           buildMediaSnippet(context),
-                          ConciergeDiscussionPostOptions(
-                            participant: this.widget.participant,
-                            post: this.widget.post,
-                            onConciergeOptionPressed:
-                                this.widget.onConciergeOptionPressed,
-                          ),
                         ],
                       ),
                     ),

@@ -59,20 +59,24 @@ class HomePageActionBar extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      SizedBox(width: 10),
                       SizedBox(
-                        width: SpacingValues.mediumLarge,
-                      ),
-                      RaisedButton(
-                        padding: EdgeInsets.symmetric(horizontal: 5.0),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0)),
-                        color: Color.fromRGBO(247, 247, 255, 1.0),
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.black,
-                          semanticLabel: "Add a discussion",
+                        width: 40,
+                        child: RaisedButton(
+                          padding: EdgeInsets.all(0),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0)),
+                          color: Color.fromRGBO(247, 247, 255, 1.0),
+                          child: Container(
+                            width: double.infinity,
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.black,
+                              semanticLabel: "Add a discussion",
+                            ),
+                          ),
+                          onPressed: this.onNewChatPressed,
                         ),
-                        onPressed: this.onNewChatPressed,
                       ),
                     ],
                   ),

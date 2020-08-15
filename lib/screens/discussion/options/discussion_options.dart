@@ -69,8 +69,27 @@ class DiscussionOptionsScreen extends StatelessWidget {
                         );
                       }
                       if (state is DiscussionLoadedState) {
-                        var moderator = state.discussion.moderator;
                         final optionList = List<Widget>();
+                        optionList.add(SuperpowersOption(
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.circular(SpacingValues.medium),
+                              color: Colors.black,
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: Icon(Icons.info, size: 36),
+                          ),
+                          title: Intl.message("Info"),
+                          description: Intl.message("Show chat information"),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              '/Discussion/Info',
+                            );
+                          },
+                        ));
                         optionList.add(
                           SuperpowersOption(
                             child: Container(

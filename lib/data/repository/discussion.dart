@@ -649,6 +649,7 @@ class Discussion extends Equatable implements Entity {
   final List<DiscussionAccessRequest> accessRequests;
   final DiscussionUserNotificationSetting meNotificationSettings;
   final DiscussionUserAccessState meDiscussionStatus;
+  final int secondsUntilShuffle;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -661,6 +662,9 @@ class Discussion extends Equatable implements Entity {
 
   @JsonAnnotation.JsonKey(ignore: true)
   final bool isArchivedLocally;
+
+  @JsonAnnotation.JsonKey(ignore: true)
+  final DateTime nextShuffleTime;
 
   @override
   List<Object> get props => [
@@ -687,6 +691,7 @@ class Discussion extends Equatable implements Entity {
         accessRequests,
         meNotificationSettings,
         meDiscussionStatus,
+        nextShuffleTime,
       ];
 
   Discussion({
@@ -715,8 +720,13 @@ class Discussion extends Equatable implements Entity {
     this.accessRequests,
     this.meNotificationSettings,
     this.meDiscussionStatus,
+    this.secondsUntilShuffle,
+     nextShuffleTime
   }) : this.postsCache =
-            postsCache ?? (postsConnection?.asPostList() ?? List());
+            postsCache ?? (postsConnection?.asPostList() ?? List()),
+            this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
+              ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
+              : null;
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
     return _$DiscussionFromJson(json);
@@ -817,6 +827,11 @@ class Discussion extends Equatable implements Entity {
     bool isActivatedLocally,
     bool isDeletedLocally,
     bool isArchivedLocally,
+    Viewer meViewer,
+    DiscussionUserNotificationSetting meNotificationSettings,
+    DiscussionUserAccessState meDiscussionStatus,
+    int secondsUntilShuffle,
+    DateTime nextShuffleTime,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -847,6 +862,8 @@ class Discussion extends Equatable implements Entity {
       isActivatedLocally: isActivatedLocally ?? this.isActivatedLocally,
       isDeletedLocally: isDeletedLocally ?? this.isDeletedLocally,
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
+      secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
+      nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
     );
   }
 }

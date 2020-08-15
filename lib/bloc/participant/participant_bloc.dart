@@ -66,18 +66,15 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
               discussionID: discussionBloc.state.getDiscussion()?.id,
               participantID: currentState.participant.id,
               gradientName: event.gradientName,
-              flair: event.flair,
               isAnonymous:
                   event.isAnonymous ?? currentState.participant.isAnonymous,
-              isUnsetFlairID: event.isUnsetFlairID ?? false,
               isUnsetGradient: event.isUnsetGradient ?? false,
             );
       } catch (err) {
         // What to do about this error?
         yield ParticipantLoaded(
             participant: currentState.participant, isUpdating: false);
-        if(event.onError != null)
-          event.onError(err);
+        if (event.onError != null) event.onError(err);
         return;
       }
       this
@@ -87,15 +84,13 @@ class ParticipantBloc extends Bloc<ParticipantEvent, ParticipantState> {
         participant: updatedParticipant,
         isUpdating: false,
       );
-      if(event.onSuccess != null)
-          event.onSuccess();
+      if (event.onSuccess != null) event.onSuccess();
     } else if (event is ParticipantEventAddParticipant) {
       yield ParticipantLoaded(participant: null, isUpdating: true);
       final addedParticipant = await this.repository.addDiscussionParticipant(
           event.discussionID,
           event.userID,
           gradientColorFromGradientName(event.gradientName),
-          event.flairID,
           event.hasJoined,
           event.isAnonymous);
 

@@ -24,20 +24,6 @@ class TwitterInvitationBloc
   ) async* {
     if (event is TwitterInvitationResetEvent) {
       yield TwitterInvitationInitialState();
-    } else if (event is TwitterInvitationInviteEvent &&
-        !(this.state is TwitterInvitationLoadingState)) {
-      yield TwitterInvitationInviteLoadingState(timestamp: DateTime.now());
-
-      try {
-        var invites = await twitterUserRepository.inviteUsersToDiscussion(
-            event.discussionID,
-            event.invitingParticipantID,
-            event.invitedTwitterUsers);
-        yield TwitterInvitationInviteSuccessState(invites: invites);
-      } catch (error) {
-        yield TwitterInvitationErrorState(
-            timestamp: DateTime.now(), error: error);
-      }
     } else if (event is TwitterInvitationSearchEvent) {
       yield TwitterInvitationSearchLoadingState(
           timestamp: DateTime.now(), query: event.query);

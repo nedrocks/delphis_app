@@ -121,48 +121,6 @@ class DiscussionRepository {
     return query.parseResult(result.data);
   }
 
-  Future<Post> selectConciergeMutation(
-      String discussionID, String mutationID, List<String> selectedOptionIDs,
-      {int attempt = 1}) async {
-    final client = this.clientBloc.getClient();
-
-    if (client == null && attempt <= MAX_ATTEMPTS) {
-      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return selectConciergeMutation(
-            discussionID, mutationID, selectedOptionIDs,
-            attempt: attempt + 1);
-      });
-    } else if (client == null) {
-      throw Exception(
-          "Failed to get discussion because backend connection is severed");
-    }
-
-    final mutation = ConciergeOptionMutation(
-        discussionID: discussionID,
-        mutationID: mutationID,
-        selectedOptionIDs: selectedOptionIDs);
-
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        documentNode: gql(mutation.mutation()),
-        variables: {
-          'discussionID': discussionID,
-          'mutationID': mutationID,
-          'selectedOptionIDs': selectedOptionIDs,
-        },
-        update: (Cache cache, QueryResult result) {
-          return cache;
-        },
-      ),
-    );
-
-    if (result.hasException) {
-      throw result.exception;
-    }
-
-    return mutation.parseResult(result.data);
-  }
-
   Future<PostsConnection> getDiscussionPostsConnection(String discussionID,
       {PostsConnection postsConnection, int attempt = 1}) async {
     final client = this.clientBloc.getClient();
@@ -375,48 +333,6 @@ class DiscussionRepository {
     if (result.hasException) {
       throw result.exception;
     }
-    return mutation.parseResult(result.data);
-  }
-
-  Future<Discussion> joinDiscussionWithVIPLink(
-      {@required String discussionID,
-      @required String vipToken,
-      int attempt = 1}) async {
-    final client = this.clientBloc.getClient();
-
-    if (client == null && attempt <= MAX_ATTEMPTS) {
-      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
-        return joinDiscussionWithVIPLink(
-            discussionID: discussionID,
-            vipToken: vipToken,
-            attempt: attempt + 1);
-      });
-    } else if (client == null) {
-      throw Exception(
-          "Failed to addPost to discussion because backend connection is severed");
-    }
-
-    final mutation = JoinDiscussionWithVIPLinkMutation(
-      discussionID: discussionID,
-      vipToken: vipToken,
-    );
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        documentNode: gql(mutation.mutation()),
-        variables: {
-          'discussionID': discussionID,
-          'vipToken': vipToken,
-        },
-        update: (Cache cache, QueryResult result) {
-          return cache;
-        },
-      ),
-    );
-
-    if (result.hasException) {
-      throw result.exception;
-    }
-
     return mutation.parseResult(result.data);
   }
 

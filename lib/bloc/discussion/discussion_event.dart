@@ -198,22 +198,6 @@ class LoadPreviousPostsPageEvent extends DiscussionEvent {
   List<Object> get props => [this.discussionID, this.now];
 }
 
-class DiscussionConciergeOptionSelectedEvent extends DiscussionEvent {
-  final String discussionID;
-  final String mutationID;
-  final List<String> selectedOptionIDs;
-
-  DiscussionConciergeOptionSelectedEvent({
-    @required this.discussionID,
-    @required this.mutationID,
-    @required this.selectedOptionIDs,
-  }) : super();
-
-  @override
-  List<Object> get props =>
-      [this.discussionID, this.mutationID, this.selectedOptionIDs];
-}
-
 class DiscussionShowOnboardingEvent extends DiscussionEvent {
   final String discussionID;
 

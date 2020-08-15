@@ -14,14 +14,14 @@ class PostTitle extends StatelessWidget {
   final bool isModeratorAuthor;
   final bool isParticipantNameColored;
 
-  const PostTitle({
-    Key key,
-    @required this.moderator,
-    @required this.participant,
-    @required this.height,
-    @required this.isModeratorAuthor,
-    this.isParticipantNameColored = false
-  }) : super(key: key);
+  const PostTitle(
+      {Key key,
+      @required this.moderator,
+      @required this.participant,
+      @required this.height,
+      @required this.isModeratorAuthor,
+      this.isParticipantNameColored = false})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +32,15 @@ class PostTitle extends StatelessWidget {
         this.key == null ? null : Key('${this.key.toString}-displayName');
 
     var textStyle = TextThemes.discussionPostAuthorAnon;
-    if(this.isParticipantNameColored) {
+    if (this.isParticipantNameColored) {
       textStyle = TextThemes.discussionPostAuthorAnon.copyWith(
-        color: ChathamColors.gradients[gradientNameFromString(this.participant?.gradientColor)].colors[1]
-      );
+          color: ChathamColors
+              .gradients[
+                  gradientNameFromString(this.participant?.gradientColor)]
+              .colors[1]);
     }
     var name = Text(DisplayNames.formatParticipant(moderator, participant),
-        style: textStyle,
-        key: textKey);
+        style: textStyle, key: textKey);
     if (participant.participantID == 0) {
       // This is the moderator
       name = Text(DisplayNames.formatParticipant(moderator, participant),
@@ -55,13 +56,6 @@ class PostTitle extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           name,
-          SizedBox(width: SpacingValues.small),
-          PostTitleFlair(
-              flair: this.participant.flair,
-              height: this.height,
-              key: this.key == null
-                  ? null
-                  : Key('${this.key.toString()}-flair')),
         ],
       ),
     );

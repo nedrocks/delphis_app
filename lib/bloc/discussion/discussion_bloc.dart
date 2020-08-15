@@ -388,32 +388,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           discussion: event.discussion,
           lastUpdate: DateTime.now(),
           onboardingConciergeStep: getConciergeStep(event.discussion));
-    } else if (event is DiscussionConciergeOptionSelectedEvent &&
-        currentState is DiscussionLoadedState &&
-        currentState.discussion.id == event.discussionID) {
-      final loadingState = currentState.update(isLoading: true);
-      yield loadingState;
-      try {
-        final updatedPost = await this
-            .discussionRepository
-            .selectConciergeMutation(
-                event.discussionID, event.mutationID, event.selectedOptionIDs);
-        final postsCache = loadingState.discussion.postsCache;
-        for (int i = 0; i < postsCache.length; i++) {
-          if (postsCache[i].id == updatedPost.id) {
-            postsCache[i] = updatedPost;
-            break;
-          }
-        }
-        yield loadingState.update(
-            isLoading: false,
-            onboardingConciergeStep:
-                loadingState.onboardingConciergeStep == null
-                    ? 0
-                    : loadingState.onboardingConciergeStep + 1);
-      } catch (err) {
-        yield loadingState.update(isLoading: false);
-      }
     } else if (event is DiscussionShowOnboardingEvent &&
         currentState is DiscussionLoadedState &&
         currentState.discussion.id == event.discussionID) {

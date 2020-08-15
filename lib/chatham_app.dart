@@ -13,6 +13,7 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:delphis_app/notifiers/home_page_tab.dart';
+import 'package:delphis_app/screens/access_request_list/access_request_list.dart';
 import 'package:delphis_app/screens/auth/base/sign_in.dart';
 import 'package:delphis_app/screens/discussion/discussion_history_arguments.dart';
 import 'package:delphis_app/screens/discussion/discussion_info.dart';
@@ -515,6 +516,14 @@ class ChathamAppState extends State<ChathamApp>
                             ),
                           ),
                         );
+                      },
+                    );
+                    break;
+                  case '/Discussion/AccessRequestList':
+                    return MaterialPageRoute(
+                      settings: settings,
+                      builder: (BuildContext context) {
+                        return AccessRequestListScreen();
                       },
                     );
                     break;

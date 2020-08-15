@@ -88,11 +88,14 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             await discussionRepository.getDiscussion(event.discussionID);
         int conciergeStep = getConciergeStep(discussion);
         if (discussion.isMeDiscussionModerator()) {
-          final discussionAccessLink = await discussionRepository
-              .getDiscussionAccessLink(event.discussionID);
-          discussion =
-              discussion.copyWith(discussionAccessLink: discussionAccessLink);
+          final modOnly = await discussionRepository
+              .getDiscussionModOnlyFields(event.discussionID);
+          discussion = discussion.copyWith(
+            discussionAccessLink: modOnly.discussionAccessLink,
+            accessRequests: modOnly.accessRequests,
+          );
         }
+
         yield DiscussionLoadedState(
           discussion: discussion,
           lastUpdate: DateTime.now(),
@@ -460,6 +463,49 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             .copyWith(participants: newParticipants);
         yield currentState.update(discussion: updatedDiscussion);
       }
+    } else if (event is DiscussionRespondToAccessRequestEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.isMeDiscussionModerator()) {
+      /* Execute this task asynchronously as the user might respond to
+           many request very quickly so this has to be not blocking. */
+      DiscussionAccessRequest currentAccessRequest;
+      final updatedDiscussion = currentState.discussion.copyWith(
+          accessRequests: currentState.discussion.accessRequests.map((e) {
+        if (e.id == event.requestID) {
+          currentAccessRequest = e;
+          return e.copyWith(isLoadingLocally: true);
+        }
+        return e;
+      }).toList());
+      yield currentState.update(discussion: updatedDiscussion);
+      if (currentAccessRequest != null) {
+        () async {
+          try {
+            var accessRequest = await this
+                .discussionRepository
+                .respondToAccessRequest(event.requestID, event.status);
+            this.add(_DiscussionRespondToAccessRequestAsyncEvent(
+                accessRequest, null));
+          } catch (error) {
+            this.add(_DiscussionRespondToAccessRequestAsyncEvent(
+                currentAccessRequest, error));
+          }
+        }();
+      }
+    } else if (event is _DiscussionRespondToAccessRequestAsyncEvent &&
+        currentState is DiscussionLoadedState) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+          accessRequests: currentState.discussion.accessRequests.map((e) {
+        if (e.id == event.request.id) {
+          if (event.error != null) {
+            return e.copyWith(isLoadingLocally: false);
+          } else {
+            return event.request;
+          }
+        }
+        return e;
+      }).toList());
+      yield currentState.update(discussion: updatedDiscussion);
     } else if (event is DiscussionMuteEvent &&
         currentState is DiscussionLoadedState) {
       if (currentState.discussion.id != event.discussionID) {

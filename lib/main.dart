@@ -13,6 +13,7 @@ import 'package:delphis_app/data/repository/viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'chatham_app.dart';
 
@@ -27,6 +28,7 @@ void main() {
   );
   Constants.setEnvironment(Environment.STAGING);
   Bloc.observer = ChathamBlocObserver();
+  initializeDateFormatting("US");
 
   var appKey = GlobalKey();
   runApp(MultiBlocProvider(

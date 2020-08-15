@@ -10,9 +10,9 @@ DiscussionAccessRequest _$DiscussionAccessRequestFromJson(
     Map<String, dynamic> json) {
   return DiscussionAccessRequest(
     id: json['id'] as String,
-    user: json['user'] == null
+    userProfile: json['userProfile'] == null
         ? null
-        : User.fromJson(json['user'] as Map<String, dynamic>),
+        : UserProfile.fromJson(json['userProfile'] as Map<String, dynamic>),
     discussion: json['discussion'] == null
         ? null
         : Discussion.fromJson(json['discussion'] as Map<String, dynamic>),
@@ -27,7 +27,7 @@ Map<String, dynamic> _$DiscussionAccessRequestToJson(
         DiscussionAccessRequest instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'user': instance.user,
+      'userProfile': instance.userProfile,
       'discussion': instance.discussion,
       'createdAt': instance.createdAt,
       'updatedAt': instance.updatedAt,

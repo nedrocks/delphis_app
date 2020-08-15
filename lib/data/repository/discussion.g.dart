@@ -57,6 +57,11 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meViewer: json['meViewer'] == null
         ? null
         : Viewer.fromJson(json['meViewer'] as Map<String, dynamic>),
+    accessRequests: (json['accessRequests'] as List)
+        ?.map((e) => e == null
+            ? null
+            : DiscussionAccessRequest.fromJson(e as Map<String, dynamic>))
+        ?.toList(),
     meNotificationSettings: _$enumDecodeNullable(
         _$DiscussionUserNotificationSettingEnumMap,
         json['meNotificationSettings']),
@@ -87,6 +92,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
       'meCanJoinDiscussion': instance.meCanJoinDiscussion,
       'meViewer': instance.meViewer,
+      'accessRequests': instance.accessRequests,
       'meNotificationSettings': _$DiscussionUserNotificationSettingEnumMap[
           instance.meNotificationSettings],
       'meDiscussionStatus':

@@ -183,15 +183,6 @@ const PostWithParticipantInfoFragment = """
       ...QuotedPostInfoFragment
     }
     postType
-    conciergeContent{
-      appActionID
-      mutationID
-      options{
-        text
-        value
-        selected
-      }
-    }
     media {
       id
       createdAt

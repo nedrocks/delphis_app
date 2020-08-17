@@ -610,39 +610,39 @@ class Discussion extends Equatable implements Entity {
         nextShuffleTime,
       ];
 
-  Discussion({
-    this.id,
-    this.moderator,
-    this.anonymityType,
-    this.postsConnection,
-    this.participants,
-    this.title,
-    this.createdAt,
-    this.updatedAt,
-    this.meParticipant,
-    this.meAvailableParticipants,
-    this.iconURL,
-    this.discussionAccessLink,
-    this.description,
-    this.titleHistory,
-    this.descriptionHistory,
-    this.discussionJoinability,
-    this.meCanJoinDiscussion,
-    postsCache,
-    this.isDeletedLocally = false,
-    this.isActivatedLocally = false,
-    this.isArchivedLocally = false,
-    this.meViewer,
-    this.accessRequests,
-    this.meNotificationSettings,
-    this.meDiscussionStatus,
-    this.secondsUntilShuffle,
-     nextShuffleTime
-  }) : this.postsCache =
+  Discussion(
+      {this.id,
+      this.moderator,
+      this.anonymityType,
+      this.postsConnection,
+      this.participants,
+      this.title,
+      this.createdAt,
+      this.updatedAt,
+      this.meParticipant,
+      this.meAvailableParticipants,
+      this.iconURL,
+      this.discussionAccessLink,
+      this.description,
+      this.titleHistory,
+      this.descriptionHistory,
+      this.discussionJoinability,
+      this.meCanJoinDiscussion,
+      postsCache,
+      this.isDeletedLocally = false,
+      this.isActivatedLocally = false,
+      this.isArchivedLocally = false,
+      this.meViewer,
+      this.accessRequests,
+      this.meNotificationSettings,
+      this.meDiscussionStatus,
+      this.secondsUntilShuffle,
+      nextShuffleTime})
+      : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List()),
-            this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
-              ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
-              : null;
+        this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
+            ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
+            : null;
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
     return _$DiscussionFromJson(json);
@@ -743,9 +743,6 @@ class Discussion extends Equatable implements Entity {
     bool isActivatedLocally,
     bool isDeletedLocally,
     bool isArchivedLocally,
-    Viewer meViewer,
-    DiscussionUserNotificationSetting meNotificationSettings,
-    DiscussionUserAccessState meDiscussionStatus,
     int secondsUntilShuffle,
     DateTime nextShuffleTime,
   }) {

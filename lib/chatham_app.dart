@@ -177,7 +177,8 @@ class ChathamAppState extends State<ChathamApp>
             BlocProvider<MeBloc>(
                 create: (context) => MeBloc(
                     RepositoryProvider.of<UserRepository>(context),
-                    BlocProvider.of<AuthBloc>(context))),
+                    BlocProvider.of<AuthBloc>(context),
+                    BlocProvider.of<GqlClientBloc>(context))),
             BlocProvider<DiscussionListBloc>(
                 create: (context) => DiscussionListBloc(
                     repository:

@@ -6,9 +6,11 @@ abstract class MeEvent extends Equatable {
 
 class FetchMeEvent extends MeEvent {
   final DateTime now;
+  final bool force;
 
   FetchMeEvent({
     now,
+    this.force = false,
   })  : this.now = now ?? DateTime.now(),
         super();
 

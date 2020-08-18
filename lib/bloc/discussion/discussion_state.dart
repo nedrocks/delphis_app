@@ -37,6 +37,7 @@ class DiscussionLoadedState extends DiscussionState {
   final Discussion discussion;
   final DateTime lastUpdate;
   final Stream<DiscussionSubscriptionEvent> discussionPostStream;
+  final StreamSubscription<DiscussionSubscriptionEvent> discussionPostListener;
   final Map<GlobalKey, LocalPost> localPosts;
 
   final bool isLoading;
@@ -48,6 +49,7 @@ class DiscussionLoadedState extends DiscussionState {
     @required this.lastUpdate,
     this.isLoading = false,
     this.discussionPostStream,
+    this.discussionPostListener,
     this.onboardingConciergeStep,
     localPosts,
   })  : this.localPosts = localPosts ?? Map<GlobalKey, LocalPost>(),
@@ -59,6 +61,7 @@ class DiscussionLoadedState extends DiscussionState {
 
   DiscussionLoadedState update({
     Stream<DiscussionSubscriptionEvent> stream,
+    StreamSubscription<DiscussionSubscriptionEvent> listener,
     Discussion discussion,
     Map<GlobalKey, LocalPost> localPosts,
     bool isLoading,
@@ -68,6 +71,7 @@ class DiscussionLoadedState extends DiscussionState {
         discussion: discussion ?? this.discussion,
         lastUpdate: DateTime.now(),
         discussionPostStream: stream ?? this.discussionPostStream,
+        discussionPostListener: listener ?? this.discussionPostListener,
         localPosts: localPosts ?? this.localPosts,
         isLoading: isLoading ?? this.isLoading,
         onboardingConciergeStep:

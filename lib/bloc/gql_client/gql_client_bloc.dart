@@ -46,7 +46,12 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
       wsEndpoint = '$wsEndpoint?access_token=$authString';
     }
 
-    final socketClient = SocketClient(wsEndpoint);
+    final socketClient = SocketClient(wsEndpoint,
+        config: SocketClientConfig(
+            inactivityTimeout: Duration(seconds: 20),
+            autoReconnect: true,
+            // This seems fast but works reasonably well (and gets delayed by the user's app so it's >= 1 second)
+            delayBetweenReconnectionAttempts: Duration(seconds: 1)));
 
     if (this.websocketStateListener != null) {
       this.websocketStateListener.cancel();
@@ -58,19 +63,7 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
       if (cxState == SocketConnectionState.CONNECTED) {
         this.add(GqlClientSocketConnected());
       } else if (cxState == SocketConnectionState.NOT_CONNECTED) {
-        this.websocketStateListener.cancel();
-        this.websocketStateListener = null;
-        try {
-          await socketClient.dispose();
-        }
-        catch (error) {
-          /* The socket is in some kind of broken state and an internal field is null.
-             This may be hacky, but the safest solution is to just discard it, wait,
-             and try to reconnect. */
-          await Future.delayed(Duration(seconds: 5));
-        } 
-
-        this.add(GqlClientReconnectWebsocketEvent(nonce: DateTime.now()));
+        // This will auto reconnect. We could alert the client there's an issue perhaps?
       }
     });
 
@@ -148,8 +141,7 @@ class GqlClientBloc extends Bloc<GqlClientEvent, GqlClientState> {
         authString: currentState.authString,
         isAuthed: currentState.isAuthed,
       );
-    }
-    else if (event is GqlClientReconnectWebsocketEvent &&
+    } else if (event is GqlClientReconnectWebsocketEvent &&
         currentState is GqlClientConnectingState) {
       final socketClient =
           this.connectWebsocket(currentState.isAuthed, currentState.authString);

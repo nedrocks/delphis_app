@@ -124,11 +124,14 @@ class DiscussionParticipantBannedEvent extends DiscussionEvent {
 class SubscribeToDiscussionEvent extends DiscussionEvent {
   final String discussionID;
   final bool isSubscribed;
+  final DateTime nonce;
 
-  SubscribeToDiscussionEvent(this.discussionID, this.isSubscribed) : super();
+  SubscribeToDiscussionEvent(this.discussionID, this.isSubscribed)
+      : nonce = DateTime.now(),
+        super();
 
   @override
-  List<Object> get props => [this.discussionID, this.isSubscribed];
+  List<Object> get props => [this.discussionID, this.isSubscribed, this.nonce];
 }
 
 class UnsubscribeFromDiscussionEvent extends DiscussionEvent {

@@ -81,10 +81,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   Stream<DiscussionState> mapEventToState(DiscussionEvent event) async* {
     var currentState = this.state;
     if (event is DiscussionClearEvent) {
+      if (currentState is DiscussionLoadedState &&
+          currentState.discussionPostListener != null) {
+        currentState.discussionPostListener.cancel();
+      }
       yield DiscussionUninitializedState();
     } else if (event is DiscussionQueryEvent &&
         !(currentState is DiscussionLoadingState)) {
       try {
+        if (currentState is DiscussionLoadedState &&
+            currentState.discussionPostListener != null) {
+          currentState.discussionPostListener.cancel();
+        }
         yield DiscussionLoadingState();
         var discussion =
             await discussionRepository.getDiscussion(event.discussionID);
@@ -352,13 +360,25 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       }
     } else if (event is SubscribeToDiscussionEvent &&
         currentState is DiscussionLoadedState) {
-      if (currentState.getDiscussion() != null &&
-          currentState.discussionPostStream == null) {
+      if (currentState.getDiscussion() != null) {
+        if (currentState.discussionPostListener != null) {
+          currentState.discussionPostListener.cancel();
+        }
         final discussionStream = await this
             .discussionRepository
             .subscribe(currentState.getDiscussion().id);
-        discussionStream.listen(this.consumeDiscussionSubscriptionEvent);
-        yield currentState.update(stream: discussionStream);
+        // ignore: cancel_subscriptions
+        final listener =
+            discussionStream.listen(this.consumeDiscussionSubscriptionEvent);
+        yield currentState.update(stream: discussionStream, listener: listener);
+        this.add(RefreshPostsEvent(discussionID: event.discussionID));
+      }
+    } else if (event is UnsubscribeFromDiscussionEvent &&
+        currentState is DiscussionLoadedState) {
+      if (currentState.discussion.id == event.discussionID &&
+          currentState.discussionPostListener != null) {
+        currentState.discussionPostListener.cancel();
+        yield currentState.update(listener: null, stream: null);
       }
     } else if (event is LocalPostCreateSuccess &&
         currentState is DiscussionLoadedState) {

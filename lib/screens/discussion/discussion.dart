@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:delphis_app/bloc/auth/auth_bloc.dart';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
@@ -163,172 +164,188 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
     } else {
       this.hasSentLoadingEvent = true;
     }
-    return BlocBuilder<DiscussionBloc, DiscussionState>(
-      builder: (context, state) {
-        if (state is DiscussionUninitializedState ||
-            state is DiscussionLoadingState) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (state is DiscussionErrorState) {
-          return Center(
-            child: Text(state.error.toString()),
-          );
-        }
-        if (state is DiscussionLoadedState &&
-            state.discussionPostStream == null) {
+    return BlocListener<GqlClientBloc, GqlClientState>(
+      listenWhen: (prev, curr) {
+        return prev is GqlClientConnectingState &&
+            curr is GqlClientConnectedState;
+      },
+      listener: (context, state) {
+        if (state is GqlClientConnectingState) {
+          BlocProvider.of<DiscussionBloc>(context).add(
+              UnsubscribeFromDiscussionEvent(this.widget.discussionID, true));
+        } else if (state is GqlClientConnectedState) {
           BlocProvider.of<DiscussionBloc>(context)
               .add(SubscribeToDiscussionEvent(this.widget.discussionID, true));
         }
-        final discussionObj = state.getDiscussion();
+      },
+      child: BlocBuilder<DiscussionBloc, DiscussionState>(
+        builder: (context, state) {
+          if (state is DiscussionUninitializedState ||
+              state is DiscussionLoadingState) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (state is DiscussionErrorState) {
+            return Center(
+              child: Text(state.error.toString()),
+            );
+          }
+          if (state is DiscussionLoadedState &&
+              state.discussionPostStream == null) {
+            BlocProvider.of<DiscussionBloc>(context).add(
+                SubscribeToDiscussionEvent(this.widget.discussionID, true));
+          }
+          final discussionObj = state.getDiscussion();
 
-        /* In some old discussions the moderator was able to go in incognito mode.
+          /* In some old discussions the moderator was able to go in incognito mode.
            if this happens, then we re-force to non-incognito mode. By using BLoCs,
            the UI is rebuilt automatically. */
-        if ((discussionObj?.meParticipant?.isAnonymous ?? false) &&
-            (discussionObj?.isMeDiscussionModerator() ?? false)) {
-          BlocProvider.of<ParticipantBloc>(context)
-              .add(ParticipantEventUpdateParticipant(
-            participantID: discussionObj.meParticipant.id,
-            isAnonymous: false,
-            gradientName: gradientNameFromString(
-                discussionObj.meParticipant.gradientColor),
-          ));
-        }
+          if ((discussionObj?.meParticipant?.isAnonymous ?? false) &&
+              (discussionObj?.isMeDiscussionModerator() ?? false)) {
+            BlocProvider.of<ParticipantBloc>(context)
+                .add(ParticipantEventUpdateParticipant(
+              participantID: discussionObj.meParticipant.id,
+              isAnonymous: false,
+              gradientName: gradientNameFromString(
+                  discussionObj.meParticipant.gradientColor),
+            ));
+          }
 
-        final expandedConversationView = Expanded(
-          child: DiscussionContent(
-            key: Key('${this._key}-content'),
-            refreshController: this._refreshController,
-            scrollController: this._scrollController,
-            discussion: discussionObj,
-            isDiscussionVisible: true,
-            isShowParticipantSettings: this._isShowParticipantSettings,
-            isAnimationEnabled: this._lastFocusedNode == null,
-            isShowJoinFlow: this._isShowJoinFlow,
-            onJoinFlowClose: (bool isJoined) {
-              if (isJoined) {
-                // This is kinda gross but we need to reload the discussion here because
-                // of state management concerns. This is simpler than untangling the mess
-                // of dependencies involved.
-                BlocProvider.of<DiscussionBloc>(context).add(
-                    DiscussionQueryEvent(
-                        discussionID: this.widget.discussionID,
-                        nonce: DateTime.now()));
-              }
-              setState(() {
-                this._isShowJoinFlow = false;
-                this._contentOverlayEntry.remove();
-                this._contentOverlayEntry = null;
-              });
-            },
-            onSettingsOverlayClose: (_) {
-              this.setState(() {
-                _restoreFocusAndDismissOverlay();
-              });
-            },
-            onOverlayOpen: (OverlayEntry entry) {
-              this._onOverlayEntry(context, entry);
-            },
-            onMediaTap: (media, type) => this.onMediaTap(context, media, type),
-            onSuperpowersButtonPressed: (arguments) {
-              showSuperpowersPopup(context, arguments);
-            },
-          ),
-        );
-        final me = MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state);
-        var listViewWithInput = Column(
-          children: <Widget>[
-            DiscussionHeader(
+          final expandedConversationView = Expanded(
+            child: DiscussionContent(
+              key: Key('${this._key}-content'),
+              refreshController: this._refreshController,
+              scrollController: this._scrollController,
               discussion: discussionObj,
-              onBackButtonPressed: () {
-                Navigator.of(context).pop();
-              },
-              onHeaderOptionSelected: (HeaderOption option) {
-                switch (option) {
-                  case HeaderOption.logout:
-                    if (this._contentOverlayEntry != null) {
-                      this._contentOverlayEntry.remove();
-                    }
-                    BlocProvider.of<AuthBloc>(context).add(LogoutAuthEvent());
-                    break;
-                  default:
-                    break;
+              isDiscussionVisible: true,
+              isShowParticipantSettings: this._isShowParticipantSettings,
+              isAnimationEnabled: this._lastFocusedNode == null,
+              isShowJoinFlow: this._isShowJoinFlow,
+              onJoinFlowClose: (bool isJoined) {
+                if (isJoined) {
+                  // This is kinda gross but we need to reload the discussion here because
+                  // of state management concerns. This is simpler than untangling the mess
+                  // of dependencies involved.
+                  BlocProvider.of<DiscussionBloc>(context).add(
+                      DiscussionQueryEvent(
+                          discussionID: this.widget.discussionID,
+                          nonce: DateTime.now()));
                 }
-              },
-              onParticipantsButtonPressed: () {
-                this.showParticipantListScreen(context);
-              },
-            ),
-            expandedConversationView,
-            DelphisInputContainer(
-              hasJoined: discussionObj?.meParticipant?.hasJoined ?? false,
-              isJoinable: (me != null && me.isTwitterAuth),
-              discussion: discussionObj,
-              participant: discussionObj.meParticipant,
-              isShowingParticipantSettings: this._isShowParticipantSettings,
-              parentScrollController: this._scrollController,
-              onParticipantSettingsPressed: (lastFocusedNode) {
                 setState(() {
-                  this._lastFocusedNode = lastFocusedNode;
-                  this._isShowParticipantSettings =
-                      !this._isShowParticipantSettings;
+                  this._isShowJoinFlow = false;
+                  this._contentOverlayEntry.remove();
+                  this._contentOverlayEntry = null;
                 });
               },
-              onJoinPressed: () {
-                setState(() {
-                  this._isShowJoinFlow = true;
+              onSettingsOverlayClose: (_) {
+                this.setState(() {
+                  _restoreFocusAndDismissOverlay();
                 });
               },
-              onMediaTap: (media, type) {
-                onMediaTap(context, media, type);
+              onOverlayOpen: (OverlayEntry entry) {
+                this._onOverlayEntry(context, entry);
               },
-              onModeratorButtonPressed: () {
-                showSuperpowersScreen(context,
-                    SuperpowersArguments(discussion: state.getDiscussion()));
+              onMediaTap: (media, type) =>
+                  this.onMediaTap(context, media, type),
+              onSuperpowersButtonPressed: (arguments) {
+                showSuperpowersPopup(context, arguments);
               },
             ),
-          ],
-        );
+          );
+          final me = MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state);
+          var listViewWithInput = Column(
+            children: <Widget>[
+              DiscussionHeader(
+                discussion: discussionObj,
+                onBackButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+                onHeaderOptionSelected: (HeaderOption option) {
+                  switch (option) {
+                    case HeaderOption.logout:
+                      if (this._contentOverlayEntry != null) {
+                        this._contentOverlayEntry.remove();
+                      }
+                      BlocProvider.of<AuthBloc>(context).add(LogoutAuthEvent());
+                      break;
+                    default:
+                      break;
+                  }
+                },
+                onParticipantsButtonPressed: () {
+                  this.showParticipantListScreen(context);
+                },
+              ),
+              expandedConversationView,
+              DelphisInputContainer(
+                hasJoined: discussionObj?.meParticipant?.hasJoined ?? false,
+                isJoinable: (me != null && me.isTwitterAuth),
+                discussion: discussionObj,
+                participant: discussionObj.meParticipant,
+                isShowingParticipantSettings: this._isShowParticipantSettings,
+                parentScrollController: this._scrollController,
+                onParticipantSettingsPressed: (lastFocusedNode) {
+                  setState(() {
+                    this._lastFocusedNode = lastFocusedNode;
+                    this._isShowParticipantSettings =
+                        !this._isShowParticipantSettings;
+                  });
+                },
+                onJoinPressed: () {
+                  setState(() {
+                    this._isShowJoinFlow = true;
+                  });
+                },
+                onMediaTap: (media, type) {
+                  onMediaTap(context, media, type);
+                },
+                onModeratorButtonPressed: () {
+                  showSuperpowersScreen(context,
+                      SuperpowersArguments(discussion: state.getDiscussion()));
+                },
+              ),
+            ],
+          );
 
-        Widget toRender = SafeArea(
-            child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Colors.black,
-          body: listViewWithInput,
-        ));
+          Widget toRender = SafeArea(
+              child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            backgroundColor: Colors.black,
+            body: listViewWithInput,
+          ));
 
-        Widget mediaPreview = Container();
-        if (this.mediaToShow != null) {
-          mediaPreview = mediaToShow;
-        }
+          Widget mediaPreview = Container();
+          if (this.mediaToShow != null) {
+            mediaPreview = mediaToShow;
+          }
 
-        Widget joinScreen = Container();
-        if (state.getDiscussion() != null &&
-            state.getDiscussion().meCanJoinDiscussion.response !=
-                DiscussionJoinabilityResponse.ALREADY_JOINED &&
-            state.getDiscussion().meParticipant == null) {
-          joinScreen = DiscussionJoinScreen();
-        }
-        return Stack(
-          children: [
-            toRender,
-            Center(
-              child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 200),
-                  switchInCurve: Curves.easeIn,
-                  switchOutCurve: Curves.easeIn,
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    return ScaleTransition(child: child, scale: animation);
-                  },
-                  child: mediaPreview),
-            ),
-            Center(
-              child: joinScreen,
-            ),
-          ],
-        );
-      },
+          Widget joinScreen = Container();
+          if (state.getDiscussion() != null &&
+              state.getDiscussion().meCanJoinDiscussion.response !=
+                  DiscussionJoinabilityResponse.ALREADY_JOINED &&
+              state.getDiscussion().meParticipant == null) {
+            joinScreen = DiscussionJoinScreen();
+          }
+          return Stack(
+            children: [
+              toRender,
+              Center(
+                child: AnimatedSwitcher(
+                    duration: Duration(milliseconds: 200),
+                    switchInCurve: Curves.easeIn,
+                    switchOutCurve: Curves.easeIn,
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      return ScaleTransition(child: child, scale: animation);
+                    },
+                    child: mediaPreview),
+              ),
+              Center(
+                child: joinScreen,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 

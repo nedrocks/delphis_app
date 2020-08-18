@@ -90,10 +90,22 @@ class _SignInWithAppleButtonState extends State<SignInWithAppleButton> {
         // use that to prove identity.
         final headers = Map<String, String>();
         final body = Map<String, dynamic>();
-        body['e'] = result.credential.email;
-        body['fn'] = result.credential.fullName.givenName;
-        body['ln'] = result.credential.fullName.familyName;
+        if (result.credential.email != null) {
+          body['e'] = result.credential.email;
+        }
+        if (result.credential.fullName != null &&
+            result.credential.fullName.givenName != null) {
+          body['fn'] = result.credential.fullName.givenName;
+        }
+        if (result.credential.fullName != null &&
+            result.credential.fullName.givenName != null) {
+          body['ln'] = result.credential.fullName.familyName;
+        }
+        if (result.credential.user != null) {
+          body['u'] = result.credential.user;
+        }
         body['c'] = authCode;
+
         final response = await http.post(
           Constants.appleAuthLoginEndpoint,
           headers: headers,

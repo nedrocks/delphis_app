@@ -787,8 +787,6 @@ class DiscussionInput extends Equatable {
   final String description;
   final String iconURL;
   final AnonymityType anonymityType;
-  final bool autoPost;
-  final int idleMinutes;
   final bool publicAccess;
   final DiscussionJoinabilitySetting discussionJoinability;
 
@@ -797,8 +795,6 @@ class DiscussionInput extends Equatable {
     this.description,
     this.iconURL,
     this.anonymityType,
-    this.autoPost,
-    this.idleMinutes,
     this.publicAccess,
     this.discussionJoinability,
   });
@@ -809,8 +805,6 @@ class DiscussionInput extends Equatable {
         description,
         iconURL,
         anonymityType,
-        autoPost,
-        idleMinutes,
         publicAccess,
         discussionJoinability,
       ];

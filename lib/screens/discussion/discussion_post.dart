@@ -11,6 +11,7 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/notifiers/media_change_notifier.dart';
 import 'package:delphis_app/screens/discussion/media/media_loaded_snippet.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -24,8 +25,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
-import '../../notifiers/media_change_notifier.dart';
 import 'post_title.dart';
 
 typedef ConciergePostOptionPressed(

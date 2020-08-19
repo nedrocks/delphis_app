@@ -11,9 +11,10 @@ class MeInitial extends MeState {
 
 class LoadedMeState extends MeState {
   final User me;
+  final DateTime now;
 
-  const LoadedMeState(this.me);
+  const LoadedMeState(this.me, this.now);
 
   @override
-  List<Object> get props => [this.me];
+  List<Object> get props => [this.me.id, this.now];
 }

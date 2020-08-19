@@ -28,8 +28,6 @@ import 'discussion_mention_hint.dart';
 class DelphisInputMentionsPopup extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
-  final bool isShowingParticipantSettings;
-  final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
   final Function(File, MediaContentType) onMediaTap;
   final VoidCallback onModeratorButtonPressed;
@@ -37,8 +35,6 @@ class DelphisInputMentionsPopup extends StatefulWidget {
   DelphisInputMentionsPopup({
     @required this.discussion,
     @required this.participant,
-    @required this.isShowingParticipantSettings,
-    @required this.onParticipantSettingsPressed,
     this.parentScrollController,
     @required this.onMediaTap,
     @required this.onModeratorButtonPressed,
@@ -162,10 +158,6 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
               child: DelphisInputMediaPopupWidget(
                 discussion: widget.discussion,
                 participant: widget.participant,
-                isShowingParticipantSettings:
-                    widget.isShowingParticipantSettings,
-                onParticipantSettingsPressed:
-                    widget.onParticipantSettingsPressed,
                 parentScrollController: widget.parentScrollController,
                 inputFocusNode: this.textFocusNode,
                 textController: this.textController,

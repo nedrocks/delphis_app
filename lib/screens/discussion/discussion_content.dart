@@ -7,7 +7,6 @@ import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
-import 'package:delphis_app/screens/discussion/discussion_post.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/util/callbacks.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +22,6 @@ class DiscussionContent extends StatelessWidget {
   final ScrollController scrollController;
   final Discussion discussion;
   final bool isDiscussionVisible;
-  final bool isShowParticipantSettings;
   final bool isShowJoinFlow;
   final bool isAnimationEnabled;
 
@@ -41,7 +39,6 @@ class DiscussionContent extends StatelessWidget {
     @required this.discussion,
     @required this.isDiscussionVisible,
     @required this.onJoinFlowClose,
-    @required this.isShowParticipantSettings,
     @required this.isShowJoinFlow,
     @required this.isAnimationEnabled,
     @required this.onSettingsOverlayClose,
@@ -55,7 +52,7 @@ class DiscussionContent extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget postListView = DiscussionPostListView(
       key: Key('${this.key}-postlist'),
-      isRefreshEnabled: !this.isShowJoinFlow && !this.isShowParticipantSettings,
+      isRefreshEnabled: !this.isShowJoinFlow,
       discussion: this.discussion,
       scrollController: this.scrollController,
       isVisible: true,
@@ -90,27 +87,6 @@ class DiscussionContent extends StatelessWidget {
             animationMillis: 200,
           );
         },
-      );
-
-      this.onOverlayOpen(overlayEntry);
-    } else if (this.isShowParticipantSettings) {
-      final participantBloc = BlocProvider.of<ParticipantBloc>(context);
-      final overlayEntry = OverlayEntry(
-        builder: (context) => AnimatedDiscussionPopup(
-          child: Container(width: 0, height: 0),
-          popup: DiscussionPopup(
-            contents: ParticipantSettings(
-              discussion: this.discussion,
-              meParticipant: this.discussion.meParticipant,
-              me: MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state),
-              participantBloc: participantBloc,
-              onClose: (didUpdate) {
-                this.onSettingsOverlayClose(didUpdate);
-              },
-            ),
-          ),
-          animationMillis: this.isAnimationEnabled ? 200 : 0,
-        ),
       );
 
       this.onOverlayOpen(overlayEntry);

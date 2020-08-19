@@ -48,7 +48,6 @@ class DelphisDiscussion extends StatefulWidget {
 class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
   bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
-  bool _isShowParticipantSettings;
   bool _isShowJoinFlow;
   FocusNode _lastFocusedNode;
 
@@ -76,7 +75,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
     this.hasAcceptedIncognitoWarning = false;
     this._scrollController = ScrollController();
     this._refreshController = RefreshController();
-    this._isShowParticipantSettings = false;
     this._lastFocusedNode = null;
     this._key = Key(
         'discussion-${this.widget.discussionID}-${DateTime.now().millisecondsSinceEpoch}');
@@ -217,7 +215,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
               scrollController: this._scrollController,
               discussion: discussionObj,
               isDiscussionVisible: true,
-              isShowParticipantSettings: this._isShowParticipantSettings,
               isAnimationEnabled: this._lastFocusedNode == null,
               isShowJoinFlow: this._isShowJoinFlow,
               onJoinFlowClose: (bool isJoined) {
@@ -281,15 +278,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                 isJoinable: (me != null && me.isTwitterAuth),
                 discussion: discussionObj,
                 participant: discussionObj.meParticipant,
-                isShowingParticipantSettings: this._isShowParticipantSettings,
                 parentScrollController: this._scrollController,
-                onParticipantSettingsPressed: (lastFocusedNode) {
-                  setState(() {
-                    this._lastFocusedNode = lastFocusedNode;
-                    this._isShowParticipantSettings =
-                        !this._isShowParticipantSettings;
-                  });
-                },
                 onJoinPressed: () {
                   setState(() {
                     this._isShowJoinFlow = true;
@@ -440,7 +429,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
 
   void _dismissOverlay() {
     BlocProvider.of<SuperpowersBloc>(context).add(ResetEvent());
-    this._isShowParticipantSettings = false;
     if (this._contentOverlayEntry != null) {
       this._contentOverlayEntry.remove();
       this._contentOverlayEntry = null;

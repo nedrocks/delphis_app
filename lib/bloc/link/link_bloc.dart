@@ -14,9 +14,10 @@ class LinkBloc extends Bloc<LinkEvent, LinkState> {
   Stream<LinkState> mapEventToState(
     LinkEvent event,
   ) async* {
-    final currentState = this.state;
-    if (event is LinkChangeEvent) {
+    if (event is LinkChangeEvent && event.newLink != null) {
       yield ExternalLinkState(link: event.newLink, nonce: event.nonce);
+    } else if (event is ClearLinkEvent) {
+      yield EmptyLinkState();
     }
   }
 }

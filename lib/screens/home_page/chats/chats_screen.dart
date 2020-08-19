@@ -80,7 +80,7 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
             Navigator.of(context).pushNamed('/Discussion',
                 arguments: DiscussionArguments(
                   discussionID: discussion.id,
-                  isStartJoinFlow: true,
+                  isStartJoinFlow: false,
                 ));
           },
           onDiscussionPressed: (Discussion discussion) {

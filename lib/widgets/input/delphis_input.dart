@@ -60,6 +60,7 @@ class DelphisInput extends StatefulWidget {
 }
 
 class DelphisInputState extends State<DelphisInput> {
+  final maxTextLength = 4096;
   final imagePicker = ImagePicker();
   final GlobalKey _textInputKey = GlobalKey();
   double _borderRadius = 25.0;
@@ -334,6 +335,10 @@ class DelphisInputState extends State<DelphisInput> {
               controller: this._controller,
               style: textStyle,
               decoration: InputDecoration(
+                counterStyle: TextStyle(
+                  height: double.minPositive,
+                ),
+                counterText: "",
                 contentPadding: EdgeInsets.symmetric(
                     horizontal: this._borderRadius / 2.0,
                     vertical: this._textBoxVerticalPadding / 2.0),
@@ -356,6 +361,8 @@ class DelphisInputState extends State<DelphisInput> {
               ),
               keyboardType: TextInputType.multiline,
               maxLines: numRows,
+              maxLength: maxTextLength,
+              maxLengthEnforced: true,
             ),
           ),
           height: widgetHeight,

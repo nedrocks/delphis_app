@@ -162,8 +162,6 @@ DiscussionInput _$DiscussionInputFromJson(Map<String, dynamic> json) {
     iconURL: json['iconURL'] as String,
     anonymityType:
         _$enumDecodeNullable(_$AnonymityTypeEnumMap, json['anonymityType']),
-    autoPost: json['autoPost'] as bool,
-    idleMinutes: json['idleMinutes'] as int,
     publicAccess: json['publicAccess'] as bool,
     discussionJoinability: _$enumDecodeNullable(
         _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
@@ -176,8 +174,6 @@ Map<String, dynamic> _$DiscussionInputToJson(DiscussionInput instance) =>
       'description': instance.description,
       'iconURL': instance.iconURL,
       'anonymityType': _$AnonymityTypeEnumMap[instance.anonymityType],
-      'autoPost': instance.autoPost,
-      'idleMinutes': instance.idleMinutes,
       'publicAccess': instance.publicAccess,
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],

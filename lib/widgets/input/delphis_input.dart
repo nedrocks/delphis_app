@@ -195,15 +195,6 @@ class DelphisInputState extends State<DelphisInput> {
                   SizedBox(
                     width: SpacingValues.medium,
                   ),
-                  MentionButton(
-                      onPressed: this.widget.onDiscussionMentionPressed,
-                      width: actionIconSize,
-                      height: actionIconSize,
-                      isActive: true,
-                      isDiscussion: true),
-                  SizedBox(
-                    width: SpacingValues.medium,
-                  ),
                   GalleryPickerButton(
                     onPressed: this.widget.onGalleryPressed,
                     width: actionIconSize,

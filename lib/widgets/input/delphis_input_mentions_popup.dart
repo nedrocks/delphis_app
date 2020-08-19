@@ -100,22 +100,22 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
       }
 
       /* Handle discussion mentions */
-      if (discussionMention != null && (mentionContext?.isReady() ?? false)) {
-        setState(() {
-          mentionsHints = getDiscussionMentionHints(
-              this.textController.text, discussionMention);
-          this.popupHeight = popupEntryHeight;
-          mentionsHints.then((value) => setState(() {
-                popupHeight =
-                    min(popupMaxEntries.toDouble(), value.length.toDouble()) *
-                        popupEntryHeight;
-                SchedulerBinding.instance
-                    .addPostFrameCallback((_) => toggleOverlay());
-              }));
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => toggleOverlay());
-        });
-      }
+      // if (discussionMention != null && (mentionContext?.isReady() ?? false)) {
+      //   setState(() {
+      //     mentionsHints = getDiscussionMentionHints(
+      //         this.textController.text, discussionMention);
+      //     this.popupHeight = popupEntryHeight;
+      //     mentionsHints.then((value) => setState(() {
+      //           popupHeight =
+      //               min(popupMaxEntries.toDouble(), value.length.toDouble()) *
+      //                   popupEntryHeight;
+      //           SchedulerBinding.instance
+      //               .addPostFrameCallback((_) => toggleOverlay());
+      //         }));
+      //     SchedulerBinding.instance
+      //         .addPostFrameCallback((_) => toggleOverlay());
+      //   });
+      // }
 
       SchedulerBinding.instance.addPostFrameCallback((_) => toggleOverlay());
     });

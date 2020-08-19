@@ -120,7 +120,10 @@ class ChathamAppState extends State<ChathamApp>
 
   void initPlatformState() async {
     getLinksStream().listen((String link) {
-      BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: link));
+      if (link != null &&
+          !link.startsWith(Constants.twitterRedirectLegacyURLPrefix)) {
+        BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: link));
+      }
     }, onError: (err) {
       print('got err: $err');
     });
@@ -213,6 +216,12 @@ class ChathamAppState extends State<ChathamApp>
                 if (authState is SignedInAuthState &&
                     state is GqlClientConnectedState) {
                   BlocProvider.of<MeBloc>(context).add(FetchMeEvent());
+                  if (BlocProvider.of<LinkBloc>(context).state
+                      is ExternalLinkState) {
+                    // We want to honor the external link we started with.
+                    handleExternalLink(
+                        context, BlocProvider.of<LinkBloc>(context).state);
+                  }
                 } else if (authState is LoggedOutAuthState) {
                   this.sendDeviceToServer(
                       RepositoryProvider.of<UserDeviceRepository>(context),
@@ -257,37 +266,13 @@ class ChathamAppState extends State<ChathamApp>
               }),
               BlocListener<LinkBloc, LinkState>(listener: (context, state) {
                 if (state is ExternalLinkState) {
-                  // Let's parse the link
-                  Uri linkURI;
-                  try {
-                    linkURI = Uri.parse(state.link);
-                  } catch (err) {
-                    // This is an invalid URI.
-                  }
-                  if (linkURI != null) {
-                    final linkArgs =
-                        ChathamLinkParser.getChathamDiscussionLinkParams(
-                            linkURI);
-                    if (linkArgs == null) {
-                      return;
-                    }
-                    try {
-                      RepositoryProvider.of<DiscussionRepository>(context)
-                          .getDiscussionFromSlug(linkArgs.discussionSlug)
-                          .then((disc) {
-                        if (disc == null) {
-                          // Nothing to do here so just return.
-                          return;
-                        }
-                        navKey.currentState.pushNamed(
-                          '/Discussion',
-                          arguments: DiscussionArguments(
-                            discussionID: disc.id,
-                            isStartJoinFlow: false,
-                          ),
-                        );
-                      });
-                    } catch (err) {}
+                  if (BlocProvider.of<GqlClientBloc>(context).state
+                          is GqlClientConnectedState &&
+                      (BlocProvider.of<GqlClientBloc>(context).state
+                              as GqlClientConnectedState)
+                          .isAuthed) {
+                    // Let's parse the link
+                    handleExternalLink(context, state);
                   }
                 }
               }),
@@ -794,6 +779,41 @@ class ChathamAppState extends State<ChathamApp>
       Future.delayed(const Duration(seconds: 5), () {
         this.sendDeviceToServer(repository, me);
       });
+    }
+  }
+
+  void handleExternalLink(BuildContext context, ExternalLinkState state) {
+    // We clear the state regardless of what happens
+    BlocProvider.of<LinkBloc>(context).add(ClearLinkEvent());
+    Uri linkURI;
+    try {
+      linkURI = Uri.parse(state.link);
+    } catch (err) {
+      // This is an invalid URI.
+    }
+    if (linkURI != null) {
+      final linkArgs =
+          ChathamLinkParser.getChathamDiscussionLinkParams(linkURI);
+      if (linkArgs == null) {
+        return;
+      }
+      try {
+        RepositoryProvider.of<DiscussionRepository>(context)
+            .getDiscussionFromSlug(linkArgs.discussionSlug)
+            .then((disc) {
+          if (disc == null) {
+            // Nothing to do here so just return.
+            return;
+          }
+          navKey.currentState.pushNamed(
+            '/Discussion',
+            arguments: DiscussionArguments(
+              discussionID: disc.id,
+              isStartJoinFlow: false,
+            ),
+          );
+        });
+      } catch (err) {}
     }
   }
 

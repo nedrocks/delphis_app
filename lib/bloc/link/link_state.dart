@@ -4,6 +4,15 @@ abstract class LinkState extends Equatable {
   const LinkState();
 }
 
+class EmptyLinkState extends LinkState {
+  final DateTime nonce;
+
+  EmptyLinkState() : nonce = DateTime.now();
+
+  @override
+  List<Object> get props => [nonce];
+}
+
 class ExternalLinkState extends LinkState {
   final String link;
   final DateTime nonce;

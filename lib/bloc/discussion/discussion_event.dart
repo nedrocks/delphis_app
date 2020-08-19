@@ -88,13 +88,13 @@ class DiscussionPostAddEvent extends DiscussionEvent {
       : super();
 }
 
-class DiscussionPostAddedEvent extends DiscussionEvent {
+class DiscussionPostReceivedEvent extends DiscussionEvent {
   final Post post;
 
   @override
   List<Object> get props => [this.post];
 
-  DiscussionPostAddedEvent({
+  DiscussionPostReceivedEvent({
     @required this.post,
   }) : super();
 }
@@ -143,29 +143,6 @@ class UnsubscribeFromDiscussionEvent extends DiscussionEvent {
 
   @override
   List<Object> get props => [this.discussionID, this.hasUnsubscribed];
-}
-
-class LocalPostCreateSuccess extends DiscussionEvent {
-  final Post createdPost;
-  final LocalPost localPost;
-
-  LocalPostCreateSuccess({@required this.createdPost, @required this.localPost})
-      : super();
-
-  @override
-  List<Object> get props => [this.createdPost?.id, this.localPost?.key];
-}
-
-class LocalPostCreateFailure extends DiscussionEvent {
-  final LocalPost localPost;
-  final DateTime now;
-
-  LocalPostCreateFailure({@required this.localPost})
-      : this.now = DateTime.now(),
-        super();
-
-  @override
-  List<Object> get props => [this.localPost?.key, this.now];
 }
 
 class RefreshPostsEvent extends DiscussionEvent {

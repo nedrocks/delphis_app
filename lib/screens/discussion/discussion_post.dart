@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -11,7 +12,6 @@ import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/design/colors.dart';
 import 'package:delphis_app/design/sizes.dart';
-import 'package:delphis_app/screens/discussion/concierge_discussion_post_options.dart';
 import 'package:delphis_app/screens/discussion/media/media_loaded_snippet.dart';
 import 'package:delphis_app/screens/discussion/media/media_snippet.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -21,6 +21,7 @@ import 'package:delphis_app/widgets/emoji_text/emoji_text.dart';
 import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image.dart';
 import 'package:delphis_app/widgets/profile_image/profile_image_and_inviter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -37,10 +38,9 @@ class DiscussionPost extends StatefulWidget {
   final Participant participant;
   final Moderator moderator;
   final Discussion discussion;
-
   final Function(File, MediaContentType) onMediaTap;
-
   final Function(SuperpowersArguments) onModeratorButtonPressed;
+  final Function(LocalPost) onLocalPostRetryPressed;
 
   const DiscussionPost(
       {Key key,
@@ -49,6 +49,7 @@ class DiscussionPost extends StatefulWidget {
       @required this.moderator,
       @required this.discussion,
       @required this.onModeratorButtonPressed,
+      @required this.onLocalPostRetryPressed,
       @required this.onMediaTap})
       : super(key: key);
 
@@ -60,20 +61,26 @@ class _DiscussionPostState extends State<DiscussionPost>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MentionBloc, MentionState>(
-      builder: (context, mentionBlocState) {
-        if (mentionBlocState.isReady()) {
-          return AnimatedSize(
+    return BlocBuilder<DiscussionBloc, DiscussionState>(
+        builder: (context, discussionState) {
+      return BlocBuilder<MentionBloc, MentionState>(
+        builder: (context, mentionState) {
+          if (mentionState.isReady()) {
+            return AnimatedSize(
               vsync: this,
               duration: Duration(milliseconds: 200),
               reverseDuration: Duration(milliseconds: 50),
               curve: Curves.decelerate,
               child: buildWithDeletionAnimation(
-                  context, buildWithInfo(context, mentionBlocState)));
-        }
-        return Container();
-      },
-    );
+                context,
+                buildWithInfo(context, discussionState, mentionState),
+              ),
+            );
+          }
+          return Container();
+        },
+      );
+    });
   }
 
   Widget buildWithDeletionAnimation(BuildContext context, Widget child) {
@@ -101,7 +108,16 @@ class _DiscussionPostState extends State<DiscussionPost>
     );
   }
 
-  Widget buildWithInfo(BuildContext context, MentionState mentionContext) {
+  Widget buildWithInfo(BuildContext context, DiscussionState discussionState,
+      MentionState mentionState) {
+    /* Retrieve local post in order to render proper UI accordingly */
+    LocalPost localPost;
+    if (discussionState is DiscussionLoadedState &&
+        discussionState.getDiscussion() != null &&
+        (this.widget.post.isLocalPost ?? false)) {
+      localPost = discussionState.localPosts
+          .firstWhere((e) => e.post == this.widget.post, orElse: () => null);
+    }
     final isModeratorAuthor = this.widget.participant?.userProfile?.id ==
         this.widget.moderator.userProfile.id;
 
@@ -115,11 +131,11 @@ class _DiscussionPostState extends State<DiscussionPost>
     /* Color and format mentioned entities */
     textWidget.setTextOperator(
         MentionState.mentionSpecialCharsRegexPattern,
-        (s) => mentionContext.decodePostContent(
+        (s) => mentionState.decodePostContent(
             s, this.widget.post.mentionedEntities));
     textWidget.setTextOperator(
         MentionState.encodedMentionRegexPattern,
-        (s) => mentionContext.decodePostContent(
+        (s) => mentionState.decodePostContent(
             s, this.widget.post.mentionedEntities));
     textWidget.setStyleOperator(MentionState.encodedMentionRegexPattern,
         (s, before, after) {
@@ -135,25 +151,32 @@ class _DiscussionPostState extends State<DiscussionPost>
       postBackgroundColor = Colors.grey.withAlpha(60);
     }
 
-    return Opacity(
-        opacity: (this.widget.post.isLocalPost ?? false) ? 0.4 : 1.0,
-        child: Container(
-          padding: EdgeInsets.all(SpacingValues.medium),
-          decoration: BoxDecoration(color: postBackgroundColor),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                  key: this.widget.key == null
-                      ? null
-                      : Key(
-                          '${this.widget.key.toString()}-profile-image-padding-container'),
-                  padding: EdgeInsets.only(right: SpacingValues.medium),
-                  child: buildProfileImage(
-                      context, isModeratorAuthor, this.widget.post.isDeleted)),
-              Expanded(
-                  child: Container(
+    return Container(
+      padding: EdgeInsets.all(SpacingValues.medium),
+      decoration: BoxDecoration(color: postBackgroundColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Opacity(
+            opacity: localPost != null ? 0.4 : 1.0,
+            child: Container(
+              key: this.widget.key == null
+                  ? null
+                  : Key(
+                      '${this.widget.key.toString()}-profile-image-padding-container'),
+              padding: EdgeInsets.only(right: SpacingValues.medium),
+              child: buildProfileImage(
+                context,
+                isModeratorAuthor,
+                this.widget.post.isDeleted,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Opacity(
+              opacity: localPost != null ? 0.4 : 1.0,
+              child: Container(
                 child: Column(
                   key: this.widget.key == null
                       ? null
@@ -186,30 +209,64 @@ class _DiscussionPostState extends State<DiscussionPost>
                     ),
                   ],
                 ),
-              )),
-              isSuperpowersAvailable()
-                  ? Material(
-                      type: MaterialType.circle,
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () => this.widget.onModeratorButtonPressed(
-                            SuperpowersArguments(
-                                discussion: this.widget.discussion,
-                                post: this.widget.post,
-                                participant: this.widget.participant)),
-                        child: Container(
-                          padding: EdgeInsets.all(SpacingValues.small),
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          clipBehavior: Clip.antiAlias,
-                          child: Icon(Icons.more_vert,
-                              color: Colors.white, size: 24),
-                        ),
-                      ),
-                    )
-                  : Container()
-            ],
+              ),
+            ),
           ),
-        ));
+          isSuperpowersAvailable() && localPost == null
+              ? Material(
+                  type: MaterialType.circle,
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => this.widget.onModeratorButtonPressed(
+                        SuperpowersArguments(
+                            discussion: this.widget.discussion,
+                            post: this.widget.post,
+                            participant: this.widget.participant)),
+                    child: Container(
+                      padding: EdgeInsets.all(SpacingValues.small),
+                      decoration: BoxDecoration(shape: BoxShape.circle),
+                      clipBehavior: Clip.antiAlias,
+                      child:
+                          Icon(Icons.more_vert, color: Colors.white, size: 24),
+                    ),
+                  ),
+                )
+              : Container(),
+          buildLocalPostIndicator(context, localPost),
+        ],
+      ),
+    );
+  }
+
+  Widget buildLocalPostIndicator(BuildContext context, LocalPost localPost) {
+    if (localPost == null) {
+      return Container();
+    }
+
+    if (localPost.isProcessing == true) {
+      return Container(
+        height: 30,
+        child: CupertinoActivityIndicator(),
+      );
+    } else if (localPost.error != null) {
+      return Material(
+        type: MaterialType.circle,
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => this.widget.onLocalPostRetryPressed(localPost),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.red,
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Icon(Icons.error_outline, color: Colors.white, size: 24),
+          ),
+        ),
+      );
+    }
+
+    return Container();
   }
 
   Widget buildMediaSnippet(BuildContext context) {

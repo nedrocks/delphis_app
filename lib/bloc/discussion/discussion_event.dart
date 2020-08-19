@@ -88,6 +88,18 @@ class DiscussionPostAddEvent extends DiscussionEvent {
       : super();
 }
 
+class DiscussionLocalPostRetryEvent extends DiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final LocalPost localPost;
+
+  @override
+  List<Object> get props => [this.localPost, this.timestamp];
+
+  DiscussionLocalPostRetryEvent({
+    @required this.localPost,
+  }) : super();
+}
+
 class DiscussionPostReceivedEvent extends DiscussionEvent {
   final Post post;
 

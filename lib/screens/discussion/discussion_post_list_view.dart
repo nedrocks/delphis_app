@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
+import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
 import 'package:delphis_app/screens/discussion/media/media_change_notifier.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
@@ -27,8 +28,8 @@ class DiscussionPostListView extends StatelessWidget {
   final bool isRefreshEnabled;
 
   final Function(File, MediaContentType) onMediaTap;
-
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
+  final Function(LocalPost) onLocalPostRetryPressed;
 
   const DiscussionPostListView({
     @required key,
@@ -38,6 +39,7 @@ class DiscussionPostListView extends StatelessWidget {
     @required this.isRefreshEnabled,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
+    @required this.onLocalPostRetryPressed,
     this.isVisible = true,
   }) : super(key: key);
 
@@ -170,6 +172,7 @@ class DiscussionPostListView extends StatelessWidget {
               discussion: this.discussion,
               onMediaTap: this.onMediaTap,
               onModeratorButtonPressed: this.onSuperpowersButtonPressed,
+              onLocalPostRetryPressed: this.onLocalPostRetryPressed,
             );
             if (true) {
               return ChangeNotifierProvider(

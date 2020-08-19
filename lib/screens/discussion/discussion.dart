@@ -246,6 +246,11 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
               onSuperpowersButtonPressed: (arguments) {
                 showSuperpowersPopup(context, arguments);
               },
+              onLocalPostRetryPressed: (localPost) {
+                BlocProvider.of<DiscussionBloc>(context).add(
+                  DiscussionLocalPostRetryEvent(localPost: localPost),
+                );
+              },
             ),
           );
           final me = MeBloc.extractMe(BlocProvider.of<MeBloc>(context).state);

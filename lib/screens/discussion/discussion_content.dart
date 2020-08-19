@@ -32,6 +32,7 @@ class DiscussionContent extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
+  final Function(LocalPost) onLocalPostRetryPressed;
 
   const DiscussionContent({
     @required key,
@@ -46,6 +47,7 @@ class DiscussionContent extends StatelessWidget {
     @required this.refreshController,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
+    @required this.onLocalPostRetryPressed,
   }) : super(key: key);
 
   @override
@@ -59,6 +61,7 @@ class DiscussionContent extends StatelessWidget {
       refreshController: this.refreshController,
       onMediaTap: this.onMediaTap,
       onSuperpowersButtonPressed: this.onSuperpowersButtonPressed,
+      onLocalPostRetryPressed: this.onLocalPostRetryPressed,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);

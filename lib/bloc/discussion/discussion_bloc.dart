@@ -274,6 +274,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           postsCache: postsCache,
         ),
       );
+    } else if (event is DiscussionLocalPostRetryEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      // TODO: Handle retry case
     } else if (event is DiscussionPostDeletedEvent &&
         currentState is DiscussionLoadedState) {
       final discussion = currentState.getDiscussion();

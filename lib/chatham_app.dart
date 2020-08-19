@@ -806,6 +806,8 @@ class ChathamAppState extends State<ChathamApp>
             // Nothing to do here so just return.
             return;
           }
+          BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
+              discussionID: disc.id, nonce: DateTime.now()));
           navKey.currentState.pushNamed(
             '/Discussion',
             arguments: DiscussionArguments(

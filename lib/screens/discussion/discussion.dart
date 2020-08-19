@@ -46,7 +46,6 @@ class DelphisDiscussion extends StatefulWidget {
 }
 
 class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
-  bool hasSentLoadingEvent;
   bool hasAcceptedIncognitoWarning;
   bool _isShowJoinFlow;
   FocusNode _lastFocusedNode;
@@ -69,8 +68,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
     });
 
     this._isShowJoinFlow = this.widget.isStartJoinFlow;
-
-    this.hasSentLoadingEvent = false;
 
     this.hasAcceptedIncognitoWarning = false;
     this._scrollController = ScrollController();
@@ -148,20 +145,6 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
 
   @override
   Widget build(BuildContext context) {
-    final currentDiscussionBlocState =
-        BlocProvider.of<DiscussionBloc>(context).state;
-    if (!this.hasSentLoadingEvent &&
-        (!(currentDiscussionBlocState is DiscussionLoadedState) ||
-            currentDiscussionBlocState.getDiscussion().id !=
-                this.widget.discussionID)) {
-      this.setState(() {
-        BlocProvider.of<DiscussionBloc>(context)
-            .add(DiscussionQueryEvent(discussionID: this.widget.discussionID));
-        this.hasSentLoadingEvent = true;
-      });
-    } else {
-      this.hasSentLoadingEvent = true;
-    }
     return BlocListener<GqlClientBloc, GqlClientState>(
       listenWhen: (prev, curr) {
         return prev is GqlClientConnectingState &&

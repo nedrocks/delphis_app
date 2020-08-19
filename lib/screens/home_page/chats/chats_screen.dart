@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/discussion_list/discussion_list_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -77,6 +78,9 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
           key: this._chatListKey,
           refreshController: this._refreshController,
           onJoinDiscussionPressed: (Discussion discussion) {
+            /* Force discussion fetching */
+            BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
+                discussionID: discussion.id, nonce: DateTime.now()));
             Navigator.of(context).pushNamed('/Discussion',
                 arguments: DiscussionArguments(
                   discussionID: discussion.id,
@@ -84,6 +88,9 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
                 ));
           },
           onDiscussionPressed: (Discussion discussion) {
+            /* Force discussion fetching */
+            BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
+                discussionID: discussion.id, nonce: DateTime.now()));
             Navigator.of(context).pushNamed('/Discussion',
                 arguments: DiscussionArguments(discussionID: discussion.id));
           },

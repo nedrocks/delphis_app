@@ -247,6 +247,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                 showSuperpowersPopup(context, arguments);
               },
               onLocalPostRetryPressed: (localPost) {
+                final dState = BlocProvider.of<DiscussionBloc>(context).state;
+                if (dState is DiscussionLoadedState) {
+                  for (var lp in dState.localPosts) {
+                    if (lp.isProcessing) {
+                      return;
+                    }
+                  }
+                }
                 BlocProvider.of<DiscussionBloc>(context).add(
                   DiscussionLocalPostRetryEvent(localPost: localPost),
                 );

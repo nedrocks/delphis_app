@@ -19,6 +19,36 @@ import 'package:meta/meta.dart';
 part 'discussion_event.dart';
 part 'discussion_state.dart';
 
+class LocalPost extends Equatable {
+  final Post post;
+  final bool isProcessing;
+  final dynamic error;
+  final DiscussionPostAddEvent event;
+
+  const LocalPost({
+    @required this.post,
+    @required this.isProcessing,
+    this.event,
+    this.error,
+  });
+
+  List<Object> get props => [post, isProcessing, error, this.event];
+
+  LocalPost copyWith({
+    Post post,
+    dynamic error,
+    bool isProcessing,
+    DiscussionPostAddEvent event,
+  }) {
+    return LocalPost(
+      post: post ?? this.post,
+      isProcessing: isProcessing ?? this.isProcessing,
+      error: error,
+      event: event ?? this.event,
+    );
+  }
+}
+
 class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   final DiscussionRepository discussionRepository;
   final MediaRepository mediaRepository;
@@ -131,7 +161,8 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
       /* Create a local post */
-      final localPost = LocalPost(
+      var localPost = LocalPost(
+        event: event,
         isProcessing: true,
         post: Post(
           isLocalPost: true,
@@ -159,14 +190,32 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       /* Proceed by sending the post */
       try {
         /* Attempt to upload the media file first */
-        String mediaId;
-        if (event.media != null && event.mediaContentType != null) {
+        String mediaId = event.mediaID;
+        if (mediaId == null &&
+            event.media != null &&
+            event.mediaContentType != null) {
           MediaUpload uploadedMedia =
               await mediaRepository.uploadImage(event.media);
           if (uploadedMedia.mediaId == null) {
             throw "Image upload failed";
           }
           mediaId = uploadedMedia.mediaId;
+
+          /* Save the uploaded media in local post and yield a new state.
+             This ensures that we keep track of the already uploaded media
+             if post creation somehow fails later, and we can reuse it if the
+             user decides to retry. */
+          currentState.localPosts.remove(localPost);
+          localPost = localPost.copyWith(
+            event: event.copyWith(
+              mediaID: mediaId,
+            ),
+          );
+          currentState.localPosts.add(localPost);
+          yield currentState.update(
+            discussion: currentState.getDiscussion(),
+            localPosts: currentState.localPosts,
+          );
         }
 
         /* Actual attempt to add the new post to the discussion */
@@ -232,6 +281,15 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           },
         );
       }
+    } else if (event is DiscussionLocalPostRetryEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      /* Remove post from local caches */
+      currentState.localPosts.remove(event.localPost);
+      currentState.getDiscussion().postsCache.remove(event.localPost.post);
+
+      /* Trigger another creation attempt */
+      this.add(event.localPost.event);
     } else if (event is DiscussionPostReceivedEvent &&
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
@@ -274,10 +332,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
           postsCache: postsCache,
         ),
       );
-    } else if (event is DiscussionLocalPostRetryEvent &&
-        currentState is DiscussionLoadedState &&
-        currentState.getDiscussion() != null) {
-      // TODO: Handle retry case
     } else if (event is DiscussionPostDeletedEvent &&
         currentState is DiscussionLoadedState) {
       final discussion = currentState.getDiscussion();

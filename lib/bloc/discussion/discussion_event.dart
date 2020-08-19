@@ -67,6 +67,7 @@ class DiscussionPostAddEvent extends DiscussionEvent {
   final List<String> localMentionedEntities;
   final File media;
   final MediaContentType mediaContentType;
+  final String mediaID;
 
   @override
   List<Object> get props => [
@@ -74,18 +75,42 @@ class DiscussionPostAddEvent extends DiscussionEvent {
         this.uniqueID,
         this.preview,
         this.mentionedEntities,
-        this.localMentionedEntities
+        this.localMentionedEntities,
       ];
 
-  DiscussionPostAddEvent(
-      {@required this.postContent,
-      @required this.uniqueID,
-      @required this.mentionedEntities,
-      @required this.localMentionedEntities,
-      this.media,
-      this.mediaContentType,
-      this.preview})
-      : super();
+  DiscussionPostAddEvent({
+    @required this.postContent,
+    @required this.uniqueID,
+    @required this.mentionedEntities,
+    @required this.localMentionedEntities,
+    this.mediaID,
+    this.media,
+    this.mediaContentType,
+    this.preview,
+  }) : super();
+
+  DiscussionPostAddEvent copyWith({
+    String preview,
+    String postContent,
+    String uniqueID,
+    List<String> mentionedEntities,
+    List<String> localMentionedEntities,
+    File media,
+    MediaContentType mediaContentType,
+    String mediaID,
+  }) {
+    return DiscussionPostAddEvent(
+      preview: preview ?? this.preview,
+      postContent: postContent ?? this.postContent,
+      uniqueID: uniqueID ?? this.uniqueID,
+      mentionedEntities: mentionedEntities ?? this.mentionedEntities,
+      localMentionedEntities:
+          localMentionedEntities ?? this.localMentionedEntities,
+      media: media ?? this.media,
+      mediaContentType: mediaContentType ?? this.mediaContentType,
+      mediaID: mediaID ?? this.mediaID,
+    );
+  }
 }
 
 class DiscussionLocalPostRetryEvent extends DiscussionEvent {

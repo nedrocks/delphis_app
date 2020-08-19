@@ -155,118 +155,126 @@ class _DiscussionPostState extends State<DiscussionPost>
       padding: EdgeInsets.all(SpacingValues.medium),
       decoration: BoxDecoration(color: postBackgroundColor),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Opacity(
-            opacity: localPost != null ? 0.4 : 1.0,
-            child: Container(
-              key: this.widget.key == null
-                  ? null
-                  : Key(
-                      '${this.widget.key.toString()}-profile-image-padding-container'),
-              padding: EdgeInsets.only(right: SpacingValues.medium),
-              child: buildProfileImage(
-                context,
-                isModeratorAuthor,
-                this.widget.post.isDeleted,
-              ),
-            ),
+          Align(
+            child: buildLocalPostIndicator(context, discussionState, localPost),
           ),
           Expanded(
             child: Opacity(
               opacity: localPost != null ? 0.4 : 1.0,
-              child: Container(
-                child: Column(
-                  key: this.widget.key == null
-                      ? null
-                      : Key('${this.widget.key.toString()}-content-column'),
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Opacity(
-                        opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
-                        child: this.widget.participant != null
-                            ? PostTitle(
-                                moderator: this.widget.moderator,
-                                participant: this.widget.participant,
-                                height: 20.0,
-                                isModeratorAuthor: isModeratorAuthor,
-                              )
-                            : Container()),
-                    Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    key: this.widget.key == null
+                        ? null
+                        : Key(
+                            '${this.widget.key.toString()}-profile-image-padding-container'),
+                    padding: EdgeInsets.only(right: SpacingValues.medium),
+                    child: buildProfileImage(
+                      context,
+                      isModeratorAuthor,
+                      this.widget.post.isDeleted,
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
                       child: Column(
+                        key: this.widget.key == null
+                            ? null
+                            : Key(
+                                '${this.widget.key.toString()}-content-column'),
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
+                          Opacity(
+                              opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
+                              child: this.widget.participant != null
+                                  ? PostTitle(
+                                      moderator: this.widget.moderator,
+                                      participant: this.widget.participant,
+                                      height: 20.0,
+                                      isModeratorAuthor: isModeratorAuthor,
+                                    )
+                                  : Container()),
                           Container(
-                            padding:
-                                EdgeInsets.only(top: SpacingValues.xxSmall),
-                            child: textWidget,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.only(
+                                      top: SpacingValues.xxSmall),
+                                  child: textWidget,
+                                ),
+                                buildMediaSnippet(context),
+                              ],
+                            ),
                           ),
-                          buildMediaSnippet(context),
                         ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  isSuperpowersAvailable() && localPost == null
+                      ? Material(
+                          type: MaterialType.circle,
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => this.widget.onModeratorButtonPressed(
+                                SuperpowersArguments(
+                                    discussion: this.widget.discussion,
+                                    post: this.widget.post,
+                                    participant: this.widget.participant)),
+                            child: Container(
+                              padding: EdgeInsets.all(SpacingValues.small),
+                              decoration: BoxDecoration(shape: BoxShape.circle),
+                              clipBehavior: Clip.antiAlias,
+                              child: Icon(Icons.more_vert,
+                                  color: Colors.white, size: 24),
+                            ),
+                          ),
+                        )
+                      : Container(),
+                ],
               ),
             ),
           ),
-          isSuperpowersAvailable() && localPost == null
-              ? Material(
-                  type: MaterialType.circle,
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => this.widget.onModeratorButtonPressed(
-                        SuperpowersArguments(
-                            discussion: this.widget.discussion,
-                            post: this.widget.post,
-                            participant: this.widget.participant)),
-                    child: Container(
-                      padding: EdgeInsets.all(SpacingValues.small),
-                      decoration: BoxDecoration(shape: BoxShape.circle),
-                      clipBehavior: Clip.antiAlias,
-                      child:
-                          Icon(Icons.more_vert, color: Colors.white, size: 24),
-                    ),
-                  ),
-                )
-              : Container(),
-          buildLocalPostIndicator(context, localPost),
         ],
       ),
     );
   }
 
-  Widget buildLocalPostIndicator(BuildContext context, LocalPost localPost) {
+  Widget buildLocalPostIndicator(BuildContext context,
+      DiscussionState discussionState, LocalPost localPost) {
+    Widget render = Container();
     if (localPost == null) {
       return Container();
-    }
-
-    if (localPost.isProcessing == true) {
-      return Container(
-        height: 30,
-        child: CupertinoActivityIndicator(),
-      );
+    } else if (localPost.isProcessing == true) {
+      render = CupertinoActivityIndicator();
     } else if (localPost.error != null) {
-      return Material(
+      render = Material(
         type: MaterialType.circle,
-        color: Colors.transparent,
+        color: Colors.red,
         child: InkWell(
-          onTap: () => this.widget.onLocalPostRetryPressed(localPost),
+          onTap: () {
+            this.widget.onLocalPostRetryPressed(localPost);
+          },
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.red,
             ),
             clipBehavior: Clip.antiAlias,
-            child: Icon(Icons.error_outline, color: Colors.white, size: 24),
+            child: Icon(Icons.error_outline, color: Colors.white, size: 20),
           ),
         ),
       );
     }
 
-    return Container();
+    return Container(
+      margin: EdgeInsets.only(right: SpacingValues.medium),
+      child: render,
+    );
   }
 
   Widget buildMediaSnippet(BuildContext context) {

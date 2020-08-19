@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'package:delphis_app/data/repository/media.dart';
@@ -116,32 +115,6 @@ class Post extends Equatable {
       return DateTime.now();
     }
     return DateTime.parse(this.createdAt);
-  }
-}
-
-class LocalPost extends Equatable {
-  final Post post;
-  final bool isProcessing;
-  final dynamic error;
-
-  const LocalPost({
-    @required this.post,
-    @required this.isProcessing,
-    this.error,
-  });
-
-  List<Object> get props => [post, isProcessing, error];
-
-  LocalPost copyWith({
-    Post post,
-    dynamic error,
-    bool isProcessing,
-  }) {
-    return LocalPost(
-      post: post ?? this.post,
-      isProcessing: isProcessing ?? this.isProcessing,
-      error: error,
-    );
   }
 }
 

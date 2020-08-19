@@ -331,6 +331,16 @@ class ChathamAppState extends State<ChathamApp>
                     return MaterialPageRoute(
                         settings: settings,
                         builder: (BuildContext context) {
+                          if (BlocProvider.of<DiscussionBloc>(context).state
+                              is DiscussionUninitializedState) {
+                            /* This happend when the app is opened by restoring
+                               a discussion screen */
+                            BlocProvider.of<DiscussionBloc>(context)
+                                .add(DiscussionQueryEvent(
+                              discussionID: arguments.discussionID,
+                              nonce: DateTime.now(),
+                            ));
+                          }
                           return MultiBlocProvider(
                             providers: [
                               BlocProvider<ParticipantBloc>(

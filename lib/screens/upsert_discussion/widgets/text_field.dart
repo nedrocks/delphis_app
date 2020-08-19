@@ -25,6 +25,7 @@ class UpsertDiscussionTextField extends StatelessWidget {
     var textStyle = Theme.of(context).textTheme.bodyText2;
     var hintStyle = textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
     return TextField(
+      textCapitalization: TextCapitalization.sentences,
       maxLengthEnforced: true,
       autofocus: autofocus,
       showCursor: true,

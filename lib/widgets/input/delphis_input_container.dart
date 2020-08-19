@@ -12,8 +12,6 @@ class DelphisInputContainer extends StatelessWidget {
   final bool isJoinable;
   final Discussion discussion;
   final Participant participant;
-  final bool isShowingParticipantSettings;
-  final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
   final VoidCallback onJoinPressed;
   final Function(File, MediaContentType) onMediaTap;
@@ -25,8 +23,6 @@ class DelphisInputContainer extends StatelessWidget {
       @required this.isJoinable,
       @required this.discussion,
       @required this.participant,
-      @required this.isShowingParticipantSettings,
-      @required this.onParticipantSettingsPressed,
       @required this.parentScrollController,
       @required this.onJoinPressed,
       @required this.onMediaTap,
@@ -42,8 +38,6 @@ class DelphisInputContainer extends StatelessWidget {
       return DelphisInputMentionsPopup(
           discussion: discussion,
           participant: participant,
-          isShowingParticipantSettings: this.isShowingParticipantSettings,
-          onParticipantSettingsPressed: this.onParticipantSettingsPressed,
           parentScrollController: this.parentScrollController,
           onMediaTap: this.onMediaTap,
           onModeratorButtonPressed: this.onModeratorButtonPressed);

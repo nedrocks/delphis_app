@@ -2,17 +2,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
-import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
 import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/util/text.dart';
-import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/input/buttons/discussion_submit_button.dart';
 import 'package:delphis_app/widgets/input/buttons/moderator_action_button.dart';
-import 'package:delphis_app/widgets/settings/participant_settings_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -29,7 +26,6 @@ const MAX_VISIBLE_ROWS = 5;
 class DelphisInput extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
-  final bool isShowingParticipantSettings;
   final bool isModeratorButtonEnabled;
   final ScrollController parentScrollController;
   final TextEditingController textController;
@@ -41,14 +37,11 @@ class DelphisInput extends StatefulWidget {
   final VoidCallback onParticipantMentionPressed;
   final VoidCallback onDiscussionMentionPressed;
   final VoidCallback onModeratorButtonPressed;
-  final void Function(FocusNode) onParticipantSettingsPressed;
   final File mediaFile;
 
   DelphisInput({
     @required this.discussion,
     @required this.participant,
-    @required this.isShowingParticipantSettings,
-    @required this.onParticipantSettingsPressed,
     @required this.onSubmit,
     this.inputFocusNode,
     this.textController,
@@ -145,44 +138,6 @@ class DelphisInputState extends State<DelphisInput> {
       );
     }
     final rowElems = <Widget>[
-      AnimatedSizeContainer(builder: (context) {
-        return BlocBuilder<ParticipantBloc, ParticipantState>(
-          builder: (context, participantState) {
-            Widget button = ParticipantSettingsButton(
-              onPressed: () => this.widget.onParticipantSettingsPressed(
-                  this._inputFocusNode.hasFocus ? this._inputFocusNode : null),
-              me: me,
-              isModerator: isModerator,
-              participant: this.widget.participant,
-              discussion: this.widget.discussion,
-              width: 39.0,
-              height: 39.0,
-            );
-
-            if (participantState is ParticipantLoaded &&
-                participantState.isUpdating) {
-              button = Stack(
-                children: [
-                  button,
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                      ),
-                      child: CupertinoActivityIndicator(),
-                    ),
-                  )
-                ],
-              );
-            }
-
-            return button;
-          },
-        );
-      }),
-      SizedBox(
-        width: SpacingValues.medium,
-      ),
       textInput,
     ];
     if (isModerator && this.widget.isModeratorButtonEnabled) {
@@ -349,7 +304,7 @@ class DelphisInputState extends State<DelphisInput> {
         }
         var widgetHeight = numRows * lineHeight * textStyle.fontSize +
             this._textBoxVerticalPadding;
-        var isEnabled = !this.widget.isShowingParticipantSettings;
+        var isEnabled = true;
         final hintStyle =
             textStyle.copyWith(color: Color.fromRGBO(81, 82, 88, 1.0));
 

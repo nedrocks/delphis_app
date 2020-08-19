@@ -5,7 +5,7 @@ import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post_content_input.dart';
-import 'package:delphis_app/screens/discussion/media/media_change_notifier.dart';
+import 'package:delphis_app/notifiers/media_change_notifier.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/widgets/discussion_icon/discussion_icon.dart';
 import 'package:flutter/cupertino.dart';
@@ -163,7 +163,7 @@ class DiscussionPostListView extends StatelessWidget {
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
-              key: UniqueKey(),
+              key: GlobalKey(),
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),

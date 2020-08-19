@@ -15,7 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 class SignInScreen extends StatelessWidget {
   static const twitterWidgetHeight = 76.0;
   static const feedbackLink =
-      'mailto:ned@chatham.ai?subject=Twitter%20Makes%20Me%20Mad';
+      'mailto:support@chatham.ai?subject=Twitter%20Makes%20Me%20Mad';
 
   @override
   Widget build(BuildContext context) {

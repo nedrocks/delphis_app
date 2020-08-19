@@ -16,8 +16,6 @@ import 'delphis_input.dart';
 class DelphisInputMediaPopupWidget extends StatefulWidget {
   final Discussion discussion;
   final Participant participant;
-  final bool isShowingParticipantSettings;
-  final void Function(FocusNode) onParticipantSettingsPressed;
   final ScrollController parentScrollController;
   final TextEditingController textController;
   final FocusNode inputFocusNode;
@@ -31,8 +29,6 @@ class DelphisInputMediaPopupWidget extends StatefulWidget {
       {Key key,
       @required this.discussion,
       @required this.participant,
-      @required this.isShowingParticipantSettings,
-      @required this.onParticipantSettingsPressed,
       @required this.parentScrollController,
       @required this.textController,
       @required this.inputFocusNode,
@@ -93,8 +89,6 @@ class _DelphisInputMediaPopupWidgetState
             DelphisInput(
               discussion: widget.discussion,
               participant: widget.participant,
-              isShowingParticipantSettings: widget.isShowingParticipantSettings,
-              onParticipantSettingsPressed: widget.onParticipantSettingsPressed,
               parentScrollController: widget.parentScrollController,
               inputFocusNode: this.widget.inputFocusNode,
               textController: this.widget.textController,

@@ -461,6 +461,7 @@ class ChathamAppState extends State<ChathamApp>
                                 DiscussionUpdateEvent(
                                     discussionID: arguments.discussionID,
                                     title: title,
+                                    description: '',
                                     selectedEmoji: selectedEmoji),
                               );
                               Navigator.pop(context);

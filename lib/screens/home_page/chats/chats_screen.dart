@@ -89,11 +89,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
           },
           slidableController: slidableController,
           onDeleteDiscussionPressed: (Discussion discussion) {
-            if (currentTab.value == HomePageTab.ACTIVE) {
-              BlocProvider.of<DiscussionListBloc>(context).add(
-                DiscussionListDeleteEvent(discussion),
-              );
-            } else if (currentTab.value == HomePageTab.ARCHIVED) {
+            if (currentTab.value == HomePageTab.ACTIVE ||
+                currentTab.value == HomePageTab.ARCHIVED) {
               BlocProvider.of<DiscussionListBloc>(context).add(
                 DiscussionListDeleteEvent(discussion),
               );
@@ -107,7 +104,8 @@ class _ChatsScreenState extends State<ChatsScreen> with RouteAware {
             }
           },
           onActivateDiscussionPressed: (Discussion discussion) {
-            if (currentTab.value == HomePageTab.ARCHIVED) {
+            if (currentTab.value == HomePageTab.ARCHIVED ||
+                currentTab.value == HomePageTab.TRASHED) {
               BlocProvider.of<DiscussionListBloc>(context).add(
                 DiscussionListActivateEvent(discussion),
               );

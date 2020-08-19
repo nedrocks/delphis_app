@@ -105,6 +105,15 @@ class SingleChat extends StatelessWidget {
             ];
             break;
           case HomePageTab.TRASHED:
+            isHidden = this.discussion.isActivatedLocally;
+            actions = [
+              IconSlideAction(
+                caption: 'Restore',
+                icon: Icons.restore,
+                color: ChathamColors.archiveChatSlideButtonColor,
+                onTap: this.onActivatePressed,
+              ),
+            ];
             break;
         }
 

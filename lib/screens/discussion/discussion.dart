@@ -237,10 +237,14 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
                       return;
                     }
                   }
+                  showSuperpowersPopup(
+                    context,
+                    SuperpowersArguments(
+                      discussion: dState.getDiscussion(),
+                      localPost: localPost,
+                    ),
+                  );
                 }
-                BlocProvider.of<DiscussionBloc>(context).add(
-                  DiscussionLocalPostRetryEvent(localPost: localPost),
-                );
               },
             ),
           );

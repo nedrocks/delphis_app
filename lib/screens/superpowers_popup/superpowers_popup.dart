@@ -379,6 +379,66 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
       );
     }
 
+    /* Retry sending local post post feature */
+    if (this.widget.arguments.localPost != null &&
+        !this.widget.arguments.localPost.isProcessing) {
+      list.add(
+        SuperpowersOption(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(SpacingValues.medium),
+                color: Colors.black),
+            clipBehavior: Clip.antiAlias,
+            child: Icon(Icons.settings_backup_restore, size: 40),
+          ),
+          title: Intl.message("Retry"),
+          description: Intl.message(
+              "An error occurred while posting this message. Attempt to send it again."),
+          onTap: () {
+            Navigator.of(context).pop();
+            BlocProvider.of<DiscussionBloc>(context).add(
+              DiscussionLocalPostRetryEvent(
+                localPost: this.widget.arguments.localPost,
+              ),
+            );
+            return true;
+          },
+        ),
+      );
+    }
+
+    /* Delete local post post feature */
+    if (this.widget.arguments.localPost != null &&
+        !this.widget.arguments.localPost.isProcessing) {
+      list.add(
+        SuperpowersOption(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(SpacingValues.medium),
+                color: Colors.black),
+            clipBehavior: Clip.antiAlias,
+            child: Icon(Icons.delete_forever, size: 40),
+          ),
+          title: Intl.message("Delete Post"),
+          description: Intl.message(
+              "Remove the selected post from this discussion, so that no participant will be able to read it."),
+          onTap: () {
+            Navigator.of(context).pop();
+            BlocProvider.of<DiscussionBloc>(context).add(
+              DiscussionLocalPostDeleteEvent(
+                localPost: this.widget.arguments.localPost,
+              ),
+            );
+            return true;
+          },
+        ),
+      );
+    }
+
     /* A user could have no actions avaliable */
     if (list.length == 0) {
       list.add(Container(

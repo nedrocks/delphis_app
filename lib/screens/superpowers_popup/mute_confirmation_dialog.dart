@@ -6,10 +6,12 @@ import 'package:intl/intl.dart';
 
 class MuteConfirmationDialog extends StatefulWidget {
   final Function(int) onConfirm;
+  final bool isShuffle;
 
   const MuteConfirmationDialog({
     Key key,
     @required this.onConfirm,
+    this.isShuffle = false,
   }) : super(key: key);
 
   @override
@@ -21,7 +23,7 @@ class _MuteConfirmationDialogState extends State<MuteConfirmationDialog> {
 
   @override
   void initState() {
-    _currentValue = _currentValue = 1;
+    _currentValue = _currentValue = this.widget.isShuffle ? 0 : 1;
     super.initState();
   }
 
@@ -32,23 +34,35 @@ class _MuteConfirmationDialogState extends State<MuteConfirmationDialog> {
       insetAnimationDuration: Duration(milliseconds: 200),
       title: Container(
         margin: EdgeInsets.only(bottom: SpacingValues.smallMedium),
-        child: Text(Intl.message("Muting Details"),
+        child: Text(
+            this.widget.isShuffle
+                ? Intl.message("Shuffle Aliases")
+                : Intl.message("Muting Details"),
             style: TextThemes.goIncognitoHeader),
       ),
       content: Column(
         children: <Widget>[
           Text(
-            "Please choose for how many hours you prefer this participant to stay muted.",
+            this.widget.isShuffle
+                ? "In how many hours do you want to shuffle?"
+                : "Please choose for how many hours you prefer this participant to stay muted.",
             style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25),
           ),
           SizedBox(height: SpacingValues.mediumLarge),
+          Text(
+              this.widget.isShuffle
+                  ? (_currentValue <= 0
+                      ? "Shuffle now"
+                      : "Shuffle in: $_currentValue hours")
+                  : "Mute for $_currentValue hours",
+              style: TextThemes.goIncognitoOptionName.copyWith(height: 1.25)),
           Material(
             color: Colors.transparent,
             child: Slider(
               value: _currentValue.toDouble(),
-              min: 1,
-              max: 24,
-              divisions: 24,
+              min: this.widget.isShuffle ? 0 : 1,
+              max: this.widget.isShuffle ? 72 : 24,
+              divisions: this.widget.isShuffle ? 12 : 24,
               label: _currentValue.round().toString(),
               onChanged: (double value) {
                 setState(() {

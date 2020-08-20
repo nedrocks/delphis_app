@@ -113,16 +113,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        var updatedDiscussion = await discussionRepository
+        final newDiscussion = await discussionRepository
             .getDiscussion(currentState.discussion.id);
-        if (updatedDiscussion.isMeDiscussionModerator()) {
-          final modOnly = await discussionRepository
-              .getDiscussionModOnlyFields(event.discussionID);
-          updatedDiscussion = updatedDiscussion.copyWith(
-            discussionAccessLink: modOnly.discussionAccessLink,
-            accessRequests: modOnly.accessRequests,
-          );
-        }
+        final updatedDiscussion =
+            currentState.discussion.copyWithAllFieldsButNulls(newDiscussion);
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -298,6 +292,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
       /* Trigger another creation attempt */
       this.add(event.localPost.event);
+    } else if (event is DiscussionLocalPostDeleteEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      /* Remove post from local caches */
+      currentState.localPosts.remove(event.localPost);
+      currentState.getDiscussion().postsCache.remove(event.localPost.post);
+
+      /* Yield new state with error */
+      yield currentState.update(
+        discussion: currentState.discussion,
+        localPosts: currentState.localPosts,
+      );
     } else if (event is DiscussionPostReceivedEvent &&
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {
@@ -530,6 +536,22 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         );
         yield currentState.update(discussion: updatedDiscussion);
       } catch (err) {}
+    } else if (event is DiscussionShuffleTimeUpdatedEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+        secondsUntilShuffle: event.shuffleInSeconds,
+        nextShuffleTime:
+            DateTime.now().add(Duration(seconds: event.shuffleInSeconds)),
+      );
+      yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionLockStatusChangeEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+        lockStatus: event.lockStatus,
+      );
+      yield currentState.update(discussion: updatedDiscussion);
     }
   }
 

@@ -68,6 +68,7 @@ Discussion _$DiscussionFromJson(Map<String, dynamic> json) {
     meDiscussionStatus: _$enumDecodeNullable(
         _$DiscussionUserAccessStateEnumMap, json['meDiscussionStatus']),
     secondsUntilShuffle: json['secondsUntilShuffle'] as int,
+    lockStatus: json['lockStatus'] as bool,
   );
 }
 
@@ -98,6 +99,7 @@ Map<String, dynamic> _$DiscussionToJson(Discussion instance) =>
       'meDiscussionStatus':
           _$DiscussionUserAccessStateEnumMap[instance.meDiscussionStatus],
       'secondsUntilShuffle': instance.secondsUntilShuffle,
+      'lockStatus': instance.lockStatus,
     };
 
 T _$enumDecode<T>(
@@ -165,6 +167,7 @@ DiscussionInput _$DiscussionInputFromJson(Map<String, dynamic> json) {
     publicAccess: json['publicAccess'] as bool,
     discussionJoinability: _$enumDecodeNullable(
         _$DiscussionJoinabilitySettingEnumMap, json['discussionJoinability']),
+    lockStatus: json['lockStatus'] as bool,
   );
 }
 
@@ -177,6 +180,7 @@ Map<String, dynamic> _$DiscussionInputToJson(DiscussionInput instance) =>
       'publicAccess': instance.publicAccess,
       'discussionJoinability':
           _$DiscussionJoinabilitySettingEnumMap[instance.discussionJoinability],
+      'lockStatus': instance.lockStatus,
     };
 
 DiscussionAccessLink _$DiscussionAccessLinkFromJson(Map<String, dynamic> json) {

@@ -327,3 +327,16 @@ class DiscussionShuffleTimeUpdatedEvent extends DiscussionEvent {
   @override
   List<Object> get props => [discussionID, shuffleInSeconds];
 }
+
+class DiscussionLockStatusChangeEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool lockStatus;
+
+  DiscussionLockStatusChangeEvent({
+    @required this.discussionID,
+    @required this.lockStatus,
+  });
+
+  @override
+  List<Object> get props => [discussionID, lockStatus];
+}

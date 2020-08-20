@@ -605,6 +605,7 @@ class Discussion extends Equatable implements Entity {
   final DiscussionUserNotificationSetting meNotificationSettings;
   final DiscussionUserAccessState meDiscussionStatus;
   final int secondsUntilShuffle;
+  final bool lockStatus;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -647,6 +648,7 @@ class Discussion extends Equatable implements Entity {
         meNotificationSettings,
         meDiscussionStatus,
         nextShuffleTime,
+        lockStatus,
       ];
 
   Discussion(
@@ -676,6 +678,7 @@ class Discussion extends Equatable implements Entity {
       this.meNotificationSettings,
       this.meDiscussionStatus,
       this.secondsUntilShuffle,
+      this.lockStatus,
       nextShuffleTime})
       : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List()),
@@ -792,6 +795,7 @@ class Discussion extends Equatable implements Entity {
       isArchivedLocally: other.isArchivedLocally,
       secondsUntilShuffle: other.secondsUntilShuffle,
       nextShuffleTime: other.nextShuffleTime,
+      lockStatus: other.lockStatus,
     );
   }
 
@@ -823,6 +827,7 @@ class Discussion extends Equatable implements Entity {
     bool isArchivedLocally,
     int secondsUntilShuffle,
     DateTime nextShuffleTime,
+    bool lockStatus,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -855,6 +860,7 @@ class Discussion extends Equatable implements Entity {
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
       secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
       nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
+      lockStatus: lockStatus ?? this.lockStatus,
     );
   }
 }
@@ -867,6 +873,7 @@ class DiscussionInput extends Equatable {
   final AnonymityType anonymityType;
   final bool publicAccess;
   final DiscussionJoinabilitySetting discussionJoinability;
+  final bool lockStatus;
 
   const DiscussionInput({
     this.title,
@@ -875,6 +882,7 @@ class DiscussionInput extends Equatable {
     this.anonymityType,
     this.publicAccess,
     this.discussionJoinability,
+    this.lockStatus,
   });
 
   @override
@@ -885,6 +893,7 @@ class DiscussionInput extends Equatable {
         anonymityType,
         publicAccess,
         discussionJoinability,
+        lockStatus,
       ];
 
   factory DiscussionInput.fromJson(Map<String, dynamic> json) =>

@@ -153,6 +153,31 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
               message: "Failed to set shuffle time. Please try again.");
         }
       }
+    } else if (event is ChangeLockStatusEvent && event.discussion != null) {
+      if (this.state is ReadyState) {
+        yield LoadingState();
+        try {
+          var shuffledDiscussion = await discussionRepository.updateDiscussion(
+              event.discussion.id, DiscussionInput(lockStatus: event.isLock));
+          this.discussionBloc.add(DiscussionLockStatusChangeEvent(
+              discussionID: shuffledDiscussion.id, lockStatus: event.isLock));
+          notificationBloc.add(NewNotificationEvent(
+              notification: OverlayTopMessage(
+            child: IncognitoModeTextOverlay(
+                hasGoneIncognito: false,
+                textOverride: Intl.message(
+                    "Discussion is now ${event.isLock ? "locked" : "unlocked"}.")),
+            onDismiss: () {
+              notificationBloc.add(DismissNotification());
+            },
+          )));
+          yield ReadyState();
+        } catch (err) {
+          yield ErrorState(
+              message:
+                  "Failed to ${event.isLock ? "lock" : "unlock"}. Please try again.");
+        }
+      }
     }
   }
 }

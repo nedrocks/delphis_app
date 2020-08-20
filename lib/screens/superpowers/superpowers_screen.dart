@@ -353,6 +353,36 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
           }));
     }
 
+    if (isMeDiscussionModerator()) {
+      bool isLocked = this.widget.arguments.discussion.lockStatus ?? true;
+      list.add(SuperpowersOption(
+          child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                child: Icon(
+                  isLocked ? Icons.lock_open : Icons.lock,
+                  size: 36,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("${isLocked ? "Unlock" : "Lock"} Discussion"),
+          description: Intl.message("A locked discussion cannot be changed"),
+          onTap: () {
+            // ignore: close_sinks
+            final superPowersBloc = BlocProvider.of<SuperpowersBloc>(context);
+            showConfirmationDialog(context, () {
+              superPowersBloc.add(ChangeLockStatusEvent(
+                  discussion: this.widget.arguments.discussion,
+                  isLock: !isLocked));
+            });
+          }));
+    }
+
     // /* Invite user from Twitter handle */
     // if (isMeDiscussionModerator()) {
     //   list.add(ModeratorPopupOption(

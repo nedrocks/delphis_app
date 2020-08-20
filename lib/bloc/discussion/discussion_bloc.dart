@@ -548,6 +548,13 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             DateTime.now().add(Duration(seconds: event.shuffleInSeconds)),
       );
       yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionLockStatusChangeEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+        lockStatus: event.lockStatus,
+      );
+      yield currentState.update(discussion: updatedDiscussion);
     }
   }
 

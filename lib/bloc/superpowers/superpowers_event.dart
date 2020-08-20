@@ -32,6 +32,19 @@ class SetShuffleTimeEvent extends SuperpowersEvent {
   List<Object> get props => [discussion?.id, shuffleInSeconds];
 }
 
+class ChangeLockStatusEvent extends SuperpowersEvent {
+  final Discussion discussion;
+  final bool isLock;
+
+  const ChangeLockStatusEvent({
+    @required this.discussion,
+    @required this.isLock,
+  });
+
+  @override
+  List<Object> get props => [discussion?.id, isLock];
+}
+
 class BanParticipantEvent extends SuperpowersEvent {
   final Discussion discussion;
   final Participant participant;

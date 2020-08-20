@@ -19,6 +19,19 @@ class DeletePostEvent extends SuperpowersEvent {
   List<Object> get props => [discussion, post];
 }
 
+class SetShuffleTimeEvent extends SuperpowersEvent {
+  final Discussion discussion;
+  final int shuffleInSeconds;
+
+  const SetShuffleTimeEvent({
+    @required this.discussion,
+    @required this.shuffleInSeconds,
+  });
+
+  @override
+  List<Object> get props => [discussion?.id, shuffleInSeconds];
+}
+
 class BanParticipantEvent extends SuperpowersEvent {
   final Discussion discussion;
   final Participant participant;

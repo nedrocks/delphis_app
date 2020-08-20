@@ -314,3 +314,16 @@ class DiscussionClearEvent extends DiscussionEvent {
   @override
   List<Object> get props => [this.now];
 }
+
+class DiscussionShuffleTimeUpdatedEvent extends DiscussionEvent {
+  final String discussionID;
+  final int shuffleInSeconds;
+
+  DiscussionShuffleTimeUpdatedEvent({
+    @required this.discussionID,
+    @required this.shuffleInSeconds,
+  });
+
+  @override
+  List<Object> get props => [discussionID, shuffleInSeconds];
+}

@@ -1,3 +1,4 @@
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/notification/notification_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -19,10 +20,12 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
   final NotificationBloc notificationBloc;
   final DiscussionRepository discussionRepository;
   final ParticipantRepository participantRepository;
+  final DiscussionBloc discussionBloc;
   SuperpowersBloc({
     @required this.notificationBloc,
     @required this.discussionRepository,
     @required this.participantRepository,
+    @required this.discussionBloc,
   }) : super(ReadyState());
 
   @override
@@ -123,6 +126,31 @@ class SuperpowersBloc extends Bloc<SuperpowersEvent, SuperpowersState> {
           } else {
             yield ErrorState(message: error.toString());
           }
+        }
+      }
+    } else if (event is SetShuffleTimeEvent && event.discussion != null) {
+      if (this.state is ReadyState) {
+        yield LoadingState();
+        try {
+          var shuffledDiscussion = await discussionRepository.setShuffleTime(
+              event.discussion.id, event.shuffleInSeconds);
+          this.discussionBloc.add(DiscussionShuffleTimeUpdatedEvent(
+              discussionID: shuffledDiscussion.id,
+              shuffleInSeconds: shuffledDiscussion.secondsUntilShuffle));
+          notificationBloc.add(NewNotificationEvent(
+              notification: OverlayTopMessage(
+            child: IncognitoModeTextOverlay(
+                hasGoneIncognito: false,
+                textOverride:
+                    Intl.message("Successfully set next shuffle time.")),
+            onDismiss: () {
+              notificationBloc.add(DismissNotification());
+            },
+          )));
+          yield ReadyState();
+        } catch (err) {
+          yield ErrorState(
+              message: "Failed to set shuffle time. Please try again.");
         }
       }
     }

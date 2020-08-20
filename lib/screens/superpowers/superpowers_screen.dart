@@ -5,6 +5,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_option.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
+import 'package:delphis_app/screens/superpowers_popup/mute_confirmation_dialog.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
@@ -305,6 +306,49 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
             Navigator.pushNamed(
               context,
               '/Discussion/AccessRequestList',
+            );
+          }));
+    }
+
+    if (isMeDiscussionModerator()) {
+      list.add(SuperpowersOption(
+          child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SpacingValues.medium),
+                  color: Colors.black),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                child: Icon(
+                  Icons.people_outline,
+                  size: 36,
+                  color: Colors.white,
+                ),
+              )),
+          title: Intl.message("Shuffle Aliases"),
+          description: Intl.message(
+              "Shuffle participant aliases. All names (except yours) will be changed."),
+          onTap: () {
+            // ignore: close_sinks
+            final superPowersBloc = BlocProvider.of<SuperpowersBloc>(context);
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return MuteConfirmationDialog(
+                  isShuffle: true,
+                  onConfirm: (seconds) {
+                    superPowersBloc.add(
+                      SetShuffleTimeEvent(
+                        discussion: this.widget.arguments.discussion,
+                        shuffleInSeconds: seconds,
+                      ),
+                    );
+                    return true;
+                  },
+                );
+              },
             );
           }));
     }

@@ -113,8 +113,16 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final updatedDiscussion = await discussionRepository
+        var updatedDiscussion = await discussionRepository
             .getDiscussion(currentState.discussion.id);
+        if (updatedDiscussion.isMeDiscussionModerator()) {
+          final modOnly = await discussionRepository
+              .getDiscussionModOnlyFields(event.discussionID);
+          updatedDiscussion = updatedDiscussion.copyWith(
+            discussionAccessLink: modOnly.discussionAccessLink,
+            accessRequests: modOnly.accessRequests,
+          );
+        }
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {

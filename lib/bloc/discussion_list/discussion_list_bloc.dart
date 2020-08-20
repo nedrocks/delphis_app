@@ -335,10 +335,11 @@ class DiscussionListBloc
         return e;
       };
       var archivedListWithoutElement = prevArchivedList.map(transform).toList();
+      var deletedListWithoutElement = prevDeletedList.map(transform).toList();
       yield DiscussionListLoaded(
         activeDiscussions: prevActiveList,
         archivedDiscussions: archivedListWithoutElement,
-        deletedDiscussions: prevDeletedList,
+        deletedDiscussions: deletedListWithoutElement,
         timestamp: DateTime.now(),
       );
       () async {
@@ -359,21 +360,23 @@ class DiscussionListBloc
         return e;
       };
       var archivedListWithElement = prevArchivedList.map(transform).toList();
+      var deletedListWithElement = prevDeletedList.map(transform).toList();
       yield DiscussionListError(
         activeDiscussions: prevActiveList,
         archivedDiscussions: archivedListWithElement,
-        deletedDiscussions: prevDeletedList,
+        deletedDiscussions: deletedListWithElement,
         error: event.error,
         timestamp: DateTime.now(),
       );
     } else if (event is _DiscussionListActivateAsyncSuccessEvent) {
       var transform = (Discussion e) => e.id != event.discussion.id;
       var updatedArchivedList = prevArchivedList.where(transform).toList();
+      var updatedDeletedList = prevDeletedList.where(transform).toList();
       var updatedActiveList = [event.discussion] + prevActiveList;
       yield DiscussionListLoaded(
         activeDiscussions: updatedActiveList,
         archivedDiscussions: updatedArchivedList,
-        deletedDiscussions: prevDeletedList,
+        deletedDiscussions: updatedDeletedList,
         timestamp: DateTime.now(),
       );
     }

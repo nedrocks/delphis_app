@@ -326,4 +326,14 @@ class TextThemes {
     fontWeight: FontWeight.w800,
     color: Colors.red,
   );
+
+  static final errorButtonCancel = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w400,
+    color: Color.fromRGBO(247, 247, 255, 0.88),
+    letterSpacing: 0.06,
+  );
+  static final errorButtonRetry = errorButtonCancel.copyWith(
+    color: Color.fromRGBO(23, 23, 27, 1.0),
+  );
 }

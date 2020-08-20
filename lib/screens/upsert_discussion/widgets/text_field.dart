@@ -27,6 +27,8 @@ class UpsertDiscussionTextField extends StatelessWidget {
     return TextField(
       textCapitalization: TextCapitalization.sentences,
       maxLengthEnforced: true,
+      autocorrect: true,
+      enableSuggestions: true,
       autofocus: autofocus,
       showCursor: true,
       controller: this.textController,

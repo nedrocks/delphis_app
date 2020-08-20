@@ -471,6 +471,45 @@ class DiscussionRepository {
     return mutation.parseResult(result.data);
   }
 
+  Future<Discussion> setShuffleTime(String discussionID, int inFutureSeconds,
+      {int attempt = 1}) async {
+    final client = this.clientBloc.getClient();
+
+    if (client == null && attempt <= MAX_ATTEMPTS) {
+      return Future.delayed(Duration(seconds: BACKOFF * attempt), () {
+        return setShuffleTime(discussionID, inFutureSeconds,
+            attempt: attempt + 1);
+      });
+    } else if (client == null) {
+      throw Exception(
+          'Failed to createDiscussion because backend connection is severed');
+    }
+
+    final mutation = ShuffleDiscussionMutation(
+      discussionID: discussionID,
+      inFutureSeconds: inFutureSeconds,
+    );
+
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        documentNode: gql(mutation.mutation()),
+        variables: {
+          'discussionID': discussionID,
+          'inFutureSeconds': inFutureSeconds,
+        },
+        update: (Cache cache, QueryResult result) {
+          return cache;
+        },
+      ),
+    );
+
+    if (result.hasException) {
+      throw result.exception;
+    }
+
+    return mutation.parseResult(result.data);
+  }
+
   Future<Stream<DiscussionSubscriptionEvent>> subscribe(String discussionID,
       {int attempt = 1}) async {
     final websocketClient = this.clientBloc.getWebsocketClient();
@@ -566,6 +605,7 @@ class Discussion extends Equatable implements Entity {
   final DiscussionUserNotificationSetting meNotificationSettings;
   final DiscussionUserAccessState meDiscussionStatus;
   final int secondsUntilShuffle;
+  final bool lockStatus;
 
   @JsonAnnotation.JsonKey(ignore: true)
   final List<Post> postsCache;
@@ -608,6 +648,7 @@ class Discussion extends Equatable implements Entity {
         meNotificationSettings,
         meDiscussionStatus,
         nextShuffleTime,
+        lockStatus,
       ];
 
   Discussion(
@@ -637,12 +678,14 @@ class Discussion extends Equatable implements Entity {
       this.meNotificationSettings,
       this.meDiscussionStatus,
       this.secondsUntilShuffle,
+      this.lockStatus,
       nextShuffleTime})
       : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List()),
-        this.nextShuffleTime = nextShuffleTime ?? secondsUntilShuffle != null
-            ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
-            : null;
+        this.nextShuffleTime = nextShuffleTime ??
+            (secondsUntilShuffle != null
+                ? DateTime.now().add(Duration(seconds: secondsUntilShuffle))
+                : null);
 
   factory Discussion.fromJson(Map<String, dynamic> json) {
     return _$DiscussionFromJson(json);
@@ -701,6 +744,45 @@ class Discussion extends Equatable implements Entity {
             DiscussionJoinabilityResponse.AWAITING_APPROVAL;
   }
 
+  Discussion copyWithAllFieldsButNulls(Discussion other) {
+    if (other == null) {
+      return this;
+    }
+
+    if (this.id != other.id) {
+      return other;
+    }
+    return this.copyWith(
+      moderator: other.moderator,
+      anonymityType: other.anonymityType,
+      postsConnection: other.postsConnection,
+      participants: other.participants,
+      title: other.title,
+      createdAt: other.createdAt,
+      updatedAt: other.updatedAt,
+      meParticipant: other.meParticipant,
+      meAvailableParticipants: other.meAvailableParticipants,
+      iconURL: other.iconURL,
+      discussionAccessLink: other.discussionAccessLink,
+      description: other.description,
+      titleHistory: other.titleHistory,
+      descriptionHistory: other.descriptionHistory,
+      discussionJoinability: other.discussionJoinability,
+      meCanJoinDiscussion: other.meCanJoinDiscussion,
+      meViewer: other.meViewer,
+      accessRequests: other.accessRequests,
+      meNotificationSettings: other.meNotificationSettings,
+      meDiscussionStatus: other.meDiscussionStatus,
+      postsCache: other.postsCache,
+      isActivatedLocally: other.isActivatedLocally,
+      isDeletedLocally: other.isDeletedLocally,
+      isArchivedLocally: other.isArchivedLocally,
+      secondsUntilShuffle: other.secondsUntilShuffle,
+      nextShuffleTime: other.nextShuffleTime,
+      lockStatus: other.lockStatus,
+    );
+  }
+
   Discussion copyWith({
     String id,
     Moderator moderator,
@@ -729,6 +811,7 @@ class Discussion extends Equatable implements Entity {
     bool isArchivedLocally,
     int secondsUntilShuffle,
     DateTime nextShuffleTime,
+    bool lockStatus,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -761,6 +844,7 @@ class Discussion extends Equatable implements Entity {
       isArchivedLocally: isArchivedLocally ?? this.isArchivedLocally,
       secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
       nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
+      lockStatus: lockStatus ?? this.lockStatus,
     );
   }
 }
@@ -773,6 +857,7 @@ class DiscussionInput extends Equatable {
   final AnonymityType anonymityType;
   final bool publicAccess;
   final DiscussionJoinabilitySetting discussionJoinability;
+  final bool lockStatus;
 
   const DiscussionInput({
     this.title,
@@ -781,6 +866,7 @@ class DiscussionInput extends Equatable {
     this.anonymityType,
     this.publicAccess,
     this.discussionJoinability,
+    this.lockStatus,
   });
 
   @override
@@ -791,6 +877,7 @@ class DiscussionInput extends Equatable {
         anonymityType,
         publicAccess,
         discussionJoinability,
+        lockStatus,
       ];
 
   factory DiscussionInput.fromJson(Map<String, dynamic> json) =>

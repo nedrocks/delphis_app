@@ -113,8 +113,10 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
       try {
         final updatedState = currentState.update(isLoading: true);
         yield updatedState;
-        final updatedDiscussion = await discussionRepository
+        final newDiscussion = await discussionRepository
             .getDiscussion(currentState.discussion.id);
+        final updatedDiscussion =
+            currentState.discussion.copyWithAllFieldsButNulls(newDiscussion);
         yield updatedState.update(
             discussion: updatedDiscussion, isLoading: false);
       } catch (err) {
@@ -522,6 +524,22 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         );
         yield currentState.update(discussion: updatedDiscussion);
       } catch (err) {}
+    } else if (event is DiscussionShuffleTimeUpdatedEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+        secondsUntilShuffle: event.shuffleInSeconds,
+        nextShuffleTime:
+            DateTime.now().add(Duration(seconds: event.shuffleInSeconds)),
+      );
+      yield currentState.update(discussion: updatedDiscussion);
+    } else if (event is DiscussionLockStatusChangeEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.discussion.id == event.discussionID) {
+      final updatedDiscussion = currentState.discussion.copyWith(
+        lockStatus: event.lockStatus,
+      );
+      yield currentState.update(discussion: updatedDiscussion);
     }
   }
 

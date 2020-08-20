@@ -389,6 +389,8 @@ class ChathamAppState extends State<ChathamApp>
                                   notificationBloc:
                                       BlocProvider.of<NotificationBloc>(
                                           context),
+                                  discussionBloc:
+                                      BlocProvider.of<DiscussionBloc>(context),
                                 ),
                               ),
                             ],
@@ -439,7 +441,7 @@ class ChathamAppState extends State<ChathamApp>
                                           AppLifecycleState.resumed) {
                                     // Reload the discussion which should cause it to subscribe to the websocket.
                                     BlocProvider.of<DiscussionBloc>(context)
-                                        .add(RefreshPostsEvent(
+                                        .add(DiscussionQueryEvent(
                                             discussionID:
                                                 arguments.discussionID));
                                   }
@@ -562,6 +564,8 @@ class ChathamAppState extends State<ChathamApp>
                                     context),
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context),
                           ),
                           child: BlocBuilder<DiscussionBloc, DiscussionState>(
                             builder: (context, state) {
@@ -618,6 +622,8 @@ class ChathamAppState extends State<ChathamApp>
                                     context),
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context),
                           ),
                           child: SuperpowersPopupScreen(
                             arguments: arguments,

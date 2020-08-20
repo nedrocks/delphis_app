@@ -19,6 +19,36 @@ import 'package:meta/meta.dart';
 part 'discussion_event.dart';
 part 'discussion_state.dart';
 
+class LocalPost extends Equatable {
+  final Post post;
+  final bool isProcessing;
+  final dynamic error;
+  final DiscussionPostAddEvent event;
+
+  const LocalPost({
+    @required this.post,
+    @required this.isProcessing,
+    this.event,
+    this.error,
+  });
+
+  List<Object> get props => [post, isProcessing, error, this.event];
+
+  LocalPost copyWith({
+    Post post,
+    dynamic error,
+    bool isProcessing,
+    DiscussionPostAddEvent event,
+  }) {
+    return LocalPost(
+      post: post ?? this.post,
+      isProcessing: isProcessing ?? this.isProcessing,
+      error: error,
+      event: event ?? this.event,
+    );
+  }
+}
+
 class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
   final DiscussionRepository discussionRepository;
   final MediaRepository mediaRepository;
@@ -27,43 +57,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
     @required this.discussionRepository,
     @required this.mediaRepository,
   }) : super(DiscussionUninitializedState());
-
-  bool isLikelyPendingPost(
-      DiscussionLoadedState state, Discussion discussion, Post post) {
-    // Checks if the post is a likely pending post. This happens if the post
-    // is either by the current participant and there are local posts pending
-    // and the text matches the exact text of a local pending post.
-    if (state.localPosts.length == 0) {
-      return false;
-    }
-    LocalPost foundLocalPost;
-    for (final localPost in state.localPosts.values) {
-      if (localPost != null && localPost.post.content == post.content) {
-        foundLocalPost = localPost;
-      }
-    }
-    if (foundLocalPost == null) {
-      return false;
-    }
-    if (!foundLocalPost.isProcessing) {
-      return false;
-    }
-    if (post.participant?.id != null) {
-      // Effectively: For all the available participants to the current user
-      // does one of their IDs match the post we're about to add?
-      if (discussion.meAvailableParticipants != null &&
-          discussion.meAvailableParticipants.length > 0) {
-        for (final participant in discussion.meAvailableParticipants) {
-          if (participant.id == post.participant.id) {
-            return true;
-          }
-        }
-      }
-    }
-    // This is a very strange case that we should track when it happens. I think
-    // someting like copy/pasta could cause this.
-    return false;
-  }
 
   int getConciergeStep(Discussion discussion) {
     if (discussion.postsCache != null) {
@@ -165,166 +158,180 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
             discussion: updatedDiscussion, lastUpdate: DateTime.now());
       }
     } else if (event is DiscussionPostAddEvent &&
-        currentState is DiscussionLoadedState) {
-      if (currentState.getDiscussion() != null) {
-        final localPostKey = GlobalKey();
-        final localPost = LocalPost(
-          key: localPostKey,
-          isProcessing: true,
-          failCount: 0,
-          isFailed: false,
-          post: Post(
-              id: localPostKey.toString(),
-              discussion: currentState.getDiscussion(),
-              participant: currentState.getDiscussion().meParticipant,
-              content: event.postContent,
-              mentionedEntities: event.localMentionedEntities
-                  .map((e) => Entity(id: e))
-                  .toList(), // Hacky, but it wserves its purpose
-              isLocalPost: true,
-              localMediaFile: event.media,
-              localMediaContentType: event.mediaContentType),
-        );
-        currentState.getDiscussion().addLocalPost(localPost);
-        currentState.localPosts[localPost.key] = localPost;
-        yield currentState.update(
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      /* Create a local post */
+      var localPost = LocalPost(
+        event: event,
+        isProcessing: true,
+        post: Post(
+          isLocalPost: true,
+          createdAt: DateTime.now().toIso8601String(),
+          updatedAt: DateTime.now().toIso8601String(),
+          discussion: currentState.getDiscussion(),
+          participant: currentState.getDiscussion().meParticipant,
+          content: event.postContent,
+          mentionedEntities: event.localMentionedEntities
+              .map((e) => Entity(id: e))
+              .toList(), // Hacky, but it wserves its purpose
+          localMediaFile: event.media,
+          localMediaContentType: event.mediaContentType,
+        ),
+      );
+
+      /* Add it to the current cached list in advance as a preview to the user */
+      currentState.getDiscussion().postsCache.insert(0, localPost.post);
+      currentState.localPosts.add(localPost);
+      yield currentState.update(
+        discussion: currentState.getDiscussion(),
+        localPosts: currentState.localPosts,
+      );
+
+      /* Proceed by sending the post */
+      try {
+        /* Attempt to upload the media file first */
+        String mediaId = event.mediaID;
+        if (mediaId == null &&
+            event.media != null &&
+            event.mediaContentType != null) {
+          MediaUpload uploadedMedia =
+              await mediaRepository.uploadImage(event.media);
+          if (uploadedMedia.mediaId == null) {
+            throw "Image upload failed";
+          }
+          mediaId = uploadedMedia.mediaId;
+
+          /* Save the uploaded media in local post and yield a new state.
+             This ensures that we keep track of the already uploaded media
+             if post creation somehow fails later, and we can reuse it if the
+             user decides to retry. */
+          currentState.localPosts.remove(localPost);
+          localPost = localPost.copyWith(
+            event: event.copyWith(
+              mediaID: mediaId,
+            ),
+          );
+          currentState.localPosts.add(localPost);
+          yield currentState.update(
             discussion: currentState.getDiscussion(),
-            localPosts: currentState.localPosts);
-
-        /* Try to upload the media file */
-        String mediaId;
-        if (event.media != null && event.mediaContentType != null) {
-          try {
-            MediaUpload uploadedMedia =
-                await mediaRepository.uploadImage(event.media);
-            if (uploadedMedia.mediaId != null) mediaId = uploadedMedia.mediaId;
-          } catch (error) {
-            Segment.track(
-                eventName: ChathamTrackingEventNames.POST_ADD,
-                properties: {
-                  'funnelID': event.uniqueID,
-                  'error': true,
-                  'success': false,
-                  'discussionID': currentState.getDiscussion().id,
-                  'participantID':
-                      currentState.getDiscussion().meParticipant.id,
-                  'contentLength': event.postContent.length,
-                });
-            this.add(LocalPostCreateFailure(localPost: localPost));
-          }
+            localPosts: currentState.localPosts,
+          );
         }
 
-        /* Proceed in sending post */
-        if (mediaId != null ||
-            (event.media == null && event.mediaContentType == null)) {
-          this
-              .discussionRepository
-              .addPost(
-                  discussion: currentState.getDiscussion(),
-                  participantID: currentState.getDiscussion().meParticipant.id,
-                  postContent: event.postContent,
-                  mentionedEntities: event.mentionedEntities,
-                  preview: event.preview,
-                  mediaId: mediaId)
-              .then((addedPost) {
-            final success = addedPost != null;
-            Segment.track(
-                eventName: ChathamTrackingEventNames.POST_ADD,
-                properties: {
-                  'funnelID': event.uniqueID,
-                  'error': false,
-                  'success': success,
-                  'discussionID': currentState.getDiscussion().id,
-                  'participantID':
-                      currentState.getDiscussion().meParticipant.id,
-                  'contentLength': event.postContent.length,
-                });
-            if (addedPost == null) {
-              // The response may not be a post if it's malformed or something.
-              this.add(LocalPostCreateFailure(localPost: localPost));
-              return;
-            }
+        /* Actual attempt to add the new post to the discussion */
+        var newPost = await this.discussionRepository.addPost(
+              discussion: currentState.getDiscussion(),
+              participantID: currentState.getDiscussion().meParticipant.id,
+              postContent: event.postContent,
+              mentionedEntities: event.mentionedEntities,
+              preview: event.preview,
+              mediaId: mediaId,
+            );
+        if (newPost == null) {
+          throw "Something went wrong while adding the post";
+        }
 
-            /* The post content may have changed during submission
-              (This appens with mentions, for instance). This adds resistence in case
-              the content mutation happens either in the frontend or the backend. */
-            localPost.post = localPost.post.copyWith(
-                content: addedPost.content,
-                mentionedEntities: addedPost.mentionedEntities,
-                media: addedPost.media);
-            // The current state may have changed since this is a future.
-            this.add(LocalPostCreateSuccess(
-                createdPost: addedPost, localPost: localPost));
-          }, onError: (err) {
-            Segment.track(
-                eventName: ChathamTrackingEventNames.POST_ADD,
-                properties: {
-                  'funnelID': event.uniqueID,
-                  'error': true,
-                  'success': false,
-                  'discussionID': currentState.getDiscussion().id,
-                  'participantID':
-                      currentState.getDiscussion().meParticipant.id,
-                  'contentLength': event.postContent.length,
-                });
-            localPost.isProcessing = false;
-            localPost.failCount += 1;
-            localPost.isFailed = true;
-            this.add(LocalPostCreateFailure(localPost: localPost));
-          });
+        /* Update local cached lists with new post */
+        currentState.getDiscussion().postsCache.remove(localPost.post);
+        currentState.getDiscussion().postsCache.insert(0, newPost);
+        currentState.localPosts.remove(localPost);
+
+        /* Yeld new updated state */
+        yield currentState.update(
+          discussion: currentState.getDiscussion(),
+          localPosts: currentState.localPosts,
+        );
+
+        /* Send event to analytics */
+        Segment.track(
+          eventName: ChathamTrackingEventNames.POST_ADD,
+          properties: {
+            'funnelID': event.uniqueID,
+            'error': false,
+            'success': true,
+            'discussionID': currentState.getDiscussion().id,
+            'participantID': currentState.getDiscussion().meParticipant.id,
+            'contentLength': event.postContent.length,
+          },
+        );
+      } catch (error) {
+        /* Update local cached lists with error */
+        currentState.localPosts.remove(localPost);
+        currentState.localPosts.add(localPost.copyWith(
+          isProcessing: false,
+          error: error,
+        ));
+
+        /* Yield new state with error */
+        yield currentState.update(
+          discussion: currentState.discussion,
+          localPosts: currentState.localPosts,
+        );
+
+        /* Send event to analytics */
+        Segment.track(
+          eventName: ChathamTrackingEventNames.POST_ADD,
+          properties: {
+            'funnelID': event.uniqueID,
+            'error': true,
+            'success': false,
+            'discussionID': currentState.getDiscussion().id,
+            'participantID': currentState.getDiscussion().meParticipant.id,
+            'contentLength': event.postContent.length,
+          },
+        );
+      }
+    } else if (event is DiscussionLocalPostRetryEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      /* Remove post from local caches */
+      currentState.localPosts.remove(event.localPost);
+      currentState.getDiscussion().postsCache.remove(event.localPost.post);
+
+      /* Trigger another creation attempt */
+      this.add(event.localPost.event);
+    } else if (event is DiscussionPostReceivedEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      final discussion = currentState.getDiscussion();
+      final participants = discussion.participants;
+      final postsCache = discussion.postsCache;
+      var isPostFound = false;
+      var isParticipantFound = false;
+
+      /* Check if this participant is aleady part of the local list */
+      for (int i = 0; i < discussion.participants.length; i++) {
+        if (discussion.participants[i].id == event.post.participant.id) {
+          isParticipantFound = true;
+          break;
         }
       }
-    } else if (event is DiscussionPostAddedEvent &&
-        currentState is DiscussionLoadedState) {
-      if (currentState.getDiscussion() != null) {
-        // This is pretty gross.
-        var found = false;
-        final discussion = currentState.getDiscussion();
-        if (this.isLikelyPendingPost(currentState, discussion, event.post)) {
-          // In this case there should be a local post here. I know this is
-          // introducing a potential issue if the local post flow breaks down
-          // but I think this is a relatively safe approach
-          return;
-        }
-        var isParticipantFound = false;
-        final participants = discussion.participants;
-        for (int i = 0; i < discussion.participants.length; i++) {
-          if (discussion.participants[i].id == event.post.participant.id) {
-            isParticipantFound = true;
-            break;
-          }
-        }
-        if (!isParticipantFound) {
-          participants.add(event.post.participant);
-        }
-        for (int i = 0; i < discussion.postsCache.length; i++) {
-          if (discussion.postsCache[i].id == event.post.id) {
-            found = true;
-            break;
-          } else if (discussion.postsCache[i]
-              .createdAtAsDateTime()
-              .isBefore(event.post.createdAtAsDateTime())) {
-            found = false;
-            break;
-          }
-        }
-        if (!found || !isParticipantFound) {
-          // This post is new.
-          var updatedPosts = discussion.postsCache;
-          var participants = discussion.participants;
-          if (!found) {
-            updatedPosts.insert(0, event.post);
-          }
-          if (!isParticipantFound) {
-            participants.add(event.post.participant);
-          }
-          var updatedDiscussion = currentState.getDiscussion().copyWith(
-                postsCache: updatedPosts,
-                participants: participants,
-              );
-          yield currentState.update(discussion: updatedDiscussion);
+      if (!isParticipantFound) {
+        participants.add(event.post.participant);
+      }
+
+      /* Check if this post is aleady part of the local list */
+      for (int i = 0; i < discussion.postsCache.length; i++) {
+        if (discussion.postsCache[i].id == event.post.id) {
+          isPostFound = true;
+          break;
+        } else if (discussion.postsCache[i]
+            .createdAtAsDateTime()
+            .isBefore(event.post.createdAtAsDateTime())) {
+          isPostFound = false;
+          break;
         }
       }
+      if (!isPostFound) {
+        postsCache.insert(0, event.post);
+      }
+
+      yield currentState.update(
+        discussion: discussion.copyWith(
+          participants: participants,
+          postsCache: postsCache,
+        ),
+      );
     } else if (event is DiscussionPostDeletedEvent &&
         currentState is DiscussionLoadedState) {
       final discussion = currentState.getDiscussion();
@@ -380,28 +387,6 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         currentState.discussionPostListener.cancel();
         yield currentState.update(listener: null, stream: null);
       }
-    } else if (event is LocalPostCreateSuccess &&
-        currentState is DiscussionLoadedState) {
-      final discussion = currentState.getDiscussion();
-      // The discussion may have changed.
-      if (discussion != null &&
-          discussion.id == event.localPost.post.discussion.id) {
-        final didReplace =
-            discussion.replaceLocalPost(event.createdPost, event.localPost.key);
-        if (didReplace) {
-          final localPosts = currentState.localPosts;
-          localPosts.remove(event.localPost.key);
-          yield currentState.update(
-              discussion: discussion, localPosts: localPosts);
-        }
-      }
-    } else if (event is LocalPostCreateFailure &&
-        currentState is DiscussionLoadedState) {
-      // This _should_ have pointers to the correct place.
-      yield currentState.update(
-        discussion: currentState.discussion,
-        localPosts: currentState.localPosts,
-      );
     } else if (event is LoadLocalDiscussionEvent) {
       // This might be used for local cached copies too eventually
       yield DiscussionLoadedState(
@@ -542,7 +527,7 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
   void consumeDiscussionSubscriptionEvent(DiscussionSubscriptionEvent event) {
     if (event is DiscussionSubscriptionPostAdded) {
-      this.add(DiscussionPostAddedEvent(post: event.post));
+      this.add(DiscussionPostReceivedEvent(post: event.post));
     } else if (event is DiscussionSubscriptionPostDeleted) {
       this.add(DiscussionPostDeletedEvent(post: event.post));
     } else if (event is DiscussionSubscriptionParticipantBanned) {

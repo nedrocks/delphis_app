@@ -67,6 +67,7 @@ class DiscussionPostAddEvent extends DiscussionEvent {
   final List<String> localMentionedEntities;
   final File media;
   final MediaContentType mediaContentType;
+  final String mediaID;
 
   @override
   List<Object> get props => [
@@ -74,27 +75,63 @@ class DiscussionPostAddEvent extends DiscussionEvent {
         this.uniqueID,
         this.preview,
         this.mentionedEntities,
-        this.localMentionedEntities
+        this.localMentionedEntities,
       ];
 
-  DiscussionPostAddEvent(
-      {@required this.postContent,
-      @required this.uniqueID,
-      @required this.mentionedEntities,
-      @required this.localMentionedEntities,
-      this.media,
-      this.mediaContentType,
-      this.preview})
-      : super();
+  DiscussionPostAddEvent({
+    @required this.postContent,
+    @required this.uniqueID,
+    @required this.mentionedEntities,
+    @required this.localMentionedEntities,
+    this.mediaID,
+    this.media,
+    this.mediaContentType,
+    this.preview,
+  }) : super();
+
+  DiscussionPostAddEvent copyWith({
+    String preview,
+    String postContent,
+    String uniqueID,
+    List<String> mentionedEntities,
+    List<String> localMentionedEntities,
+    File media,
+    MediaContentType mediaContentType,
+    String mediaID,
+  }) {
+    return DiscussionPostAddEvent(
+      preview: preview ?? this.preview,
+      postContent: postContent ?? this.postContent,
+      uniqueID: uniqueID ?? this.uniqueID,
+      mentionedEntities: mentionedEntities ?? this.mentionedEntities,
+      localMentionedEntities:
+          localMentionedEntities ?? this.localMentionedEntities,
+      media: media ?? this.media,
+      mediaContentType: mediaContentType ?? this.mediaContentType,
+      mediaID: mediaID ?? this.mediaID,
+    );
+  }
 }
 
-class DiscussionPostAddedEvent extends DiscussionEvent {
+class DiscussionLocalPostRetryEvent extends DiscussionEvent {
+  final DateTime timestamp = DateTime.now();
+  final LocalPost localPost;
+
+  @override
+  List<Object> get props => [this.localPost, this.timestamp];
+
+  DiscussionLocalPostRetryEvent({
+    @required this.localPost,
+  }) : super();
+}
+
+class DiscussionPostReceivedEvent extends DiscussionEvent {
   final Post post;
 
   @override
   List<Object> get props => [this.post];
 
-  DiscussionPostAddedEvent({
+  DiscussionPostReceivedEvent({
     @required this.post,
   }) : super();
 }
@@ -143,29 +180,6 @@ class UnsubscribeFromDiscussionEvent extends DiscussionEvent {
 
   @override
   List<Object> get props => [this.discussionID, this.hasUnsubscribed];
-}
-
-class LocalPostCreateSuccess extends DiscussionEvent {
-  final Post createdPost;
-  final LocalPost localPost;
-
-  LocalPostCreateSuccess({@required this.createdPost, @required this.localPost})
-      : super();
-
-  @override
-  List<Object> get props => [this.createdPost?.id, this.localPost?.key];
-}
-
-class LocalPostCreateFailure extends DiscussionEvent {
-  final LocalPost localPost;
-  final DateTime now;
-
-  LocalPostCreateFailure({@required this.localPost})
-      : this.now = DateTime.now(),
-        super();
-
-  @override
-  List<Object> get props => [this.localPost?.key, this.now];
 }
 
 class RefreshPostsEvent extends DiscussionEvent {

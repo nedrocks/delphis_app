@@ -38,7 +38,7 @@ class DiscussionLoadedState extends DiscussionState {
   final DateTime lastUpdate;
   final Stream<DiscussionSubscriptionEvent> discussionPostStream;
   final StreamSubscription<DiscussionSubscriptionEvent> discussionPostListener;
-  final Map<GlobalKey, LocalPost> localPosts;
+  final List<LocalPost> localPosts;
 
   final bool isLoading;
 
@@ -52,7 +52,7 @@ class DiscussionLoadedState extends DiscussionState {
     this.discussionPostListener,
     this.onboardingConciergeStep,
     localPosts,
-  })  : this.localPosts = localPosts ?? Map<GlobalKey, LocalPost>(),
+  })  : this.localPosts = localPosts ?? <LocalPost>[],
         super();
 
   Discussion getDiscussion() {
@@ -63,7 +63,7 @@ class DiscussionLoadedState extends DiscussionState {
     Stream<DiscussionSubscriptionEvent> stream,
     StreamSubscription<DiscussionSubscriptionEvent> listener,
     Discussion discussion,
-    Map<GlobalKey, LocalPost> localPosts,
+    List<LocalPost> localPosts,
     bool isLoading,
     int onboardingConciergeStep,
   }) {

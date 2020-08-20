@@ -78,7 +78,6 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
     this.textFocusNode.addListener(toggleOverlay);
     this.textController.addListener(() {
       var participantMention = getLastParticipantMentionAttempt();
-      var discussionMention = getLastDiscussionMentionAttempt();
       this.popupHeight = 0;
 
       /* Handle participant mentions */
@@ -86,24 +85,6 @@ class _DelphisInputMentionsPopupState extends State<DelphisInputMentionsPopup> {
         setState(() {
           mentionsHints = getParticipantMentionHints(
               this.textController.text, participantMention);
-          this.popupHeight = popupEntryHeight;
-          mentionsHints.then((value) => setState(() {
-                popupHeight =
-                    min(popupMaxEntries.toDouble(), value.length.toDouble()) *
-                        popupEntryHeight;
-                SchedulerBinding.instance
-                    .addPostFrameCallback((_) => toggleOverlay());
-              }));
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => toggleOverlay());
-        });
-      }
-
-      /* Handle discussion mentions */
-      if (discussionMention != null && (mentionContext?.isReady() ?? false)) {
-        setState(() {
-          mentionsHints = getDiscussionMentionHints(
-              this.textController.text, discussionMention);
           this.popupHeight = popupEntryHeight;
           mentionsHints.then((value) => setState(() {
                 popupHeight =

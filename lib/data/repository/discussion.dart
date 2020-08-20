@@ -652,28 +652,12 @@ class Discussion extends Equatable implements Entity {
     return _$DiscussionToJson(this);
   }
 
-  void addLocalPost(LocalPost post) {
-    this.postsCache.insert(0, post.post);
-  }
-
   String getEmojiIcon() {
     // Emoji Icon is a weird internally defined "url" for an emoji.
     if (this.iconURL != null && this.iconURL.startsWith("emoji://")) {
       return iconURL.substring("emoji://".length);
     }
     return null;
-  }
-
-  bool replaceLocalPost(Post withPost, GlobalKey localPostKey) {
-    final keyAsString = localPostKey.toString();
-    for (int i = 0; i < this.postsCache.length; i++) {
-      final post = this.postsCache[i];
-      if ((post.isLocalPost ?? false) && post.id == keyAsString) {
-        this.postsCache[i] = withPost;
-        return true;
-      }
-    }
-    return false;
   }
 
   Participant getParticipantForPostIdx(int idx) {

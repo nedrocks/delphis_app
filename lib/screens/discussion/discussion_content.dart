@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/bloc/participant/participant_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -32,6 +33,7 @@ class DiscussionContent extends StatelessWidget {
 
   final Function(File, MediaContentType) onMediaTap;
   final Function(SuperpowersArguments) onSuperpowersButtonPressed;
+  final Function(LocalPost) onLocalPostRetryPressed;
 
   const DiscussionContent({
     @required key,
@@ -46,6 +48,7 @@ class DiscussionContent extends StatelessWidget {
     @required this.refreshController,
     @required this.onMediaTap,
     @required this.onSuperpowersButtonPressed,
+    @required this.onLocalPostRetryPressed,
   }) : super(key: key);
 
   @override
@@ -59,6 +62,7 @@ class DiscussionContent extends StatelessWidget {
       refreshController: this.refreshController,
       onMediaTap: this.onMediaTap,
       onSuperpowersButtonPressed: this.onSuperpowersButtonPressed,
+      onLocalPostRetryPressed: this.onLocalPostRetryPressed,
     );
     if (this.isShowJoinFlow) {
       final participantBloc = BlocProvider.of<ParticipantBloc>(context);

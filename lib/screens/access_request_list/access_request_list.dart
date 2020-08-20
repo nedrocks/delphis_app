@@ -75,7 +75,6 @@ class AccessRequestListScreen extends StatelessWidget {
                       if (state is DiscussionLoadedState) {
                         final requestCount =
                             discussion.accessRequests?.length ?? 0;
-                        final slidableController = SlidableController();
                         if (requestCount > 0) {
                           return ListView.builder(
                             physics: BouncingScrollPhysics(),
@@ -84,7 +83,6 @@ class AccessRequestListScreen extends StatelessWidget {
                             itemBuilder: (context, index) {
                               var request = discussion.accessRequests[index];
                               return AccessRequestEntry(
-                                slidableController: slidableController,
                                 accessRequest: request,
                                 onAccept: () {
                                   BlocProvider.of<DiscussionBloc>(context).add(

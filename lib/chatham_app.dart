@@ -157,7 +157,7 @@ class ChathamAppState extends State<ChathamApp>
 
     final deviceID = await this.secureStorage.read(key: kDEVICE_ID_STORAGE_KEY);
     final pushToken = await this.secureStorage.read(key: kPUSH_TOKEN_KEY);
-    if ((pushToken != null && deviceID.length > 0) ||
+    if ((deviceID != null && deviceID.length > 0) ||
         (pushToken != null && pushToken.length > 0)) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         this.setState(() {

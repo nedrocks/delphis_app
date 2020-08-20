@@ -292,6 +292,18 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
 
       /* Trigger another creation attempt */
       this.add(event.localPost.event);
+    } else if (event is DiscussionLocalPostDeleteEvent &&
+        currentState is DiscussionLoadedState &&
+        currentState.getDiscussion() != null) {
+      /* Remove post from local caches */
+      currentState.localPosts.remove(event.localPost);
+      currentState.getDiscussion().postsCache.remove(event.localPost.post);
+
+      /* Yield new state with error */
+      yield currentState.update(
+        discussion: currentState.discussion,
+        localPosts: currentState.localPosts,
+      );
     } else if (event is DiscussionPostReceivedEvent &&
         currentState is DiscussionLoadedState &&
         currentState.getDiscussion() != null) {

@@ -298,6 +298,7 @@ const DiscussionListFragment = """
     discussionJoinability
     meNotificationSettings
     meDiscussionStatus
+    lockStatus
   }
   $DiscussionModeratorFragment
   $ParticipantInfoFragment

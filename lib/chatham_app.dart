@@ -57,6 +57,9 @@ import 'screens/discussion/screen_args/discussion_naming.dart';
 import 'screens/home_page/home_page.dart';
 import 'screens/intro/intro_screen.dart';
 
+const kDEVICE_ID_STORAGE_KEY = 'chatham_device_id';
+const kPUSH_TOKEN_KEY = 'chatham_push_token_key';
+
 class ChathamApp extends StatefulWidget {
   final Environment env;
 
@@ -151,6 +154,23 @@ class ChathamAppState extends State<ChathamApp>
     } catch (err) {
       // fail silently
       print('err: $err');
+    }
+
+    final deviceID = await this.secureStorage.read(key: kDEVICE_ID_STORAGE_KEY);
+    final pushToken = await this.secureStorage.read(key: kPUSH_TOKEN_KEY);
+    if ((deviceID != null && deviceID.length > 0) ||
+        (pushToken != null && pushToken.length > 0)) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        this.setState(() {
+          if (pushToken != null && pushToken.length > 0) {
+            this.pushToken = pushToken;
+            this.didReceivePushToken = true;
+          }
+          if (deviceID != null && deviceID.length > 0) {
+            this.deviceID = deviceID;
+          }
+        });
+      });
     }
   }
 
@@ -370,6 +390,8 @@ class ChathamAppState extends State<ChathamApp>
                                   notificationBloc:
                                       BlocProvider.of<NotificationBloc>(
                                           context),
+                                  discussionBloc:
+                                      BlocProvider.of<DiscussionBloc>(context),
                                 ),
                               ),
                             ],
@@ -411,7 +433,7 @@ class ChathamAppState extends State<ChathamApp>
                                           AppLifecycleState.resumed) {
                                     // Reload the discussion which should cause it to subscribe to the websocket.
                                     BlocProvider.of<DiscussionBloc>(context)
-                                        .add(RefreshPostsEvent(
+                                        .add(DiscussionQueryEvent(
                                             discussionID:
                                                 arguments.discussionID));
                                   }
@@ -534,6 +556,8 @@ class ChathamAppState extends State<ChathamApp>
                                     context),
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context),
                           ),
                           child: BlocBuilder<DiscussionBloc, DiscussionState>(
                             builder: (context, state) {
@@ -590,6 +614,8 @@ class ChathamAppState extends State<ChathamApp>
                                     context),
                             notificationBloc:
                                 BlocProvider.of<NotificationBloc>(context),
+                            discussionBloc:
+                                BlocProvider.of<DiscussionBloc>(context),
                           ),
                           child: SuperpowersPopupScreen(
                             arguments: arguments,
@@ -731,7 +757,8 @@ class ChathamAppState extends State<ChathamApp>
   }
 
   void sendDeviceToServer(UserDeviceRepository repository, User me) {
-    if (!this.hasSentDeviceToServer &&
+    if (me != null &&
+        !this.hasSentDeviceToServer &&
         (this.didReceivePushToken ?? false) &&
         this.deviceID != null &&
         this.deviceID.length > 0) {
@@ -752,7 +779,7 @@ class ChathamAppState extends State<ChathamApp>
           });
         }
       });
-    } else if (!this.hasSentDeviceToServer) {
+    } else if (me != null && !this.hasSentDeviceToServer) {
       // This is pretty gross but will work..
       Future.delayed(const Duration(seconds: 5), () {
         this.sendDeviceToServer(repository, me);
@@ -808,11 +835,17 @@ class ChathamAppState extends State<ChathamApp>
             this.pushToken = args;
           }
         });
+        if (args.length > 0) {
+          await secureStorage.write(key: kPUSH_TOKEN_KEY, value: args);
+        }
         break;
       case "didReceiveDeviceID":
         setState(() {
           this.deviceID = args;
         });
+        if (args.length > 0) {
+          await secureStorage.write(key: kDEVICE_ID_STORAGE_KEY, value: args);
+        }
         break;
       case "didReceiveTokenAndDeviceID":
         final parts = args.split('.');
@@ -822,12 +855,24 @@ class ChathamAppState extends State<ChathamApp>
             this.deviceID = parts[0].trim();
             this.didReceivePushToken = true;
           });
+          if (parts[0].trim().length > 0) {
+            await secureStorage.write(
+                key: kDEVICE_ID_STORAGE_KEY, value: parts[0].trim());
+          }
         } else if (parts.length == 2) {
           setState(() {
             this.deviceID = parts[0].trim();
             this.pushToken = parts[1].trim();
             this.didReceivePushToken = true;
           });
+          if (parts[0].trim().length > 0) {
+            await secureStorage.write(
+                key: kDEVICE_ID_STORAGE_KEY, value: parts[0].trim());
+          }
+          if (parts[1].trim().length > 0) {
+            await secureStorage.write(
+                key: kPUSH_TOKEN_KEY, value: parts[1].trim());
+          }
         }
         break;
     }

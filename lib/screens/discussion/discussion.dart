@@ -12,6 +12,8 @@ import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/media.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/design/colors.dart';
+import 'package:delphis_app/design/sizes.dart';
+import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/header_options_button.dart';
 import 'package:delphis_app/screens/discussion/media/media_preview.dart';
 import 'package:delphis_app/screens/discussion_join/discussion_join.dart';
@@ -25,6 +27,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_segment/flutter_segment.dart';
+import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'discussion_content.dart';
@@ -183,8 +186,56 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
               return Center(child: CircularProgressIndicator());
             }
             if (state is DiscussionErrorState) {
-              return Center(
-                child: Text(state.error.toString()),
+              return Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(Intl.message('Error loading discussion.'),
+                        style: TextThemes.chatInfoListTitle
+                            .copyWith(decoration: TextDecoration.none)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        RaisedButton(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: SpacingValues.xxxxLarge,
+                            vertical: SpacingValues.medium,
+                          ),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25.0)),
+                          color: Color.fromRGBO(247, 247, 255, 0.2),
+                          child: Text(Intl.message("Go back"),
+                              style: TextThemes.errorButtonCancel),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          animationDuration: Duration(milliseconds: 100),
+                        ),
+                        SizedBox(width: SpacingValues.medium),
+                        RaisedButton(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: SpacingValues.xxLarge,
+                            vertical: SpacingValues.medium,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25.0),
+                          ),
+                          color: Color.fromRGBO(247, 247, 255, 1.0),
+                          child: Text(Intl.message('Retry'),
+                              style: TextThemes.errorButtonRetry),
+                          onPressed: () {
+                            BlocProvider.of<DiscussionBloc>(context).add(
+                                DiscussionQueryEvent(
+                                    discussionID: this.widget.discussionID,
+                                    nonce: DateTime.now()));
+                          },
+                          splashColor: Colors.grey.withOpacity(0.8),
+                          animationDuration: Duration(milliseconds: 100),
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               );
             }
             if (state is DiscussionLoadedState &&
@@ -192,6 +243,7 @@ class DelphisDiscussionState extends State<DelphisDiscussion> with RouteAware {
               BlocProvider.of<DiscussionBloc>(context).add(
                   SubscribeToDiscussionEvent(this.widget.discussionID, true));
             }
+
             final discussionObj = state.getDiscussion();
 
             /* In some old discussions the moderator was able to go in incognito mode.

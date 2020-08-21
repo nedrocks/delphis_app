@@ -14,7 +14,6 @@ class _DiscussionHeaderNotificationState
     extends State<DiscussionHeaderNotification> with TickerProviderStateMixin {
   Ticker _ticker;
   Duration _lastTick;
-  DateTime _start;
 
   @override
   void initState() {
@@ -31,7 +30,7 @@ class _DiscussionHeaderNotificationState
   }
 
   void tick(Duration elapsed) {
-    if (elapsed.inMilliseconds - this._lastTick.inMilliseconds >= 500) {
+    if ((elapsed.inMilliseconds - this._lastTick.inMilliseconds) >= 500) {
       setState(() {
         this._lastTick = elapsed;
       });

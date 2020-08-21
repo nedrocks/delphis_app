@@ -354,6 +354,8 @@ class DelphisInputState extends State<DelphisInput> {
               maxLines: numRows,
               maxLength: maxTextLength,
               maxLengthEnforced: true,
+              autocorrect: true,
+              enableSuggestions: true,
             ),
           ),
           height: widgetHeight,

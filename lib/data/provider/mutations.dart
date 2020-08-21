@@ -444,6 +444,33 @@ class RequestDiscussionAccessMutation
   }
 }
 
+class ShuffleDiscussionMutation extends GQLMutation<Discussion> {
+  final String discussionID;
+  final int inFutureSeconds;
+
+  final String _mutation = """
+   mutation ShuffleDiscussion(\$discussionID: ID!, \$inFutureSeconds: Int) {
+     shuffleDiscussion(discussionID: \$discussionID, inFutureSeconds: \$inFutureSeconds) {
+       shuffleCount
+       secondsUntilShuffle
+     }
+   }
+  """;
+
+  const ShuffleDiscussionMutation({
+    @required this.discussionID,
+    this.inFutureSeconds = 0,
+  });
+
+  String mutation() {
+    return this._mutation;
+  }
+
+  Discussion parseResult(dynamic data) {
+    return Discussion.fromJson(data["shuffleDiscussion"]);
+  }
+}
+
 class RespondToDiscussionAccessRequestMutation
     extends GQLMutation<DiscussionAccessRequest> {
   final String requestID;

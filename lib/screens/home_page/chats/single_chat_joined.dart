@@ -45,14 +45,21 @@ class SingleChatJoined extends StatelessWidget {
       );
     }
 
-    Widget mutedIcon = Icon(
-      Icons.volume_off,
-      size: 20,
-      color: Colors.white,
+    Widget notifIcon = SizedBox(
+      width: 20,
     );
-    if (!this.discussion.isMuted) {
-      mutedIcon = SizedBox(
-        width: 20,
+
+    if (this.discussion.lockStatus) {
+      notifIcon = Icon(
+        Icons.lock,
+        size: 20,
+        color: Colors.white,
+      );
+    } else if (this.discussion.isMuted) {
+      notifIcon = Icon(
+        Icons.volume_off,
+        size: 20,
+        color: Colors.white,
       );
     }
 
@@ -117,7 +124,7 @@ class SingleChatJoined extends StatelessWidget {
                     this.discussion.moderator.userProfile.profileImageURL,
               ),
               SizedBox(width: SpacingValues.small),
-              mutedIcon,
+              notifIcon,
               SizedBox(width: SpacingValues.small),
               SvgPicture.asset(
                 'assets/svg/forward_chevron.svg',

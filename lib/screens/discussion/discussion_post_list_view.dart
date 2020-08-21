@@ -46,7 +46,6 @@ class DiscussionPostListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final discussionBloc = BlocProvider.of<DiscussionBloc>(context);
-
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -165,7 +164,9 @@ class DiscussionPostListView extends StatelessWidget {
           reverse: true,
           itemBuilder: (context, index) {
             final post = DiscussionPost(
-              key: GlobalKey(),
+              key: this.discussion.postsCache[index].id != null
+                  ? Key('disc-${this.discussion.postsCache[index].id}')
+                  : null,
               post: this.discussion.postsCache[index],
               moderator: this.discussion.moderator,
               participant: this.discussion.getParticipantForPostIdx(index),
@@ -175,8 +176,7 @@ class DiscussionPostListView extends StatelessWidget {
               onLocalPostRetryPressed: this.onLocalPostRetryPressed,
             );
             if (true) {
-              return ChangeNotifierProvider(
-                  create: (context) => MediaChangeNotifier(), child: post);
+              return post;
             } else {
               // TODO: This should be hooked up to announcement posts.
               return DiscussionAnnouncementPost(post: post);

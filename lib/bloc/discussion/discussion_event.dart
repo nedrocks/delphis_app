@@ -366,3 +366,18 @@ class DiscussionLockStatusChangeEvent extends DiscussionEvent {
   @override
   List<Object> get props => [discussionID, lockStatus];
 }
+
+class DiscussionImagePickEvent extends DiscussionEvent {
+  final String discussionID;
+  final bool isPicking;
+  final DateTime nonce;
+
+  DiscussionImagePickEvent({
+    @required this.discussionID,
+    @required this.isPicking,
+    @required this.nonce,
+  });
+
+  @override
+  List<Object> get props => [discussionID, isPicking, nonce];
+}

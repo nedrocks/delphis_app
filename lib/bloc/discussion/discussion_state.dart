@@ -41,6 +41,7 @@ class DiscussionLoadedState extends DiscussionState {
   final List<LocalPost> localPosts;
 
   final bool isLoading;
+  final bool isPickingImage;
 
   final int onboardingConciergeStep;
 
@@ -51,6 +52,7 @@ class DiscussionLoadedState extends DiscussionState {
     this.discussionPostStream,
     this.discussionPostListener,
     this.onboardingConciergeStep,
+    this.isPickingImage = false,
     localPosts,
   })  : this.localPosts = localPosts ?? <LocalPost>[],
         super();
@@ -66,6 +68,7 @@ class DiscussionLoadedState extends DiscussionState {
     List<LocalPost> localPosts,
     bool isLoading,
     int onboardingConciergeStep,
+    bool isPickingImage,
   }) {
     return DiscussionLoadedState(
         discussion: discussion ?? this.discussion,
@@ -74,6 +77,7 @@ class DiscussionLoadedState extends DiscussionState {
         discussionPostListener: listener ?? this.discussionPostListener,
         localPosts: localPosts ?? this.localPosts,
         isLoading: isLoading ?? this.isLoading,
+        isPickingImage: isPickingImage ?? this.isPickingImage,
         onboardingConciergeStep:
             onboardingConciergeStep ?? this.onboardingConciergeStep);
   }

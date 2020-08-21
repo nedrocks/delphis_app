@@ -266,9 +266,9 @@ class _SuperpowersScreenState extends State<SuperpowersScreen> {
                   color: Colors.white,
                 ),
               )),
-          title: Intl.message("Invitation Mode"),
+          title: Intl.message("Joinability"),
           description: Intl.message(
-              "Manage the preferences of this discussion. Choose how you prefer to manage invitations."),
+              "Manage the preferences of this discussion. Choose how you prefer to manage the joinability."),
           onTap: () {
             Navigator.pushNamed(
               context,

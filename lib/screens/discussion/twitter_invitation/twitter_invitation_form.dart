@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:delphis_app/bloc/twitter_invitation/twitter_invitation_bloc.dart';
@@ -9,6 +8,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/design/text_theme.dart';
 import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_invited_handle.dart';
 import 'package:delphis_app/screens/discussion/twitter_invitation/twitter_user_info_list_entry.dart';
+import 'package:delphis_app/util/debouncer.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:delphis_app/widgets/go_back/go_back.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,7 +37,7 @@ class TwitterInvitationForm extends StatefulWidget {
 
 class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
   final autocompleteEntryHeight = 50.0;
-  final queryDebouncher = _Debouncer(1000);
+  final queryDebouncher = Debouncer(1000);
   TextEditingController textController;
   List<TwitterUserInfo> curSelections;
 
@@ -343,24 +343,5 @@ class _TwitterInvitationFormState extends State<TwitterInvitationForm> {
 
   void removeSelection(TwitterUserInfo userInfo) {
     this.curSelections.removeWhere((e) => e.id == userInfo.id);
-  }
-}
-
-class _Debouncer {
-  final int milliseconds;
-  VoidCallback action;
-  Timer _timer;
-
-  _Debouncer(this.milliseconds);
-
-  run(VoidCallback action) {
-    if (_timer != null) {
-      _timer.cancel();
-    }
-    _timer = Timer(Duration(milliseconds: milliseconds), action);
-  }
-
-  bool get isWaiting {
-    return _timer?.isActive ?? false;
   }
 }

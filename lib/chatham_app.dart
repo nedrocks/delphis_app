@@ -26,6 +26,7 @@ import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
+import 'package:delphis_app/util/debouncer.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
@@ -435,15 +436,6 @@ class ChathamAppState extends State<ChathamApp>
                                               state.getDiscussion().meViewer,
                                         ),
                                       );
-                                      BlocProvider.of<DiscussionViewerBloc>(
-                                              context)
-                                          .add(
-                                        DiscussionViewerSetLastPostViewedEvent(
-                                            post: state
-                                                .getDiscussion()
-                                                ?.postsCache
-                                                ?.last),
-                                      );
                                     }
                                   }
                                 }),
@@ -646,36 +638,11 @@ class ChathamAppState extends State<ChathamApp>
                     );
                     break;
                   case '/Discussion/Options':
-                    return PageRouteBuilder(
-                      opaque: false,
-                      maintainState: true,
-                      barrierColor: Colors.black.withOpacity(0.6),
-                      barrierDismissible: true,
-                      transitionDuration: Duration(milliseconds: 200),
-                      transitionsBuilder: (
-                        context,
-                        Animation<double> animation,
-                        ____,
-                        Widget child,
-                      ) {
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: Offset(1.0, 0.0),
-                            end: Offset(0.0, 0.0),
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeInOut,
-                              reverseCurve: Curves.easeInOut,
-                            ),
-                          ),
-                          child: child,
-                        );
-                      },
-                      pageBuilder: (context, _, __) {
-                        return DiscussionOptionsScreen();
-                      },
-                    );
+                    return MaterialPageRoute(
+                        settings: settings,
+                        builder: (BuildContext context) {
+                          return DiscussionOptionsScreen();
+                        });
                     break;
                   case '/Discussion/Info':
                     return PageRouteBuilder(
@@ -858,8 +825,9 @@ class ChathamAppState extends State<ChathamApp>
           }
           BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
               discussionID: disc.id, nonce: DateTime.now()));
-          navKey.currentState.pushNamed(
+          navKey.currentState.pushNamedAndRemoveUntil(
             '/Discussion',
+            ModalRoute.withName('/Home'),
             arguments: DiscussionArguments(
               discussionID: disc.id,
               isStartJoinFlow: false,

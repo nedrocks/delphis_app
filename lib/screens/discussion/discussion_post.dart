@@ -329,7 +329,9 @@ class _DiscussionPostState extends State<DiscussionPost>
   }
 
   bool isSuperpowersAvailable() {
-    return isMeDiscussionModerator() || isMePostAuthor();
+    return (isMeDiscussionModerator() || isMePostAuthor()) &&
+        this.widget.post.postType != PostType.CONCIERGE &&
+        this.widget.post.postType != PostType.ALERT;
   }
 
   Widget buildProfileImage(

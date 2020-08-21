@@ -40,7 +40,6 @@ class _InviteModePageState extends State<InviteModePage> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height;
     return BlocBuilder<UpsertDiscussionBloc, UpsertDiscussionState>(
       builder: (context, state) {
         Widget nextButton = Text(
@@ -62,7 +61,7 @@ class _InviteModePageState extends State<InviteModePage> {
           body: Container(
             color: Colors.black,
             child: BasePageWidget(
-              title: "Invitation Mode",
+              title: "Joinability",
               nextButtonChild: nextButton,
               backButtonChild: Text(this.widget.prevButtonText),
               onBack: this.widget.onBack,

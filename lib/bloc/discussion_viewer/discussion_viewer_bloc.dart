@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:rxdart/rxdart.dart';
-
 import 'package:bloc/bloc.dart';
 import 'package:delphis_app/data/repository/post.dart';
 import 'package:delphis_app/data/repository/viewer.dart';
@@ -18,20 +16,6 @@ class DiscussionViewerBloc
   DiscussionViewerBloc({
     @required this.viewerRepository,
   }) : super(DiscussionViewerUnInitialized());
-
-  @override
-  Stream<Transition<DiscussionViewerEvent, DiscussionViewerState>>
-      transformEvents(Stream<DiscussionViewerEvent> events, transitionFn) {
-    final defferedEvents = events
-        .where((e) => e is DiscussionViewerSetLastPostViewedEvent)
-        .debounceTime(const Duration(milliseconds: 5000))
-        .distinct()
-        .switchMap(transitionFn);
-    final forwardedEvents = events
-        .where((e) => e is! DiscussionViewerSetLastPostViewedEvent)
-        .asyncExpand(transitionFn);
-    return forwardedEvents.mergeWith([defferedEvents]);
-  }
 
   @override
   Stream<DiscussionViewerState> mapEventToState(

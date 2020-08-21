@@ -9,6 +9,7 @@ import 'package:delphis_app/design/sizes.dart';
 import 'package:delphis_app/widgets/input/media_input_snippet.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
@@ -104,7 +105,9 @@ class _DelphisInputMediaPopupWidgetState
                         discussionID: this.widget.discussion.id,
                         isPicking: true,
                         nonce: DateTime.now()));
-                this.selectGalleryMedia();
+                SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                  this.selectGalleryMedia();
+                });
               },
               onImageCameraPressed: () {
                 BlocProvider.of<DiscussionBloc>(context).add(
@@ -112,7 +115,9 @@ class _DelphisInputMediaPopupWidgetState
                         discussionID: this.widget.discussion.id,
                         isPicking: true,
                         nonce: DateTime.now()));
-                this.selectCameraImage();
+                SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                  this.selectCameraImage();
+                });
               },
               onVideoCameraPressed: this.selectCameraVideo,
               onModeratorButtonPressed: this.widget.onModeratorButtonPressed,

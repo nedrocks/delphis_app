@@ -32,8 +32,7 @@ class DelphisInputContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (this.discussion.meCanJoinDiscussion.response !=
-            DiscussionJoinabilityResponse.ALREADY_JOINED ||
-        this.discussion.lockStatus) {
+        DiscussionJoinabilityResponse.ALREADY_JOINED) {
       return Container();
     } else {
       return DelphisInputMentionsPopup(

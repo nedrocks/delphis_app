@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
@@ -123,6 +124,28 @@ class DelphisInputState extends State<DelphisInput> {
     super.dispose();
   }
 
+  Widget buildLockedInputRowElems(BuildContext context) {
+    return Container(
+      child: RaisedButton(
+        onPressed: () {
+          BlocProvider.of<DiscussionBloc>(context).add(
+              DiscussionLockStatusChangeEvent(
+                  discussionID: this.widget.discussion.id, lockStatus: false));
+        },
+        padding: EdgeInsets.symmetric(
+          horizontal: SpacingValues.xxxxLarge,
+          vertical: SpacingValues.medium,
+        ),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        color: Color.fromRGBO(247, 247, 255, 0.2),
+        child: Text(Intl.message("Unlock Discussion"),
+            style: TextThemes.errorButtonCancel),
+        animationDuration: Duration(milliseconds: 100),
+      ),
+    );
+  }
+
   List<Widget> buildNonInputRowElems(BuildContext context, MeState state,
       User me, bool isModerator, Widget textInput) {
     if (this.widget.discussion.meParticipant.isMuted) {
@@ -165,6 +188,8 @@ class DelphisInputState extends State<DelphisInput> {
               buildNonInputRowElems(context, state, me, isModerator, textInput),
         ),
       );
+    } else if (this.widget.discussion.lockStatus) {
+      return Container();
     }
     final actionIconSize = 36.0;
     return Container(
@@ -277,6 +302,12 @@ class DelphisInputState extends State<DelphisInput> {
 
       final isModerator = this._isModerator(me);
 
+      if (this.widget.discussion.lockStatus) {
+        if (!isModerator) {
+          return Container();
+        }
+      }
+
       final inputChild = LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
         var textStyle = Theme.of(context).textTheme.bodyText2;
@@ -375,13 +406,16 @@ class DelphisInputState extends State<DelphisInput> {
             padding: EdgeInsets.symmetric(
                 horizontal: SpacingValues.medium,
                 vertical: SpacingValues.medium),
-            child: !this._inputFocusNode.hasFocus
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: this.buildNonInputRowElems(
-                        context, state, me, isModerator, textInput),
-                  )
-                : this.buildInput(context, state, me, isModerator, textInput),
+            child: this.widget.discussion.lockStatus
+                ? this.buildLockedInputRowElems(context)
+                : (!this._inputFocusNode.hasFocus
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: this.buildNonInputRowElems(
+                            context, state, me, isModerator, textInput),
+                      )
+                    : this.buildInput(
+                        context, state, me, isModerator, textInput)),
           ),
         ),
       );

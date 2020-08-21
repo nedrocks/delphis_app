@@ -30,6 +30,15 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
   Widget panelToShow;
   OverlayEntry lastOverlayEntry;
 
+  bool isDismissing;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isDismissing = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<SuperpowersBloc, SuperpowersState>(
@@ -72,8 +81,13 @@ class _SuperpowersPopupScreenState extends State<SuperpowersPopupScreen> {
           /* Format operation success messages */
           if (state is SuccessState) {
             /* Dismiss the popup if the result is successful */
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop();
+            SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+              if (!this.isDismissing) {
+                setState(() {
+                  this.isDismissing = true;
+                  Navigator.of(context).pop();
+                });
+              }
             });
           }
 

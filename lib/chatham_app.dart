@@ -599,36 +599,11 @@ class ChathamAppState extends State<ChathamApp>
                     );
                     break;
                   case '/Discussion/Options':
-                    return PageRouteBuilder(
-                      opaque: false,
-                      maintainState: true,
-                      barrierColor: Colors.black.withOpacity(0.6),
-                      barrierDismissible: true,
-                      transitionDuration: Duration(milliseconds: 200),
-                      transitionsBuilder: (
-                        context,
-                        Animation<double> animation,
-                        ____,
-                        Widget child,
-                      ) {
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: Offset(1.0, 0.0),
-                            end: Offset(0.0, 0.0),
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeInOut,
-                              reverseCurve: Curves.easeInOut,
-                            ),
-                          ),
-                          child: child,
-                        );
-                      },
-                      pageBuilder: (context, _, __) {
-                        return DiscussionOptionsScreen();
-                      },
-                    );
+                    return MaterialPageRoute(
+                        settings: settings,
+                        builder: (BuildContext context) {
+                          return DiscussionOptionsScreen();
+                        });
                     break;
                   case '/Discussion/Info':
                     return PageRouteBuilder(

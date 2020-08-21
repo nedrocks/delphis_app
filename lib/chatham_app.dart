@@ -785,8 +785,9 @@ class ChathamAppState extends State<ChathamApp>
           }
           BlocProvider.of<DiscussionBloc>(context).add(DiscussionQueryEvent(
               discussionID: disc.id, nonce: DateTime.now()));
-          navKey.currentState.pushNamed(
+          navKey.currentState.pushNamedAndRemoveUntil(
             '/Discussion',
+            ModalRoute.withName('/Home'),
             arguments: DiscussionArguments(
               discussionID: disc.id,
               isStartJoinFlow: false,

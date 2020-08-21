@@ -285,10 +285,6 @@ class _DiscussionPostState extends State<DiscussionPost>
       return Container();
     }
 
-    // return Text(this.widget.post.media == null
-    //     ? this.widget.post.localMediaFile.path
-    //     : this.widget.post.media.assetLocation);
-
     return ChangeNotifierProvider(
       create: (context) => MediaChangeNotifier(),
       child: Consumer<MediaChangeNotifier>(

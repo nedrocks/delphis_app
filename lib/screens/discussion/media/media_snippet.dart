@@ -16,12 +16,12 @@ class MediaSnippetWidget extends StatefulWidget {
   final Function(File, MediaContentType) onTap;
   final Function(File, ImageProvider, MediaContentType) onMediaLoaded;
 
-  const MediaSnippetWidget({
-    Key key,
-    @required this.onTap,
-    @required this.post,
-    @required this.onMediaLoaded
-  }) : super(key: key);
+  const MediaSnippetWidget(
+      {Key key,
+      @required this.onTap,
+      @required this.post,
+      @required this.onMediaLoaded})
+      : super(key: key);
 
   @override
   _MediaSnippetWidgetState createState() => _MediaSnippetWidgetState();
@@ -44,19 +44,19 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
   Widget build(BuildContext context) {
     if (imageFile != null && imageProvider != null) {
       return LoadedMediaSnippetWidget(
-        mediaContentType: this.widget.post.media?.mediaContentType ??
-          this.widget.post.localMediaContentType,
-        file: this.imageFile,
-        image: this.imageProvider,
-        onTap: () => this.widget.onTap(imageFile, this.widget.post.media?.mediaContentType ?? null)
-      );
+          mediaContentType: this.widget.post.media?.mediaContentType ??
+              this.widget.post.localMediaContentType,
+          file: this.imageFile,
+          image: this.imageProvider,
+          onTap: () => this.widget.onTap(
+              imageFile, this.widget.post.media?.mediaContentType ?? null));
     }
     return Container(
       margin: EdgeInsets.symmetric(vertical: SpacingValues.small),
       width: MediaQuery.of(context).size.width * 0.75,
       height: MediaQuery.of(context).size.width * 0.75 * (9 / 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12), color: Colors.grey),
+          borderRadius: BorderRadius.circular(12), color: Colors.grey),
       child: FutureBuilder(
         future: downloadFile(
             this.widget.post.media?.assetLocation ?? "", this.widget.post.id),
@@ -85,9 +85,12 @@ class _MediaSnippetWidgetState extends State<MediaSnippetWidget> {
                       this.imageProvider = imageSnapshot.data;
                       this.imageFile = snapshot.data;
                     });
-                    if(this.widget.onMediaLoaded != null)
-                      this.widget.onMediaLoaded(snapshot.data, imageSnapshot.data, this.widget.post.media?.mediaContentType ??
-                        this.widget.post.localMediaContentType);
+                    if (this.widget.onMediaLoaded != null)
+                      this.widget.onMediaLoaded(
+                          snapshot.data,
+                          imageSnapshot.data,
+                          this.widget.post.media?.mediaContentType ??
+                              this.widget.post.localMediaContentType);
                   });
                 }
 

@@ -79,8 +79,19 @@ class DiscussionBloc extends Bloc<DiscussionEvent, DiscussionState> {
         currentState.discussionPostListener.cancel();
       }
       yield DiscussionUninitializedState();
+    } else if (event is DiscussionImagePickEvent &&
+        currentState is DiscussionLoadedState) {
+      yield currentState.update(isPickingImage: event.isPicking);
     } else if (event is DiscussionQueryEvent &&
         !(currentState is DiscussionLoadingState)) {
+      if (currentState is DiscussionLoadedState &&
+          currentState.isPickingImage) {
+        this.add(DiscussionImagePickEvent(
+            discussionID: event.discussionID,
+            isPicking: false,
+            nonce: DateTime.now()));
+        return;
+      }
       try {
         if (currentState is DiscussionLoadedState &&
             currentState.discussionPostListener != null) {

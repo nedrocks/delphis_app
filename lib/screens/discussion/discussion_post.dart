@@ -285,29 +285,32 @@ class _DiscussionPostState extends State<DiscussionPost>
       return Container();
     }
 
-    return Consumer<MediaChangeNotifier>(
-      builder: (context, value, child) {
-        if (value.hasData()) {
-          return LoadedMediaSnippetWidget(
-            key: GlobalKey(),
-            mediaContentType: value.mediaContentType,
-            file: value.file,
-            image: value.imageProvider,
-            onTap: () =>
-                this.widget.onMediaTap(value.file, value.mediaContentType),
-          );
-        }
+    return ChangeNotifierProvider(
+      create: (context) => MediaChangeNotifier(),
+      child: Consumer<MediaChangeNotifier>(
+        builder: (context, value, child) {
+          if (value.hasData()) {
+            return LoadedMediaSnippetWidget(
+              key: Key('${this.widget.key}-loaded-snippet'),
+              mediaContentType: value.mediaContentType,
+              file: value.file,
+              image: value.imageProvider,
+              onTap: () =>
+                  this.widget.onMediaTap(value.file, value.mediaContentType),
+            );
+          }
 
-        return MediaSnippetWidget(
-          key: GlobalKey(),
-          post: this.widget.post,
-          onTap: this.widget.onMediaTap,
-          onMediaLoaded: (file, image, type) {
-            Provider.of<MediaChangeNotifier>(context, listen: false)
-                .setData(file, image, type);
-          },
-        );
-      },
+          return MediaSnippetWidget(
+            key: Key('${this.widget.key}-media-snippet'),
+            post: this.widget.post,
+            onTap: this.widget.onMediaTap,
+            onMediaLoaded: (file, image, type) {
+              Provider.of<MediaChangeNotifier>(context, listen: false)
+                  .setData(file, image, type);
+            },
+          );
+        },
+      ),
     );
   }
 

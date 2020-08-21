@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -121,6 +122,27 @@ class DelphisInputState extends State<DelphisInput> {
     if (this._controller != this.widget.textController)
       this._controller.dispose();
     super.dispose();
+  }
+
+  Widget buildLockedInputRowElems(BuildContext context) {
+    return Container(
+      child: RaisedButton(
+        onPressed: () {
+          BlocProvider.of<SuperpowersBloc>(context).add(ChangeLockStatusEvent(
+              discussion: this.widget.discussion, isLock: false));
+        },
+        padding: EdgeInsets.symmetric(
+          horizontal: SpacingValues.xxxxLarge,
+          vertical: SpacingValues.medium,
+        ),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        color: Color.fromRGBO(247, 247, 255, 0.2),
+        child: Text(Intl.message("Unlock Discussion"),
+            style: TextThemes.errorButtonCancel),
+        animationDuration: Duration(milliseconds: 100),
+      ),
+    );
   }
 
   List<Widget> buildNonInputRowElems(BuildContext context, MeState state,

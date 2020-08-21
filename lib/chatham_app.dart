@@ -849,7 +849,7 @@ class ChathamAppState extends State<ChathamApp>
           }
         });
         if (args.length > 0) {
-          await secureStorage.write(key: kPUSH_TOKEN_KEY, value: args);
+          secureStorage.write(key: kPUSH_TOKEN_KEY, value: args);
         }
         break;
       case "didReceiveDeviceID":
@@ -857,7 +857,7 @@ class ChathamAppState extends State<ChathamApp>
           this.deviceID = args;
         });
         if (args.length > 0) {
-          await secureStorage.write(key: kDEVICE_ID_STORAGE_KEY, value: args);
+          secureStorage.write(key: kDEVICE_ID_STORAGE_KEY, value: args);
         }
         break;
       case "didReceiveTokenAndDeviceID":
@@ -869,7 +869,7 @@ class ChathamAppState extends State<ChathamApp>
             this.didReceivePushToken = true;
           });
           if (parts[0].trim().length > 0) {
-            await secureStorage.write(
+            secureStorage.write(
                 key: kDEVICE_ID_STORAGE_KEY, value: parts[0].trim());
           }
         } else if (parts.length == 2) {
@@ -879,12 +879,11 @@ class ChathamAppState extends State<ChathamApp>
             this.didReceivePushToken = true;
           });
           if (parts[0].trim().length > 0) {
-            await secureStorage.write(
+            secureStorage.write(
                 key: kDEVICE_ID_STORAGE_KEY, value: parts[0].trim());
           }
           if (parts[1].trim().length > 0) {
-            await secureStorage.write(
-                key: kPUSH_TOKEN_KEY, value: parts[1].trim());
+            secureStorage.write(key: kPUSH_TOKEN_KEY, value: parts[1].trim());
           }
         }
         break;

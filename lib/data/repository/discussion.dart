@@ -701,6 +701,10 @@ class Discussion extends Equatable implements Entity {
             DiscussionJoinabilityResponse.AWAITING_APPROVAL;
   }
 
+  DateTime updatedAtAsDateTime() {
+    return DateTime.parse(this.updatedAt);
+  }
+
   Discussion copyWith({
     String id,
     Moderator moderator,

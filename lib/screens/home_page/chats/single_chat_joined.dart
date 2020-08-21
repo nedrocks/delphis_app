@@ -56,20 +56,43 @@ class SingleChatJoined extends StatelessWidget {
       );
     }
 
+    Widget notificationIcon = SizedBox(
+      width: SpacingValues.smallMedium + SpacingValues.extraSmall,
+    );
+
+    if (this
+        .discussion
+        .meViewer
+        .lastViewed
+        .isBefore(this.discussion.updatedAtAsDateTime())) {
+      notificationIcon = Container(
+        width: SpacingValues.smallMedium,
+        height: SpacingValues.smallMedium,
+        margin: EdgeInsets.only(right: SpacingValues.extraSmall),
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle,
+        ),
+      );
+    }
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: this.onPressed,
         child: Container(
           height: 60.0,
-          padding: EdgeInsets.symmetric(
-            vertical: SpacingValues.small,
-            horizontal: SpacingValues.medium,
+          padding: EdgeInsets.only(
+            top: SpacingValues.small,
+            bottom: SpacingValues.small,
+            right: SpacingValues.medium,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              SizedBox(width: SpacingValues.small),
+              notificationIcon,
               discussionIcon,
               SizedBox(width: SpacingValues.small),
               Expanded(
@@ -93,7 +116,7 @@ class SingleChatJoined extends StatelessWidget {
                 profileImageURL:
                     this.discussion.moderator.userProfile.profileImageURL,
               ),
-              SizedBox(width: SpacingValues.medium),
+              SizedBox(width: SpacingValues.small),
               mutedIcon,
               SizedBox(width: SpacingValues.small),
               SvgPicture.asset(

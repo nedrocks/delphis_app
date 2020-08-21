@@ -404,7 +404,6 @@ class ChathamAppState extends State<ChathamApp>
                                         ),
                                       );
                                       lastPostViewedDebouncer.run(() {
-                                        if (!mounted) return;
                                         BlocProvider.of<DiscussionViewerBloc>(
                                                 context)
                                             .add(

@@ -271,6 +271,8 @@ const DiscussionListFragment = """
     id
     title
     description
+    createdAt
+    updatedAt
     moderator {
       ...DiscussionModeratorFragment
     }

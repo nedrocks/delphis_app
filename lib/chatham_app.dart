@@ -123,9 +123,22 @@ class ChathamAppState extends State<ChathamApp>
 
   void initPlatformState() async {
     getLinksStream().listen((String link) {
-      if (link != null &&
-          !link.startsWith(Constants.twitterRedirectLegacyURLPrefix)) {
-        BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: link));
+      if (link != null) {
+        if (link.startsWith(Constants.twitterRedirectLegacyURLPrefix)) {
+          // If the link is to a specific discussion let's rewrite it!
+          try {
+            final linkURI = Uri.parse(link);
+            if (linkURI.path != null && linkURI.path.startsWith('/d/')) {
+              BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(
+                  newLink: 'https://m.chatham.ai${linkURI.path}'));
+            }
+          } catch (err) {
+            return;
+          }
+        } else {
+          BlocProvider.of<LinkBloc>(context)
+              .add(LinkChangeEvent(newLink: link));
+        }
       }
     }, onError: (err) {
       print('got err: $err');

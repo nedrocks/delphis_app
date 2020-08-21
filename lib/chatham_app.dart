@@ -26,6 +26,7 @@ import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
+import 'package:delphis_app/util/debouncer.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
@@ -86,6 +87,7 @@ class ChathamAppState extends State<ChathamApp>
   AppLifecycleState appLifecycleState;
 
   StreamSubscription _deepLinkSubscription;
+  Debouncer lastPostViewedDebouncer;
 
   @override
   void dispose() {
@@ -109,6 +111,7 @@ class ChathamAppState extends State<ChathamApp>
     this.requiresReload = false;
     this._routeObserver = chathamRouteObserverSingleton;
     this._homePageKey = Key('${DateTime.now().microsecondsSinceEpoch}');
+    this.lastPostViewedDebouncer = Debouncer(5000);
 
     Segment.enable();
     Segment.setContext({
@@ -400,15 +403,18 @@ class ChathamAppState extends State<ChathamApp>
                                               state.getDiscussion().meViewer,
                                         ),
                                       );
-                                      BlocProvider.of<DiscussionViewerBloc>(
-                                              context)
-                                          .add(
-                                        DiscussionViewerSetLastPostViewedEvent(
-                                            post: state
-                                                .getDiscussion()
-                                                ?.postsCache
-                                                ?.last),
-                                      );
+                                      lastPostViewedDebouncer.run(() {
+                                        if (!mounted) return;
+                                        BlocProvider.of<DiscussionViewerBloc>(
+                                                context)
+                                            .add(
+                                          DiscussionViewerSetLastPostViewedEvent(
+                                              post: state
+                                                  .getDiscussion()
+                                                  ?.postsCache
+                                                  ?.last),
+                                        );
+                                      });
                                     }
                                   }
                                 }),

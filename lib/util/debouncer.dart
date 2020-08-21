@@ -10,13 +10,13 @@ class Debouncer {
   Debouncer(this.milliseconds);
 
   run(VoidCallback action) {
-    /* Debouce any action after the first */
-    if (_timer != null) {
-      _timer.cancel();
-      _timer = Timer(Duration(milliseconds: milliseconds), action);
+    /* First action is not debounced */
+    if (_timer == null) {
+      _timer = Timer(Duration.zero, action);
+      return;
     }
-    /* Launch the very first action immediately */
-    _timer = Timer(Duration.zero, action);
+    _timer.cancel();
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
   }
 
   bool get isWaiting {
@@ -24,7 +24,6 @@ class Debouncer {
   }
 
   void cancel() {
-    print("canceled");
     _timer?.cancel();
   }
 }

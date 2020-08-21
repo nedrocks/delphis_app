@@ -87,7 +87,6 @@ class ChathamAppState extends State<ChathamApp>
   AppLifecycleState appLifecycleState;
 
   StreamSubscription _deepLinkSubscription;
-  Debouncer lastPostViewedDebouncer;
 
   @override
   void dispose() {
@@ -111,7 +110,6 @@ class ChathamAppState extends State<ChathamApp>
     this.requiresReload = false;
     this._routeObserver = chathamRouteObserverSingleton;
     this._homePageKey = Key('${DateTime.now().microsecondsSinceEpoch}');
-    this.lastPostViewedDebouncer = Debouncer(5000);
 
     Segment.enable();
     Segment.setContext({
@@ -403,17 +401,6 @@ class ChathamAppState extends State<ChathamApp>
                                               state.getDiscussion().meViewer,
                                         ),
                                       );
-                                      lastPostViewedDebouncer.run(() {
-                                        BlocProvider.of<DiscussionViewerBloc>(
-                                                context)
-                                            .add(
-                                          DiscussionViewerSetLastPostViewedEvent(
-                                              post: state
-                                                  .getDiscussion()
-                                                  ?.postsCache
-                                                  ?.last),
-                                        );
-                                      });
                                     }
                                   }
                                 }),

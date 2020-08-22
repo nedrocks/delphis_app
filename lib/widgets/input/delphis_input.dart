@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
 import 'package:delphis_app/bloc/me/me_bloc.dart';
+import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
 import 'package:delphis_app/data/repository/participant.dart';
 import 'package:delphis_app/data/repository/user.dart';
@@ -128,9 +129,8 @@ class DelphisInputState extends State<DelphisInput> {
     return Container(
       child: RaisedButton(
         onPressed: () {
-          BlocProvider.of<DiscussionBloc>(context).add(
-              DiscussionLockStatusChangeEvent(
-                  discussionID: this.widget.discussion.id, lockStatus: false));
+          BlocProvider.of<SuperpowersBloc>(context).add(ChangeLockStatusEvent(
+              discussion: this.widget.discussion, isLock: false));
         },
         padding: EdgeInsets.symmetric(
           horizontal: SpacingValues.xxxxLarge,
@@ -351,6 +351,7 @@ class DelphisInputState extends State<DelphisInput> {
             },
             child: TextField(
               key: this._textInputKey,
+              textCapitalization: TextCapitalization.sentences,
               enabled: isEnabled,
               showCursor: true,
               focusNode: this._inputFocusNode,

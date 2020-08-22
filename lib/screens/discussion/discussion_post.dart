@@ -277,6 +277,9 @@ class _DiscussionPostState extends State<DiscussionPost>
   }
 
   Widget buildMediaSnippet(BuildContext context) {
+    if (this.widget.post.isDeleted) {
+      return Container();
+    }
     var media = this.widget.post.media;
     if (!(media != null && media.assetLocation != null) &&
         !((this.widget.post.isLocalPost ?? false) &&

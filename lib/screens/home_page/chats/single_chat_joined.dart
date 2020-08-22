@@ -8,6 +8,8 @@ import 'package:delphis_app/widgets/profile_image/moderator_profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+final longTimeAgo = DateTime.parse('2000-01-01 00:00:00');
+
 class SingleChatJoined extends StatelessWidget {
   final Discussion discussion;
   final int notificationCount;
@@ -45,18 +47,18 @@ class SingleChatJoined extends StatelessWidget {
       );
     }
 
-    Widget notifIcon = SizedBox(
+    Widget stateIcon = SizedBox(
       width: 20,
     );
 
     if (this.discussion.lockStatus) {
-      notifIcon = Icon(
+      stateIcon = Icon(
         Icons.lock,
         size: 20,
         color: Colors.white,
       );
     } else if (this.discussion.isMuted) {
-      notifIcon = Icon(
+      stateIcon = Icon(
         Icons.volume_off,
         size: 20,
         color: Colors.white,
@@ -67,11 +69,13 @@ class SingleChatJoined extends StatelessWidget {
       width: SpacingValues.smallMedium + SpacingValues.extraSmall,
     );
 
-    if (this
-        .discussion
-        .meViewer
-        .lastViewed
-        .isBefore(this.discussion.updatedAtAsDateTime())) {
+    var lastViewed = this.discussion.meViewer?.lastViewed ?? longTimeAgo;
+    if (discussion.localLastViewed != null) {
+      lastViewed = discussion.localLastViewed.isAfter(lastViewed)
+          ? discussion.localLastViewed
+          : lastViewed;
+    }
+    if (lastViewed.isBefore(this.discussion.updatedAtAsDateTime())) {
       notificationIcon = Container(
         width: SpacingValues.smallMedium,
         height: SpacingValues.smallMedium,
@@ -86,7 +90,10 @@ class SingleChatJoined extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: this.onPressed,
+        onTap: () {
+          this.discussion.localLastViewed = DateTime.now();
+          this.onPressed();
+        },
         child: Container(
           height: 60.0,
           padding: EdgeInsets.only(
@@ -124,7 +131,7 @@ class SingleChatJoined extends StatelessWidget {
                     this.discussion.moderator.userProfile.profileImageURL,
               ),
               SizedBox(width: SpacingValues.small),
-              notifIcon,
+              stateIcon,
               SizedBox(width: SpacingValues.small),
               SvgPicture.asset(
                 'assets/svg/forward_chevron.svg',

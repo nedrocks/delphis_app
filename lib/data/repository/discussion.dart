@@ -622,6 +622,8 @@ class Discussion extends Equatable implements Entity {
   @JsonAnnotation.JsonKey(ignore: true)
   final DateTime nextShuffleTime;
 
+  DateTime localLastViewed;
+
   @override
   List<Object> get props => [
         id,
@@ -649,6 +651,7 @@ class Discussion extends Equatable implements Entity {
         meDiscussionStatus,
         nextShuffleTime,
         lockStatus,
+        localLastViewed,
       ];
 
   Discussion(
@@ -679,6 +682,7 @@ class Discussion extends Equatable implements Entity {
       this.meDiscussionStatus,
       this.secondsUntilShuffle,
       this.lockStatus,
+      this.localLastViewed,
       nextShuffleTime})
       : this.postsCache =
             postsCache ?? (postsConnection?.asPostList() ?? List()),
@@ -784,6 +788,7 @@ class Discussion extends Equatable implements Entity {
       secondsUntilShuffle: other.secondsUntilShuffle,
       nextShuffleTime: other.nextShuffleTime,
       lockStatus: other.lockStatus,
+      localLastViewed: other.localLastViewed,
     );
   }
 
@@ -816,6 +821,7 @@ class Discussion extends Equatable implements Entity {
     int secondsUntilShuffle,
     DateTime nextShuffleTime,
     bool lockStatus,
+    DateTime localLastViewed,
   }) {
     return Discussion(
       id: id ?? this.id,
@@ -849,6 +855,7 @@ class Discussion extends Equatable implements Entity {
       secondsUntilShuffle: secondsUntilShuffle ?? this.secondsUntilShuffle,
       nextShuffleTime: nextShuffleTime ?? this.nextShuffleTime,
       lockStatus: lockStatus ?? this.lockStatus,
+      localLastViewed: localLastViewed ?? this.localLastViewed,
     );
   }
 }

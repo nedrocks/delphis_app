@@ -351,6 +351,7 @@ class DelphisInputState extends State<DelphisInput> {
             },
             child: TextField(
               key: this._textInputKey,
+              textCapitalization: TextCapitalization.sentences,
               enabled: isEnabled,
               showCursor: true,
               focusNode: this._inputFocusNode,

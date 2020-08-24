@@ -7,6 +7,7 @@ import 'package:delphis_app/notifiers/home_page_tab.dart';
 import 'package:delphis_app/screens/discussion_join/button.dart';
 import 'package:delphis_app/screens/home_page/chats/single_chat.dart';
 import 'package:delphis_app/screens/home_page/home_page.dart';
+import 'package:delphis_app/screens/home_page/home_page_pending_requests_button.dart';
 import 'package:delphis_app/widgets/animated_size_container/animated_size_container.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -150,9 +151,10 @@ class ChatsList extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
-                    itemCount: showedDiscussions.length + 1,
+                    itemCount: showedDiscussions.length + 2,
                     itemBuilder: (context, index) {
                       if (index-- == 0) return errorWidget;
+                      if (index-- == 0) return PendingRequestsButton();
                       var discussionElem = showedDiscussions[index];
                       return SingleChat(
                         discussion: discussionElem,

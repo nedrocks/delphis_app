@@ -21,12 +21,12 @@ import 'package:delphis_app/screens/discussion/history_view.dart';
 import 'package:delphis_app/screens/discussion/naming_discussion.dart';
 import 'package:delphis_app/screens/discussion/options/discussion_options.dart';
 import 'package:delphis_app/screens/participant_list/participant_list.dart';
+import 'package:delphis_app/screens/pending_requests_list/pending_requests_list_page.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_arguments.dart';
 import 'package:delphis_app/screens/superpowers/superpowers_screen.dart';
 import 'package:delphis_app/screens/superpowers_popup/superpowers_popup.dart';
 import 'package:delphis_app/screens/upsert_discussion/screen_arguments.dart';
 import 'package:delphis_app/screens/upsert_discussion/upsert_discussion_screen.dart';
-import 'package:delphis_app/util/debouncer.dart';
 import 'package:delphis_app/util/link.dart';
 import 'package:delphis_app/util/route_observer.dart';
 import 'package:flutter/scheduler.dart';
@@ -357,6 +357,14 @@ class ChathamAppState extends State<ChathamApp>
                           ),
                         ),
                       ),
+                    );
+                    break;
+                  case '/Home/PendingRequestsList':
+                    return MaterialPageRoute(
+                      settings: settings,
+                      builder: (BuildContext context) {
+                        return PendingRequestsListScreen();
+                      },
                     );
                     break;
                   case '/Discussion':

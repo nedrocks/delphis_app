@@ -50,6 +50,20 @@ const DiscussionAccessRequestFragment = """
   }
 """;
 
+const DiscussionAccessRequestWithDiscussionListFragment = """
+  fragment DiscussionAccessRequestWithDiscussionListFragment on DiscussionAccessRequest {
+    id
+    discussion {
+      ...DiscussionListFragment
+    }
+    createdAt
+    updatedAt
+    isDeleted
+    status
+  }
+  $DiscussionListFragment
+""";
+
 const ViewerInfoFragment = """
   fragment ViewerInfoFragment on Viewer {
     id
@@ -382,9 +396,13 @@ class MeGQLQuery extends GQLQuery<User> {
           id
           displayName
           profileImageURL
-        }      
+        }
+        sentDiscussionAccessRequests {
+          ...DiscussionAccessRequestWithDiscussionListFragment
+        }  
       }
     }
+    $DiscussionAccessRequestWithDiscussionListFragment
   """;
 
   const MeGQLQuery() : super();

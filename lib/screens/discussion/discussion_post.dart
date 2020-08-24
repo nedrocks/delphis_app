@@ -189,15 +189,14 @@ class _DiscussionPostState extends State<DiscussionPost>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Opacity(
-                              opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
-                              child: this.widget.participant != null
-                                  ? PostTitle(
-                                      moderator: this.widget.moderator,
-                                      participant: this.widget.participant,
-                                      height: 20.0,
-                                      isModeratorAuthor: isModeratorAuthor,
-                                    )
-                                  : Container()),
+                            opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
+                            child: PostTitle(
+                              moderator: this.widget.moderator,
+                              participant: this.widget.participant,
+                              height: 20.0,
+                              isModeratorAuthor: isModeratorAuthor,
+                            ),
+                          ),
                           Container(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

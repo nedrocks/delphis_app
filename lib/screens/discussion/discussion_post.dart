@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/link/link_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -127,6 +128,15 @@ class _DiscussionPostState extends State<DiscussionPost>
       style: Theme.of(context).textTheme.bodyText1,
     );
 
+    /* Handle URL link tap and coloring */
+    textWidget.setStyleOperator(LinkBloc.urlLinkRegex, (s, before, after) {
+      var color = Colors.green;
+      return s.copyWith(color: color, fontWeight: FontWeight.bold);
+    });
+    textWidget.setOnTap(LinkBloc.urlLinkRegex, (value) {
+      BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: value));
+    });
+
     /* Color and format mentioned entities */
     textWidget.setTextOperator(
         MentionState.mentionSpecialCharsRegexPattern,
@@ -189,15 +199,14 @@ class _DiscussionPostState extends State<DiscussionPost>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Opacity(
-                              opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
-                              child: this.widget.participant != null
-                                  ? PostTitle(
-                                      moderator: this.widget.moderator,
-                                      participant: this.widget.participant,
-                                      height: 20.0,
-                                      isModeratorAuthor: isModeratorAuthor,
-                                    )
-                                  : Container()),
+                            opacity: this.widget.post.isDeleted ? 0.5 : 1.0,
+                            child: PostTitle(
+                              moderator: this.widget.moderator,
+                              participant: this.widget.participant,
+                              height: 20.0,
+                              isModeratorAuthor: isModeratorAuthor,
+                            ),
+                          ),
                           Container(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

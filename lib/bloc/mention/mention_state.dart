@@ -1,8 +1,8 @@
 part of 'mention_bloc.dart';
 
 class MentionState extends Equatable {
-  static final String encodedMentionRegexPattern = "(<)([0-9]+)(>)";
-  static final String mentionSpecialCharsRegexPattern = "&lt|&gt|&amp";
+  static final String encodedMentionRegexPattern = "((<)([0-9]+)(>))";
+  static final String mentionSpecialCharsRegexPattern = "(&lt|&gt|&amp)";
   static final String participantMentionSymbol = "@";
   static final String discussionMentionSymbol = "#";
   static final String participantMentionRegexPattern = "@[A-Za-z0-9_-]*";

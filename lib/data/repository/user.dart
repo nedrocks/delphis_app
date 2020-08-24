@@ -1,5 +1,6 @@
 import 'package:delphis_app/bloc/gql_client/gql_client_bloc.dart';
 import 'package:delphis_app/data/provider/queries.dart';
+import 'package:delphis_app/data/repository/discussion_access.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -54,6 +55,7 @@ class User extends Equatable {
   final UserProfile profile;
   final List<Flair> flairs;
   final List<Discussion> discussions;
+  final List<DiscussionAccessRequest> sentDiscussionAccessRequests;
 
   List<Object> get props => [id, participants, viewers, profile];
 
@@ -67,7 +69,16 @@ class User extends Equatable {
     this.profile,
     this.flairs,
     this.discussions,
+    this.sentDiscussionAccessRequests,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  List<DiscussionAccessRequest> get pendingSentAccessRequests {
+    return (this
+            .sentDiscussionAccessRequests
+            ?.where((a) => a.status == InviteRequestStatus.PENDING)
+            ?.toList()) ??
+        [];
+  }
 }

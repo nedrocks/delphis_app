@@ -110,4 +110,5 @@ const _$DiscussionUserAccessStateEnumMap = {
   DiscussionUserAccessState.ACTIVE: 'ACTIVE',
   DiscussionUserAccessState.ARCHIVED: 'ARCHIVED',
   DiscussionUserAccessState.DELETED: 'DELETED',
+  DiscussionUserAccessState.BANNED: 'BANNED',
 };

@@ -50,6 +50,22 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
         });
       });
     }
+
+    Widget accessRequestNotif = Container();
+    if ((this.widget.discussion.accessRequests?.length ?? 0) > 0) {
+      accessRequestNotif = Positioned(
+        top: 0,
+        right: 0,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.red,
+          ),
+          width: SpacingValues.smallMedium,
+          height: SpacingValues.smallMedium,
+        ),
+      );
+    }
     return AnimatedSize(
       vsync: this,
       duration: Duration(milliseconds: 200),
@@ -112,11 +128,19 @@ class _DiscussionHeaderState extends State<DiscussionHeader>
                   ),
                 ),
                 Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     SizedBox(width: SpacingValues.medium),
-                    ParticipantsButton(
-                      diameter: HeightValues.appBarItemsHeight,
-                      onPressed: this.widget.onParticipantsButtonPressed,
+                    Stack(
+                      children: <Widget>[
+                        Center(
+                          child: ParticipantsButton(
+                            diameter: HeightValues.appBarItemsHeight,
+                            onPressed: this.widget.onParticipantsButtonPressed,
+                          ),
+                        ),
+                        accessRequestNotif,
+                      ],
                     ),
                   ],
                 ),

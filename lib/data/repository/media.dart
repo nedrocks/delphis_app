@@ -20,10 +20,17 @@ class _CompressImageParam {
 
 class MediaRepository {
   Future<MediaUpload> uploadImage(File file) async {
+    final maxMediaSizeInBytes = 2 * 1024 * 1024;
     ReceivePort receivePort = ReceivePort();
     Isolate.spawn(
         _compressImage, _CompressImageParam(file, receivePort.sendPort));
     List<int> bytes = await receivePort.first;
+    receivePort.close();
+
+    /* Limit media size to 2 MB */
+    if (bytes.length > maxMediaSizeInBytes) {
+      throw "Can't upload media files larger than 2MB";
+    }
 
     var request =
         http.MultipartRequest("POST", Uri.parse(Constants.uploadImageUrl));
@@ -40,8 +47,24 @@ class MediaRepository {
   }
 
   static void _compressImage(_CompressImageParam param) {
+    final maxWidth = 1000;
+    final maxHeight = 1000;
+
+    /* Resize image trying to maintain original aspect ratio */
     Image image = decodeImage(param.file.readAsBytesSync());
-    param.sendPort.send(encodeJpg(image, quality: 60));
+    if (image.width > maxWidth || image.height < maxHeight) {
+      if (image.width > image.height) {
+        image = copyResize(image, width: maxWidth);
+      } else {
+        image = copyResize(image, height: maxHeight);
+      }
+    }
+
+    /* Compress image by reducing quality */
+    var bytes = encodeJpg(image, quality: 70);
+
+    /* Return edited image */
+    param.sendPort.send(bytes);
   }
 }
 

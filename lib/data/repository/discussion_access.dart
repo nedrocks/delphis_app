@@ -9,7 +9,7 @@ import 'discussion.dart';
 part 'discussion_access.g.dart';
 
 enum InviteRequestStatus { ACCEPTED, REJECTED, PENDING, CANCELLED }
-enum DiscussionUserAccessState { ACTIVE, ARCHIVED, DELETED }
+enum DiscussionUserAccessState { ACTIVE, ARCHIVED, DELETED, BANNED }
 enum DiscussionUserNotificationSetting { NONE, MENTIONS, EVERYTHING }
 
 @JsonSerializable()

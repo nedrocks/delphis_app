@@ -7,7 +7,7 @@ class DisplayNames {
   static String formatParticipant(
       Moderator moderator, Participant participant) {
     if (participant == null) {
-      return "Unavailable";
+      return "<deleted>";
     }
     var name = participant.anonDisplayName;
     if (participant?.userProfile?.id == moderator?.userProfile?.id ?? false) {

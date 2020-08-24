@@ -41,11 +41,11 @@ class PostTitle extends StatelessWidget {
     }
     var name = Text(DisplayNames.formatParticipant(moderator, participant),
         style: textStyle, key: textKey);
-    if (participant.participantID == 0) {
+    if (isModeratorAuthor) {
       // This is the moderator
       name = Text(DisplayNames.formatParticipant(moderator, participant),
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);
-    } else if (!(participant.isAnonymous ?? true) &&
+    } else if (!(participant?.isAnonymous ?? true) &&
         participant.userProfile != null) {
       name = Text(DisplayNames.formatParticipant(moderator, participant),
           style: TextThemes.discussionPostAuthorNonAnon, key: textKey);

@@ -622,6 +622,7 @@ class Discussion extends Equatable implements Entity {
   @JsonAnnotation.JsonKey(ignore: true)
   final DateTime nextShuffleTime;
 
+  @JsonAnnotation.JsonKey(ignore: true)
   DateTime localLastViewed;
 
   @override

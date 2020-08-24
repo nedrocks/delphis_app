@@ -268,6 +268,9 @@ class ChathamAppState extends State<ChathamApp>
               BlocListener<AuthBloc, AuthState>(
                   listener: (context, AuthState state) {
                 if (state is LoggedOutAuthState) {
+                  setState(() {
+                    this.hasSentDeviceToServer = false;
+                  });
                   BlocProvider.of<DiscussionListBloc>(context)
                       .add(DiscussionListClearEvent());
                   BlocProvider.of<DiscussionBloc>(context)

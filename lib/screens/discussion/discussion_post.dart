@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:delphis_app/bloc/discussion/discussion_bloc.dart';
+import 'package:delphis_app/bloc/link/link_bloc.dart';
 import 'package:delphis_app/bloc/mention/mention_bloc.dart';
 import 'package:delphis_app/bloc/superpowers/superpowers_bloc.dart';
 import 'package:delphis_app/data/repository/discussion.dart';
@@ -126,6 +127,15 @@ class _DiscussionPostState extends State<DiscussionPost>
           : this.widget.post.content,
       style: Theme.of(context).textTheme.bodyText1,
     );
+
+    /* Handle URL link tap and coloring */
+    textWidget.setStyleOperator(LinkBloc.urlLinkRegex, (s, before, after) {
+      var color = Colors.green;
+      return s.copyWith(color: color, fontWeight: FontWeight.bold);
+    });
+    textWidget.setOnTap(LinkBloc.urlLinkRegex, (value) {
+      BlocProvider.of<LinkBloc>(context).add(LinkChangeEvent(newLink: value));
+    });
 
     /* Color and format mentioned entities */
     textWidget.setTextOperator(
